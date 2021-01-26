@@ -19,24 +19,24 @@ all()
 checkout()
 {
     if [ ! -d meta-openembedded ]; then
-	    git checkout \
+	    git clone \
             git://github.com/openembedded/meta-openembedded.git
     else
-        echo skip to checkout meta-openembedded
+        echo skip to clone meta-openembedded
     fi
 
     if [ ! -d meta-virtualization ]; then
-        git checkout \
+        git clone \
             git://git.yoctoproject.org/meta-virtualization
     else
-        echo skip to checkout meta-virtualization
+        echo skip to clone meta-virtualization
     fi
 
     if [ ! -d poky ]; then
-        git checkout \
+        git clone \
             git://git.yoctoproject.org/poky.git
     else
-        echo skip to checkout poky
+        echo skip to clone poky
     fi
 }
 
@@ -79,7 +79,7 @@ build()
 {
     cd poky
     . ./oe-init-build-env
-    bitbake core-image-base
+    bitbake core-image-minimal
     cd $top_dir
 }
 
