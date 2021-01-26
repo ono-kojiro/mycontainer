@@ -64,11 +64,18 @@ branch()
 config()
 {
     cd poky
-    rm -rf build
+    echo removing build/conf...
+    rm -rf build/conf
+    echo done.
     . ./oe-init-build-env
+
     sed -i.bak -e 's|^#DL_DIR\s*?=\s*"${TOPDIR}/downloads"|DL_DIR ?= "/home/share/yocto/downloads"|' conf/local.conf
     sed -i.bak -e 's|^MACHINE\s*??=\s*"qemux86"|MACHINE ??= "qemuarm64"|' conf/local.conf
     #sed -i.bak -e 's|^#DL_DIR\s*?=\s*"|DL_DIR ?= |' conf/local.conf
+
+    echo 'DISTRO_FEATURES_append = " virtualization"' >> conf/local.conf
+    echo 'IMAGE_INSTALL_append = " lxc cgroup-lite"' >> conf/local.conf
+    echo 'IMAGE_INSTALL_append = " openssl"' >> conf/local.conf
 
     python $top_dir/add_layers.py < conf/bblayers.conf > tmp.conf
     mv tmp.conf conf/bblayers.conf
