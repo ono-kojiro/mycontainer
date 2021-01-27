@@ -30,6 +30,7 @@ usage()
     echo "    checkout"
     echo "    config"
     echo "    build"
+    echo "    "
     echo "    run"
     echo "    "
     echo "    clean"
@@ -37,6 +38,7 @@ usage()
     echo ""
     echo "    show_layers"
     echo "    show_recipes"
+    echo "    show_images"
 	exit 0
 }
 
