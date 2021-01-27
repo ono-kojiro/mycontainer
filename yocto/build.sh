@@ -2,14 +2,41 @@
 
 
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
-
 cd $top_dir
-    
+
+if [ ! -e ./config.bashrc ]; then
+    echo "ERROR : no config.bashrc in $top_dir"
+    echo "Please create $top_dir/config.bashrc"
+    echo "and define build_dir variable."
+    exit 1
+fi
+
+. ./config.bashrc
+
+
 image=core-image-minimal-dev
+
+help()
+{
+    usage
+}
 
 usage()
 {
 	echo "usage : $0 [options] target1 target2 ..."
+    echo ""
+    echo "  target"
+    echo "    clone"
+    echo "    checkout"
+    echo "    config"
+    echo "    build"
+    echo "    run"
+    echo "    "
+    echo "    clean"
+    echo "    mclean"
+    echo ""
+    echo "    show_layers"
+    echo "    show_recipes"
 	exit 0
 }
 
@@ -19,8 +46,10 @@ all()
 	build
 }
         
-checkout()
+clone()
 {
+    cd $build_dir
+
     if [ ! -d meta-openembedded ]; then
 	    git clone \
             git://github.com/openembedded/meta-openembedded.git
@@ -41,10 +70,14 @@ checkout()
     else
         echo skip to clone poky
     fi
+
+    cd $top_dir
 }
 
-branch()
+checkout()
 {
+    cd $build_dir
+
     if [ ! -d meta-openembedded ]; then
         echo ERROR : no meta-openembedded directory
     else
@@ -62,10 +95,14 @@ branch()
     else
         git -C poky checkout rocko
     fi
+
+    cd $top_dir
 }
 
 config()
 {
+    cd $build_dir
+
     cd poky
     echo removing build/conf...
     rm -rf build/conf
@@ -83,12 +120,13 @@ config()
 
     python $top_dir/add_layers.py < conf/bblayers.conf > tmp.conf
     mv tmp.conf conf/bblayers.conf
+    
     cd $top_dir
 }
 
 build()
 {
-    cd poky
+    cd $build_dir/poky
     . ./oe-init-build-env
     bitbake $image
     cd $top_dir
@@ -96,10 +134,33 @@ build()
 
 run()
 {
-    cd poky
+    cd $build_dir/poky
     . ./oe-init-build-env
     runqemu nographic qemuarm64 $image
     cd $top_dir
+}
+
+show_recipes()
+{
+    cd $build_dir/poky
+    . ./oe-init-build-env
+    bitbake-layers show-recipes
+    cd $top_dir
+}
+
+show_layers()
+{
+    cd $build_dir/poky
+    . ./oe-init-build-env
+    bitbake-layers show-layers
+    cd $top_dir
+}
+
+info()
+{
+    echo "top_dir   : $top_dir"
+    echo "build_dir : $build_dir"
+    echo "image     : $image"
 }
 
 clean()
@@ -109,7 +170,7 @@ clean()
 
 mclean()
 {
-	rm -rf poky/build
+	rm -rf $build_dir/poky/build
 }
 
 
@@ -137,7 +198,7 @@ if [ "x$logfile" != "x" ]; then
 fi
 
 for target in "$@ $TARGETS" ; do
-	LANG=C type $target | grep function
+	LANG=C type $target | grep function > /dev/null 2>&1
 	res=$?
 	if [ "x$res" = "x0" ]; then
 		$target
