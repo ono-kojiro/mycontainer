@@ -118,9 +118,55 @@ config()
     echo 'IMAGE_INSTALL_append = " openssh"' >> conf/local.conf
     echo 'IMAGE_INSTALL_append = " dhcp-client"' >> conf/local.conf
 
-    python $top_dir/add_layers.py < conf/bblayers.conf > tmp.conf
+    tempfile=`mktemp -u tmp.XXXXXX`
+    cat << 'EOS' > $tempfile
+#!/usr/bin/env python3
+
+import sys
+import re
+import os
+
+import json
+
+STATE_INIT = 0
+STATE_LAYER = 1
+
+def main() :
+    layers = [
+        '${TOPDIR}/../../meta-openembedded/meta-oe',
+        '${TOPDIR}/../../meta-openembedded/meta-networking',
+        '${TOPDIR}/../../meta-openembedded/meta-filesystems',
+        '${TOPDIR}/../../meta-openembedded/meta-python',
+        '${TOPDIR}/../../meta-virtualization',
+    ]
+    state = STATE_INIT
+
+    while 1:
+        line = sys.stdin.readline()
+        if not line:
+            break
+
+        line = re.sub(r'\r?\n?$', '', line)
+
+        if state == STATE_INIT :
+            if re.search(r'^BBLAYERS \?= "', line) :
+                state = STATE_LAYER
+        elif state == STATE_LAYER :
+            if re.search(r'^\s*"$', line) :
+                for layer in layers :
+                    print('  ' + layer + ' \\')
+                state = STATE_INIT
+
+        print(line)
+
+if __name__ == "__main__" :
+    main()
+EOS
+
+    python $tempfile < conf/bblayers.conf > tmp.conf
     mv tmp.conf conf/bblayers.conf
-    
+   
+    rm -f $tmpfile
     cd $top_dir
 }
 
@@ -140,10 +186,18 @@ run()
     cd $top_dir
 }
 
+show_images()
+{
+    cd $build_dir/poky
+    . ./oe-init-build-env > /dev/null 2>&1
+    bitbake-layers show-recipes | grep 'core-image-'
+    cd $top_dir
+}
+
 show_recipes()
 {
     cd $build_dir/poky
-    . ./oe-init-build-env
+    . ./oe-init-build-env > /dev/null 2>&1
     bitbake-layers show-recipes
     cd $top_dir
 }
@@ -151,7 +205,7 @@ show_recipes()
 show_layers()
 {
     cd $build_dir/poky
-    . ./oe-init-build-env
+    . ./oe-init-build-env > /dev/null 2>&1
     bitbake-layers show-layers
     cd $top_dir
 }
@@ -206,4 +260,3 @@ for target in "$@ $TARGETS" ; do
 		make $target
 	fi
 done
-
