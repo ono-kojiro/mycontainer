@@ -1,8 +1,11 @@
 #!/bin/sh
 
+
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 
 cd $top_dir
+    
+image=core-image-minimal-dev
 
 usage()
 {
@@ -87,7 +90,15 @@ build()
 {
     cd poky
     . ./oe-init-build-env
-    bitbake core-image-minimal
+    bitbake $image
+    cd $top_dir
+}
+
+run()
+{
+    cd poky
+    . ./oe-init-build-env
+    runqemu nographic qemuarm64 $image
     cd $top_dir
 }
 
