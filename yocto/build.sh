@@ -75,7 +75,8 @@ config()
 
     echo 'DISTRO_FEATURES_append = " virtualization"' >> conf/local.conf
     echo 'IMAGE_INSTALL_append = " lxc cgroup-lite"' >> conf/local.conf
-    echo 'IMAGE_INSTALL_append = " openssl"' >> conf/local.conf
+    echo 'IMAGE_INSTALL_append = " openssh"' >> conf/local.conf
+    echo 'IMAGE_INSTALL_append = " dhcp-client"' >> conf/local.conf
 
     python $top_dir/add_layers.py < conf/bblayers.conf > tmp.conf
     mv tmp.conf conf/bblayers.conf
