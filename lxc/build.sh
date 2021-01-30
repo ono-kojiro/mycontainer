@@ -19,8 +19,12 @@ usage()
 {
 	echo "usage : $0 [options] target1 target2 ..."
     echo ""
-    echo "  target"
-    echo "  start"
+    echo "  target:"
+    echo "    create"
+    echo "    start"
+    echo "    attach"
+    echo "    stop"
+    echo "    destroy"
 	exit 0
 }
 
