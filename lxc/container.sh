@@ -7,7 +7,9 @@ template=busybox
 #template=sshd
 container=my${template}
 
-dropbear_port=2222
+container_address=192.168.7.2
+
+dropbear_port=10022
 DROPBARE_RSAKEY=/etc/dropbear/dropbear_rsa_host_key
 DROPBARE_RSAKEY_ARGS=
 
@@ -49,6 +51,10 @@ create_key()
 copy_key()
 {
   echo "copy_key"
+
+  # dummy
+  mkdir -p $rootfs/home/root
+
   mkdir -p $rootfs/root/.ssh/
   chmod 700 $rootfs/root/.ssh/
   cp -f ~/.ssh/id_rsa.pub $rootfs/root/.ssh/authorized_keys
@@ -75,9 +81,10 @@ create()
       's|^lxc.mount.entry = /etc/init.d |#lxc.mount.entry = /etc/init.d |' \
       $config
 
+    echo 'lxc.mount.entry = /usr/bin  usr/bin  none ro,bind 0 0' >> $config
     echo 'lxc.mount.entry = /sbin sbin none ro,bind 0 0' >> $config
 
-    cat $config
+    #cat $config
 
     cp -f /etc/init.d/dropbear $rootfs/etc/init.d/
     sed -i.bak -e \
@@ -108,10 +115,22 @@ ls()
 start()
 {
   lxc-start -n $container -d -l debug -o ${container}.log
-  
-  # OK
-  lxc-attach -n $container -- /bin/sh -c '/etc/init.d/dropbear start'
-  
+
+  sleep 1s
+  start_service
+}
+
+execute()
+{
+  lxc-execute -n $container -- /etc/init.d/dropbear start &
+  sleep 1s
+}
+
+start_service()
+{
+  # NG
+  #lxc-attach -n $container -l debug -o attach.log -- /bin/sh -c '/etc/init.d/dropbear start; exit'
+  :  
   # NG
   # lxc-attach -n $container -- /etc/init.d/dropbear start
 }
@@ -128,7 +147,17 @@ attach()
 
 connect()
 {
-  ssh -y -y -p 2222 192.168.7.2
+  ssh -y -y -p $dropbear_port $container_address
+}
+
+test()
+{
+  stop
+  destroy
+  create
+  ls
+  execute
+  connect
 }
 
 log()
@@ -146,9 +175,10 @@ destroy()
   lxc-destroy -n $container
 }
 
-mclean()
+clean()
 {
-  :
+  stop
+  destroy
 }
 
 logfile=""
