@@ -3,8 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-template=busybox
-#template=sshd
+#template=busybox
+template=sshd
 container=my${template}
 
 container_address=192.168.7.2
@@ -87,11 +87,11 @@ create()
     's|^lxc.mount.entry = /usr/share/lxc/templates|#lxc.mount.entry = /usr/share/lxc/templates|' \
     $config
   
-  if [ "x$template" = "xbusybox" ]; then
-    sed -i.bak -e \
-      's|^lxc.mount.entry = /etc/init.d |#lxc.mount.entry = /etc/init.d |' \
-      $config
+  sed -i.bak -e \
+    's|^lxc.mount.entry = /etc/init.d |#lxc.mount.entry = /etc/init.d |' \
+    $config
 
+  if [ "x$template" = "xbusybox" ]; then
     echo 'lxc.mount.entry = /usr/bin  usr/bin  none ro,bind 0 0' >> $config
     echo 'lxc.mount.entry = /sbin sbin none ro,bind 0 0' >> $config
 
@@ -107,8 +107,8 @@ create()
     $rootfs/etc/init.d/dropbear
 
   # create host key
-  #mkdir -p $rootfs/etc/dropbear
-  #dropbearkey -t rsa -f $rootfs/$DROPBARE_RSAKEY $DROPBARE_RSAKEY_ARGS > /dev/null
+  mkdir -p $rootfs/etc/dropbear
+  dropbearkey -t rsa -f $rootfs/$DROPBARE_RSAKEY $DROPBARE_RSAKEY_ARGS > /dev/null
 
   echo "done"
 
