@@ -9,7 +9,15 @@ container=my${template}
 
 container_address=192.168.7.2
 
-dropbear_port=10022
+if [ "x$template" = "xbusybox" ]; then
+  dropbear_port=10022
+elif [ "x$template" = "xsshd" ]; then
+  dropbear_port=20022
+else
+  echo "invalid template, $template"
+  exit 1
+fi
+
 DROPBARE_RSAKEY=/etc/dropbear/dropbear_rsa_host_key
 DROPBARE_RSAKEY_ARGS=
 
@@ -63,20 +71,23 @@ copy_key()
 create()
 {
   lxc-create -t $template -n $container
-  if [ "x$template" = "xbusybox" ]; then
-    config=/var/lib/lxc/$container/config
+  config=/var/lib/lxc/$container/config
 
-    sed -i.bak -e \
-      's|^lxc.network.type = empty|lxc.network.type = none|' \
-      $config
+  ### common
+  sed -i.bak -e \
+    's|^lxc.network.type = empty|lxc.network.type = none|' \
+    $config
     
-    # revise errors of 'start'    
-    sed -i.bak -e \
-      's|^lxc.mount.entry = /dev dev|#lxc.mount.entry = /dev dev|' \
-      $config
-    sed -i.bak -e \
-      's|^lxc.mount.entry = /usr/share/lxc/templates|#lxc.mount.entry = /usr/share/lxc/templates|' \
-      $config
+  # revise errors of 'start'    
+  sed -i.bak -e \
+    's|^lxc.mount.entry = /dev dev|#lxc.mount.entry = /dev dev|' \
+    $config
+
+  sed -i.bak -e \
+    's|^lxc.mount.entry = /usr/share/lxc/templates|#lxc.mount.entry = /usr/share/lxc/templates|' \
+    $config
+  
+  if [ "x$template" = "xbusybox" ]; then
     sed -i.bak -e \
       's|^lxc.mount.entry = /etc/init.d |#lxc.mount.entry = /etc/init.d |' \
       $config
@@ -85,26 +96,24 @@ create()
     echo 'lxc.mount.entry = /sbin sbin none ro,bind 0 0' >> $config
 
     #cat $config
-
-    cp -f /etc/init.d/dropbear $rootfs/etc/init.d/
-    sed -i.bak -e \
-      "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$dropbear_port|" \
-      $rootfs/etc/init.d/dropbear
-    sed -i.bak -e \
-      's|^DROPBEAR_EXTRA_ARGS=|DROPBARE_EXTRA_ARGS="-g -B"|' \
-      $rootfs/etc/init.d/dropbear
-
-    # create host key
-    #mkdir -p $rootfs/etc/dropbear
-    #dropbearkey -t rsa -f $rootfs/$DROPBARE_RSAKEY $DROPBARE_RSAKEY_ARGS > /dev/null
-
-    echo "done"
-
-    create_key
-    copy_key
   fi
 
+  cp -f /etc/init.d/dropbear $rootfs/etc/init.d/
+  sed -i.bak -e \
+    "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$dropbear_port|" \
+    $rootfs/etc/init.d/dropbear
+  sed -i.bak -e \
+    's|^DROPBEAR_EXTRA_ARGS=|DROPBARE_EXTRA_ARGS="-g -B"|' \
+    $rootfs/etc/init.d/dropbear
 
+  # create host key
+  #mkdir -p $rootfs/etc/dropbear
+  #dropbearkey -t rsa -f $rootfs/$DROPBARE_RSAKEY $DROPBARE_RSAKEY_ARGS > /dev/null
+
+  echo "done"
+
+  create_key
+  copy_key
 }
 
 ls()
