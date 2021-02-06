@@ -3,8 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-#template=busybox
-template=sshd
+template=busybox
+#template=sshd
 container=my${template}
 
 container_address=192.168.7.2
@@ -98,6 +98,13 @@ create()
     #cat $config
   fi
 
+  echo '' >> $config
+  echo 'lxc.start.auto = 1' >> $config
+
+  # insert at line 3
+  sed -i "3i::respawn:/usr/sbin/dropbear -r /etc/dropbear/dropbear_rsa_host_key -p $dropbear_port" \
+    $rootfs/etc/inittab
+
   cp -f /etc/init.d/dropbear $rootfs/etc/init.d/
   sed -i.bak -e \
     "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$dropbear_port|" \
@@ -138,7 +145,7 @@ execute()
 start_service()
 {
   # NG
-  #lxc-attach -n $container -l debug -o attach.log -- /bin/sh -c '/etc/init.d/dropbear start; exit'
+  lxc-attach -n $container -l debug -o attach.log -- /bin/sh -c '/etc/init.d/dropbear start; exit'
   :  
   # NG
   # lxc-attach -n $container -- /etc/init.d/dropbear start
@@ -156,7 +163,7 @@ attach()
 
 connect()
 {
-  ssh -y -y -p $dropbear_port $container_address
+  ssh -y -y -p $dropbear_port $container_address ps -ef
 }
 
 test()
@@ -165,7 +172,8 @@ test()
   destroy
   create
   ls
-  execute
+  start
+  #execute
   connect
 }
 
