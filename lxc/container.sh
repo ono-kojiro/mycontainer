@@ -10,16 +10,16 @@ container=my${template}
 container_address=192.168.7.2
 
 if [ "x$template" = "xbusybox" ]; then
-  dropbear_port=10022
+  port=10022
 elif [ "x$template" = "xsshd" ]; then
-  dropbear_port=20022
+  port=20022
 else
   echo "invalid template, $template"
   exit 1
 fi
 
-DROPBARE_RSAKEY=/etc/dropbear/dropbear_rsa_host_key
-DROPBARE_RSAKEY_ARGS=
+DROPBEAR_RSAKEY=/etc/dropbear/dropbear_rsa_host_key
+DROPBEAR_RSAKEY_ARGS=
 
 rootfs=/var/lib/lxc/$container/rootfs
 
@@ -92,30 +92,39 @@ create()
     $config
 
   if [ "x$template" = "xbusybox" ]; then
-    echo 'lxc.mount.entry = /usr/bin  usr/bin  none ro,bind 0 0' >> $config
-    echo 'lxc.mount.entry = /sbin sbin none ro,bind 0 0' >> $config
+    echo 'lxc.mount.entry = /usr/bin  usr/bin  none ro,bind 0 0' \
+      >> $config
+    echo 'lxc.mount.entry = /sbin sbin none ro,bind 0 0' \
+      >> $config
 
     #cat $config
   fi
 
   echo '' >> $config
   echo 'lxc.start.auto = 1' >> $config
-
-  # insert at line 3
-  sed -i "3i::respawn:/usr/sbin/dropbear -r /etc/dropbear/dropbear_rsa_host_key -p $dropbear_port" \
-    $rootfs/etc/inittab
+  
 
   cp -f /etc/init.d/dropbear $rootfs/etc/init.d/
   sed -i.bak -e \
-    "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$dropbear_port|" \
+    "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$port|" \
     $rootfs/etc/init.d/dropbear
   sed -i.bak -e \
-    's|^DROPBEAR_EXTRA_ARGS=|DROPBARE_EXTRA_ARGS="-g -B"|' \
+    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS="-g -B"|' \
     $rootfs/etc/init.d/dropbear
 
+  mkdir -p $rootfs/etc/rc2.d/
+  cd $rootfs/etc/rc2.d/
+  ln -s ../init.d/dropbear S01dropbear
+  cd $top_dir
+
+  #echo "/etc/init.d/dropbear start" \
+  #  >> $rootfs/etc/init.d/rcS
+
   # create host key
-  mkdir -p $rootfs/etc/dropbear
-  dropbearkey -t rsa -f $rootfs/$DROPBARE_RSAKEY $DROPBARE_RSAKEY_ARGS > /dev/null
+  #mkdir -p $rootfs/etc/dropbear
+  #dropbearkey -t rsa \
+  #  -f $rootfs/$DROPBEAR_RSAKEY \
+  #  $DROPBEAR_RSAKEY_ARGS > /dev/null
 
   echo "done"
 
@@ -151,6 +160,11 @@ start_service()
   # lxc-attach -n $container -- /etc/init.d/dropbear start
 }
 
+wait()
+{
+  sleep 1s
+}
+
 ps()
 {
   lxc-attach -n $container -- ps -ef
@@ -163,7 +177,7 @@ attach()
 
 connect()
 {
-  ssh -y -y -p $dropbear_port $container_address ps -ef
+  ssh -y -y -p $port $container_address ps -ef
 }
 
 test()
