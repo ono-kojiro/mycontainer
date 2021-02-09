@@ -187,7 +187,7 @@ test()
   create
   ls
   start
-  #execute
+  sleep 3s
   connect
 }
 
