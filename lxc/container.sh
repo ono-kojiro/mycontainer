@@ -1,10 +1,11 @@
 #!/bin/sh
 
+
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-template=busybox
-#template=sshd
+#template=busybox
+template=sshd
 container=my${template}
 
 container_address=192.168.7.2
@@ -42,18 +43,26 @@ usage()
   exit 0
 }
 
+clear_key()
+{
+  rm -f ~/.ssh/id_dropbear
+  rm -f ~/.ssh/id_rsa.pub
+  rm -f ~/.ssh/id_dropbear.txt
+  rm -f ~/.ssh/id_rsa
+}
+
 create_key()
 {
-  echo "create_key"
-  rm -f ~/.ssh/id_dropbear
-  dropbearkey -t rsa -f ~/.ssh/id_dropbear -s 2048 > ~/.ssh/id_dropbear.txt
+  if [ ! -e ~/.ssh/id_dropbear ]; then
+    echo "create_key"
+    dropbearkey -t rsa -f ~/.ssh/id_dropbear -s 2048 > ~/.ssh/id_dropbear.txt
+    cat ~/.ssh/id_dropbear.txt | grep -e '^ssh-rsa ' > ~/.ssh/id_rsa.pub
+    rm -f ~/.ssh/id_dropbear.txt
+  fi
 
-  rm -f ~/.ssh/id_rsa.pub
-  cat ~/.ssh/id_dropbear.txt | grep -e '^ssh-rsa ' > ~/.ssh/id_rsa.pub
-  rm -f ~/.ssh/id_dropbear.txt
-
-  dropbearconvert dropbear openssh ~/.ssh/id_dropbear ~/.ssh/id_rsa
-
+  if [ ! -e ~/.ssh/id_rsa ]; then
+    dropbearconvert dropbear openssh ~/.ssh/id_dropbear ~/.ssh/id_rsa
+  fi
 }
 
 copy_key()
@@ -120,12 +129,21 @@ create()
   #echo "/etc/init.d/dropbear start" \
   #  >> $rootfs/etc/init.d/rcS
 
-  # create host key
-  #mkdir -p $rootfs/etc/dropbear
-  #dropbearkey -t rsa \
-  #  -f $rootfs/$DROPBEAR_RSAKEY \
-  #  $DROPBEAR_RSAKEY_ARGS > /dev/null
+  if [ "x$template" = "xsshd" ]; then
+    # create host key
+    mkdir -p $rootfs/etc/dropbear
+    dropbearkey -t rsa \
+      -f $rootfs/$DROPBEAR_RSAKEY \
+      $DROPBEAR_RSAKEY_ARGS > /dev/null
 
+    # solve the error "user 'root' has invalid shell, rejected"
+    cat - << 'EOS' > $rootfs/etc/shells
+/bin/sh
+/bin/bash
+EOS
+
+  fi
+  
   echo "done"
 
   create_key
@@ -139,6 +157,7 @@ ls()
 
 start()
 {
+  rm -f ${container}.log
   lxc-start -n $container -d -l debug -o ${container}.log
 
   sleep 1s
