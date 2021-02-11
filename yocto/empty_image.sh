@@ -42,7 +42,9 @@ IMAGE_INSTALL = ""
 IMAGE_LINGUAS = ""
 PACKAGE_INSTALL = ""
 
-#IMAGE_INSTALL_append = ""
+PACKAGE_INSTALL_append = " bc"
+
+IMAGE_INSTALL_append = ""
 
 #IMAGE_FEATURES_append = " empty-root-password"
 #IMAGE_INSTALL = " openssh"
