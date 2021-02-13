@@ -4,12 +4,12 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-template=busybox
-#template=sshd
+#template=busybox
+template=sshd
 container=my${template}
 
-#address=192.168.7.2
-address=192.168.8.2
+address=192.168.7.2
+#address=192.168.8.2
 
 if [ "x$template" = "xbusybox" ]; then
   port=10022
@@ -130,7 +130,7 @@ create()
     "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$port|" \
     $rootfs/etc/init.d/dropbear
   sed -i.bak -e \
-    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS="-i -B"|' \
+    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS=" -B"|' \
     $rootfs/etc/init.d/dropbear
 
   mkdir -p $rootfs/etc/rc2.d/
@@ -147,6 +147,11 @@ create()
     dropbearkey -t rsa \
       -f $rootfs/$DROPBEAR_RSAKEY \
       $DROPBEAR_RSAKEY_ARGS > /dev/null
+
+    dropbearkey -t dss \
+      -f $rootfs/etc/dropbear/dropbear_dss_host_key
+    dropbearkey -t ecdsa \
+      -f $rootfs/etc/dropbear/dropbear_ecdsa_host_key
 
     # solve the error "user 'root' has invalid shell, rejected"
     cp -f /etc/shells $rootfs/etc/
