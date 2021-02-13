@@ -7,25 +7,13 @@ cd $top_dir
 template=sshd
 container=my${template}
 
-#address=192.168.7.2
-address=192.168.8.2
+addrs="192.168.8.2 192.168.8.3 192.168.8.4"
+port=22
 
-containers="mybusybox mysshd"
-addresses="192.168.8.2 192.168.8.3"
+rsa_host_key=/etc/dropbear/dropbear_rsa_host_key
+dss_host_key=/etc/dropbear/dropbear_dss_host_key
+ecdsa_host_key=/etc/dropbear/dropbear_ecdsa_host_key
 
-if [ "x$template" = "xbusybox" ]; then
-  port=10022
-elif [ "x$template" = "xsshd" ]; then
-  port=20022
-else
-  echo "invalid template, $template"
-  exit 1
-fi
-
-DROPBEAR_RSAKEY=/etc/dropbear/dropbear_rsa_host_key
-DROPBEAR_RSAKEY_ARGS=
-
-rootfs=/var/lib/lxc/$container/rootfs
 
 help()
 {
@@ -61,15 +49,13 @@ list()
 
 create_all()
 {
-  set -- $containers
-  i=2
-  for cont in "$@"; do
-    name=my${template}${i}
-    addr=192.168.8.$i
+  set -- $addrs
+  for addr in "$@"; do
+    id=`echo "$addr" | cut -d . -f 4`
+    name=my${template}${id}
     rootfs=/var/lib/lxc/$name/rootfs
     echo "create $name, $addr"
-    create $name "sshd" $addr $rootfs
-    let "i=i+1"
+    create $name $template $addr $rootfs
   done
 }
 
@@ -184,7 +170,7 @@ create()
     "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$port|" \
     $rootfs/etc/init.d/dropbear
   sed -i.bak -e \
-    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS="-i -B"|' \
+    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS=" -B"|' \
     $rootfs/etc/init.d/dropbear
 
   mkdir -p $rootfs/etc/rc2.d/
@@ -198,14 +184,9 @@ create()
   if [ "x$template" = "xsshd" ]; then
     # create host key
     mkdir -p $rootfs/etc/dropbear
-    dropbearkey -t rsa \
-      -f $rootfs/$DROPBEAR_RSAKEY \
-      $DROPBEAR_RSAKEY_ARGS > /dev/null
-
-    dropbearkey -t dss \
-      -f $rootfs/etc/dropbear/dropbear_dss_host_key
-    dropbearkey -t ecdsa \
-      -f $rootfs/etc/dropbear/dropbear_ecdsa_host_key
+    dropbearkey -t rsa   -f ${rootfs}${rsa_host_key} > /dev/null
+    dropbearkey -t dss   -f ${rootfs}${dss_host_key} > /dev/null
+    dropbearkey -t ecdsa -f ${rootfs}${ecdsa_host_key} > /dev/null
  
     # solve the error "user 'root' has invalid shell, rejected"
     cp -f /etc/shells $rootfs/etc/
@@ -283,13 +264,7 @@ connect()
   command ssh -y -y -p $port $address ps -ef
 }
 
-ssh()
-{
-  # call ssh command instead of function 'ssh'
-  command ssh -y -y -p $port $address
-}
-
-test()
+check()
 {
   stop
   destroy
@@ -299,6 +274,19 @@ test()
   sleep 3s
   connect
 }
+
+test()
+{
+  set -- $addrs
+  for addr in "$@"; do
+    id=`echo "$addr" | cut -d . -f 4`
+    name=my${template}${id}
+    rootfs=/var/lib/lxc/$name/rootfs
+    echo "debug, $addr, $name, $rootfs"
+    command ssh -y -y $addr ps -ef | grep dropbear
+  done
+}
+
 
 log()
 {
