@@ -1,15 +1,17 @@
 #!/bin/sh
 
-
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-template=busybox
-#template=sshd
+#template=busybox
+template=sshd
 container=my${template}
 
 #address=192.168.7.2
 address=192.168.8.2
+
+containers="mybusybox mysshd"
+addresses="192.168.8.2 192.168.8.3"
 
 if [ "x$template" = "xbusybox" ]; then
   port=10022
@@ -37,12 +39,49 @@ usage()
   echo "  target"
   echo "    create"
   echo "    start"
+  echo ""
+  echo "    attach"
+  echo "    ssh"
   echo "    stop"
-  echo "    "
+  echo ""
   echo "    clean"
   echo "    mclean"
   exit 0
 }
+
+list()
+{
+  items=`lxc-ls -f | grep -v "^NAME" | gawk '{ printf "%s ", $1 }'`
+
+  echo $items
+  for item in $items ; do
+    echo "item is $item"
+  done
+}
+
+create_all()
+{
+  set -- $containers
+  i=2
+  for cont in "$@"; do
+    name=my${template}${i}
+    addr=192.168.8.$i
+    rootfs=/var/lib/lxc/$name/rootfs
+    echo "create $name, $addr"
+    create $name "sshd" $addr $rootfs
+    let "i=i+1"
+  done
+}
+
+destroy_all()
+{
+  items=`lxc-ls -f | grep -v "^NAME" | gawk '{ printf "%s ", $1 }'`
+  for item in $items ; do
+    lxc-destroy -n "$item"
+  done
+}
+
+
 
 clear_key()
 {
@@ -79,6 +118,7 @@ create_key()
 
 copy_key()
 {
+  rootfs=$1
   echo "copy_key"
 
   # dummy
@@ -86,17 +126,26 @@ copy_key()
 
   mkdir -p $rootfs/root/.ssh/
   chmod 700 $rootfs/root/.ssh/
-  cp -f ~/.ssh/id_rsa.pub $rootfs/root/.ssh/authorized_keys
+  src=~/.ssh/id_rsa.pub
+  dst=$rootfs/root/.ssh/authorized_keys
+  echo "cp -f $src $dst"
+  cp -f $src $dst
 }
 
 create()
 {
+  container=$1
+  template=$2
+  addr=$3
+  rootfs=$4
+
+  echo "lxc-create -t $template -n $container"
   lxc-create -t $template -n $container
   config=/var/lib/lxc/$container/config
 
   ### common
   sed -i.bak -e \
-    's|^lxc.network.type = empty|lxc.network.type = none|' \
+    's|^lxc.network.type = empty|lxc.network.type = veth|' \
     $config
     
   # revise errors of 'start'    
@@ -120,6 +169,11 @@ create()
 
     #cat $config
   fi
+
+  echo "" >> $config
+  echo "lxc.network.link = lxcbr0" >> $config
+  echo "lxc.network.flags = up" >> $config
+  echo "lxc.network.ipv4.address = $addr" >> $config
 
   echo '' >> $config
   echo 'lxc.start.auto = 1' >> $config
@@ -148,6 +202,11 @@ create()
       -f $rootfs/$DROPBEAR_RSAKEY \
       $DROPBEAR_RSAKEY_ARGS > /dev/null
 
+    dropbearkey -t dss \
+      -f $rootfs/etc/dropbear/dropbear_dss_host_key
+    dropbearkey -t ecdsa \
+      -f $rootfs/etc/dropbear/dropbear_ecdsa_host_key
+ 
     # solve the error "user 'root' has invalid shell, rejected"
     cp -f /etc/shells $rootfs/etc/
 
@@ -156,7 +215,7 @@ create()
   echo "done"
 
   create_key
-  copy_key
+  copy_key $rootfs
 }
 
 ls()
@@ -172,6 +231,12 @@ start()
   sleep 1s
   start_service
 }
+
+start_all()
+{
+  lxc-autostart
+}
+
 
 execute()
 {
@@ -196,6 +261,15 @@ wait()
 ps()
 {
   lxc-attach -n $container -- ps -ef
+}
+
+ps_all()
+{
+  items=`lxc-ls -f | grep -v "^NAME" | gawk '{ printf "%s ", $1 }'`
+  for item in $items ; do
+    echo "CONTAINER : $item"
+    lxc-attach -n "$item" -- ps -ef
+  done
 }
 
 attach()
@@ -236,6 +310,11 @@ stop()
   lxc-stop -n $container -k
 }
 
+stop_all()
+{
+  lxc-autostart -k
+}
+
 destroy()
 {
   lxc-destroy -n $container
@@ -269,13 +348,14 @@ if [ "x$logfile" != "x" ]; then
 	echo logfile is $logfile
 fi
 
-for target in "$@ $TARGETS" ; do
-	LANG=C type $target | grep function > /dev/null 2>&1
+for target in "$@" ; do
+	LANG=C type $target 2>&1 | grep function > /dev/null 2>&1
 	res=$?
 	if [ "x$res" = "x0" ]; then
 		$target
 	else
-		make $target
+		echo "no such target, '$target'"
+		break
 	fi
 done
 
