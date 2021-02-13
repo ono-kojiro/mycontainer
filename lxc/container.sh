@@ -4,11 +4,12 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-#template=busybox
-template=sshd
+template=busybox
+#template=sshd
 container=my${template}
 
-container_address=192.168.7.2
+#address=192.168.7.2
+address=192.168.8.2
 
 if [ "x$template" = "xbusybox" ]; then
   port=10022
@@ -49,6 +50,17 @@ clear_key()
   rm -f ~/.ssh/id_rsa.pub
   rm -f ~/.ssh/id_dropbear.txt
   rm -f ~/.ssh/id_rsa
+}
+
+create_bridge()
+{
+  brctl show | grep lxcbr0 > /dev/null 2>&1
+  res=$?
+  if [ "x$res" = "x1" ]; then
+    brctl addbr lxcbr0
+  else
+    echo lxcbr0 already exists.
+  fi 
 }
 
 create_key()
@@ -118,7 +130,7 @@ create()
     "s|^DROPBEAR_PORT=22|DROPBEAR_PORT=$port|" \
     $rootfs/etc/init.d/dropbear
   sed -i.bak -e \
-    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS="-g -B"|' \
+    's|^DROPBEAR_EXTRA_ARGS=|DROPBEAR_EXTRA_ARGS="-i -B"|' \
     $rootfs/etc/init.d/dropbear
 
   mkdir -p $rootfs/etc/rc2.d/
@@ -137,10 +149,7 @@ create()
       $DROPBEAR_RSAKEY_ARGS > /dev/null
 
     # solve the error "user 'root' has invalid shell, rejected"
-    cat - << 'EOS' > $rootfs/etc/shells
-/bin/sh
-/bin/bash
-EOS
+    cp -f /etc/shells $rootfs/etc/
 
   fi
   
@@ -196,7 +205,14 @@ attach()
 
 connect()
 {
-  ssh -y -y -p $port $container_address ps -ef
+  # call ssh command instead of function 'ssh'
+  command ssh -y -y -p $port $address ps -ef
+}
+
+ssh()
+{
+  # call ssh command instead of function 'ssh'
+  command ssh -y -y -p $port $address
 }
 
 test()
