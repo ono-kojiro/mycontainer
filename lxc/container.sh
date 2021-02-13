@@ -47,7 +47,7 @@ list()
   done
 }
 
-create_all()
+create()
 {
   set -- $addrs
   for addr in "$@"; do
@@ -55,19 +55,17 @@ create_all()
     name=my${template}${id}
     rootfs=/var/lib/lxc/$name/rootfs
     echo "create $name, $addr"
-    create $name $template $addr $rootfs
+    create_container $name $template $addr $rootfs
   done
 }
 
-destroy_all()
+destroy()
 {
   items=`lxc-ls -f | grep -v "^NAME" | gawk '{ printf "%s ", $1 }'`
   for item in $items ; do
     lxc-destroy -n "$item"
   done
 }
-
-
 
 clear_key()
 {
@@ -118,7 +116,7 @@ copy_key()
   cp -f $src $dst
 }
 
-create()
+create_container()
 {
   container=$1
   template=$2
@@ -206,15 +204,6 @@ ls()
 
 start()
 {
-  rm -f ${container}.log
-  lxc-start -n $container -d -l debug -o ${container}.log
-
-  sleep 1s
-  start_service
-}
-
-start_all()
-{
   lxc-autostart
 }
 
@@ -241,11 +230,6 @@ wait()
 
 ps()
 {
-  lxc-attach -n $container -- ps -ef
-}
-
-ps_all()
-{
   items=`lxc-ls -f | grep -v "^NAME" | gawk '{ printf "%s ", $1 }'`
   for item in $items ; do
     echo "CONTAINER : $item"
@@ -258,12 +242,6 @@ attach()
   lxc-attach -n $container -- /bin/sh
 }
 
-connect()
-{
-  # call ssh command instead of function 'ssh'
-  command ssh -y -y -p $port $address ps -ef
-}
-
 check()
 {
   stop
@@ -272,7 +250,7 @@ check()
   ls
   start
   sleep 3s
-  connect
+  test
 }
 
 test()
@@ -287,25 +265,9 @@ test()
   done
 }
 
-
-log()
-{
-  cat ${container}.log | grep ERROR
-}
-
 stop()
 {
-  lxc-stop -n $container -k
-}
-
-stop_all()
-{
   lxc-autostart -k
-}
-
-destroy()
-{
-  lxc-destroy -n $container
 }
 
 clean()
