@@ -14,6 +14,8 @@ rsa_host_key=/etc/dropbear/dropbear_rsa_host_key
 dss_host_key=/etc/dropbear/dropbear_dss_host_key
 ecdsa_host_key=/etc/dropbear/dropbear_ecdsa_host_key
 
+bridge="lxcbr0"
+
 
 help()
 {
@@ -81,10 +83,33 @@ create_bridge()
   res=$?
   if [ "x$res" = "x1" ]; then
     brctl addbr lxcbr0
-  else
-    echo lxcbr0 already exists.
-  fi 
+  fi
+
+  cat /etc/network/interfaces | \
+    grep lxcbr0 > /dev/null 2>&1
+  res=$?
+
+  if [ "x$res" = "x1" ]; then
+    setup_bridge
+    /etc/init.d/network restart
+  fi
 }
+
+setup_bridge()
+{
+  cat - << EOS >> /etc/network/interfaces
+auto lxcbr0
+iface lxcbr0 inet static
+  address 192.168.8.1
+  netmask 255.255.255.0
+  broadcast 192.168.8.255
+  gateway 192.168.8.1
+EOS
+
+}
+
+
+
 
 create_key()
 {
@@ -204,23 +229,20 @@ ls()
 
 start()
 {
-  lxc-autostart
+  items=`lxc-ls -f | grep -v "^NAME" | gawk '{ printf "%s ", $1 }'`
+  for item in $items ; do
+    echo -n "start $item ..."
+    lxc-start -n "$item" -l debug -o ${item}.log
+    echo "done"
+  done
+  
+  #lxc-autostart
 }
 
-
-execute()
+restart()
 {
-  lxc-execute -n $container -- /etc/init.d/dropbear start &
-  sleep 1s
-}
-
-start_service()
-{
-  # NG
-  lxc-attach -n $container -l debug -o attach.log -- /bin/sh -c '/etc/init.d/dropbear start; exit'
-  :  
-  # NG
-  # lxc-attach -n $container -- /etc/init.d/dropbear start
+  stop
+  start
 }
 
 wait()
@@ -237,11 +259,6 @@ ps()
   done
 }
 
-attach()
-{
-  lxc-attach -n $container -- /bin/sh
-}
-
 check()
 {
   stop
@@ -255,6 +272,9 @@ check()
 
 test()
 {
+  ok=0
+  ng=0
+
   set -- $addrs
   for addr in "$@"; do
     id=`echo "$addr" | cut -d . -f 4`
@@ -262,7 +282,24 @@ test()
     rootfs=/var/lib/lxc/$name/rootfs
     echo "debug, $addr, $name, $rootfs"
     command ssh -y -y $addr ps -ef | grep dropbear
+    res=$?
+    if [ "$res" = "0" ]; then
+      let "ok=ok+1"
+    else
+      let "ng=ng+1"
+    fi
   done
+
+  if [ "$ok" != "0" ]; then
+    if [ "$ng" = "0" ]; then
+      echo "Passed (ok = $ok, ng = $ng)"
+    else
+      echo "Failed (ok = $ok, ng = $ng)"
+    fi
+  else
+    echo "Failed (ok = $ok, ng = $ng)"
+  fi
+
 }
 
 stop()
@@ -297,6 +334,8 @@ shift $(($OPTIND-1))
 if [ "x$logfile" != "x" ]; then
 	echo logfile is $logfile
 fi
+
+create_bridge ${bridge}
 
 for target in "$@" ; do
 	LANG=C type $target 2>&1 | grep function > /dev/null 2>&1
