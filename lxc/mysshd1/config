@@ -1,0 +1,40 @@
+# Template used to create this container: /usr/share/lxc/templates/lxc-sshd
+# Parameters passed to the template:
+# For additional config options, please look at lxc.container.conf(5)
+
+# Uncomment the following line to support nesting containers:
+#lxc.include = /usr/share/lxc/config/nesting.conf
+# (Be aware this has security implications)
+
+#lxc.network.type = none
+#lxc.network.type = veth
+lxc.network.type = macvlan
+lxc.network.link = macvlan0
+lxc.network.macvlan.mode = bridge
+lxc.network.flags = up
+lxc.network.ipv4.address = 192.168.7.5/24
+lxc.network.ipv4.gateway = 192.168.7.2
+
+lxc.rootfs = /var/lib/lxc/mysshd1/rootfs
+lxc.rootfs.backend = dir
+lxc.utsname = mysshd1
+lxc.pts = 1024
+lxc.cap.drop = sys_module mac_admin mac_override sys_time
+
+# When using LXC with apparmor, uncomment the next line to run unconfined:
+#lxc.aa_profile = unconfined
+
+#lxc.mount.entry = /dev dev none ro,bind 0 0
+lxc.mount.entry = /lib lib none ro,bind 0 0
+lxc.mount.entry = /bin bin none ro,bind 0 0
+lxc.mount.entry = /usr usr none ro,bind 0 0
+lxc.mount.entry = /sbin sbin none ro,bind 0 0
+lxc.mount.entry = tmpfs run/sshd tmpfs mode=0644 0 0
+#lxc.mount.entry = /usr/share/lxc/templates/lxc-sshd lib/systemd/systemd none ro,bind 0 0
+#lxc.mount.entry = /etc/init.d etc/init.d none ro,bind 0 0
+
+lxc.mount.auto = cgroup:mixed proc:mixed sys:mixed
+lxc.mount.entry = /etc/rc.d etc/rc.d none ro,bind 0 0
+
+lxc.start.auto = 1
+
