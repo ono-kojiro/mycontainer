@@ -1,2 +1,2 @@
-build_dir=~/devel/yocto
+build_dir=~/devel/yocto-rocko
 
