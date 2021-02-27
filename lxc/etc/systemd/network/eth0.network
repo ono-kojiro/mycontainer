@@ -1,0 +1,7 @@
+[Match]
+Name=eth0
+
+[Network]
+MACVLAN=macvlan0
+LinkLocalAddressing=no
+
