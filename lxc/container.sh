@@ -121,7 +121,7 @@ create_container()
 
   ### common
   sed -i.bak -e \
-    's|^lxc.network.type = empty|lxc.network.type = veth|' \
+    's|^lxc.network.type = empty|#lxc.network.type = empty|' \
     $config
     
   # revise errors of 'start'    
@@ -146,14 +146,17 @@ create_container()
     #cat $config
   fi
 
-  echo "" >> $config
-  echo "lxc.network.link = lxcbr0" >> $config
-  echo "lxc.network.flags = up" >> $config
-  echo "lxc.network.ipv4.address = $addr" >> $config
+  cat - << EOS >> $config
 
-  echo '' >> $config
-  echo 'lxc.start.auto = 1' >> $config
-  
+lxc.network.type = macvlan
+lxc.network.link = macvlan0
+lxc.network.macvlan.mode = bridge
+lxc.network.flags = up
+lxc.network.ipv4.address = $addr
+lxc.network.ipv4.gateway = 192.168.7.2
+
+lxc.start.auto = 1
+EOS
 
   cp -f /etc/init.d/dropbear $rootfs/etc/init.d/
   sed -i.bak -e \
