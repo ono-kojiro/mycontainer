@@ -39,6 +39,9 @@ usage()
     echo "    show_layers"
     echo "    show_recipes"
     echo "    show_images"
+    echo ""
+    echo "  variables"
+    echo "    build_dir   $build_dir"
 	exit 0
 }
 
@@ -50,6 +53,7 @@ all()
         
 clone()
 {
+    mkdir -p $build_dir
     cd $build_dir
 
     if [ ! -d meta-openembedded ]; then
@@ -101,6 +105,12 @@ checkout()
     cd $top_dir
 }
 
+ls()
+{
+  command ls -l $build_dir
+}
+
+
 config()
 {
     cd $build_dir
@@ -111,64 +121,41 @@ config()
     echo done.
     . ./oe-init-build-env
 
-    sed -i.bak -e 's|^#DL_DIR\s*?=\s*"${TOPDIR}/downloads"|DL_DIR ?= "/home/share/yocto/downloads"|' conf/local.conf
-    sed -i.bak -e 's|^MACHINE\s*??=\s*"qemux86"|MACHINE ??= "qemuarm64"|' conf/local.conf
-    #sed -i.bak -e 's|^#DL_DIR\s*?=\s*"|DL_DIR ?= |' conf/local.conf
+    sed -i.bak \
+      -e 's|^#DL_DIR\s*?=\s*"${TOPDIR}/downloads"|DL_DIR ?= "/home/share/yocto/downloads"|' \
+      conf/local.conf
+    
+  sed -i.bak \
+    -e 's|^MACHINE\s*??=\s*"qemux86"|MACHINE ??= "qemuarm64"|' \
+    conf/local.conf
 
-    echo 'DISTRO_FEATURES_append = " virtualization"' >> conf/local.conf
-    echo 'IMAGE_INSTALL_append = " lxc cgroup-lite"' >> conf/local.conf
-    echo 'IMAGE_INSTALL_append = " openssh"' >> conf/local.conf
-    echo 'IMAGE_INSTALL_append = " dhcp-client"' >> conf/local.conf
+  cat - << "EOS" >> conf/local.conf
 
-    tempfile=`mktemp -u tmp.XXXXXX`
-    cat << 'EOS' > $tempfile
-#!/usr/bin/env python3
+DISTRO_FEATURES_append = " virtualization"
+IMAGE_INSTALL_append = " lxc cgroup-lite"
+IMAGE_INSTALL_append = " dropbear"
+IMAGE_INSTALL_append = " gnupg"
+IMAGE_INSTALL_append = " nfs-utils"
 
-import sys
-import re
-import os
+DISTRO_FEATURES_append = " systemd"
+VIRTUAL-RUNTIME_init_manager = "systemd"
+VIRTUAL-RUNTIME_initscripts = "systemd-compat-units"
 
-import json
+SERIAL_CONSOLES_CHECK = "${SERIAL_CONSOLES}"
 
-STATE_INIT = 0
-STATE_LAYER = 1
+IMAGE_INSTALL_append = " apache2"
+IMAGE_INSTALL_append = " stress"
+IMAGE_INSTALL_append = " htop"
 
-def main() :
-    layers = [
-        '${TOPDIR}/../../meta-openembedded/meta-oe',
-        '${TOPDIR}/../../meta-openembedded/meta-networking',
-        '${TOPDIR}/../../meta-openembedded/meta-filesystems',
-        '${TOPDIR}/../../meta-openembedded/meta-python',
-        '${TOPDIR}/../../meta-virtualization',
-    ]
-    state = STATE_INIT
-
-    while 1:
-        line = sys.stdin.readline()
-        if not line:
-            break
-
-        line = re.sub(r'\r?\n?$', '', line)
-
-        if state == STATE_INIT :
-            if re.search(r'^BBLAYERS \?= "', line) :
-                state = STATE_LAYER
-        elif state == STATE_LAYER :
-            if re.search(r'^\s*"$', line) :
-                for layer in layers :
-                    print('  ' + layer + ' \\')
-                state = STATE_INIT
-
-        print(line)
-
-if __name__ == "__main__" :
-    main()
 EOS
 
-    python $tempfile < conf/bblayers.conf > tmp.conf
-    mv tmp.conf conf/bblayers.conf
-   
-    rm -f $tmpfile
+  bitbake-layers add-layer ../../meta-openembedded/meta-oe
+  bitbake-layers add-layer ../../meta-openembedded/meta-python
+  bitbake-layers add-layer ../../meta-openembedded/meta-networking
+  bitbake-layers add-layer ../../meta-openembedded/meta-filesystems
+  bitbake-layers add-layer ../../meta-virtualization
+  bitbake-layers add-layer ../../meta-openembedded/meta-webserver
+
     cd $top_dir
 }
 
