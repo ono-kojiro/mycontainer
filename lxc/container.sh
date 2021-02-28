@@ -7,7 +7,7 @@ cd $top_dir
 template=sshd
 container=my${template}
 
-addrs="192.168.8.2 192.168.8.3 192.168.8.4"
+addrs="192.168.7.3 192.168.7.4 192.168.7.5"
 port=22
 
 rsa_host_key=/etc/dropbear/dropbear_rsa_host_key
@@ -76,39 +76,6 @@ clear_key()
   rm -f ~/.ssh/id_dropbear.txt
   rm -f ~/.ssh/id_rsa
 }
-
-create_bridge()
-{
-  brctl show | grep lxcbr0 > /dev/null 2>&1
-  res=$?
-  if [ "x$res" = "x1" ]; then
-    brctl addbr lxcbr0
-  fi
-
-  cat /etc/network/interfaces | \
-    grep lxcbr0 > /dev/null 2>&1
-  res=$?
-
-  if [ "x$res" = "x1" ]; then
-    setup_bridge
-    /etc/init.d/network restart
-  fi
-}
-
-setup_bridge()
-{
-  cat - << EOS >> /etc/network/interfaces
-auto lxcbr0
-iface lxcbr0 inet static
-  address 192.168.8.1
-  netmask 255.255.255.0
-  broadcast 192.168.8.255
-  gateway 192.168.8.1
-EOS
-
-}
-
-
 
 
 create_key()
@@ -334,8 +301,6 @@ shift $(($OPTIND-1))
 if [ "x$logfile" != "x" ]; then
 	echo logfile is $logfile
 fi
-
-create_bridge ${bridge}
 
 for target in "$@" ; do
 	LANG=C type $target 2>&1 | grep function > /dev/null 2>&1
