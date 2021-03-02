@@ -143,6 +143,9 @@ VIRTUAL-RUNTIME_initscripts = "systemd-compat-units"
 
 SERIAL_CONSOLES_CHECK = "${SERIAL_CONSOLES}"
 
+IMAGE_FEATURES += " package-management"
+PACKAGE_CLASSES ?= " package_rpm"
+
 IMAGE_INSTALL_append = " apache2"
 IMAGE_INSTALL_append = " stress"
 IMAGE_INSTALL_append = " htop"
