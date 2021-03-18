@@ -14,7 +14,8 @@ fi
 . ./config.bashrc
 
 
-image=core-image-minimal-dev
+#image=core-image-minimal-dev
+image=core-image-base
 
 help()
 {
@@ -132,6 +133,12 @@ config()
   cat - << "EOS" >> conf/local.conf
 
 DISTRO_FEATURES_append = " virtualization"
+
+IMAGE_INSTALL_append = " docker"
+IMAGE_INSTALL_append = " python3-docker-compose"
+
+CORE_IMAGE_EXTRA_INSTALL_append = " kernel-modules"
+
 IMAGE_INSTALL_append = " lxc cgroup-lite"
 IMAGE_INSTALL_append = " dropbear"
 IMAGE_INSTALL_append = " gnupg"
