@@ -48,8 +48,7 @@ usage()
 
 all()
 {
-	config
-	build
+	help
 }
         
 clone()
@@ -134,16 +133,22 @@ config()
 
 DISTRO_FEATURES_append = " virtualization"
 
-IMAGE_INSTALL_append = " docker"
-IMAGE_INSTALL_append = " python3-docker-compose"
-
-CORE_IMAGE_EXTRA_INSTALL_append = " kernel-modules"
-
+# LXC
 IMAGE_INSTALL_append = " lxc cgroup-lite"
 IMAGE_INSTALL_append = " dropbear"
 IMAGE_INSTALL_append = " gnupg"
 IMAGE_INSTALL_append = " nfs-utils"
 
+# Docker
+IMAGE_INSTALL_append = " docker"
+IMAGE_INSTALL_append = " docker-contrib"
+IMAGE_INSTALL_append = " connman"
+IMAGE_INSTALL_append = " connman-client"
+IMAGE_INSTALL_append = " python3-docker-compose"
+
+CORE_IMAGE_EXTRA_INSTALL_append = " kernel-modules"
+
+# systemd
 DISTRO_FEATURES_append = " systemd"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 VIRTUAL-RUNTIME_initscripts = "systemd-compat-units"
@@ -226,7 +231,10 @@ mclean()
 	rm -rf $build_dir/poky/build
 }
 
-
+if [ "x$@" = "x" ]; then
+  usage
+  exit
+fi
 
 logfile=""
 
@@ -250,7 +258,7 @@ if [ "x$logfile" != "x" ]; then
 	echo logfile is $logfile
 fi
 
-for target in "$@ $TARGETS" ; do
+for target in "$@" ; do
 	LANG=C type $target | grep function > /dev/null 2>&1
 	res=$?
 	if [ "x$res" = "x0" ]; then
