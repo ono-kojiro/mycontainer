@@ -141,10 +141,11 @@ IMAGE_INSTALL_append = " nfs-utils"
 
 # Docker
 IMAGE_INSTALL_append = " docker"
+#IMAGE_INSTALL_append = " docker-compose"
 IMAGE_INSTALL_append = " docker-contrib"
-IMAGE_INSTALL_append = " connman"
-IMAGE_INSTALL_append = " connman-client"
-IMAGE_INSTALL_append = " python3-docker-compose"
+#IMAGE_INSTALL_append = " connman"
+#IMAGE_INSTALL_append = " connman-client"
+#IMAGE_INSTALL_append = " python3-docker-compose"
 
 CORE_IMAGE_EXTRA_INSTALL_append = " kernel-modules"
 
