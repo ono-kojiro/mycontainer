@@ -13,6 +13,32 @@ build()
   rm -rf tmp
 }
 
+test()
+{
+  docker run \
+    -it \
+    --rm \
+    -v /bin:/bin \
+    -v /lib:/lib \
+    -v /usr/bin:/usr/bin \
+    -v /usr/lib:/usr/lib \
+    -v /usr/lib64:/usr/lib64 \
+    -v /sbin:/sbin \
+    --network host \
+    $name \
+    /bin/bash
+}
+
+network()
+{
+  docker network create \
+    -d macvlan \
+    --subnet=192.168.7.0/24 \
+    --gateway=192.168.7.1 \
+    -o parent=macvlan0 \
+    pub_net
+}
+
 run()
 {
   docker run \
@@ -22,23 +48,9 @@ run()
     -v /lib:/lib \
     -v /usr/bin:/usr/bin \
     -v /usr/lib:/usr/lib \
+    -v /usr/lib64:/usr/lib64 \
     -v /sbin:/sbin \
-    --network host \
-    $name \
-    /bin/bash
-}
-
-mynet()
-{
-  docker run \
-    -it \
-    --rm \
-    -v /bin:/bin \
-    -v /lib:/lib \
-    -v /usr/bin:/usr/bin \
-    -v /usr/lib:/usr/lib \
-    -v /sbin:/sbin \
-    --network mynet \
+    --network pub_net \
     --ip 192.168.7.9 \
     $name \
     /bin/bash
