@@ -113,6 +113,7 @@ ls()
 
 config()
 {
+    mkdir -p $build_dir
     cd $build_dir
 
     cd poky
