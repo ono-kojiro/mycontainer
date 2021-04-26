@@ -10,7 +10,7 @@
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI_append = "file://config_xfs_fs.cfg"
+SRC_URI_append = "file://config_macvtap.cfg"
 
 do_configure_append() {
   cat ${WORKDIR}/*.cfg >> ${B}/.config
