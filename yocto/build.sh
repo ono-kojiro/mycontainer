@@ -172,8 +172,9 @@ EOS
   bitbake-layers add-layer ../../meta-openembedded/meta-filesystems
   bitbake-layers add-layer ../../meta-virtualization
   bitbake-layers add-layer ../../meta-openembedded/meta-webserver
+  bitbake-layers add-layer $top_dir/meta-container/meta-mylayer
 
-    cd $top_dir
+  cd $top_dir
 }
 
 build()
@@ -187,8 +188,13 @@ build()
 run()
 {
     cd $build_dir/poky
+
+    params="-m 4096"
+    params="$params -smp 4"
+
     . ./oe-init-build-env
-    runqemu nographic qemuarm64 $image
+    runqemu nographic qemuarm64 \
+      qemuparams="$params" $image
     cd $top_dir
 }
 
@@ -231,6 +237,15 @@ clean()
 mclean()
 {
 	rm -rf $build_dir/poky/build
+}
+
+sdk()
+{
+    cd $build_dir/poky
+    . ./oe-init-build-env > /dev/null 2>&1
+    bitbake -c populate_sdk $image
+    cd $top_dir
+  
 }
 
 if [ "x$@" = "x" ]; then
