@@ -1,0 +1,9 @@
+LXC sample on Yocto
+
+Configuration
+$ bitbake -c menuconfig virtual/kernel
+
+config:
+tmp/work/qemuarm64-poky-linux/linux-yocto/4.12.28+gitAUTOINC+2ae65226f6_e562267bae-r0/linux-qemuarm64-standard-build/.config
+
+
