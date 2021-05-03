@@ -1,0 +1,33 @@
+# Template used to create this container: /usr/share/lxc/templates/lxc-download
+# Parameters passed to the template:
+# Template script checksum (SHA-1): 273c51343604eb85f7e294c8da0a5eb769d648f3
+# For additional config options, please look at lxc.container.conf(5)
+
+# Uncomment the following line to support nesting containers:
+#lxc.include = /usr/share/lxc/config/nesting.conf
+# (Be aware this has security implications)
+
+#security.nesting = true
+lxc.include = /usr/share/lxc/config/nesting.conf
+lxc.apparmor.profile = unconfined
+#lxc.mount.auto = cgroup:rw:force
+
+# Distribution configuration
+lxc.include = /usr/share/lxc/config/common.conf
+lxc.include = /usr/share/lxc/config/userns.conf
+lxc.arch = x86_64
+
+# Container specific configuration
+lxc.idmap = u 0 100000 1000000
+lxc.idmap = g 0 100000 1000000
+lxc.rootfs.path = dir:/home/kojiro/.local/share/lxc/archlinux/rootfs
+lxc.uts.name = archlinux
+
+# Network configuration
+lxc.net.0.type = veth
+lxc.net.0.link = lxcbr0
+lxc.net.0.flags = up
+lxc.net.0.hwaddr = 00:16:3e:de:c2:8b
+
+#lxc.mount.auto = proc:rw sys:ro
+
