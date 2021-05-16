@@ -1,0 +1,9 @@
+[Match]
+Name=br0
+
+[Network]
+IPForward=yes
+Address=192.168.7.2/24
+Gateway=192.168.7.2
+DHCP=no
+
