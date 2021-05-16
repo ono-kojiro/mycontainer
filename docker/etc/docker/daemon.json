@@ -1,0 +1,6 @@
+{
+  "debug": true,
+  "iptables": false,
+  "bridge": "none"
+}
+
