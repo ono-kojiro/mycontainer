@@ -304,6 +304,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I config
 SUBDIRS = src
+EXTRA_DIST = myapp.spec
 all: all-recursive
 
 .SUFFIXES:

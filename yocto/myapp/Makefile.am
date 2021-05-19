@@ -2,6 +2,8 @@ ACLOCAL_AMFLAGS = -I config
 
 SUBDIRS = src
 
+EXTRA_DIST = myapp.spec
+
 rpm :
 	$(MAKE) dist
 	cp -f myapp-0.0.1.tar.gz ~/rpmbuild/SOURCES/
