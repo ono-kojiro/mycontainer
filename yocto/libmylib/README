@@ -1,0 +1,14 @@
+How to build
+ $ source /opt/poky/2.4.4/environment-setup-aarch64-poky-linux
+ $ sh configure --prefix=/usr --target=aarch64-poky-linux
+ $ make
+
+How to make rpm
+ $ make rpm-aarch64
+
+ $ sudo rpm -vhi \
+    --prefix /opt/poky/2.4.4/sysroots/aarch64-poky-linux/usr \
+    --ignorearch libmylib-0.0.1-1.aarch64.rpm
+
+
+
