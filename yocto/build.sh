@@ -70,6 +70,14 @@ clone()
         echo skip to clone meta-virtualization
     fi
 
+    if [ ! -d meta-cloud-services ]; then
+        git clone \
+          https://git.yoctoproject.org/git/meta-cloud-services
+    else
+        echo skip to clone meta-cloud-services
+    fi
+
+
     if [ ! -d poky ]; then
         git clone \
             git://git.yoctoproject.org/poky.git
@@ -164,6 +172,9 @@ IMAGE_INSTALL_append = " apache2"
 IMAGE_INSTALL_append = " stress"
 IMAGE_INSTALL_append = " htop"
 
+IMAGE_INSTALL_append = " python3-pip"
+IMAGE_INSTALL_append = " python3-flask"
+
 EOS
 
   bitbake-layers add-layer ../../meta-openembedded/meta-oe
@@ -171,6 +182,7 @@ EOS
   bitbake-layers add-layer ../../meta-openembedded/meta-networking
   bitbake-layers add-layer ../../meta-openembedded/meta-filesystems
   bitbake-layers add-layer ../../meta-virtualization
+  bitbake-layers add-layer ../../meta-cloud-services/meta-openstack
   bitbake-layers add-layer ../../meta-openembedded/meta-webserver
   bitbake-layers add-layer $top_dir/meta-container/meta-mylayer
 
@@ -245,7 +257,9 @@ sdk()
     . ./oe-init-build-env > /dev/null 2>&1
     bitbake -c populate_sdk $image
     cd $top_dir
-  
+
+	# generated installer:
+	# poky/build/tmp/deploy/sdk/poky-glibc-x86_64-core-image-base-aarch64-toolchain-2.4.4.sh
 }
 
 if [ "x$@" = "x" ]; then

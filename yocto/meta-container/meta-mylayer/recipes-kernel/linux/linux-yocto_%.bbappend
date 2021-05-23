@@ -27,3 +27,6 @@ do_configure_append() {
   #cat ${B}/.config
 }
 
+KERNEL_MODULE_AUTOLOAD += "macvlan"
+KERNEL_MODULE_AUTOLOAD += "macvtap"
+
