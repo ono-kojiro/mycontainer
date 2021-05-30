@@ -8,3 +8,7 @@ tmp/work/qemuarm64-poky-linux/linux-yocto/4.12.28+gitAUTOINC+2ae65226f6_e562267b
 
 https://www.headdesk.me/LXC
 
+Change TimeZone
+- install tzdata
+- ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
