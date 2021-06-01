@@ -1,59 +1,52 @@
+%global _binaries_in_noarch_packages_terminate_build 0
+%global __os_install_post /usr/lib/rpm/brp-compress
+
 %global debug_package %{nil}
-%global _build_id_links none
-%global _arch aarch64
 
-%define name mylxc
-%define version 1.0.0
-%define _configure ../configure
+%define _build_id_links none
 
-%global cross 1
+%global target aarch64-poky-linux
 
-%if %{cross}
-%define host aarch64-linux-gnu
-%else
-%define host %{_host}
-%endif
-
-Name: %{name}
-Version: %{version}
+Name: mylxc
+Version: 0.0.1
 Release: 1%{?dist}
-Summary: mylxc
+Summary: lxc sample
+Group: none
+License: BSD	
+URL: http://example.com
+Source0: %{name}-%{version}.tar.gz
 
-Group: Development/Tools
-License: GPL
-URL: https://example.com/
-Source0: https://example.com/mylxc-1.0.0.tar.gz
-
-%if %{cross}
-#BuildArch: noarch
-#BuildArch: aarch64
-%endif
-
-#BuildRequires: make gcc
-#Requires: 
-#BuildArch: noarch
+BuildArch: noarch
+#BuildRequires: aarch64-poky-linux-gcc
+#Requires: bash
 
 %description
-lxc1
+LXC sample
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}
 
 %build
-#make %{?_smp_mflags}
-#cd ..
 
 %install
-mkdir -p %{buildroot}/var/lib/lxc/%{name}
-
-cp -f config %{buildroot}/var/lib/lxc/%{name}/
-cp -a rootfs %{buildroot}/var/lib/lxc/%{name}/
+mkdir -p %{buildroot}/var/lib/lxc/mylxc
+install config %{buildroot}/var/lib/lxc/mylxc/config
+find rootfs -type d -exec install -d "{}" "%{buildroot}/var/lib/lxc/%{name}/{}" \;
+find rootfs -type f -exec install -D "{}" "%{buildroot}/var/lib/lxc/%{name}/{}" \;
 
 %clean
+rm -rf $RPM_BUILD_ROOT
 
 %files
-#%doc README
-%{_var}/lib/lxc/%{name}/config
-%{_var}/lib/lxc/%{name}/rootfs/*
+%doc
+/var/lib/lxc/mylxc/config
+/var/lib/lxc/mylxc/rootfs
+/var/lib/lxc/mylxc/rootfs/etc/group
+/var/lib/lxc/mylxc/rootfs/etc/machine-id
+/var/lib/lxc/mylxc/rootfs/etc/passwd
+/var/lib/lxc/mylxc/rootfs/etc/ssh/sshd_config
+/var/lib/lxc/mylxc/rootfs/etc/udev/hwdb.bin
+/var/lib/lxc/mylxc/rootfs/run-dhcp
 
+%changelog
 
