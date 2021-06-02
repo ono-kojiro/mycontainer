@@ -1,0 +1,5 @@
+[customrepo]
+name=customrepo
+baseurl=http://192.168.7.1/repo/poky/2.4.4/aarch64/
+enabled=1
+gpgcheck=0
