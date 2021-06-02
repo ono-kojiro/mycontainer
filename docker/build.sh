@@ -3,59 +3,154 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-name=iperf3
+image=myimage
+container=mycontainer
+registry=192.168.7.1:5000
 
-build()
+help()
 {
-  docker build --tag $name .
+  echo "usage : $0 <target>"
+  echo ""
+  echo "  image      create image"
+  echo "  network    create network"
+  echo "  container  create container"
+  echo "  start      start container"
+  echo "  attach     attach container"
+  echo "  stop       stop container"
+  echo ""
+  echo "  remove_container"
+  echo "  remove_image"
+  echo "  remove_network"
+  echo ""
+  echo "  clean    stop/remove container, remove image"
 }
 
-run()
+image()
 {
-  docker run -it --rm --name $name $name /bin/sh
+  rm -rf tmp
+  mkdir -p tmp
+  docker build --tag $image .
+  rm -rf tmp
 }
 
-create_net()
+tag()
+{
+  target_image=$registry/$image
+  source_image=`docker images | grep -e "^$image" | awk '{print $3}'`
+  docker tag $source_image $target_image
+}
+
+push()
+{
+  target_image=$registry/$image
+  docker push $target_image
+}
+
+pull()
+{
+  target_image=$registry/$image
+  docker pull $target_image
+}
+
+
+network()
 {
   docker network create \
-    --driver macvlan \
+    -d macvlan \
     --subnet=192.168.7.0/24 \
-    --gateway=192.168.7.2 \
+    --gateway=192.168.7.1 \
     -o parent=macvlan0 \
-    mymacvlan
+    macvlan
 }
 
-ls_net()
+remove_network()
 {
-  docker network ls
+  docker network rm macvlan
 }
 
-remove_net()
+container()
 {
-  docker network remove mymacvlan
+  docker create \
+    -it \
+    --name $container \
+    -v /bin:/bin \
+    -v /lib:/lib \
+    -v /usr/bin:/usr/bin \
+    -v /usr/lib:/usr/lib \
+    -v /usr/lib64:/usr/lib64 \
+    -v /sbin:/sbin \
+    --network macvlan \
+    $image \
+    /bin/bash
 }
 
-rm_net()
+remove_image()
 {
-  remove_net
+  docker rmi $image
 }
 
-
-net()
+test()
 {
-  docker run --rm -it \
-    --network mymacvlan \
-    --ip=192.168.7.9 \
-    --name $name $name /bin/sh
+  docker run \
+    -it \
+    --rm \
+    -v /bin:/bin \
+    -v /lib:/lib \
+    -v /usr/bin:/usr/bin \
+    -v /usr/lib:/usr/lib \
+    -v /usr/lib64:/usr/lib64 \
+    -v /sbin:/sbin \
+    --network host \
+    $name \
+    /bin/bash
 }
 
+start()
+{
+  docker start $container
+}
+
+attach()
+{
+  echo "Press Ctrl+P, Ctrl+Q to detach container."
+  docker attach $container
+}
+
+stop()
+{
+  docker stop $container
+}
+
+remove_container()
+{
+  docker rm $container
+}
 
 clean()
 {
-  id=`docker images | grep $name | awk '{ print $3 }'`
-  docker rmi --force $id
+  stop
+  remove_container
+  remove_image
+  remove_network
 }
 
+
+run()
+{
+  docker run \
+    -it \
+    --rm \
+    -v /bin:/bin \
+    -v /lib:/lib \
+    -v /usr/bin:/usr/bin \
+    -v /usr/lib:/usr/lib \
+    -v /usr/lib64:/usr/lib64 \
+    -v /sbin:/sbin \
+    --network macvlan \
+    --ip 192.168.7.9 \
+    $name \
+    /bin/bash
+}
 
 
 for target in "$@" ; do
@@ -67,4 +162,5 @@ for target in "$@" ; do
     echo "$target is not a shell function"
   fi
 done
+
 
