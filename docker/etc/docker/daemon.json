@@ -2,5 +2,8 @@
   "debug": true,
   "iptables": false,
   "bridge": "none"
+  "insecure-registries" : [
+    "192.168.7.1:5000"
+  ]
 }
 
