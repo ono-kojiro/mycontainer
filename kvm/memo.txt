@@ -1,0 +1,35 @@
+List OS variant
+$ osinfo-query os
+
+List domains
+
+$ virsh list --all
+
+
+Change Max Memory Size
+
+$ virsh dumpxml netbsd8
+$ virsh dominfo netbsd8
+$ virsh setmaxmem netbsd8 2048M
+
+
+Show DHCP address of domains
+
+$ virsh net-dhcp-leases default
+
+Show Bridge Information
+
+$ brctl show
+
+
+$ virsh edit netbsd8
+
+     <input type='keyboard' bus='ps2'/>
+     <graphics type='vnc' port='-1' autoport='yes' listen='0.0.0.0' keymap='ja' passwd='vnc'>
+        <listen type='address' address='0.0.0.0'/>
+      </graphics>
+      <video>
+        <model type='cirrus' vram='16384' heads='1' primary='yes'/>
+        <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
+      </video>
+
