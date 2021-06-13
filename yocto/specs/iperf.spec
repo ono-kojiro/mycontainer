@@ -2,7 +2,7 @@
 %global _build_id_links none
 
 %define name iperf
-%define version 3.1.3
+%define version 3.10.1
 %define _configure ../configure
 
 %global cross 1
@@ -20,8 +20,8 @@ Summary: iperf3
 
 Group: Development/Tools
 License: GPL
-URL: https://iperf.fr/
-Source0: https://iperf.fr/download/source/iperf-3.1.3-source.tar.gz
+URL: https://github.com/esnet/iperf
+Source0: https://github.com/esnet/iperf/archive/refs/tags/3.10.1.tar.gz
 
 %if %{cross}
 #BuildArch: noarch
