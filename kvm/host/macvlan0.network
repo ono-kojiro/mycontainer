@@ -1,0 +1,10 @@
+[Match]
+Name=macvlan0
+
+[Network]
+IPForward=yes
+Address=192.168.0.180
+Gateway=192.168.0.1
+DHCP=no
+LinkLocalAddressing=no
+

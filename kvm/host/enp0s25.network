@@ -1,0 +1,7 @@
+[Match]
+Name=enp0s25
+
+[Network]
+MACVLAN=macvlan0
+LinkLocalAddressing=no
+
