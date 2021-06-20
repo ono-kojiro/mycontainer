@@ -1,0 +1,17 @@
+# network: {config: enabled}
+
+# copy this file to /etc/netplan/
+#
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    macvlan0:
+      addresses:
+        - 192.168.0.180/24
+      gateway4: 192.168.0.1
+      nameservers:
+        addresses: [ 192.168.0.1, 8.8.8.8 ]
+      dhcp4: no
+      mtu: 1500
+
