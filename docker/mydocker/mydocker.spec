@@ -29,6 +29,8 @@ Docker sample
 %build
 %configure --prefix=/usr
 
+%pre
+
 %install
 make install DESTDIR=%{buildroot}
 
@@ -58,6 +60,8 @@ docker start mycontainer
 docker stop mycontainer
 docker rm   mycontainer
 docker rmi  myimage
+
+%postun
 
 %clean
 
