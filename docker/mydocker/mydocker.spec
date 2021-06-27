@@ -54,7 +54,7 @@ docker create \
 
 docker start mycontainer
 
-%postun
+%preun
 docker stop mycontainer
 docker rm   mycontainer
 docker rmi  myimage
