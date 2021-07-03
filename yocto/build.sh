@@ -262,6 +262,25 @@ sdk()
 	# poky/build/tmp/deploy/sdk/poky-glibc-x86_64-core-image-base-aarch64-toolchain-2.4.4.sh
 }
 
+sdk_ext()
+{
+    cd $build_dir/poky
+    . ./oe-init-build-env > /dev/null 2>&1
+    bitbake -c populate_sdk_ext $image
+    cd $top_dir
+
+	# install extensible sdk
+	# $ sh tmp/deploy/sdk/poky-glibc-x86_64-core-image-base-aarch64-toolchain-ext-2.4.4.sh
+
+    # $ source ~/poky_sdk/environment-setup-aarch64-poky-linux
+	# $ devtool build-image core-image-minimal
+
+	# run qemu using devtool (escape white space!)
+	# $ devtool runqemu nographic qemuparams="-m\ 4096" qemuparams="-smp\ 4" core-image-minimal
+
+}
+
+
 if [ "x$@" = "x" ]; then
   usage
   exit
