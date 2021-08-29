@@ -4,9 +4,9 @@ tc=`basename $0 .t`
 
 . ./config.bashrc
 
-echo "1..1"
+echo "1..3"
 
-cat - << 'EOS' | ssh root@${client} \
+cat - << 'EOS' | ssh -y root@${client} \
   sh -s -- $image $container $tag
 image=$1
 container=$2
@@ -22,6 +22,7 @@ fi
 
 docker tag ${image} ${tag}
 res=$?
+echo ""
 if [ "$res" = "0" ]; then
   echo "ok - docker tag passed"
 else
@@ -30,6 +31,7 @@ fi
 
 docker push ${tag}
 res=$?
+echo ""
 if [ "$res" = "0" ]; then
   echo "ok - docker push passed"
 else
