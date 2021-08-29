@@ -1,7 +1,14 @@
-TESTSCRIPTS = $(sort $(wildcard *.t))
+BASESCRIPTS = $(sort $(wildcard 0*.t))
+ADVSCRIPTS  = $(sort $(wildcard 1*.t))
+
+TESTSCRIPTS = $(BASESCRIPTS) $(ADVSCRIPTS)
 TESTLOGS    = $(TESTSCRIPTS:.t=.log)
 
 all : log
+
+test-base : $(sort $(BASESCRIPTS:.t=.log))
+
+test-adv  : $(sort $(ADVSCRIPTS:.t=.log))
 
 log : $(TESTLOGS)
 
@@ -15,5 +22,7 @@ clean :
 	rm -f $(TESTLOGS)
 
 .PHONY : \
-	all clean test log
+	all clean test log \
+	test-base test-adv
+
 

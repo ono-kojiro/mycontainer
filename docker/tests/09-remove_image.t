@@ -6,17 +6,24 @@ tc=`basename $0 .t`
 
 echo "1..1"
 
-cat - << 'EOS' | ssh root@${client} sh -s -- $image $container
-image=$1
-container=$2
+cat - << 'EOS' | ssh root@${client} sh -s
+{
+  docker image list \
+    --format "table {{.ID}}\t{{.Repository}}" > images.txt
+  res=$?
 
-docker rmi $image
+  cat images.txt
+  if [ "$res" = "0" ]; then
+    echo "ok - docker image list passed"
+  else
+    echo "not ok - docker image list failed"
+  fi
+
+  cat images.txt | grep -v -e '^IMAGE ID' | awk '{ print $2 }' \
+    | xargs docker rmi || true
+
+  rm -f images.txt
+}
+
 EOS
-
-res=$?
-if [ "$res" = "0" ]; then
-  echo "ok - docker rmi passed"
-else
-  echo "not ok - docker rmi failed"
-fi
 

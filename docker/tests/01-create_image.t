@@ -22,18 +22,26 @@ else
   echo "Bailout!"
 fi
 
-cat - << 'EOS' | ssh root@${client} sh -s -- $image
-image=$1
+rm -f Dockerfile
 
-rm -rf tmp
-mkdir tmp
-docker build --tag $image .
+cat - << 'EOS' | ssh root@${client} sh -s -- $image
+{
+  image=$1
+
+  rm -rf tmp
+  mkdir tmp
+  docker build --tag $image .
+  res=$?
+  if [ "$res" = "0" ]; then
+    echo "ok - docker build passed"
+  else
+    echo "not ok - docker build failed"
+  fi
+
+  rm -f Dockerfile
+  rm -rf tmp
+}
+
 EOS
 
-res=$?
-if [ "$res" = "0" ]; then
-  echo "ok - docker build passed"
-else
-  echo "not ok - docker build failed"
-fi
 
