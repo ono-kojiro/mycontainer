@@ -6,7 +6,7 @@ tc=`basename $0 .t`
 
 echo "1..3"
 
-curl -X GET http://192.168.7.1:5000/v2/_catalog > repositories.json
+curl -X GET http://192.168.7.1:5000/v2/_catalog > repositories.json 2>/dev/null
 res=$?
 echo ""
 cat repositories.json
@@ -19,7 +19,7 @@ fi
 num_repos=`cat repositories.json | jq '.repositories | length'`
 
 if [ "$num_repos" != "0" ]; then
-  curl -X GET http://192.168.7.1:5000/v2/myimage/tags/list > tags.json
+  curl -X GET http://192.168.7.1:5000/v2/myimage/tags/list > tags.json 2> /dev/null
   res=$?
   echo ""
   cat tags.json

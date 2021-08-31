@@ -6,11 +6,19 @@ SUBDIRS = \
 
 EXTRA_DIST = libmylib.spec
 
+dist_pkgdata_DATA = LICENSE
+
 rpm:
 	$(MAKE) dist
-	cp -f libmylib-0.0.1.tar.gz ~/rpmbuild/SOURCES/
-	rpmbuild -bb --target aarch64-poky-linux libmylib.spec
-	cp -f ~/rpmbuild/RPMS/aarch64/libmylib-0.0.1-1.aarch64.rpm .
+	rm -rf ./BUILDROOT
+	rpmbuild --bb libmylib.spec \
+		--build-in-place \
+		--buildroot=`pwd`/BUILDROOT \
+		--define "_rpmdir `pwd`/RPMS" \
+		--define "_srcrpmdir `pwd`/RPMS" \
+		--define "_specdir   `pwd`" \
+		--define "_builddir  `pwd`/BUILD" \
+		--target aarch64-poky-linux
 
 install-rpm:
 	sudo rpm -vhi \

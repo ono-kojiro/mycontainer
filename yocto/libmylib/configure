@@ -765,7 +765,7 @@ enable_fast_install
 with_aix_soname
 enable_dependency_tracking
 with_gnu_ld
-with_sysroot
+with_libtool_sysroot
 enable_libtool_lock
 '
       ac_precious_vars='build_alias
@@ -1429,7 +1429,8 @@ Optional Packages:
                           shared library versioning (aka "SONAME") variant to
                           provide on AIX, [default=aix].
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
-  --with-sysroot[=DIR]    Search for dependent libraries within DIR (or the
+  --with-libtool-sysroot[=DIR]
+                          Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
 
 Some influential environment variables:
@@ -5139,7 +5140,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu | gnu*)
   lt_cv_deplibs_check_method=pass_all
   ;;
 
-netbsd* | netbsdelf*-gnu)
+netbsd*)
   if echo __ELF__ | $CC -E - | $GREP __ELF__ > /dev/null; then
     lt_cv_deplibs_check_method='match_pattern /lib[^/]+(\.so\.[0-9]+\.[0-9]+|_pic\.a)$'
   else
@@ -6163,29 +6164,34 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sysroot" >&5
 $as_echo_n "checking for sysroot... " >&6; }
 
-# Check whether --with-sysroot was given.
-if test "${with_sysroot+set}" = set; then :
-  withval=$with_sysroot;
+# Check whether --with-libtool-sysroot was given.
+if test "${with_libtool_sysroot+set}" = set; then :
+  withval=$with_libtool_sysroot;
 else
-  with_sysroot=no
+  with_libtool_sysroot=no
 fi
 
 
 lt_sysroot=
-case $with_sysroot in #(
- yes)
+case $with_libtool_sysroot in #(
+ no)
    if test yes = "$GCC"; then
      lt_sysroot=`$CC --print-sysroot 2>/dev/null`
+     # Treat "/" the same a an unset sysroot. It seems to be more
+     # compatible across host platforms that way!?
+     if test "$lt_sysroot" = /; then
+       lt_sysroot=
+     fi
    fi
    ;; #(
- /*)
-   lt_sysroot=`echo "$with_sysroot" | sed -e "$sed_quote_subst"`
+ yes|''|/)
    ;; #(
- no|'')
+ /*)
+   lt_sysroot=`echo "$with_libtool_sysroot" | sed -e "$sed_quote_subst"`
    ;; #(
  *)
-   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_sysroot" >&5
-$as_echo "$with_sysroot" >&6; }
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_libtool_sysroot" >&5
+$as_echo "$with_libtool_sysroot" >&6; }
    as_fn_error $? "The sysroot must be an absolute path." "$LINENO" 5
    ;;
 esac
@@ -7794,7 +7800,8 @@ esac
 LIBTOOL_DEPS=$ltmain
 
 # Always use our own libtool.
-LIBTOOL='$(SHELL) $(top_builddir)/libtool'
+LIBTOOL='$(top_builddir)'
+LIBTOOL="$LIBTOOL/${host_alias}-libtool"
 
 
 
@@ -7887,7 +7894,7 @@ aix3*)
 esac
 
 # Global variables:
-ofile=libtool
+ofile=${host_alias}-libtool
 can_build_shared=yes
 
 # All known linkers require a '.a' archive for static linking (except MSVC,
@@ -8832,9 +8839,6 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
   openbsd* | bitrig*)
     with_gnu_ld=no
     ;;
-  linux* | k*bsd*-gnu | gnu*)
-    link_all_deplibs=no
-    ;;
   esac
 
   ld_shlibs=yes
@@ -9089,7 +9093,7 @@ _LT_EOF
       fi
       ;;
 
-    netbsd* | netbsdelf*-gnu)
+    netbsd*)
       if echo __ELF__ | $CC -E - | $GREP __ELF__ >/dev/null; then
 	archive_cmds='$LD -Bshareable $libobjs $deplibs $linker_flags -o $lib'
 	wlarc=
@@ -9759,7 +9763,6 @@ $as_echo "$lt_cv_irix_exported_symbol" >&6; }
 	if test yes = "$lt_cv_irix_exported_symbol"; then
           archive_expsym_cmds='$CC -shared $pic_flag $libobjs $deplibs $compiler_flags $wl-soname $wl$soname `test -n "$verstring" && func_echo_all "$wl-set_version $wl$verstring"` $wl-update_registry $wl$output_objdir/so_locations $wl-exports_file $wl$export_symbols -o $lib'
 	fi
-	link_all_deplibs=no
       else
 	archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags -soname $soname `test -n "$verstring" && func_echo_all "-set_version $verstring"` -update_registry $output_objdir/so_locations -o $lib'
 	archive_expsym_cmds='$CC -shared $libobjs $deplibs $compiler_flags -soname $soname `test -n "$verstring" && func_echo_all "-set_version $verstring"` -update_registry $output_objdir/so_locations -exports_file $export_symbols -o $lib'
@@ -9781,7 +9784,7 @@ $as_echo "$lt_cv_irix_exported_symbol" >&6; }
       esac
       ;;
 
-    netbsd* | netbsdelf*-gnu)
+    netbsd*)
       if echo __ELF__ | $CC -E - | $GREP __ELF__ >/dev/null; then
 	archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'  # a.out
       else
@@ -10894,18 +10897,6 @@ fi
   # people can always --disable-shared, the test was removed, and we
   # assume the GNU/Linux dynamic linker is in use.
   dynamic_linker='GNU/Linux ld.so'
-  ;;
-
-netbsdelf*-gnu)
-  version_type=linux
-  need_lib_prefix=no
-  need_version=no
-  library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major ${libname}${shared_ext}'
-  soname_spec='${libname}${release}${shared_ext}$major'
-  shlibpath_var=LD_LIBRARY_PATH
-  shlibpath_overrides_runpath=no
-  hardcode_into_libs=yes
-  dynamic_linker='NetBSD ld.elf_so'
   ;;
 
 netbsd*)
@@ -14375,6 +14366,7 @@ $as_echo X"$file" |
     cat <<_LT_EOF >> "$cfgfile"
 #! $SHELL
 # Generated automatically by $as_me ($PACKAGE) $VERSION
+# Libtool was configured on host `(hostname || uname -n) 2>/dev/null | sed 1q`:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
 # Provide generalized library-building support services.
