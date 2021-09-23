@@ -1,15 +1,15 @@
 #!/bin/sh
 
-disk=`pwd`/netbsd8.qcow2
+disk=`pwd`/netbsd.qcow2
 qemu-img create -f qcow2 $disk 16G
 
-iso=`pwd`/NetBSD-8.0-amd64.iso
+iso=~/Downloads/NetBSD-9.2-amd64.iso
 
 virt-install \
---name netbsd8 \
+--name netbsd \
 --ram 4096 \
 --disk=$disk,bus=virtio \
---vcpus 2 \
+--vcpus 4 \
 --os-type bsd \
 --os-variant netbsd8.0 \
 --graphics none \
