@@ -35,13 +35,24 @@ $ virsh edit netbsd8
 
 OpenIndiana
 # vi /boot/grub/menu.lst
-serial --unit=0 --speed=9600 --word=8 --parity=no --stop=1 terminal  --timeout=10 serial console
+serial --unit=0 --speed=9600 --word=8 --parity=no --stop=1
+terminal  --timeout=10 serial console
 
 kernel$ /platform/i86pc/kernel/$ISADIR/unix -v -B $ZFS-BOOTFS,console=ttya
 
 # vi /etc/remote
 serial1:\
         :dv=/dev/term/a:br#9600:el=^C^S^Q^U^D:ie=%$:oe=^D:
+
+not ok
+# eeprom input-device=ttya output-device=ttya
+
+Enable console on NetBSD
+# vi /etc/ttys
+tty00 "/usr/libexec/getty std.9600"   vt100   on secure local
+
+# ttyflags tty00
+# kill -s HUP 1
 
 
 Enable console on ArchLinux
