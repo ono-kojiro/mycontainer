@@ -16,6 +16,29 @@ fi
 
 #image=core-image-minimal-dev
 image=core-image-base
+#image=core-image-minimal
+
+which chrpath
+res=$?
+if [ "$res" != "0" ]; then
+  echo "ERROR : need chrpath"
+  exit $res
+fi
+
+which gawk
+res=$?
+if [ "$res" != "0" ]; then
+  echo "ERROR : need gawk"
+  exit $res
+fi
+
+which makeinfo
+res=$?
+if [ "$res" != "0" ]; then
+  echo "ERROR : need makeinfo(texinfo)"
+  exit $res
+fi
+
 
 help()
 {
@@ -57,15 +80,15 @@ clone()
     cd $build_dir
 
     if [ ! -d meta-openembedded ]; then
-	    git clone \
-            git://github.com/openembedded/meta-openembedded.git
+        git clone \
+            https://git.openembedded.org/meta-openembedded
     else
         echo skip to clone meta-openembedded
     fi
 
     if [ ! -d meta-virtualization ]; then
         git clone \
-            git://git.yoctoproject.org/meta-virtualization
+            https://git.yoctoproject.org/git/meta-virtualization
     else
         echo skip to clone meta-virtualization
     fi
@@ -77,10 +100,9 @@ clone()
         echo skip to clone meta-cloud-services
     fi
 
-
     if [ ! -d poky ]; then
         git clone \
-            git://git.yoctoproject.org/poky.git
+            https://git.yoctoproject.org/git/poky
     else
         echo skip to clone poky
     fi
@@ -102,6 +124,12 @@ checkout()
         echo ERROR : no meta-virtualization directory
     else
         git -C meta-virtualization checkout rocko
+    fi
+    
+    if [ ! -d meta-cloud-services ]; then
+        echo ERROR : no meta-cloud-services directory
+    else
+	git -C meta-cloud-services checkout rocko
     fi
 
     if [ ! -d poky ]; then
@@ -185,6 +213,7 @@ EOS
   bitbake-layers add-layer ../../meta-cloud-services/meta-openstack
   bitbake-layers add-layer ../../meta-openembedded/meta-webserver
   bitbake-layers add-layer $top_dir/meta-container/meta-mylayer
+  bitbake-layers add-layer $top_dir/meta-misc
 
   cd $top_dir
 }
