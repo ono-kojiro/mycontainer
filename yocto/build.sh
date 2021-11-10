@@ -287,8 +287,8 @@ sdk()
     bitbake -c populate_sdk $image
     cd $top_dir
 
-	# generated installer:
-	# poky/build/tmp/deploy/sdk/poky-glibc-x86_64-core-image-base-aarch64-toolchain-2.4.4.sh
+	echo "generated installer:"
+	echo poky/build/tmp/deploy/sdk/poky-glibc-x86_64-core-image-base-aarch64-toolchain-2.4.4.sh
 }
 
 sdk_ext()
