@@ -17,6 +17,8 @@ RDEPENDS_${PN}-staticdev = ""
 RDEPENDS_${PN}-dev       = ""
 RDEPENDS_${PN}-dbg       = ""
 
+PROVIDES = "${PN}"
+
 do_compile() {
   pwd
   ls
