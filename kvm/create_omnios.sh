@@ -3,7 +3,7 @@
 disk=`pwd`/omnios.qcow2
 qemu-img create -f qcow2 $disk 16G
 
-iso=/home/kojiro/Downloads/omnios-r151038k.iso
+iso=/home/kojiro/Downloads/omnios-r151038v.iso
 
 virt-install \
 --name omnios \
