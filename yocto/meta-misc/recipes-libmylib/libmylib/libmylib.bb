@@ -11,6 +11,12 @@ SRC_URI_append = " file://cmake-3.19.8.bashrc"
 SRC_URI_append = " file://CMakeLists.txt"
 S = "${WORKDIR}"
 
+PACKAGES = "${PN}-dev ${PN}-dbg ${PN}-staticdev ${PN}"
+
+RDEPENDS_${PN}-staticdev = ""
+RDEPENDS_${PN}-dev       = ""
+RDEPENDS_${PN}-dbg       = ""
+
 do_compile() {
   pwd
   ls
