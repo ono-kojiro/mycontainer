@@ -12,10 +12,8 @@ SRC_URI = "file://myapp.c \
 
 S = "${WORKDIR}"
 
-#DEPENDS = "libmylib-dev libmylib-staticdev"
-DEPENDS_${PN} = "libmylib"
-
-#RDEPENDS_${PN} = "libmylib"
+DEPENDS_append = " libmylib"
+#RDEPENDS_${PN} += " libmylib"
 
 do_compile() {
   pwd
