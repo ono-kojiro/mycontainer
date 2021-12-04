@@ -54,10 +54,23 @@ tty00 "/usr/libexec/getty std.9600"   vt100   on secure local
 # ttyflags tty00
 # kill -s HUP 1
 
-
+====================================
 Enable console on ArchLinux
 # systemctl start  serial-getty@ttyS0.service
 # systemctl status serial-getty@ttyS0.service
 # systemctl enable serial-getty@ttyS0.service
 
+===================================
+Enable serial on Ubuntu 18.04
+$ sudo vi /etc/default/grub
+GRUB_DEFAULT=0
+GRUB_TIMEOUT=1
+GRUB_DISTRIBUTOR=\`lsb_release -i -s 2> /dev/null || echo Debian\`
+GRUB_CMDLINE_LINUX_DEFAULT=""
+GRUB_CMDLINE_LINUX="console=tty1 console=ttyS0,115200"
+GRUB_TERMINAL="console serial"
+GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+
+$ sudo grub-mkconfig -o /boot/grub/grub.cfg
+$ sudo reboot
 
