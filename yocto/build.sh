@@ -158,6 +158,22 @@ config()
     echo done.
     . ./oe-init-build-env
 
+   {
+     echo ""
+     echo "BBLAYERS_append = \" ../../meta-openembedded/meta-oe\""
+     echo "BBLAYERS_append = \" ../../meta-openembedded/meta-python\""
+     echo "BBLAYERS_append = \" ../../meta-openembedded/meta-networking\""
+     echo "BBLAYERS_append = \" ../../meta-openembedded/meta-filesystems\""
+     echo "BBLAYERS_append = \" ../../meta-virtualization\""
+     echo "#BBLAYERS_append = \" ../../meta-cloud-services/meta-openstack\""
+     echo "BBLAYERS_append = \" ../../meta-openembedded/meta-webserver\""
+     echo "BBLAYERS_append = \" $top_dir/meta-container/meta-mylayer\""
+     echo "BBLAYERS_append = \" $top_dir/meta-misc\""
+     echo ""
+   } >> conf/bblayers.conf
+     
+     # echo "BBLAYERS_append = \" $top_dir/meta-observability\""
+
     sed -i.bak \
       -e 's|^#DL_DIR\s*?=\s*"${TOPDIR}/downloads"|DL_DIR ?= "/home/share/yocto/downloads"|' \
       conf/local.conf
@@ -167,6 +183,10 @@ config()
     conf/local.conf
 
   cat - << "EOS" >> conf/local.conf
+EXTRA_IMAGE_FEATURES_append = " tools-profile"
+
+#40 Gbytes of extra space with the line:
+IMAGE_ROOTFS_EXTRA_SPACE = "41943040"
 
 DISTRO_FEATURES_append = " virtualization"
 
@@ -202,18 +222,10 @@ IMAGE_INSTALL_append = " htop"
 
 IMAGE_INSTALL_append = " python3-pip"
 IMAGE_INSTALL_append = " python3-flask"
+IMAGE_INSTALL_append = " fio"
 
 EOS
 
-  bitbake-layers add-layer ../../meta-openembedded/meta-oe
-  bitbake-layers add-layer ../../meta-openembedded/meta-python
-  bitbake-layers add-layer ../../meta-openembedded/meta-networking
-  bitbake-layers add-layer ../../meta-openembedded/meta-filesystems
-  bitbake-layers add-layer ../../meta-virtualization
-  bitbake-layers add-layer ../../meta-cloud-services/meta-openstack
-  bitbake-layers add-layer ../../meta-openembedded/meta-webserver
-  bitbake-layers add-layer $top_dir/meta-container/meta-mylayer
-  bitbake-layers add-layer $top_dir/meta-misc
 
   cd $top_dir
 }
@@ -234,8 +246,21 @@ run()
     params="$params -smp 4"
 
     . ./oe-init-build-env
+
+    disk1="$top_dir/disk1.ext4"
+    if [ ! -e "$disk1" ]; then
+      qemu-img create -f qcow2 $disk1 16G
+    fi
+
+    params="$params -device virtio-blk-device,drive=disk1"
+    params="$params -drive id=disk1,file=$disk1,if=none,format=raw"
+
+    bootparams=""
+    bootparams="$bootparams root=/dev/vdb"
+
     runqemu nographic qemuarm64 \
-      qemuparams="$params" $image
+      qemuparams="$params" bootparams="$bootparams" \
+      $image
     cd $top_dir
 }
 
