@@ -13,17 +13,19 @@ cat - << 'EOS' | ssh -y root@${client} \
   container=$2
   tag=$3
 
-  docker tag ${image} ${tag}
+  cmd="docker tag ${image} ${tag}"
+  echo $cmd
+  $cmd
+
+  res=$?
+  echo ""
+  if [ "$res" = "0" ]; then
+    echo "ok - docker tag passed"
+  else
+    echo "not ok - docker tag failed"
+  fi
 }
 EOS
-
-res=$?
-echo ""
-if [ "$res" = "0" ]; then
-  echo "ok - docker tag passed"
-else
-  echo "not ok - docker tag failed"
-fi
 
 cat - << 'EOS' | ssh -y root@${client} \
   sh -s -- $image $container $tag
@@ -31,6 +33,16 @@ cat - << 'EOS' | ssh -y root@${client} \
   image=$1
   container=$2
   tag=$3
+
+  cat - << 'JSON' > /etc/docker/daemon.json
+{
+  "insecure-registries" : [
+    "192.168.7.1:5000"
+  ]
+}
+JSON
+
+  systemctl restart docker
 
   docker push ${tag}
 }
@@ -51,7 +63,7 @@ cat - << 'EOS' | ssh -y root@${client} \
   container=$2
   tag=$3
 
-  docker rmi ${tag}
+  docker rmi $image
 }
 EOS
 
