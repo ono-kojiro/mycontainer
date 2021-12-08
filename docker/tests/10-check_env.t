@@ -13,7 +13,7 @@ fi
 
 # remove comma and compare the version number
 got=`docker --version | sed 's/,/ /g' | awk '{ print $3 }'`
-expected="20.10.7"
+expected="20.10.11"
 if [ "x$got" = "x$expected" ]; then
   echo "ok - expected version, $got"
 else
