@@ -17,28 +17,19 @@ fi
 #image=core-image-minimal-dev
 image=core-image-base
 #image=core-image-minimal
+    
+disk1="$top_dir/disk1.ext4"
 
-which chrpath
-res=$?
-if [ "$res" != "0" ]; then
-  echo "ERROR : need chrpath"
-  exit $res
-fi
+tools="chrpath gawk makeinfo"
+for tool in $tools; do
+  which $tool > /dev/null 2>&1
+  res=$?
 
-which gawk
-res=$?
-if [ "$res" != "0" ]; then
-  echo "ERROR : need gawk"
-  exit $res
-fi
-
-which makeinfo
-res=$?
-if [ "$res" != "0" ]; then
-  echo "ERROR : need makeinfo(texinfo)"
-  exit $res
-fi
-
+  if [ "$res" != "0" ]; then
+    echo "ERROR : need $tool"
+    exit 1
+  fi
+done
 
 help()
 {
@@ -223,6 +214,9 @@ IMAGE_INSTALL_append = " htop"
 IMAGE_INSTALL_append = " python3-pip"
 IMAGE_INSTALL_append = " python3-flask"
 IMAGE_INSTALL_append = " fio"
+IMAGE_INSTALL_append = " iperf3"
+
+IMAGE_INSTALL_append = " e2fsprogs"
 
 EOS
 
@@ -238,6 +232,17 @@ build()
     cd $top_dir
 }
 
+disk()
+{
+    if [ ! -e "$disk1" ]; then
+      cmd="dd if=/dev/zero of=$disk1 bs=1024K count=65536"
+      echo $cmd
+      $cmd
+    else
+      echo "skip $disk1"
+    fi
+}
+
 run()
 {
     cd $build_dir/poky
@@ -246,11 +251,6 @@ run()
     params="$params -smp 4"
 
     . ./oe-init-build-env
-
-    disk1="$top_dir/disk1.ext4"
-    if [ ! -e "$disk1" ]; then
-      qemu-img create -f qcow2 $disk1 16G
-    fi
 
     params="$params -device virtio-blk-device,drive=disk1"
     params="$params -drive id=disk1,file=$disk1,if=none,format=raw"
