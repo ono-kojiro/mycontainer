@@ -10,7 +10,8 @@
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI_append = "file://config_macvtap.cfg"
+SRC_URI_append = " file://config_macvtap.cfg"
+SRC_URI_append = " file://config_hotplug.cfg"
 
 do_configure_append() {
   cat ${WORKDIR}/*.cfg >> ${B}/.config
