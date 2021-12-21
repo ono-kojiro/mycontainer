@@ -215,6 +215,7 @@ IMAGE_INSTALL_append = " python3-pip"
 IMAGE_INSTALL_append = " python3-flask"
 IMAGE_INSTALL_append = " fio"
 IMAGE_INSTALL_append = " iperf3"
+IMAGE_INSTALL_append = " gdb"
 
 IMAGE_INSTALL_append = " e2fsprogs"
 

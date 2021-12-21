@@ -44,6 +44,7 @@ RUN apt-get -qq update \
     && apt-get -qq install openssh-server \
     && apt-get -qq install iproute2 \
     && apt-get -qq install sssd-ldap \
+    && apt-get -qq install oddjob-mkhomedir \
     && apt-get -qq clean    \
     && rm -rf /var/lib/apt/lists/*
 
@@ -61,6 +62,8 @@ RUN update-rc.d ssh defaults
 # Configure SSSD.
 ADD sssd.conf /etc/sssd/
 RUN chmod 600 /etc/sssd/sssd.conf
+
+RUN pam-auth-update --enable mkhomedir
 
 #CMD ["/bin/bash"]
 ADD startup.sh /

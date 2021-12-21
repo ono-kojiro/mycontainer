@@ -29,6 +29,17 @@ cat - << 'EOS' | ssh -y yocto sh -s
   else
     echo "Bail out! docker tag failed"
   fi
+    
+    docker create -it \
+      --name mycontainer \
+      -v /bin:/bin \
+      -v /lib:/lib \
+      192.168.7.1:5000/myimage
+    docker start mycontainer
+    docker exec mycontainer /bin/bash -c '
+      dd if=/dev/urandom of=/16MB.bin bs=1024k count=16
+    '
+    docker commit mycontainer 192.168.7.1:5000/myimage:latest
 
   echo ""
   echo "docker push"
