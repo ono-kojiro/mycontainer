@@ -66,6 +66,8 @@ RUN chmod 600 /etc/sssd/sssd.conf
 
 RUN pam-auth-update --enable mkhomedir
 
+RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
+
 #CMD ["/bin/bash"]
 ADD startup.sh /
 RUN chmod +x /startup.sh
