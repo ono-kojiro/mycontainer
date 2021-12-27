@@ -53,6 +53,7 @@ create()
   docker create \
     -it \
 	--hostname $container \
+	--env TZ=Asia/Tokyo \
 	--name $container \
 	$image
 }

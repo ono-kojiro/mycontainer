@@ -36,6 +36,8 @@ RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 # https://stackoverflow.com/questions/22886470/start-sshd-automatically-with-docker-container
 #
 
+RUN DEBIAN_FRONTEND=noninteractive
+
 # Install required tools.
 RUN apt-get -qq update \
     && apt-get -qq install tzdata \
@@ -46,6 +48,7 @@ RUN apt-get -qq update \
     && apt-get -qq install iproute2 \
     && apt-get -qq install sssd-ldap \
     && apt-get -qq install oddjob-mkhomedir \
+    && apt-get -qq install tzdata \
     && apt-get -qq clean    \
     && rm -rf /var/lib/apt/lists/*
 
