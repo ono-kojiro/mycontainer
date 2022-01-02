@@ -5,21 +5,28 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
-SRC_URI = "file://myapp.c \
- file://CMakeLists.txt \
- file://cmake-3.19.8.bashrc \
-"
 
-S = "${WORKDIR}"
+# git@bitbucket.org:unixdo/myapp.git
+SRC_URI = "git://git@bitbucket.org/unixdo/myapp.git;protocol=ssh;branch=master \
+          "
+
+PV = "1.0+git${SRCPV}"
+SRCREV = "${AUTOREV}"
+
+S = "${WORKDIR}/git"
 
 DEPENDS_append = " libmylib"
 #RDEPENDS_${PN} += " libmylib"
 
+do_configure() {
+  autoreconf -vi
+}
+
 do_compile() {
-  pwd
-  ls
-  . ./cmake-3.19.8.bashrc
-  cmake -DCMAKE_INSTALL_PREFIX=/usr .
+  CC=$CC LD=$LD sh configure \
+    --prefix=/usr \
+    --host=aarch64-poky-linux
+
   make
 }
 
