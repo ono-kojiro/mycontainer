@@ -220,6 +220,7 @@ IMAGE_INSTALL_append = " gdb"
 IMAGE_INSTALL_append = " e2fsprogs"
 
 IMAGE_INSTALL_append = " libmylib-staticdev"
+IMAGE_INSTALL_append = " myapp"
 
 EOS
 
