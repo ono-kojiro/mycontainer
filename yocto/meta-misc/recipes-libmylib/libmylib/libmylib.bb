@@ -5,11 +5,14 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
-SRC_URI = "file://mylib.c"
-SRC_URI_append = " file://mylib.h"
-SRC_URI_append = " file://cmake-3.19.8.bashrc"
-SRC_URI_append = " file://CMakeLists.txt"
-S = "${WORKDIR}"
+SRC_URI = "git://git@bitbucket.org/unixdo/libmylib.git;protocol=ssh;branch=master \
+          "
+
+PV = "1.0+git${SRCPV}"
+
+SRCREV = "${AUTOREV}"
+
+S = "${WORKDIR}/git"
 
 PACKAGES = "${PN}-dev ${PN}-dbg ${PN}-staticdev ${PN}"
 
@@ -19,18 +22,21 @@ RDEPENDS_${PN}-dbg       = ""
 
 PROVIDES = "${PN}"
 
+inherit pkgconfig
+
+do_configure() {
+  autoreconf -vi
+}
+
 do_compile() {
-  pwd
-  ls
-  cat cmake-3.19.8.bashrc
-  . ./cmake-3.19.8.bashrc
-  cmake -DCMAKE_INSTALL_PREFIX=/usr .
+  CC=$CC LD=$LD sh configure \
+    --prefix=/usr \
+	--host=aarch64-poky-linux \
+    --disable-check
   make
 }
 
 do_install() {
-  pwd
-  ls
   make install DESTDIR=${D}
 }
 
