@@ -14,8 +14,8 @@ fi
 . ./config.bashrc
 
 
-#image=core-image-minimal-dev
-image=core-image-base
+image=core-image-minimal-dev
+#image=core-image-base
 #image=core-image-minimal
     
 disk1="$top_dir/disk1.ext4"
@@ -218,6 +218,8 @@ IMAGE_INSTALL_append = " iperf3"
 IMAGE_INSTALL_append = " gdb"
 
 IMAGE_INSTALL_append = " e2fsprogs"
+
+IMAGE_INSTALL_append = " libmylib-staticdev"
 
 EOS
 
