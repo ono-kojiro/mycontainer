@@ -21,6 +21,10 @@ while [ $# -ne 0 ]; do
 	  shift
 	  template=$1
 	  ;;
+	-a | --address)
+	  shift
+	  addr=$1
+	  ;;
 	*)
 	  break
 	  ;;
@@ -31,11 +35,13 @@ done
 
 template=${template:="busybox"}
 name=${template:="name"}
+addr=${addr:="192.168.7.5"}
 
-cat - << 'EOS' | ssh -y $remote sh -s -- $template $name
+cat - << 'EOS' | ssh -y $remote sh -s -- $template $name $addr
 {
   template=$1
   name=$2
+  addr=$3
 
   status=`lxc-ls -f | grep -r "^$name " | awk '{ print $2 }'`
   cmd="lxc-stop -n $name"
@@ -79,7 +85,7 @@ cat - << 'EOS' | ssh -y $remote sh -s -- $template $name
     echo "lxc.network.link = macvlan0"
     echo "lxc.network.macvlan.mode = bridge"
     echo "lxc.network.flags = up"
-    echo "lxc.network.ipv4.address = 192.168.7.5/24"
+    echo "lxc.network.ipv4.address = $addr/24"
     echo "lxc.network.ipv4.gateway = 192.168.7.2"
   } >> $config
 
