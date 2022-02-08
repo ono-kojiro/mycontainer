@@ -219,7 +219,7 @@ IMAGE_INSTALL_append = " gdb"
 
 IMAGE_INSTALL_append = " e2fsprogs"
 
-IMAGE_INSTALL_append = " libmylib-staticdev"
+IMAGE_INSTALL_append = " libmylib"
 IMAGE_INSTALL_append = " myapp"
 
 EOS
@@ -252,7 +252,7 @@ run()
     cd $build_dir/poky
 
     params="-m 4096"
-    params="$params -smp 4"
+    params="$params -smp 4 -cpu host,pmu=true"
 
     . ./oe-init-build-env
 

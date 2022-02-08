@@ -3,8 +3,14 @@
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 . ~/poky_sdk/environment-setup-aarch64-poky-linux > /dev/null
+  
 
-recipe_name=myapp
+#recipe_name=myapp
+#url="git@bitbucket.org:unixdo/myapp.git"
+
+recipe_name=iperf3
+url="https://github.com/esnet/iperf.git"
+
 workspace=~/poky_sdk/workspace
 
 usage()
@@ -36,7 +42,7 @@ configure()
 
 add()
 {
-  cmd="devtool add $recipe_name git@bitbucket.org:unixdo/myapp.git"
+  cmd="devtool add $recipe_name $url"
   echo $cmd; $cmd
 }
 
@@ -44,17 +50,30 @@ update()
 {
   recipefile=$workspace/recipes/$recipe_name/${recipe_name}_git.bb
 
-  cat - << 'EOS' >> $recipefile
-
+  grep 'do_configure_prepend' $recipefile > /dev/null 2>&1
+  res=$?
+  if [ $res -ne 0 ]; then
+    cat - << 'EOS' >> $recipefile 
 do_configure_prepend() {
+  export PATH=/home/kojiro/tmp/autoconf-2.71/usr/bin:$PATH
   autoreconf -vi
 }
+
 EOS
-
-  #cmd="cat ${recipe_name}_git.bb append.bb"
-  #echo "$cmd > $recipefile"; $cmd > $recipefile
-
-  echo 'EXTERNALSRC_BUILD = "${EXTERNALSRC}"' >> $workspace/appends/${recipe_name}_git.bbappend
+  else
+    echo skip updating $recipefile
+  fi
+  
+  bbappend=$workspace/appends/${recipe_name}_git.bbappend
+  grep 'EXTERNALSRC_BUILD' $bbappend > /dev/null 2>&1
+  res=$?
+  if [ $res -ne 0 ]; then
+    {
+      echo 'EXTERNALSRC_BUILD = "${EXTERNALSRC}"'
+    } >> $workspace/appends/${recipe_name}_git.bbappend
+  else
+    echo skip updating $bbappend
+  fi
 }
 
 edit()
@@ -84,7 +103,7 @@ install()
   :
 }
 
-clean()
+mclean()
 {
   rm -rf ~/poky_sdk/workspace/*
 }
