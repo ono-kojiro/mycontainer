@@ -1,0 +1,47 @@
+{
+	"LDAP": {
+		"connection": {
+			"server": "192.168.0.98",
+            "port": "636",
+			"enctype": "ssl",
+            "options": {
+              "LDAP_OPT_DEREF": 1
+            },
+			"basedn": "dc=example,dc=com",
+			"userbasedn": "ou=Users,dc=example,dc=com",
+			"groupbasedn": "ou=Groups,dc=example,dc=com",
+			"searchattribute": "uid",
+			"usernameattribute": "uid",
+			"realnameattribute": "cn",
+			"emailattribute": "mail",
+            "grouprequest": "MediaWiki\\Extension\\LDAPProvider\\UserGroupsRequest\\Configurable::factory",
+            "groupobjectclass": "*",
+            "groupattribute": "memberUid",
+            "presearchusernamemodifiers": [ "spacestounderscores", "lowercase" ]
+		},
+		"userinfo": {
+          "attributes-map" : {
+            "email" : "mail",
+            "nickname" : "uid",
+            "realname" : "gecos"
+          }
+        },
+        "authorization": {
+          "rules" : {
+            "groups" : {
+              "required" : [
+                "cn=wikiusers,ou=Groups,dc=example,dc=com"
+              ]
+            }
+          }
+        },
+        "groupsync" : {
+           "mechanism" : "mappedgroups",
+           "mapping": {
+             "sysop" : "cn=wikiadmin,ou=Groups,dc=example,dc=com",
+             "user"  : "cn=wikiread,ou=Groups,dc=example,dc=com"
+           }
+        }
+	}
+}
+
