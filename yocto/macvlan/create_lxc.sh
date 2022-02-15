@@ -60,7 +60,7 @@ cat - << 'EOS' | ssh -y $remote sh -s -- $template $name $addr
     echo "skip : $cmd"
   fi
 
-  cmd="lxc-create -t sshd -n $name"
+  cmd="lxc-create -t $template -n $name"
   echo $cmd
   $cmd > /dev/null 2>&1
   if [ $? -eq 0 ]; then
