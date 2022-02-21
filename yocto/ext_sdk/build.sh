@@ -4,18 +4,23 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 . ~/poky_sdk/environment-setup-aarch64-poky-linux > /dev/null
   
+recipe_name=myapp
+url="https://github.com/ono-kojiro/myapp.git;branch=main"
 
-#recipe_name=myapp
-#url="git@bitbucket.org:unixdo/myapp.git"
+poky_sdk=~/poky_sdk
+workspace=$poky_sdk/workspace
 
-recipe_name=iperf3
-url="https://github.com/esnet/iperf.git"
-
-workspace=~/poky_sdk/workspace
+local_conf=$poky_sdk/conf/local.conf
 
 usage()
 {
   echo "usage : $0 [options] target1 target2 ..."
+  echo "   init, config, add, update, edit, build, package"
+}
+
+help()
+{
+  usage
 }
 
 init()
@@ -35,7 +40,7 @@ EOS
 
 }
 
-configure()
+config()
 {
   :
 }
@@ -74,6 +79,9 @@ EOS
   else
     echo skip updating $bbappend
   fi
+
+  sed -i -e 's|^DL_DIR = .*"|DL_DIR = "/home/share/yocto/downloads"|' $local_conf
+
 }
 
 edit()
