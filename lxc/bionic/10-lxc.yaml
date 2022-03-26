@@ -1,0 +1,11 @@
+network:
+  version: 2
+  ethernets:
+    eth0:
+      addresses:
+      - 10.0.3.184/24
+      gateway4: 10.0.3.1
+      nameservers:
+        addresses:
+        - 8.8.8.8
+
