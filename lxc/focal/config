@@ -1,0 +1,30 @@
+# Template used to create this container: /usr/share/lxc/templates/lxc-download
+# Parameters passed to the template: -d ubuntu -r bionic -a amd64
+# Template script checksum (SHA-1): 273c51343604eb85f7e294c8da0a5eb769d648f3
+# For additional config options, please look at lxc.container.conf(5)
+
+# Uncomment the following line to support nesting containers:
+#lxc.include = /usr/share/lxc/config/nesting.conf
+# (Be aware this has security implications)
+
+
+# Distribution configuration
+lxc.include = /usr/share/lxc/config/common.conf
+lxc.include = /usr/share/lxc/config/userns.conf
+lxc.arch = linux64
+
+# Container specific configuration
+lxc.idmap = u 0 200000 65536
+lxc.idmap = g 0 200000 65536
+lxc.rootfs.path = dir:/home/kojiro/.local/share/lxc/bionic/rootfs
+lxc.uts.name = bionic
+
+# Network configuration
+lxc.net.0.type = veth
+lxc.net.0.link = lxcbr0
+lxc.net.0.flags = up
+lxc.net.0.hwaddr = 00:16:3e:7d:5d:15
+
+lxc.net.0.ipv4.address = 10.0.3.204/24
+lxc.net.0.ipv4.gateway = 10.0.3.1
+
