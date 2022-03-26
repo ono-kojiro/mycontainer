@@ -3,11 +3,20 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-image="focal"
-container="focal"
-  
-#root_url="https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-amd64-root.tar.gz"
-root_url="https://partner-images.canonical.com/core/focal/current/ubuntu-focal-core-cloudimg-amd64-root.tar.gz"
+#release="focal"
+release="bionic"
+
+image="$release"
+container="$release"
+
+if [ "$release" = "bionic" ]; then
+  root_url="https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-amd64-root.tar.gz"
+elif [ "$release" = "focal" ]; then
+  root_url="https://partner-images.canonical.com/core/focal/current/ubuntu-focal-core-cloudimg-amd64-root.tar.gz"
+else
+  echo "ERROR : invalid release name, $release"
+  exit 1
+fi
 
 root_filename=`basename $root_url`
 
@@ -21,11 +30,8 @@ usage()
 	echo "usage : $0 [options] target1 target2 ..."
     echo ""
     echo "  target"
-    echo "    fetch"
-    echo "    build"
-    echo "    create"
-    echo "    start"
-    echo "    stop"
+    echo "    fetch/build/create/start/stop"
+    echo "    ip"
 }
 
 all()
@@ -73,7 +79,7 @@ stop()
   docker stop $container
 }
 
-ip_list()
+ip()
 {
   docker inspect \
     --format '{{.Name}} {{ .NetworkSettings.IPAddress }}' \
