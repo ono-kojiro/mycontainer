@@ -66,6 +66,7 @@ create()
 
 init()
 {
+  echo "INFO : init"
   config="$HOME/.local/share/lxc/$name/config"
 
   cat - << EOS >> $config
@@ -78,6 +79,7 @@ EOS
 
 start()
 {
+  echo "INFO : start"
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
   lxc-start -n $name
@@ -90,6 +92,8 @@ attach()
 
 config_network()
 {
+  echo "INFO : config_network"
+
   cat - << EOS | lxc-attach -n $name --clear-env -- /bin/bash -s $address $gateway
   {
     address=$1
@@ -109,8 +113,10 @@ EOS
 
 update()
 {
+  echo "INFO : update"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
+    export DEBIAN_FRONTEND=noninteractive
     apt -y update
   }
 EOS
@@ -119,6 +125,7 @@ EOS
 
 chpasswd()
 {
+  echo "INFO : chpasswd"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     echo 'root:secret' | chpasswd
@@ -129,8 +136,10 @@ EOS
 
 enable_sshd()
 {
+  echo "INFO : enable_sshd"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
+    export DEBIAN_FRONTEND=noninteractive
     apt -y update
     apt -y install openssh-server
 
@@ -174,6 +183,7 @@ enable_sssd()
 {
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
+    export DEBIAN_FRONTEND=noninteractive
     apt -y install sssd-ldap oddjob-mkhomedir
     apt -y install apt-utils
   }
