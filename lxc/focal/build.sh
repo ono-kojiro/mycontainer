@@ -18,11 +18,11 @@ rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
 seckey="id_ed25519_focal"
 pubkey="id_ed25519_focal.pub"
-  
-ssh="command ssh -y"
-ssh="$ssh -o UserKnownHostsFile=/dev/null"
-ssh="$ssh -o StrictHostKeyChecking=no"
-ssh="$ssh -i $seckey"
+
+ssh_opts=""
+ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
+ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
+ssh_opts="$ssh_opts -i $seckey"
 
 help()
 {
@@ -53,8 +53,10 @@ all()
   update
   enable_sshd
   enable_pubkey_auth
-  
   test_ssh
+
+  enable_sssd
+  test_sssd
 }
 
 create()
@@ -165,30 +167,42 @@ keygen()
 
 test_ssh()
 {
-  command ssh -y \
-    -o UserKnownHostsFile=/dev/null \
-    -o StrictHostKeyChecking=no \
-    -i id_ed25519_focal root@$address ip addr
+  ssh -y $ssh_opts root@$address ip addr
 }
 
 enable_sssd()
 {
-  cp -f ./sssd.conf $rootfs/tmp/
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
     apt -y install sssd-ldap oddjob-mkhomedir
-    cp -f /tmp/sssd.conf /etc/sssd/sssd.conf
+    apt -y install apt-utils
+  }
+EOS
+  
+  scp $ssh_opts \
+    ./sssd.conf root@$address:/etc/sssd/sssd.conf
+
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
+  {
+    export DEBIAN_FRONTEND=noninteractive
     chmod 600 /etc/sssd/sssd.conf
-
     systemctl restart sssd
-
     pam-auth-update --enable mkhomedir
-
   }
 EOS
 
 }
 
+test_sssd()
+{
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USERNAME
+  {
+    user=$1
+    id $user
+  }
+EOS
+
+}
 
 stop()
 {
