@@ -11,7 +11,18 @@ dist="ubuntu"
 release="$name"
 arch="amd64"
 
+address="10.0.3.204"
+gateway="10.0.3.1"
+
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
+  
+seckey="id_ed25519_focal"
+pubkey="id_ed25519_focal.pub"
+  
+ssh="command ssh -y"
+ssh="$ssh -o UserKnownHostsFile=/dev/null"
+ssh="$ssh -o StrictHostKeyChecking=no"
+ssh="$ssh -i $seckey"
 
 help()
 {
@@ -23,9 +34,9 @@ usage()
 	echo "usage : $0 [options] target1 target2 ..."
     echo ""
     echo "  target:"
-    echo "    create"
-    echo "    init"
-    echo "    start"
+    echo "    create/init/start"
+    echo "    chpasswd"
+    echo "    enable_sshd"
     echo "    update"
     echo "    attach"
     echo "    stop"
@@ -34,8 +45,16 @@ usage()
 
 all()
 {
-  config
-  build
+  create
+  init
+  start
+  chpasswd
+  config_network
+  update
+  enable_sshd
+  enable_pubkey_auth
+  
+  test_ssh
 }
 
 create()
@@ -45,8 +64,14 @@ create()
 
 init()
 {
-  cp -f ./config      $HOME/.local/share/lxc/$name/
-  cp -f ./10-lxc.yaml $rootfs/etc/netplan/
+  config="$HOME/.local/share/lxc/$name/config"
+
+  cat - << EOS >> $config
+
+lxc.net.0.ipv4.address = $address/24
+lxc.net.0.ipv4.gateway = $gateway
+EOS
+
 }
 
 start()
@@ -56,27 +81,45 @@ start()
   lxc-start -n $name
 }
 
-update()
+attach()
 {
-  cp -f ./10-lxc.yaml $rootfs/tmp/
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
-  {
-    cp -f /tmp/10-lxc.yaml /etc/netplan/
+  lxc-attach -n $name --clear-env -- /bin/bash
+}
 
-    apt -y update
-    apt -y upgrade
+config_network()
+{
+  cat - << EOS | lxc-attach -n $name --clear-env -- /bin/bash -s $address $gateway
+  {
+    address=$1
+    gateway=$2
+    echo "address is $address"
+    echo "gateway is $gateway"
+    netplan set ethernets.eth0.dhcp4=false
+    netplan set ethernets.eth0.addresses=[$address/24]
+    netplan set ethernets.eth0.gateway4=$gateway
+    netplan set ethernets.eth0.nameservers.addresses=[8.8.8.8]
+
+    netplan apply
   }
 EOS
 
 }
 
-upgrade()
+update()
 {
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     apt -y update
-    apt -y upgrade
+  }
+EOS
 
+}
+
+chpasswd()
+{
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    echo 'root:secret' | chpasswd
   }
 EOS
 
@@ -86,10 +129,46 @@ enable_sshd()
 {
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
+    apt -y update
     apt -y install openssh-server
+
+    cat /etc/ssh/sshd_config | grep 'PermitRootLogin yes' > /dev/null
+    if [ $? -ne 0 ]; then
+      echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+      systemctl restart sshd
+    fi
   }
 EOS
 
+}
+
+enable_pubkey_auth()
+{
+  rm -f ./id_ed25519_focal*
+  
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    mkdir -p /root/.ssh
+    chmod 700 /root/.ssh
+  }
+EOS
+
+  ssh-keygen -t ed25519 -f $seckey -N ''
+  cat $pubkey | lxc-attach -n $name --clear-env -- \
+    tee /root/.ssh/authorized_keys
+}
+
+keygen()
+{
+  enable_pubkey_auth
+}
+
+test_ssh()
+{
+  command ssh -y \
+    -o UserKnownHostsFile=/dev/null \
+    -o StrictHostKeyChecking=no \
+    -i id_ed25519_focal root@$address ip addr
 }
 
 enable_sssd()
@@ -146,11 +225,10 @@ attach()
 	lxc-attach -n $container -- /bin/bash
 }
 
-clean()
+mclean()
 {
-	rm -f ${container}.log
-	stop
-	destroy
+  lxc-stop -n $name -k
+  lxc-destroy -n $name
 }
 
 
