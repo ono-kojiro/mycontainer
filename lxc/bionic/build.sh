@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
@@ -8,8 +10,21 @@ name="bionic"
 template="download"
 
 dist="ubuntu"
-release="bionic"
+release="$name"
 arch="amd64"
+
+address="10.0.3.184"
+gateway="10.0.3.1"
+
+rootfs="$HOME/.local/share/lxc/$name/rootfs"
+  
+seckey="id_ed25519_${name}"
+pubkey="id_ed25519_${name}.pub"
+
+ssh_opts=""
+ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
+ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
+ssh_opts="$ssh_opts -i $seckey"
 
 help()
 {
@@ -21,18 +36,29 @@ usage()
 	echo "usage : $0 [options] target1 target2 ..."
     echo ""
     echo "  target:"
-    echo "    create"
-    echo "    start"
+    echo "    create/init/start"
+    echo "    chpasswd"
+    echo "    enable_sshd"
+    echo "    update"
     echo "    attach"
     echo "    stop"
     echo "    destroy"
-	exit 0
 }
 
 all()
 {
-  config
-  build
+  create
+  init
+  start
+  chpasswd
+  config_network
+  update
+  enable_sshd
+  enable_pubkey_auth
+  test_ssh
+
+  enable_sssd
+  test_sssd
 }
 
 create()
@@ -42,37 +68,83 @@ create()
 
 init()
 {
-  cp -f ./config      $HOME/.local/share/lxc/bionic/
+  echo "INFO : init"
+  config="$HOME/.local/share/lxc/$name/config"
+
+  cat - << EOS >> $config
+
+lxc.net.0.ipv4.address = $address/24
+lxc.net.0.ipv4.gateway = $gateway
+EOS
+
 }
 
 start()
 {
+  echo "INFO : start"
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
   lxc-start -n $name
 }
 
-update()
+attach()
 {
-  cp -f ./10-lxc.yaml $HOME/.local/share/lxc/bionic/rootfs/tmp/
+  lxc-attach -n $name --clear-env -- /bin/bash
+}
+
+config_network()
+{
+  echo "INFO : config_network"
+
+  cat - << EOS > temp.yaml
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: false
+      dhcp-identifier: mac
+      addresses: [$address/24]
+      gateway4: $gateway
+      nameservers:
+        addresses: [ 8.8.8.8, 8.8.4.4 ]
+EOS
+
+  cat temp.yaml | lxc-attach -n $name -- tee /etc/netplan/10-lxc.yaml
+  
+  echo "INFO : sleep 3sec"
+  sleep 3s
+
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
-    cp -f /tmp/10-lxc.yaml /etc/netplan/
+    netplan apply
+  }
+EOS
 
+  rm -f temp.yaml
+
+}
+
+update()
+{
+  echo "INFO : update"
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    export DEBIAN_FRONTEND=noninteractive
+
+    perl -p -i.bak -e 's%(deb(?:-src|)\s+)https?://(?!archive\.canonical\.com|security\.ubuntu\.com)[^\s]+%$1http://jp.archive.ubuntu.com/ubuntu/%' /etc/apt/sources.list 
+    
     apt -y update
-    apt -y upgrade
   }
 EOS
 
 }
 
-upgrade()
+chpasswd()
 {
+  echo "INFO : chpasswd"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
-    apt -y update
-    apt -y upgrade
-
+    echo 'root:secret' | chpasswd
   }
 EOS
 
@@ -80,38 +152,93 @@ EOS
 
 enable_sshd()
 {
+  echo "INFO : enable_sshd"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
+    export DEBIAN_FRONTEND=noninteractive
+    apt -y update
     apt -y install openssh-server
+
+    cat /etc/ssh/sshd_config | grep 'PermitRootLogin yes' > /dev/null
+    if [ $? -ne 0 ]; then
+      echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+      systemctl restart sshd
+    fi
   }
 EOS
 
+}
+
+enable_pubkey_auth()
+{
+  rm -f ./id_ed25519_${name}*
+  
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    mkdir -p /root/.ssh
+    chmod 700 /root/.ssh
+  }
+EOS
+
+  ssh-keygen -t ed25519 -f $seckey -N ''
+  cat $pubkey | lxc-attach -n $name --clear-env -- \
+    tee /root/.ssh/authorized_keys
+}
+
+keygen()
+{
+  enable_pubkey_auth
+}
+
+test_ssh()
+{
+  ssh -y $ssh_opts root@$address ip addr
 }
 
 enable_sssd()
 {
-  cp -f ./sssd.conf $HOME/.local/share/lxc/bionic/rootfs/tmp/
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
+    export DEBIAN_FRONTEND=noninteractive
     apt -y install sssd-ldap oddjob-mkhomedir
-    cp -f /tmp/sssd.conf /etc/sssd/sssd.conf
+    apt -y install apt-utils
+  }
+EOS
+  
+  scp $ssh_opts \
+    ./sssd.conf root@$address:/etc/sssd/sssd.conf
+
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
+  {
+    export DEBIAN_FRONTEND=noninteractive
     chmod 600 /etc/sssd/sssd.conf
-
     systemctl restart sssd
-
     pam-auth-update --enable mkhomedir
-
   }
 EOS
 
 }
 
+test_sssd()
+{
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USERNAME
+  {
+    user=$1
+    id $user
+  }
+EOS
+
+}
 
 stop()
 {
-	lxc-stop -n $name
+  lxc-stop -n $name
 }
 
+status()
+{
+  lxc-ls -f
+}
 
 destroy()
 {
@@ -119,60 +246,43 @@ destroy()
   lxc-destroy -n $name
 }
 
-
-delegate()
-{
-    systemd-run --unit=myshell --user --scope \
-        -p "Delegate=yes" \
-    lxc-start -n $container
-}
-
-ls()
-{
-	lxc-ls -f
-}
-
 attach()
 {
-	#lxc-attach -n $container -- /bin/sh
 	lxc-attach -n $container -- /bin/bash
 }
 
-clean()
+mclean()
 {
-	rm -f ${container}.log
-	stop
-	destroy
+  lxc-stop -n $name -k || true
+  lxc-destroy -n $name || true
 }
 
-logfile=""
 
-while getopts hvl: option
-do
-	case "$option" in
-		h)
-			usage;;
-		v)
-			verbose=1;;
-		l)
-			logfile=$OPTARG;;
-		*)
-			echo unknown option "$option";;
-	esac
+args=""
+while [ $# -ne 0 ]; do
+  case $1 in
+    -h )
+      usage
+      exit 1
+      ;;
+    -v )
+      verbose=1
+      ;;
+    * )
+      args="$args $1"
+      ;;
+  esac
+  
+  shift
 done
 
-shift $(($OPTIND-1))
-
-if [ "x$logfile" != "x" ]; then
-	echo logfile is $logfile
-fi
-
-for target in "$@ $TARGETS" ; do
-	LANG=C type $target | grep 'function' > /dev/null 2>&1
-	res=$?
-	if [ "x$res" = "x0" ]; then
-		$target
-	else
-		echo "ERROR : $target is not shell function"
-	fi
+for arg in $args; do
+  LANG=C type $arg | grep 'function' > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    $arg
+  else
+    echo "ERROR : $arg is not shell function"
+    exit 1
+  fi
 done
+
