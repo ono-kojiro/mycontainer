@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
@@ -251,8 +253,8 @@ attach()
 
 mclean()
 {
-  lxc-stop -n $name -k
-  lxc-destroy -n $name
+  lxc-stop -n $name -k || true
+  lxc-destroy -n $name || true
 }
 
 
