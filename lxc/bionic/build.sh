@@ -111,8 +111,13 @@ EOS
 
   cat temp.yaml | lxc-attach -n $name -- tee /etc/netplan/10-lxc.yaml
   
-  echo "INFO : sleep 3sec"
-  sleep 3s
+  # avoid following error. 
+  #
+  #  subprocess.CalledProcessError:
+  #  Command '['systemctl', 'stop', '--no-block', 'systemd-networkd.service',
+  #   'netplan-wpa-*.service']' returned non-zero exit status 1.                                                   
+  echo "INFO : sleep 1sec"
+  sleep 1s
 
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
