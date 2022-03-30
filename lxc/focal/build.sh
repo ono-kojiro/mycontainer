@@ -207,10 +207,12 @@ EOS
 
 test_sssd()
 {
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USERNAME
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
   {
     user=$1
     id $user
+
+    gpasswd -a $user sudo
   }
 EOS
 
