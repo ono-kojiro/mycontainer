@@ -59,6 +59,8 @@ all()
 
   enable_sssd
   test_sssd
+
+  setup_default_user
 }
 
 create()
@@ -236,6 +238,33 @@ test_sssd()
 EOS
 
 }
+
+setup_default_user()
+{
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    user=$1
+    mkdir -p /home/$user
+    chmod 755 /home/$user
+    chown $user:ldapusers /home/$user
+    
+    mkdir -p  /home/$user/.ssh
+    chmod 700 /home/$user/.ssh
+    chown $user:ldapusers /home/$user/.ssh
+  }
+EOS
+
+  cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
+
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    user=$1
+    chmod 755 /home/$user/.ssh/authorized_keys
+  }
+EOS
+
+}
+
 
 stop()
 {
