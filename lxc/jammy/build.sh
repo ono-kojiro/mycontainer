@@ -104,8 +104,10 @@ config_network()
     echo "gateway is $gateway"
     netplan set ethernets.eth0.dhcp4=false
     netplan set ethernets.eth0.addresses=[$address/24]
-    netplan set ethernets.eth0.gateway4=$gateway
+    netplan set ethernets.eth0.routes=[{\"to\":\"default\"\,\"via\":\"$gateway\"}]
     netplan set ethernets.eth0.nameservers.addresses=[8.8.8.8]
+
+    sleep 1s
 
     netplan apply
   }
