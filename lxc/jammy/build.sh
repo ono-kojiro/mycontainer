@@ -57,8 +57,8 @@ all()
   enable_pubkey_auth
   test_ssh
 
-  enable_sssd
-  test_sssd
+  #enable_sssd
+  #test_sssd
 }
 
 create()
@@ -207,10 +207,12 @@ EOS
 
 test_sssd()
 {
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USERNAME
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
   {
     user=$1
     id $user
+
+    gpasswd -a $user sudo
   }
 EOS
 
@@ -277,8 +279,8 @@ while [ $# -ne 0 ]; do
 done
 
 for arg in $args; do
-  LANG=C type $arg | grep 'function' > /dev/null 2>&1
-  if [ $? -eq 0 ]; then
+  num=`LANG=C type $arg | grep 'function' | wc -l`
+  if [ $num -ne 0 ]; then
     $arg
   else
     echo "ERROR : $arg is not shell function"
