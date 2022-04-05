@@ -18,8 +18,8 @@ gateway="10.0.3.1"
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
-seckey="id_ed25519_focal"
-pubkey="id_ed25519_focal.pub"
+seckey="id_ed25519_${name}"
+pubkey="id_ed25519_${name}.pub"
 
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
@@ -159,7 +159,7 @@ EOS
 
 enable_pubkey_auth()
 {
-  rm -f ./id_ed25519_focal*
+  rm -f ./id_ed25519_${name}*
   
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
