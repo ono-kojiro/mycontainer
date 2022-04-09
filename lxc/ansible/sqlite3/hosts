@@ -1,0 +1,15 @@
+targets:
+  hosts:
+    bionic:
+      ansible_host: 10.0.3.184
+      ansible_user: root
+      ansible_ssh_private_key_file: ../../bionic/id_ed25519_bionic
+    focal:
+      ansible_host: 10.0.3.204
+      ansible_user: root
+      ansible_ssh_private_key_file: ../../focal/id_ed25519_focal
+    jammy:
+      ansible_host: 10.0.3.224
+      ansible_user: root
+      ansible_ssh_private_key_file: ../../jammy/id_ed25519_jammy
+

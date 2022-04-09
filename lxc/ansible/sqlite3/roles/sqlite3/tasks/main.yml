@@ -1,0 +1,9 @@
+- name: apt-get update
+  become: yes
+  apt:
+    update_cache=yes
+  
+- name: install sqlite3
+  apt:
+    name='sqlite3,libsqlite3-dev'
+

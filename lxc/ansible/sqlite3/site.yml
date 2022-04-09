@@ -1,0 +1,10 @@
+- hosts: targets
+
+  roles:
+    - sqlite3
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing sqlite3'
+
