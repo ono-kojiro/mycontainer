@@ -1,0 +1,18 @@
+---
+- name: copy samba.ldif
+  shell: |
+    cd /etc/ldap/
+    cp -f /usr/share/doc/samba/examples/LDAP/samba.ldif.gz .
+    gunzip -k -f samba.ldif.gz
+
+- name: import samba.ldif
+  shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/samba.ldif
+
+- name: check ldap samba
+  shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "cn=schema,cn=config" dn | grep 'samba,cn=schema,cn=config'
+  register: result
+  failed_when: result.rc != 0
+

@@ -1,0 +1,27 @@
+---
+- import_tasks: install.yml
+
+- import_tasks: samba_schema.yml
+
+- name: copy certs
+  shell: |
+    rm -rf /etc/ldap/certs
+    mkdir -p /etc/ldap/certs
+    cp -f /etc/ssl/certs/server.crt   /etc/ldap/certs/
+    cp -f /etc/ssl/private/server.key /etc/ldap/certs/
+    chown openldap.openldap /etc/ldap/certs/*
+
+- import_tasks: ldap_suffix.yml
+
+- import_tasks: ldap_rootdn.yml
+
+- import_tasks: ldap_samba.yml
+
+- import_tasks: ldap_tls.yml
+
+- import_tasks: ldap_access.yml
+
+- import_tasks: ldap_passwd.yml
+
+- import_tasks: systemd.yml
+

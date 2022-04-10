@@ -1,0 +1,30 @@
+---
+- name: remove /etc/ssl/ca
+  shell:
+    cmd: rm -rf /etc/ssl/ca
+
+- name: make directory /etc/ssl/ca
+  shell:
+    cmd: mkdir -p /etc/ssl/ca
+
+- name: initialize database
+  shell:
+    cmd: certutil -N -d /etc/ssl/ca --empty-password
+
+- name: create noise.bin
+  shell:
+    cmd: dd if=/dev/urandom of=/tmp/noise.bin bs=1 count=2048 > /dev/null 2>&1
+
+- name: create CA
+  shell: |
+    printf 'y\n0\ny\n' | certutil -S -x -d /etc/ssl/ca -z /tmp/noise.bin -n MyCA -s "cn=MyCA" -t "CT,C,C" -k rsa -g 2048 -Z SHA256 -2
+
+- name: export cacert
+  shell: |
+    rm -f /etc/ssl/certs/myca.crt
+    certutil -L -d /etc/ssl/ca -n MyCA -a > /etc/ssl/certs/myca.crt
+
+- name: remove noise.bin
+  shell:
+    cmd: rm -f /tmp/noise.bin
+

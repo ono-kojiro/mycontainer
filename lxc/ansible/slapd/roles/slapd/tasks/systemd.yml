@@ -1,0 +1,23 @@
+---
+- name: copy slapd-init.conf
+  template:
+    src: slapd-init.conf
+    dest: /etc/tmpfiles.d/slapd-init.conf
+
+- name: make slapd.service.d directory
+  shell: |
+    mkdir -p /etc/systemd/system/slapd.service.d
+
+- name: copy override.conf
+  template:
+    src: override.conf
+    dest: /etc/systemd/system/slapd.service.d/override.conf
+
+- name: start slapd.service
+  shell: |
+    systemctl start slapd
+
+- name: enable slapd.service
+  shell: |
+    systemctl enable slapd
+

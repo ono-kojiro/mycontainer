@@ -1,0 +1,30 @@
+---
+- name: remove /etc/ssl/server
+  shell:
+    cmd: rm -rf /etc/ssl/server
+
+- name: make directory /etc/ssl/server
+  shell:
+    cmd: mkdir -p /etc/ssl/server
+
+- name: initialize server database
+  shell:
+    cmd: certutil -N -d /etc/ssl/server --empty-password
+
+- name: create noise.bin
+  shell:
+    cmd: dd if=/dev/urandom of=/tmp/noise.bin bs=1 count=2048 > /dev/null 2>&1
+
+- name: create csr
+  shell: |
+    echo "secret" > /tmp/password.txt
+    certutil -R -d /etc/ssl/server -s "cn=MyServer" \
+      -f /tmp/password.txt \
+      -z /tmp/noise.bin \
+      -o /etc/ssl/server/server.csr \
+      -a
+
+- name: remove noise.bin password.txt
+  shell:
+    cmd: rm -f /tmp/noise.bin /tmp/password.txt
+

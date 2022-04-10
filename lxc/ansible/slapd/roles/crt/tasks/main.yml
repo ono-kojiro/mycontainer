@@ -1,0 +1,46 @@
+---
+- name: create crt
+  shell: |
+    echo "secret" > /tmp/password.txt
+    certutil -C \
+      -d /etc/ssl/ca \
+      -c "MyCA" \
+      -i /etc/ssl/server/server.csr \
+      -a \
+      -o /etc/ssl/server/server.crt \
+      -f /tmp/password.txt \
+      --extSAN dns:localhost,ip:10.0.3.184,ip:127.0.0.1 \
+      -v 120
+
+- name: remove password.txt
+  shell:
+    cmd: rm -f /tmp/password.txt
+
+- name: import crt
+  shell: |
+    cp -f /etc/ssl/server/server.crt /etc/ssl/certs/
+    certutil -A -d /etc/ssl/server \
+      -n "MyServer" -t ",," -i /etc/ssl/server/server.crt
+
+- name: export p12
+  shell: |
+    pk12util -o /etc/ssl/server/server.p12 \
+      -n "MyServer" \
+      -d /etc/ssl/server \
+      -W "secret"
+
+- name: export seckey
+  shell: |
+    openssl pkcs12 \
+      -in /etc/ssl/server/server.p12 \
+      -nocerts \
+      -out /etc/ssl/server/server.pem \
+      -password "pass:secret" \
+      -nodes
+
+    openssl rsa \
+      -in  /etc/ssl/server/server.pem \
+      -out /etc/ssl/server/server.key
+
+    cp -f /etc/ssl/server/server.key /etc/ssl/private/
+

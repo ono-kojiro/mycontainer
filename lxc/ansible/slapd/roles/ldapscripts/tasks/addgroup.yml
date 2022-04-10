@@ -1,0 +1,13 @@
+---
+- name: add ldap group "ldapusers"
+  shell: |
+    ldapaddgroup ldapusers
+  register: result
+  failed_when: result.rc != 0
+
+- name: add ldap group "ldapwheel"
+  shell: |
+    ldapaddgroup ldapwheel
+  register: result
+  failed_when: result.rc != 0
+

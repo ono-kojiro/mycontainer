@@ -1,0 +1,54 @@
+---
+- name: copy ldapadduser.template
+  template:
+    src: ldapadduser.template
+    dest: /etc/ldapscripts/ldapadduser.template
+    mode: 0644
+
+- name: add ldap user "gihren"
+  shell: |
+    ldapadduser gihren ldapusers
+  register: result
+  failed_when: result.rc != 0
+
+- name: add ldap user "gihren" to ldapwheel
+  shell: |
+    ldapaddusertogroup gihren ldapwheel
+  register: result
+  failed_when: result.rc != 0
+
+- name: add gecos of gihren
+  shell: |
+    cat << EOS | ldapmodifyuser gihren
+    changetype: modify
+    replace: gecos
+    gecos: Gihren ZABI
+    EOS
+
+#- name: copy setldappasswd.exp
+#  template:
+#    src: setldappasswd.exp
+#    dest: /etc/ldapscripts/setldappasswd.exp
+#    mode: 0755
+
+#- name: set ldap user password
+#  shell: |
+#    /etc/ldapscripts/setldappasswd.exp gihren secret
+#  register: result
+#  failed_when: result.rc != 0
+
+- name: set ldap user password
+  shell: |
+    ldapsetpasswd gihren `slappasswd -s secret`
+  register: result
+  failed_when: result.rc != 0
+
+- name: add mail of gihren
+  shell: |
+    cat << EOS | ldapmodifyuser gihren
+    changetype: modify
+    add: mail
+    mail: gihren@example.com
+    EOS
+    
+
