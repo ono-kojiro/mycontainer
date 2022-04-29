@@ -109,7 +109,7 @@ network:
       addresses: [$address/24]
       gateway4: $gateway
       nameservers:
-        addresses: [ 8.8.8.8, 8.8.4.4 ]
+        addresses: [ $gateway ]
 EOS
 
   cat temp.yaml | lxc-attach -n $name -- tee /etc/netplan/10-lxc.yaml
