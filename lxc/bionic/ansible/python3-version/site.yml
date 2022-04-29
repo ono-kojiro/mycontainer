@@ -1,0 +1,17 @@
+- hosts: all
+
+  tasks:
+    - name: check python3 version
+      shell: |
+        python3 --version
+      register: return_from_shell
+      changed_when: no
+    - name: show shell stdout
+      debug:
+        msg: "{{ return_from_shell.stdout }}"
+
+  post_tasks:
+    - name: post task
+      debug:
+        msg='finished'
+
