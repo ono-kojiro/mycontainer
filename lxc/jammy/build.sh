@@ -50,6 +50,7 @@ all()
   create
   init
   start
+  set_locale
   chpasswd
   config_network
   update
@@ -57,8 +58,10 @@ all()
   enable_pubkey_auth
   test_ssh
 
-  #enable_sssd
-  #test_sssd
+  enable_sssd
+  test_sssd
+
+  setup_default_user
 }
 
 create()
@@ -85,6 +88,19 @@ start()
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
   lxc-start -n $name
+}
+
+set_locale()
+{
+  echo "INFO : set locale"
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    apt -y install language-pack-ja
+    locale-gen ja_JP.UTF-8
+    localectl set-locale LANG=ja_JP.UTF-8
+  }
+EOS
+
 }
 
 attach()
@@ -215,6 +231,32 @@ test_sssd()
     id $user
 
     gpasswd -a $user sudo
+  }
+EOS
+
+}
+
+setup_default_user()
+{
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    user=$1
+    mkdir -p /home/$user
+    chmod 755 /home/$user
+    chown $user:ldapusers /home/$user
+    
+    mkdir -p  /home/$user/.ssh
+    chmod 700 /home/$user/.ssh
+    chown $user:ldapusers /home/$user/.ssh
+  }
+EOS
+
+  cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
+
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    user=$1
+    chmod 755 /home/$user/.ssh/authorized_keys
   }
 EOS
 
