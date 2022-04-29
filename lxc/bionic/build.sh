@@ -50,6 +50,7 @@ all()
   create
   init
   start
+  set_locale
   chpasswd
   config_network
   update
@@ -156,6 +157,20 @@ chpasswd()
 EOS
 
 }
+
+set_locale()
+{
+  echo "INFO : set locale"
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    apt -y install language-pack-ja
+    locale-gen ja_JP.UTF-8
+    localectl set-locale LANG=ja_JP.UTF-8
+  }
+EOS
+
+}
+
 
 enable_sshd()
 {
