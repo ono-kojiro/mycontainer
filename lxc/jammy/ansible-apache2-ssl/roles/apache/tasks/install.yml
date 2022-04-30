@@ -1,0 +1,11 @@
+- name: uninstall apache2
+  apt:
+    name: apache2
+    state: absent
+    purge: yes
+
+- name: install apache2
+  apt:
+    name: apache2
+
+

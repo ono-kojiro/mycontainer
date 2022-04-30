@@ -1,0 +1,46 @@
+- name: enable apache2 module ssl
+  community.general.apache2_module:
+    name: ssl
+    state: present
+
+- name: enable default ssl virtualhost
+  shell: |
+    a2ensite default-ssl
+  notify:
+    - restart apache
+
+- name: copy ssl cert file
+  ansible.builtin.copy:
+    src: /etc/ssl/server/jammy.crt
+    dest: /etc/ssl/certs/jammy.crt
+    owner: root
+    group: root
+    mode: '644'
+
+- name: copy ssl cert key file
+  ansible.builtin.copy:
+    src: /etc/ssl/server/jammy.key
+    dest: /etc/ssl/private/jammy.key
+    owner: root
+    group: ssl-cert
+    mode: '640'
+
+- name: configure ssl cert
+  ansible.builtin.lineinfile:
+    path: /etc/apache2/sites-enabled/default-ssl.conf
+    regexp: '^(\s+)SSLCertificateFile(\s+)(.*)'
+    line: '\1SSLCertificateFile\2/etc/ssl/certs/jammy.crt'
+    backrefs: yes
+
+- name: configure ssl key cert
+  ansible.builtin.lineinfile:
+    path: /etc/apache2/sites-enabled/default-ssl.conf
+    regexp: '^(\s+)SSLCertificateKeyFile(\s+)(.*)'
+    line: '\1SSLCertificateKeyFile\2/etc/ssl/private/jammy.key'
+    backrefs: yes
+
+- name: add ca cert
+  shell: |
+    certutil -d $HOME/.pki/nssdb -A -t "C,," \
+      -n MyCA -i /usr/share/ca-certificates/myca/myca.crt
+

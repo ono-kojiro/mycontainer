@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  roles:
+    - role: common
+      tags: common
+
+    - role: apache
+      tags: apache
+    
+    - role: ssl
+      tags: ssl
+
