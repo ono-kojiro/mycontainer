@@ -1,0 +1,54 @@
+- name: uninstall rbenv
+  ansible.builtin.file:
+    path: /usr/local/rbenv
+    state: absent
+
+- name: install rbenv
+  git:
+    repo: https://github.com/sstephenson/rbenv.git
+    dest: /usr/local/rbenv
+
+- name: install rbenv.sh
+  template:
+    src: rbenv.sh.j2
+    dest: /etc/profile.d/rbenv.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: install gemrc
+  template:
+    src: gemrc
+    dest: /root/.gemrc
+    owner: root
+    group: root
+    mode: 0755
+
+- name: installl ruby-build
+  git:
+    repo: https://github.com/sstephenson/ruby-build.git
+    dest: /usr/local/rbenv/plugins/ruby-build
+
+- name: check ruby
+  shell: |
+    . /etc/profile.d/rbenv.sh; which ruby
+  register: result
+  ignore_errors: yes
+
+- name: debug result var
+  debug: var=result
+
+- name: build ruby
+  shell: |
+    . /etc/profile.d/rbenv.sh; rbenv install 3.1.2
+  when: result.rc != 0
+
+- name: rbenv global
+  shell: |
+    . /etc/profile.d/rbenv.sh; rbenv global 3.1.2
+
+
+#- name: install bundler
+#  shell: |
+#    gem install bundler
+
