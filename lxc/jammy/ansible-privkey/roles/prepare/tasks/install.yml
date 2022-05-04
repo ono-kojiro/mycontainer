@@ -1,0 +1,10 @@
+- name: uninstall gcc
+  apt:
+    name: gcc
+    state: absent
+
+- name: install gcc
+  apt:
+    name:
+      - gcc
+
