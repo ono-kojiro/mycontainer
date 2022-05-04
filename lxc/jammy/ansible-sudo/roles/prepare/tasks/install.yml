@@ -1,0 +1,7 @@
+- name: install gcc
+  apt:
+    name:
+      - gcc
+  become: yes
+  become_method: sudo
+

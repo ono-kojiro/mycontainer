@@ -1,0 +1,6 @@
+all:
+  hosts:
+    jammy:
+      ansible_host: 10.0.3.224
+      ansible_python_interpreter: /usr/bin/python3
+
