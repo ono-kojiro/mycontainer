@@ -1,0 +1,12 @@
+all:
+  hosts:
+    bionic:
+      ansible_host: 10.0.3.184
+      ansible_python_interpreter: /usr/bin/python3
+    focal:
+      ansible_host: 10.0.3.184
+      ansible_python_interpreter: /usr/bin/python3
+    jammy:
+      ansible_host: 10.0.3.224
+      ansible_python_interpreter: /usr/bin/python3
+
