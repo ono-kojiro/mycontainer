@@ -1,0 +1,20 @@
+- name: install expect for ldapscripts
+  dnf:
+    name:
+      - expect
+
+- name: copy ldapscripts
+  ansible.builtin.copy:
+    src: ldapscripts-2.0.8-1.el9.noarch.rpm
+    dest: /tmp/ldapscripts-2.0.8-1.el9.noarch.rpm
+    mode: '0644'
+
+- name: install ldapscripts
+  ansible.builtin.shell: |
+    dnf -y install /tmp/ldapscripts-2.0.8-1.el9.noarch.rpm
+
+- name: install perl-Digest-SHA1
+  dnf:
+    name:
+      - perl-Digest-SHA1
+

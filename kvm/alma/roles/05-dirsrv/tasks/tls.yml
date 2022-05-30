@@ -1,0 +1,69 @@
+---
+- name: set secure port
+  ansible.builtin.shell: |
+    dsconf -D "{{ ldap_binddn }}" \
+      "{{ ldapi_url }}" \
+      config replace nsslapd-securePort=636
+  register: result
+  failed_when: result.rc != 0
+
+- name: set secure on
+  ansible.builtin.shell: |
+    dsconf -D "{{ ldap_binddn }}" "{{ ldapi_url }}" \
+      config replace nsslapd-security=on
+  register: result
+  failed_when: result.rc != 0
+
+- name: import crt
+  ansible.builtin.shell: |
+    certutil -A -d /etc/dirsrv/slapd-{{ ldap_instance_name }} \
+      -n MyServer -t ",," -i /etc/ssl/myserver/myserver.crt
+
+- name: open 636 port
+  firewalld:
+    zone: public
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  with_items:
+    - ldap
+    - ldaps
+
+- name: confirm server crt
+  ansible.builtin.shell: |
+    dsconf -D "{{ ldap_binddn }}" "{{ ldapi_url }}" \
+      security certificate list
+
+- name: enable rsa certificates
+  ansible.builtin.shell: |
+    dsconf -D "{{ ldap_binddn }}" "{{ ldapi_url }}" \
+      security rsa set --tls-allow-rsa-certificates on
+    dsconf -D "{{ ldap_binddn }}" "{{ ldapi_url }}" \
+      security rsa set --nss-token "internal (software)"
+    dsconf -D "{{ ldap_binddn }}" "{{ ldapi_url }}" \
+      security rsa set --nss-cert-name "MyServer"
+ 
+- name: check status of slapd
+  ansible.builtin.shell: |
+    systemctl status dirsrv@{{ ldap_instance_name }}
+  register: result
+  ignore_errors: yes
+
+- name: check if TLS_REQCERT is defined
+  ansible.builtin.shell: |
+    grep -c '^TLS_REQCERT never' /etc/openldap/ldap.conf || true
+  register: result
+
+- name: add TLS_REQCERT
+  lineinfile:
+    dest: /etc/openldap/ldap.conf
+    line: "TLS_REQCERT never"
+  when: result.stdout == "0"
+
+- name: check ldapsearch with ldaps
+  ansible.builtin.shell: |
+    ldapsearch -H ldaps://localhost \
+      -D {{ ldap_binddn }} \
+      -w {{ ldap_root_passwd }} \
+      -b "cn=config"
+

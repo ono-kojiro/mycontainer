@@ -1,0 +1,11 @@
+dn: {{ ldap_suffix }}
+changetype: modify
+delete: aci
+aci: (targetattr != "userPassword || sambaNTPassword || sambaPasswordHistory")
+  (
+   version 3.0;
+   acl "Anonymous example";
+   allow (read, search, compare) userdn= "ldap:///anyone";
+  ) 
+
+

@@ -1,0 +1,5 @@
+- name: install pwgen
+  dnf:
+    name:
+      - pwgen
+

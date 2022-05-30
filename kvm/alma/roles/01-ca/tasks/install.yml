@@ -1,0 +1,15 @@
+- name: dnf update
+  become: yes
+  dnf:
+    update_cache=yes
+
+- name: install ca-certificates
+  dnf:
+    name:
+      - ca-certificates
+  
+- name: install nss-tools packages
+  dnf:
+    name:
+      - nss-tools
+

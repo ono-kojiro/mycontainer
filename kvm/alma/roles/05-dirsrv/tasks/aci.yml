@@ -1,0 +1,51 @@
+---
+- name: copy delete_aci.ldif
+  template:
+    src: delete_aci.ldif
+    dest: /tmp/delete_aci.ldif
+
+- name: copy add_aci.ldif
+  template:
+    src: add_aci.ldif
+    dest: /tmp/add_aci.ldif
+
+- name: show aci
+  ansible.builtin.shell: |
+    ldapsearch \
+      -H {{ ldapi_url }} \
+      -D {{ ldap_binddn }} \
+      -w {{ ldap_root_passwd }} \
+      -b {{ ldap_suffix }} \
+      -s sub '(aci=*)' aci
+
+- name: delete ldap aci
+  ansible.builtin.shell: |
+    ldapmodify -H {{ ldapi_url }} -D {{ ldap_binddn }} \
+      -w {{ ldap_root_passwd }} -f /tmp/delete_aci.ldif
+  failed_when: false
+
+- name: add ldap aci
+  ansible.builtin.shell: |
+    ldapmodify -H {{ ldapi_url }} -D {{ ldap_binddn }} \
+      -w {{ ldap_root_passwd }} -f /tmp/add_aci.ldif
+  register: result
+  failed_when: result.rc != 0
+
+- name: show ldap aci
+  ansible.builtin.shell: |
+    ldapsearch -H {{ ldapi_url }} -D {{ ldap_binddn }} \
+      -w {{ ldap_root_passwd }} -b {{ ldap_suffix }} -s sub '(aci=*)' aci
+  register: result
+  failed_when: result.rc != 0
+
+#- debug: msg="{{ result.stdout }}"
+
+- name: delete ldif files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /tmp/add_aci.ldif
+    - /tmp/delete_aci.ldif
+
+ 

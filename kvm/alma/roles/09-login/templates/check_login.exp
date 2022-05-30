@@ -1,0 +1,46 @@
+#!/usr/bin/expect -f 
+
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+set ret 0
+
+if { $username == "" } {
+  puts "ERROR: no username argument"
+  set ret "[expr $ret + 1]"
+}
+
+if { $password == "" } {
+  puts "ERROR: no password argument"
+  set ret "[expr $ret + 1]"
+}
+
+if { $ret != 0 } {
+  puts "exit $ret"
+  exit $ret
+}
+
+set timeout 5
+
+spawn ssh $username@localhost
+expect_after eof { exit 1 }
+
+expect {     
+  "?assword: " {
+    stty -echo
+    send "$password\r"
+    stty echo
+    exp_continue
+  }
+
+  "$ " {
+    send_user "\nlogin prompt found, passed\n"
+    exit 0
+  }
+
+  default {
+    send_user "\nno login prompt, failed\n"
+    exit 1
+  }
+}
+
+

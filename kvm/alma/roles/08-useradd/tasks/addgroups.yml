@@ -1,0 +1,14 @@
+---
+- name: add ldap groups
+  ansible.builtin.shell: |
+    echo "name is {{ item.name }}"
+    ldapaddgroup {{ item.name }}
+  register: result
+  with_items : "{{ ldapgroups }}"
+  failed_when: result.rc != 0
+
+- name: print result of ldapaddgroup
+  ansible.builtin.debug:
+    msg: "{{ item.stdout_lines }}"
+  with_items: "{{ result.results }}"
+

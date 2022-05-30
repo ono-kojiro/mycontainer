@@ -1,0 +1,32 @@
+---
+- name: add ldap users
+  ansible.builtin.shell: |
+    ldapadduser {{ item.name }} {{ item.group }}
+    ldapaddusertogroup {{ item.name }} {{ item.group }}
+    ldapsetpasswd {{ item.name }} `/tmp/sha1passwd -s {{ item.passwd }}`
+  register: result
+  with_items : "{{ users }}"
+
+- name: chown home directory
+  ansible.builtin.shell: |
+    if [ -e /home/{{ item.name }} ]; then
+      chown -R {{ item.name }}:{{ item.group }} /home/{{ item.name }}
+    fi
+  with_items : "{{ users }}"
+
+#- name: print stdout
+#  ansible.builtin.debug:
+#    msg: "{{ item.stdout_lines }}"
+#  with_items: "{{ result.results }}"
+
+- name: add secondary group
+  ansible.builtin.shell: |
+    ldapaddusertogroup {{ item.name }} {{ item.group }}
+  register: result
+  with_items : "{{ secondary_groups}}"
+
+#- name: print stdout
+#  ansible.builtin.debug:
+#    msg: "{{ item.stdout_lines }}"
+#  with_items: "{{ result.results }}"
+

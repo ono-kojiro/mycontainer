@@ -1,0 +1,16 @@
+---
+- name: remove {{ server_dir }}
+  ansible.builtin.file:
+    path: "{{ server_dir }}"
+    state: absent
+
+
+- name: make directory {{ server_dir }}
+  ansible.builtin.file:
+    path: "{{ server_dir }}"
+    state: directory
+
+- name: initialize server database
+  ansible.builtin.shell: |
+    certutil -N -d "{{ server_dir }}" --empty-password
+

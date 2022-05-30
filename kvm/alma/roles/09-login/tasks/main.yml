@@ -1,0 +1,14 @@
+---
+- name: copy check_login.exp
+  template:
+    src: check_login.exp
+    dest: /tmp/check_login.exp
+    mode: 755
+
+- name: check login for all users
+  ansible.builtin.shell: |
+    /tmp/check_login.exp {{ item.name }} {{ item.passwd }}
+  register: result
+  failed_when: result.rc != 0
+  with_items : "{{ users }}"
+

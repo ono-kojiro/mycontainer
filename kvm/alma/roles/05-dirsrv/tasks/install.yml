@@ -1,0 +1,6 @@
+- name: install 389-ds-base packages
+  dnf:
+    name:
+      - 389-ds-base
+      - openldap-clients
+

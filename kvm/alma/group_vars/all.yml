@@ -1,0 +1,55 @@
+---
+server_ipaddr: 192.168.122.219
+
+ldap_instance_name: myinstance
+ldap_suffix: dc=example,dc=com
+ldap_root_passwd: secret389
+ldap_binddn: "cn=Manager,{{ ldap_suffix }}"
+ldapi_url: "ldapi://%2Fvar%2Frun%2Fslapd-{{ ldap_instance_name }}.socket"
+nsslapd_ldapifilepath: "/var/run/slapd-{{ ldap_instance_name }}.socket"
+
+ca_nickname: MyCA
+ca_dir: /etc/ssl/myca
+ca_cert: /etc/ssl/certs/myca.crt
+ca_passwd: ca_secret
+
+server_nickname: MyServer
+server_dir: /etc/ssl/myserver
+server_passwd: server_secret
+server_csr: "{{ server_dir }}/myserver.csr"
+server_crt: "{{ server_dir }}/myserver.crt"
+server_p12: "{{ server_dir }}/myserver.p12"
+server_pem: "{{ server_dir }}/myserver.pem"
+server_key: "{{ server_dir }}/myserver.key"
+
+user_password: secret
+
+ldapgroups:
+  - name: ldapusers
+  - name: ldapwheel
+
+users:
+  - name:   gihren
+    passwd: gihren
+    group:  ldapusers
+
+  - name:   kycilia
+    passwd: kycilia
+    group:  ldapusers
+
+  - name:   garma
+    passwd: garma
+    group:  ldapusers
+
+  - name:   dozle
+    passwd: dozle
+    group:  ldapusers
+
+  - name:   degwin
+    passwd: degwin
+    group:  ldapusers
+
+secondary_groups:
+  - name: gihren
+    group: ldapwheel
+  

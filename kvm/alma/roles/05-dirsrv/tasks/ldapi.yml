@@ -1,0 +1,23 @@
+---
+- name: copy enable_ldapi.ldif
+  template:
+    src: enable_ldapi.ldif
+    dest: /tmp/enable_ldapi.ldif
+
+- name: enable LDAPI
+  ansible.builtin.shell: |
+    ldapmodify -D "{{ ldap_binddn }}" -w "{{ ldap_root_passwd }}" \
+      -h localhost -x -f /tmp/enable_ldapi.ldif
+
+- name: check LDAPI
+  ansible.builtin.shell: |
+    ldapsearch -D "{{ ldap_binddn }}" \
+      -H {{ ldapi_url }} \
+      -w {{ ldap_root_passwd }} \
+      -b "cn=config"
+
+- name: delete enable_ldapi.ldif
+  ansible.builtin.file:
+    path: /tmp/enable_ldapi.ldif
+    state: absent
+

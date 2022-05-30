@@ -1,0 +1,8 @@
+---
+- import_tasks: install.yml
+
+- import_tasks: init.yml
+- import_tasks: ldapi.yml
+- import_tasks: tls.yml
+#- import_tasks: aci.yml
+

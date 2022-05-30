@@ -1,0 +1,38 @@
+---
+- name: stop dirsrv.target
+  ansible.builtin.systemd:
+    name: dirsrv.target
+    state: stopped
+
+- name: remove instance
+  ansible.builtin.shell: |
+    dsctl slapd-{{ ldap_instance_name }} stop
+    dsctl slapd-{{ ldap_instance_name }} remove --do-it
+  ignore_errors: yes
+
+- name: delete nss database
+  ansible.builtin.file:
+    path: "/etc/dirsrv/slapd-{{ ldap_instance_name }}"
+    state: absent
+
+- name: copy install.inf
+  template:
+    src: install.inf
+    dest: /tmp/install.inf
+
+- name: create instance
+  ansible.builtin.shell: |
+    dscreate from-file /tmp/install.inf
+
+- name: start dirsrv.target
+  ansible.builtin.systemd:
+    name: dirsrv.target
+    state: started
+    enabled: yes
+
+- name: delete install.inf
+  ansible.builtin.file:
+    path: /tmp/install.inf
+    state: absent
+
+

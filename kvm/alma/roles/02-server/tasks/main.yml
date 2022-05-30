@@ -1,0 +1,5 @@
+---
+- import_tasks: db.yml
+- import_tasks: csr.yml
+- import_tasks: crt.yml
+

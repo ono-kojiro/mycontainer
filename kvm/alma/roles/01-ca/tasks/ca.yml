@@ -1,0 +1,54 @@
+---
+- name: remove {{ ca_dir }}
+  ansible.builtin.file:
+    path: "{{ ca_dir }}"
+    state: absent
+
+- name: make directory {{ ca_dir }}
+  ansible.builtin.file:
+    path: "{{ ca_dir }}"
+    state: directory
+
+- name: initialize database
+  ansible.builtin.shell: |
+    certutil -N -d {{ ca_dir }} --empty-password
+  register: result
+
+- name: create noise.bin
+  ansible.builtin.shell: |
+    dd if=/dev/urandom of=/tmp/noise.bin bs=1 count=2048 > /dev/null 2>&1
+
+- name: create CA
+  ansible.builtin.shell: |
+    printf 'y\n0\ny\n' | certutil -S -x -d {{ ca_dir }} \
+      -z /tmp/noise.bin \
+      -n "{{ ca_nickname }}" \
+      -s "cn={{ ca_nickname }}" \
+      -t "CT,C,C" \
+      -k rsa \
+      -g 2048 \
+      -Z SHA256 \
+      -2
+
+- name: remove {{ ca_cert }}
+  ansible.builtin.file:
+    path: "{{ ca_cert }}"
+    state: absent
+
+- name: export cacert
+  ansible.builtin.shell: |
+    certutil -L -d {{ ca_dir }} \
+      -n {{ ca_nickname }} -a > {{ ca_cert }}
+
+- name: remove noise.bin
+  ansible.builtin.file:
+    path: /tmp/noise.bin
+    state: absent
+
+- name: trust myca.crt
+  ansible.builtin.shell: |
+    cp \
+      -f {{ ca_cert }} \
+      /usr/share/pki/ca-trust-source/anchors/
+    update-ca-trust
+    

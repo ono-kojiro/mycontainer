@@ -1,0 +1,53 @@
+#!/usr/bin/env perl
+
+# https://www.openldap.org/faq/data/cache/347.html
+
+use utf8;
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+use Digest::SHA1;
+use MIME::Base64;
+
+sub main
+{
+  my $ret = 0;
+  my $options = {};
+
+  GetOptions(
+    $options,
+    "secret|s=s"
+  );
+
+  if(!defined($options->{'secret'})){
+    printf STDERR ("not secret option\n");
+    $ret++;
+  }
+
+  if($ret){
+    exit($ret);
+  }
+
+  my $digits = [ '.', '/', '0' .. '9', 'A' .. 'Z', 'a' .. 'z' ];
+
+  my $len = scalar(@{$digits});
+
+  my $i;
+  my $salt = "";
+  for($i = 0; $i < 4; $i++){
+    my $offset = int(rand($len));
+    $salt = $salt . $digits->[$offset];
+  }
+
+  my $ctx = Digest::SHA1->new;
+  $ctx->add($options->{'secret'});
+  $ctx->add($salt);
+  my $hashedPasswd = '{SSHA}' . encode_base64($ctx->digest . $salt, '');
+  print $hashedPasswd . "\n";
+}
+
+main();
+
+
