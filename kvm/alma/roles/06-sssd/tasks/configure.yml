@@ -25,4 +25,3 @@
   ansible.builtin.shell: |
     authselect select sssd with-mkhomedir --force
 
-

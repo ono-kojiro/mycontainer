@@ -1,7 +1,8 @@
 ---
 server_ipaddr: 192.168.122.219
 
-ldap_uri : ldap://localhost
+#ldap_uri : ldap://localhost
+ldap_uri : ldap://192.168.122.1
 ldap_instance_name: myinstance
 ldap_suffix: dc=example,dc=com
 ldap_root_passwd: secret389

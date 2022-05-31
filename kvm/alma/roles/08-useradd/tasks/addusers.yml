@@ -1,4 +1,10 @@
 ---
+- name: delete home directories
+  ansible.builtin.file:
+    path: /home/{{ item.name }}
+    state: absent
+  with_items : "{{ users }}"
+
 - name: add ldap users
   ansible.builtin.shell: |
     ldapadduser {{ item.name }} {{ item.group }}

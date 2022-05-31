@@ -27,4 +27,7 @@
     state: started
     enabled: yes
 
+- name: clean sss cache
+  ansible.builtin.shell: |
+    sss_cache -E
 
