@@ -12,7 +12,7 @@ id_provider     = ldap
 auth_provider   = ldap
 chpass_provider = ldap
 
-ldap_uri = ldap://localhost
+ldap_uri = {{ ldap_uri }}
 ldap_search_base = {{ ldap_suffix }}
 ldap_default_bind_dn = cn=Manager,{{ ldap_suffix }}
 ldap_default_authtok_type = password
@@ -20,7 +20,7 @@ ldap_default_authtok = {{ ldap_root_passwd }}
 
 lookup_family_order = ipv4_only
 
-ldap_chpass_uri = ldap://localhost
+ldap_chpass_uri = {{ ldap_uri }}
 
 ldap_id_use_start_tls = true
 ldap_tls_reqcert = never
