@@ -1,0 +1,10 @@
+version: '3'
+services:
+  jammy:
+    image: ubuntu:22.04
+    container_name: jammy
+    hostname: jammy
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+
