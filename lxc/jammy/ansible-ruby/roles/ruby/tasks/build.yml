@@ -40,12 +40,12 @@
 
 - name: build ruby
   shell: |
-    . /etc/profile.d/rbenv.sh; rbenv install 3.1.2
+    . /etc/profile.d/rbenv.sh; rbenv install {{ ruby_version }}
   when: result.rc != 0
 
 - name: rbenv global
   shell: |
-    . /etc/profile.d/rbenv.sh; rbenv global 3.1.2
+    . /etc/profile.d/rbenv.sh; rbenv global {{ ruby_version }}
 
 
 #- name: install bundler
