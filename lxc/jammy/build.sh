@@ -95,9 +95,11 @@ set_locale()
   echo "INFO : set locale"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
-    apt -y install language-pack-ja
+    export DEBIAN_FRONTEND=noninteractive
+    
     locale-gen ja_JP.UTF-8
     localectl set-locale LANG=ja_JP.UTF-8
+    apt -y install language-pack-ja
   }
 EOS
 
@@ -209,8 +211,38 @@ enable_sssd()
   }
 EOS
   
-  scp $ssh_opts \
-    ./sssd.conf root@$address:/etc/sssd/sssd.conf
+  cat - << 'EOS' | lxc-attach -n $name -- tee /etc/sssd/sssd.conf
+[sssd]
+debug_level = 9
+config_file_version = 2
+services = nss, pam
+domains = LDAP
+
+[domain/LDAP]
+ldap_schema = rfc2307
+cache_credentials = true
+
+id_provider     = ldap
+auth_provider   = ldap
+chpass_provider = ldap
+
+ldap_uri = ldap://10.0.3.1
+ldap_search_base = dc=example,dc=com
+
+ldap_chpass_uri = ldap://10.0.3.1
+
+ldap_id_use_start_tls = true
+ldap_tls_reqcert = never
+
+ldap_user_search_base  = ou=Users,dc=example,dc=com
+ldap_group_search_base = ou=Groups,dc=example,dc=com
+
+access_provider = simple
+simple_allow_groups = ldapusers
+
+enumerate = true
+EOS
+
 
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
@@ -250,7 +282,7 @@ setup_default_user()
     chown $user:ldapusers /home/$user/.ssh
   }
 EOS
-
+  
   cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
 
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
