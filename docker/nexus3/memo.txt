@@ -1,0 +1,28 @@
+
+CONFIRM ADMIN PASSWORD
+
+  $ docker exec -it nexus /bin/bash
+  bash-4.4$ cat /nexus-data/admin.password
+
+LDAP AUTHENTICATION
+
+  Security -> LDAP
+
+  Create connection
+  
+  Name : MYLDAP
+  LDAP server address: 192.168.0.XX, 389
+  Search base DN: dc=example,dc=com
+  Authentication method: Anonymous Authentication
+  Connection rules : (default)
+
+  User relative DN : ou=Users
+
+  Object class: inetOrgPerson
+  User ID attribute: uid
+  Real name attribute: gecos
+  Email attribute: mail
+
+END
+
+
