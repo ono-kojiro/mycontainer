@@ -1,0 +1,16 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  couchdb:
+    image: httpd:2.4.54
+    container_name: httpd
+    hostname: httpd
+    restart: always
+    ports:
+      - 8080:80
+      - 8443:443
+
+
+
