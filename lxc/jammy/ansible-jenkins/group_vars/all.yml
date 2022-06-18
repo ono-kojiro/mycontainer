@@ -1,0 +1,8 @@
+---
+server_jks: mylocalserver.jks
+jenkins_http_port: 8080
+jenkins_https_port: 8443
+jenkins_https_keystore: "/var/lib/jenkins/{{ server_jks }}"
+jenkins_https_keystore_password: secret
+
+

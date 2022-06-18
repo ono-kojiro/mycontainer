@@ -1,0 +1,105 @@
+- name: remove java cacerts
+  ansible.builtin.file:
+    path: /etc/ssl/certs/java/cacerts
+    state: absent
+
+- name: install curl and htpasswd
+  apt:
+    name:
+      - curl
+      - apache2-utils
+
+- name: uninstall openjdk 17
+  apt:
+    name:
+      - openjdk-17-jre
+    state : absent
+    purge: yes
+
+- name: install openjdk 11
+  apt:
+    name:
+      - curl
+      - openjdk-11-jre
+
+#- name: install jenkins keyring
+#  ansible.builtin.shell: \
+#    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | \
+#      tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+- name: download jenkins keyring
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+
+#    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+#      https://pkg.jenkins.io/debian-stable binary/ | \
+#      tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+- name: copy jenkins.list
+  ansible.builtin.template:
+    src: jenkins.list
+    dest: /etc/apt/sources.list.d/jenkins.list
+    mode: '0644'
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+- name: uninstall jenkins
+  apt:
+    name:  jenkins
+    state: absent
+    purge: yes
+
+- name: remove override.conf
+  ansible.builtin.file:
+    path: /etc/systemd/system/jenkins.service.d/override.conf
+    state: absent
+
+- name: install jenkins
+  apt:
+    name:
+      - jenkins
+
+- name: calculate bcrypt hash
+  ansible.builtin.shell:
+    htpasswd -bnBC 10 "#jbcrypt" secret | tr -d '\n' | sed 's/$2y/$2a/'
+  register: hashed
+
+- name: search config.xml
+  ansible.builtin.shell:
+    echo $(ls -d /var/lib/jenkins/users/admin_*)/config.xml
+  register: config_path
+
+- name: update password
+  ansible.builtin.replace:
+    path: "{{ config_path.stdout }}"
+    regexp:  '<passwordHash>(.+)</passwordHash>'
+    replace: "<passwordHash>{{ hashed.stdout }}</passwordHash>"
+
+#- name: insert authenticated
+#  ansible.builtin.blockinfile:
+#    path: "{{ config_path.stdout }}"
+#    marker: '<!-- {mark} ANSIBLE MANAGED BLOCK -->'
+#    insertafter: '</hudson.security.HudsonPrivateSecurityRealm_-Details>'
+#    block: | 
+#     <jenkins.security.LastGrantedAuthoritiesProperty>
+#       <roles>
+#         <string>authenticated</string>
+#       </roles>
+#       <timestamp>1655555439146</timestamp>
+#     </jenkins.security.LastGrantedAuthoritiesProperty>
+
+
+- name: remove initialAdminPassword
+  ansible.builtin.file:
+    path: /var/lib/jenkins/secrets/initialAdminPassword
+    state: absent
+
+- name: restart jenkins
+  ansible.builtin.systemd:
+    name:  jenkins
+    state: restarted
+    daemon_reload: yes
+

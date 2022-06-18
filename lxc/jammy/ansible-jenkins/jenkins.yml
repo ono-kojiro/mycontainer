@@ -1,0 +1,10 @@
+---
+- hosts: all
+
+  roles:
+    - role: jenkins
+      tags: jenkins
+    
+    - role: ssl
+      tags: ssl
+
