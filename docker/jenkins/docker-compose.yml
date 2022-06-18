@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts-jdk11
+    container_name: jenkins
+    hostname: jenkins
+    restart: always
+    ports:
+      - 18080:8080
+      - 18443:50000
+    volumes:
+      - /home/jenkins:/var/lib/jenkins_home
+
