@@ -8,7 +8,9 @@ services:
     restart: always
     ports:
       - 18080:8080
-      - 18443:50000
+      - 18443:8443
     volumes:
-      - /home/jenkins:/var/lib/jenkins_home
+      - /home/jenkins:/var/jenkins_home
+    environment:
+      - 'JENKINS_OPTS=--httpPort=8080 --httpsPort=8443 --httpsKeyStore=/var/jenkins_home/mylocalserver.jks --httpsKeyStorePassword=secret'
 
