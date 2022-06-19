@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  gerrit:
+    image: gerritcodereview/gerrit
+    container_name: gerrit
+    hostname: gerrit
+    restart: always
+    ports:
+      - "38080:8080"
+      - "29418:29418"
+    environment:
+      - "CANONICAL_WEB_URL=http://192.168.0.98:38080"
+
+#    volumes:
+#      - "git-volume:/var/gerrit/git"
+#      - "index-volume:/var/gerrit/index"
+#      - "cache-volume:/var/gerrit/cache"
+
+#volumes:
+#  git-volume:
+#  index-volume:
+#  cache-volume:
+
