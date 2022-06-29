@@ -23,6 +23,14 @@ LDAP AUTHENTICATION
   Real name attribute: gecos
   Email attribute: mail
 
+
+  Map LDAP group as roles: yes
+  Group type: Static Groups
+  Group relative DN: ou=Groups
+  Group subtree: (no)
+  Group object class: posixGroup
+  Group ID attribute: cn
+  Group member attribute: memberUid
+  Group member format: ${username}
+
 END
-
-
