@@ -53,6 +53,8 @@ all()
   start
   chpasswd
 
+  copy_files
+
   #network
   dns
   gw
@@ -68,6 +70,8 @@ all()
   test_sssd
 
   mkhomedir
+
+  post_proc
 }
 
 create()
@@ -99,6 +103,18 @@ start()
 attach()
 {
   lxc-attach -n $name --clear-env -- /bin/bash
+}
+
+copy_files()
+{
+  cat enable_eth0.sh    | lxc-attach -n $name -- tee /enable_eth0.sh
+  cat myservice.service | lxc-attach -n $name -- tee /etc/systemd/system/myservice.service
+
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    chmod 755 /enable_eth0.sh
+  }
+EOS
 }
 
 update()
@@ -263,10 +279,39 @@ enable_sssd()
     dnf -y install sssd sssd-tools sssd-ldap authselect oddjob-mkhomedir
   }
 EOS
-  
-  scp $ssh_opts \
-    ./sssd.conf root@$address:/etc/sssd/sssd.conf
 
+  cat - << 'EOS' | lxc-attach -n $name -- tee /etc/sssd/sssd.conf
+[sssd]
+debug_level = 9
+config_file_version = 2
+services = nss, pam
+domains = LDAP
+
+[domain/LDAP]
+ldap_schema = rfc2307
+cache_credentials = true
+
+id_provider     = ldap
+auth_provider   = ldap
+chpass_provider = ldap
+
+ldap_uri = ldap://10.0.3.1
+ldap_search_base = dc=example,dc=com
+
+ldap_chpass_uri = ldap://10.0.3.1
+
+ldap_id_use_start_tls = true
+ldap_tls_reqcert = never
+
+ldap_user_search_base  = ou=Users,dc=example,dc=com
+ldap_group_search_base = ou=Groups,dc=example,dc=com
+
+access_provider = simple
+simple_allow_groups = ldapusers
+
+enumerate = true
+EOS
+  
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
     chmod 600 /etc/sssd/sssd.conf
@@ -329,6 +374,15 @@ EOS
 EOS
 }
 
+post_proc()
+{
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    systemctl enable myservice.service
+  }
+EOS
+
+}
 
 stop()
 {
