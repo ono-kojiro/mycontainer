@@ -19,8 +19,8 @@ gateway="10.0.3.1"
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
-seckey="id_ed25519_${name}"
-pubkey="id_ed25519_${name}.pub"
+seckey="id_ed25519"
+pubkey="id_ed25519.pub"
 
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
@@ -71,6 +71,7 @@ all()
 
   mkhomedir
 
+  copy_pubkey
   post_proc
 }
 
@@ -248,7 +249,7 @@ EOS
 
 enable_pubkey()
 {
-  rm -f ./id_ed25519_${name}*
+  rm -f ./id_ed25519*
   
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
