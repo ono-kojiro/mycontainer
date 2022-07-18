@@ -1,0 +1,10 @@
+[Unit]
+Description=myservice
+After=systemd-journald.service
+
+[Service]
+ExecStart=/myservice
+
+[Install]
+WantedBy=multi-user.target
+
