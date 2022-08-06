@@ -1,0 +1,113 @@
+#!/usr/bin/python
+
+import sys
+
+import getopt
+import yaml
+
+import os
+
+import subprocess
+
+from pprint import pprint
+
+def usage():
+    print("Usage : {0} [OPTIONS] command [ARGS]".format(sys.argv[0]))
+    print("Commands")
+    print("  start")
+    print("  stop")
+
+def read_yaml(filepath) :
+    fp = open(filepath, 'r')
+    data = yaml.safe_load(fp)
+    fp.close()
+    return data
+
+def main():
+    ret = 0
+
+    try:
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "hvo:c:",
+            [
+                "help",
+                "version",
+                "output=",
+                "config=",
+            ]
+        )
+    except getopt.GetoptError as err:
+        print(str(err))
+        sys.exit(2)
+	
+    config_yml = None
+    output = None
+	
+    for opt, arg in opts:
+        if opt == "-v":
+            usage()
+            sys.exit(0)
+        elif opt in ("-h", "--help"):
+            usage()
+            sys.exit(0)
+        elif opt in ("-o", "--output"):
+            output = arg
+        elif opt in ("-c", "--config"):
+            config_yml = arg
+        else:
+            assert False, "unknown option"
+
+    #if output == None :
+    #    print("no output option")
+    #    ret += 1
+	
+    if ret != 0:
+        sys.exit(1)
+    
+    if output is not None :
+        fp = open(output, mode='w', encoding='utf-8')
+
+    if config_yml is not None :
+        data = read_yaml(config_yml)
+    elif os.path.isfile("./lxc-compose") :
+        data = read_yaml("./lxc-compose")
+    else :
+        print("no config option and ./lxc-conpose file")
+        sys.exit(1)
+
+    if len(args) == 0 :
+        usage()
+        sys.exit(1)
+
+    subcmd = args[0]
+    if subcmd == "start" :
+        machines = data['machines']
+        for machine in machines:
+            cmd = "lxc-start -n {0}".format(machine)
+            print(cmd)
+            proc = subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+    elif subcmd == "stop" :
+        machines = data['machines']
+        for machine in machines:
+            cmd = "lxc-stop -n {0}".format(machine)
+            print(cmd)
+            proc = subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        
+    if output is not None :
+        fp.close()
+	
+if __name__ == "__main__":
+	main()
