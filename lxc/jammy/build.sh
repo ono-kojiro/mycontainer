@@ -18,8 +18,8 @@ gateway="10.0.3.1"
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
-seckey="id_ed25519_${name}"
-pubkey="id_ed25519_${name}.pub"
+seckey="id_ed25519"
+pubkey="id_ed25519.pub"
 
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
@@ -177,7 +177,7 @@ EOS
 
 enable_pubkey_auth()
 {
-  rm -f ./id_ed25519_${name}*
+  rm -f $pubkey $seckey
   
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
@@ -188,7 +188,7 @@ EOS
 
   ssh-keygen -t ed25519 -f $seckey -N ''
   cat $pubkey | lxc-attach -n $name --clear-env -- \
-    tee /root/.ssh/authorized_keys
+    tee -a /root/.ssh/authorized_keys
 }
 
 keygen()
@@ -243,7 +243,6 @@ simple_allow_groups = ldapusers
 enumerate = true
 EOS
 
-
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
@@ -282,8 +281,11 @@ setup_default_user()
     chown $user:ldapusers /home/$user/.ssh
   }
 EOS
-  
-  cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
+ 
+  if [ -e "$HOME/.ssh/id_ed25519.pub" ]; then 
+    cat $HOME/.ssh/id_ed25519.pub | \
+      lxc-attach -n $name -- tee -a $HOME/.ssh/authorized_keys
+  fi
 
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
   {
