@@ -18,8 +18,8 @@ gateway="10.0.3.1"
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
-seckey="id_ed25519_${name}"
-pubkey="id_ed25519_${name}.pub"
+seckey="id_ed25519"
+pubkey="id_ed25519.pub"
 
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
