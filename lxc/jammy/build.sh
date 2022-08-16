@@ -62,6 +62,7 @@ all()
   test_sssd
 
   setup_default_user
+  setup_user_config
 }
 
 create()
@@ -78,6 +79,8 @@ init()
 
 lxc.net.0.ipv4.address = $address/24
 lxc.net.0.ipv4.gateway = $gateway
+
+#lxc.init.cmd = /lib/systemd/systemd systemd.unified_cgroup_hierarchy=1
 EOS
 
 }
@@ -89,6 +92,12 @@ start()
   chmod 755 $HOME/.local/share
   lxc-start -n $name
 }
+
+debug()
+{
+  lxc-start -n $name -l debug -o ${name}.log
+}
+
 
 set_locale()
 {
@@ -293,7 +302,23 @@ EOS
     chmod 755 /home/$user/.ssh/authorized_keys
   }
 EOS
+}
 
+setup_user_config()
+{
+  userfiles=""
+  userfiles="$userfiles $HOME/.vimrc"
+  userfiles="$userfiles $HOME/.tmux.conf"
+  userfiles="$userfiles $HOME/.gitconfig"
+  userfiles="$userfiles $HOME/.profile"
+  userfiles="$userfiles $HOME/.bashrc"
+  userfiles="$userfiles $HOME/.git-prompt.sh"
+
+  for userfile in $userfiles; do
+    if [ -e "$userfile" ]; then
+      scp $userfile $address:$HOME/
+    fi
+  done
 }
 
 stop()
