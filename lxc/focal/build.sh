@@ -51,6 +51,7 @@ all()
   init
   start
   chpasswd
+  config_proxy
   config_network
   update
   enable_sshd
@@ -59,11 +60,19 @@ all()
 
   enable_sssd
   test_sssd
+
+  setup_default_user
+  setup_user_config
 }
 
 create()
 {
-  lxc-create -t download -n $name -- -d $dist -r $release -a $arch
+  opts=""
+  if [ -n "$http_proxy" ] || [ -n "$https_proxy" ] || [ -n "$ftp_proxy" ]; then
+    $opts="$opts --no-validate"
+  fi
+
+  lxc-create -t download -n $name -- -d $dist -r $release -a $arch $opts
 }
 
 init()
@@ -91,6 +100,35 @@ attach()
 {
   lxc-attach -n $name --clear-env -- /bin/bash
 }
+
+config_proxy()
+{
+  rm -f ./apt.conf
+  touch ./apt.conf
+
+  if [ -n "$http_proxy" ]; then
+    cat - << EOS >> apt.conf
+Acquire::http::Proxy "$http_proxy";
+EOS
+  fi
+  
+  if [ -n "$https_proxy" ]; then
+    cat - << EOS >> apt.conf
+Acquire::https::Proxy "$https_proxy";
+EOS
+  fi
+
+  cat apt.conf | lxc-attach -n $name --clear-env -- \
+    tee /etc/apt/apt.conf
+  
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    chmod 644 /etc/apt/apt.conf
+  }
+EOS
+
+}
+
 
 config_network()
 {
@@ -216,6 +254,49 @@ test_sssd()
   }
 EOS
 
+}
+
+setup_default_user()
+{
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    user=$1
+    mkdir -p /home/$user
+    chmod 755 /home/$user
+    chown $user:ldapusers /home/$user
+    
+    mkdir -p  /home/$user/.ssh
+    chmod 700 /home/$user/.ssh
+    chown $user:ldapusers /home/$user/.ssh
+  }
+EOS
+
+  cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
+
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    user=$1
+    chmod 755 /home/$user/.ssh/authorized_keys
+  }
+EOS
+
+}
+
+setup_user_config()
+{
+  userfiles=""
+  userfiles="$userfiles $HOME/.vimrc"
+  userfiles="$userfiles $HOME/.tmux.conf"
+  userfiles="$userfiles $HOME/.gitconfig"
+  userfiles="$userfiles $HOME/.profile"
+  userfiles="$userfiles $HOME/.bashrc"
+  userfiles="$userfiles $HOME/.git-prompt.sh"
+
+  for userfile in $userfiles; do
+    if [ -e "$userfile" ]; then
+      scp $userfile $address:$HOME/
+    fi
+  done
 }
 
 stop()
