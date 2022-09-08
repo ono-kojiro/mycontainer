@@ -1,0 +1,10 @@
+version: '3'
+services:
+  jammy:
+    image: ubuntu:20.04
+    container_name: focal
+    hostname: focal
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+
