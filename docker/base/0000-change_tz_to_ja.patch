@@ -1,0 +1,38 @@
+*** mkimage-debootstrap.sh.orig	2022-09-24 10:33:26.280006602 +0900
+--- mkimage-debootstrap.sh	2022-09-24 11:22:05.990907017 +0900
+*************** echo >&2 'warning: this script is deprec
+*** 6,12 ****
+  echo >&2
+  
+  variant='minbase'
+! include='iproute,iputils-ping'
+  arch='amd64' # intentionally undocumented for now
+  skipDetection=
+  strictDebootstrap=
+--- 6,12 ----
+  echo >&2
+  
+  variant='minbase'
+! include='iproute2,iputils-ping'
+  arch='amd64' # intentionally undocumented for now
+  skipDetection=
+  strictDebootstrap=
+*************** if [ -z "$strictDebootstrap" ]; then
+*** 224,229 ****
+--- 224,239 ----
+  	# make sure our packages lists are as up to date as we can get them
+  	sudo chroot . apt-get update
+  	sudo chroot . apt-get dist-upgrade -y
++     
++     sudo chroot . env DEBIAN_FRONTEND=noninteractive apt-get install locales
++     sudo chroot . locale-gen ja_JP.UTF-8
++ 
++     sudo chroot . env DEBIAN_FRONTEND=noninteractive apt-get install tzdata
++     sudo chroot . ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
++     sudo chroot . dpkg-reconfigure -f noninteractive tzdata
++     #echo "Asia/Tokyo" | sudo tee -a etc/timezone > /dev/null
++     
++     sudo chroot . apt-get clean
+  fi
+  
+  if [ "$justTar" ]; then
