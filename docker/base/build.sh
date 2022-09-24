@@ -3,10 +3,10 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 
 codename="jammy"
-image="jammy-ja"
-name="jammy-ja"
+image="jammy"
+name="jammy"
 
-tag="0.0.1"
+tag="latest"
 mirror="http://ftp.jaist.ac.jp/pub/Linux/ubuntu/"
 
 archive="${image}.tar.xz"
@@ -85,6 +85,12 @@ attach()
 stop()
 {
   docker stop $name
+}
+
+clean()
+{
+  docker rm $name
+  docker rmi $image:$tag
 }
 
 args=""
