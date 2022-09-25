@@ -26,10 +26,10 @@ image :
 	$(MAKE) build
 
 tag :
-	docker tag $(IMAGE) 192.168.0.98/$(IMAGE)
+	docker tag $(IMAGE) 192.168.0.98:5000/$(IMAGE)
 
 push :
-	docker push 192.168.0.98/$(IMAGE)
+	docker push 192.168.0.98:5000/$(IMAGE)
 
 inspect :
 	docker inspect $(NAME)
