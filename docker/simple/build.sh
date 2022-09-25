@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# https://stackoverflow.com/questions/25436742/how-to-delete-images-from-a-private-docker-registry
+
 image="simple"
 name="simple"
 
@@ -44,16 +46,50 @@ push()
   docker push $regserver/$image
 }
 
+pull()
+{
+  docker pull $regserver/$image
+}
+
 manifest()
 {
-  curl http://$regserver/v2/$image/manifests/latest \
+  curl -v --silent http://$regserver/v2/$image/manifests/latest \
     -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' \
-    > manifest.json 2> /dev/null
+    > manifest.json
 
   cat manifest.json
 }
 
-delete()
+digest()
+{
+  curl -v --silent \
+    -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' \
+    http://$regserver/v2/$image/manifests/latest \
+    > manifest.json \
+    2> manifest.log
+
+  digest=$(cat manifest.log | grep Docker-Content-Digest | awk '{ print($3) }')
+  echo digest is $digest
+  
+  curl -v --silent \
+    -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' \
+    -X DELETE \
+    http://$regserver/v2/$image/manifests/$digest
+
+}
+
+catalog()
+{
+  curl http://$regserver/v2/_catalog
+}
+
+tags()
+{
+  curl http://$regserver/v2/$name/tags/list
+}
+
+
+destroy()
 {
   curl http://$regserver/v2/$image/manifests/latest \
     -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' \
@@ -62,7 +98,9 @@ delete()
   cat manifest.json
 
   digest=$(cat manifest.json | jq -r '.config.digest')
-  curl -v -X DELETE http://$regserver/v2/simple/manifests/${digest}
+
+  echo "digest is $digest"
+  #curl -v -X DELETE http://$regserver/v2/simple/manifests/${digest}
 }
 
 inspect()
@@ -94,6 +132,7 @@ remove()
 rmi()
 {
   docker rmi $image
+  docker rmi $regserver/$image
 }
 
 clean()
