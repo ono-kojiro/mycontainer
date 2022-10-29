@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+#set -e
 
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
@@ -26,6 +26,8 @@ ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
 ssh_opts="$ssh_opts -i $seckey"
 
+alias lxc-attach='systemd-run --user --scope -p "Delegate=yes" lxc-attach --clear-env'
+
 help()
 {
   usage
@@ -33,22 +35,35 @@ help()
 
 usage()
 {
-	echo "usage : $0 [options] target1 target2 ..."
-    echo ""
-    echo "  target:"
-    echo "    create/init/start"
-    echo "    chpasswd"
-    echo "    enable_sshd"
-    echo "    update"
-    echo "    attach"
-    echo "    stop"
-    echo "    destroy"
+  cat << "EOS"
+
+usage : $0 [options] target1 target2 ...
+
+target:
+  create/init/start
+  chpasswd
+  set_locale
+  enable_sshd
+  update
+  stop
+  destroy
+
+  config_network
+  enable_sshd
+  enable_pubkey_auth
+  test_ssh
+  enable_sssd
+  test_sssd
+
+  setup_default_user
+  setup_user_config
+EOS
+
 }
 
 all()
 {
   create
-  init
   start
   set_locale
   chpasswd
@@ -67,7 +82,10 @@ all()
 
 create()
 {
-  lxc-create -t download -n $name -- -d $dist -r $release -a $arch
+  systemd-run --user --scope -p "Delegate=yes" -- \
+    lxc-create -t download -n $name -- -d $dist -r $release -a $arch
+
+  init
 }
 
 init()
@@ -80,6 +98,9 @@ init()
 lxc.net.0.ipv4.address = $address/24
 lxc.net.0.ipv4.gateway = $gateway
 
+lxc.cgroup.devices.allow =
+lxc.cgroup.devices.deny =
+ 
 #lxc.init.cmd = /lib/systemd/systemd systemd.unified_cgroup_hierarchy=1
 EOS
 
@@ -90,7 +111,9 @@ start()
   echo "INFO : start"
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
-  lxc-start -n $name
+  #lxc-start -n $name
+  systemd-run --user --scope -p "Delegate=yes" -- \
+    lxc-start -n $name -l info -o jammy.log
 }
 
 debug()
@@ -102,21 +125,22 @@ debug()
 set_locale()
 {
   echo "INFO : set locale"
+
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
     
     locale-gen ja_JP.UTF-8
     localectl set-locale LANG=ja_JP.UTF-8
-    apt -y install language-pack-ja
+    apt-get -y install language-pack-ja
   }
 EOS
 
 }
 
-attach()
+test_attach()
 {
-  lxc-attach -n $name --clear-env -- /bin/bash
+  lxc-attach -n jammy -- ps
 }
 
 config_network()
@@ -147,8 +171,8 @@ update()
   echo "INFO : update"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
-    export DEBIAN_FRONTEND=noninteractive
-    apt -y update
+    #export DEBIAN_FRONTEND=noninteractive
+    apt-get -y update
   }
 EOS
 
