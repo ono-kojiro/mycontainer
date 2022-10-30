@@ -26,6 +26,8 @@ ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
 ssh_opts="$ssh_opts -i $seckey"
 
+alias lxc-create='systemd-run --user --scope -p "Delegate=yes" lxc-create'
+alias lxc-start='systemd-run --user --scope -p "Delegate=yes" lxc-start'
 alias lxc-attach='systemd-run --user --scope -p "Delegate=yes" lxc-attach --clear-env'
 
 help()
@@ -78,12 +80,13 @@ all()
 
   setup_default_user
   setup_user_config
+
+  install_devel
 }
 
 create()
 {
-  systemd-run --user --scope -p "Delegate=yes" -- \
-    lxc-create -t download -n $name -- -d $dist -r $release -a $arch
+  lxc-create -t download -n $name -- -d $dist -r $release -a $arch
 
   init
 }
@@ -111,16 +114,13 @@ start()
   echo "INFO : start"
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
-  #lxc-start -n $name
-  systemd-run --user --scope -p "Delegate=yes" -- \
-    lxc-start -n $name -l info -o jammy.log
+  lxc-start -n $name -l info -o jammy.log
 }
 
 debug()
 {
   lxc-start -n $name -l debug -o ${name}.log
 }
-
 
 set_locale()
 {
@@ -140,7 +140,7 @@ EOS
 
 test_attach()
 {
-  lxc-attach -n jammy -- ps
+  lxc-attach -n $name -- ps
 }
 
 config_network()
@@ -195,8 +195,8 @@ enable_sshd()
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
-    apt -y update
-    apt -y install openssh-server
+    apt-get -y update
+    apt-get -y install openssh-server
 
     cat /etc/ssh/sshd_config | grep 'PermitRootLogin yes' > /dev/null
     if [ $? -ne 0 ]; then
@@ -239,8 +239,8 @@ enable_sssd()
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
-    apt -y install sssd-ldap oddjob-mkhomedir
-    apt -y install apt-utils
+    apt-get -y install sssd-ldap oddjob-mkhomedir
+    apt-get -y install apt-utils
   }
 EOS
   
@@ -344,6 +344,21 @@ setup_user_config()
     fi
   done
 }
+
+install_devel()
+{
+  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
+  {
+    apt-get -y install \
+       build-essential \
+       automake autoconf libtool \
+       autopoint \
+       git
+  }
+EOS
+
+}
+
 
 stop()
 {
