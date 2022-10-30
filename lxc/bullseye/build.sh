@@ -93,7 +93,6 @@ create()
 
 init()
 {
-  echo "INFO : init"
   config="$HOME/.local/share/lxc/$name/config"
 
   cat - << EOS >> $config
@@ -104,7 +103,6 @@ lxc.net.0.ipv4.gateway = $gateway
 lxc.cgroup.devices.allow =
 lxc.cgroup.devices.deny =
  
-#lxc.init.cmd = /lib/systemd/systemd systemd.unified_cgroup_hierarchy=1
 EOS
 
 }
@@ -114,12 +112,7 @@ start()
   echo "INFO : start"
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
-  lxc-start -n $name -l info -o jammy.log
-}
-
-debug()
-{
-  lxc-start -n $name -l debug -o ${name}.log
+  lxc-start -n $name
 }
 
 change_source_list()
@@ -133,14 +126,10 @@ EOS
 
 set_locale()
 {
-  echo "INFO : set locale"
-
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
     
-    #locale-gen ja_JP.UTF-8
-    #localectl set-locale LANG=ja_JP.UTF-8
     localedef -f UTF-8 -i ja_JP ja_JP.UTF-8
     apt-get -y install language-pack-ja
   }
