@@ -69,7 +69,7 @@ create()
 {
   opts=""
   if [ -n "$http_proxy" ] || [ -n "$https_proxy" ] || [ -n "$ftp_proxy" ]; then
-    $opts="$opts --no-validate"
+    opts="$opts --no-validate"
   fi
 
   lxc-create -t download -n $name -- -d $dist -r $release -a $arch $opts
