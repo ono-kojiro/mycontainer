@@ -73,6 +73,12 @@ create()
   # $image
 }
 
+status()
+{
+  ip addr show docker0
+  docker network inspect bridge
+}
+
 start()
 {
   #docker start $container
