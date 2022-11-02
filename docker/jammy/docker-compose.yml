@@ -1,7 +1,8 @@
 version: '3'
 services:
   jammy:
-    image: ubuntu:22.04
+    image: jammy:latest
+    network_mode: bridge
     container_name: jammy
     hostname: jammy
     restart:  always
