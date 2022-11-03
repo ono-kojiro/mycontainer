@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:1.23.2-alpine-perl
+    container_name: nginx
+    network_mode: bridge
+    ports:
+      - "8880:80"
+    stdin_open: true    # docker run -i
+    tty:        true    # docker run -t
+
