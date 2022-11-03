@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+  postgres :
+    image: postgres:15.0-alpine3.16
+    network_mode: bridge
+    container_name: postgres
+    restart: always
+    ports :
+      - "15432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+
