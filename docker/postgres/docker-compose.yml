@@ -2,15 +2,15 @@ version: '3.1'
 
 services:
   postgres :
-    image: postgres:15.0-alpine3.16
+    image: postgres-ssl:14.5-alpine3.16-ssl
     network_mode: bridge
-    container_name: postgres
-    restart: always
+    container_name: postgres-ssl
     ports :
       - "15432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "secret"
+      POSTGRES_HOST_AUTH_METHOD: 'ldap ldapserver=192.168.0.98  ldapprefix="uid=" ldapsuffix=",ou=Users,dc=example,dc=com"'
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
 
