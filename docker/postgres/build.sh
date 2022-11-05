@@ -3,8 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-image="postgres-ssl"
-tag="14.5-alpine3.16-ssl"
+image="postgres"
+tag="14.5-alpine3.16"
 container="$image"
 
 help()
@@ -18,10 +18,15 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    build
-    create
+    build/create
     start
-    connect
+    
+    db/user
+
+    test_admin
+
+    enable_ldap
+
     stop
     destroy
 EOS
@@ -30,9 +35,20 @@ EOS
 
 all()
 {
-  build
   create
   start
+  
+  sleep 2
+  db
+  user
+
+  docker-compose stop
+  docker-compose start
+
+  #test_admin
+
+  enable_ldap
+
 }
 
 build()
@@ -76,6 +92,53 @@ connect()
     -h localhost -p 15432 sampledb $USER
 }
 
+db()
+{
+  docker exec -i postgres /bin/bash << EOS
+
+createdb -U postgres sampledb
+
+EOS
+
+}
+
+user()
+{
+  docker exec -i postgres /bin/bash << EOS
+
+createuser -U postgres -d $USER
+
+EOS
+
+}
+
+enable_ldap()
+{
+  docker exec -i postgres /bin/bash << 'EOS'
+
+  grep 'ldapserver=' /var/lib/postgresql/data/pg_hba.conf
+  if [ $? -ne 0 ]; then
+  {
+    echo 'local   all   all                    ldap ldapserver=192.168.0.98  ldapprefix="uid=" ldapsuffix=",ou=Users,dc=example,dc=com"' 
+    echo 'host all all all ldap ldapserver=192.168.0.98  ldapprefix="uid=" ldapsuffix=",ou=Users,dc=example,dc=com"'
+  } >> /var/lib/postgresql/data/pg_hba.conf
+  fi
+
+EOS
+
+}
+
+test_admin()
+{
+  docker exec -it postgres psql -U postgres
+}
+
+test_ldap()
+{
+   #PGSSLROOTCERT=$HOME/.local/share/mkcert/rootCA.pem \
+    psql sampledb -h localhost -p 15432 -U $USER
+}
+
 stop()
 {
   docker-compose stop
@@ -84,7 +147,12 @@ stop()
 destroy()
 {
   docker-compose down
-  docker rmi $(docker images -q $image)
+  #docker rmi $(docker images -q $image)
+}
+
+clean()
+{
+  destroy
 }
 
 
