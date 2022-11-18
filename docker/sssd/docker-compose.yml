@@ -1,0 +1,13 @@
+version: '3'
+services:
+  focal:
+    image: focal
+    container_name: focal
+    hostname: focal
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    ports:
+      - "20022:22"
+
+

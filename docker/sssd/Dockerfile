@@ -3,8 +3,8 @@
 #
 
 FROM scratch
-ADD ubuntu-bionic-core-cloudimg-amd64-root.tar.gz /
-#ADD ubuntu-focal-core-cloudimg-amd64-root.tar.gz /
+#ADD ubuntu-bionic-core-cloudimg-amd64-root.tar.gz /
+ADD ubuntu-focal-core-cloudimg-amd64-root.tar.gz /
 
 RUN set -xe \
     \

@@ -3,8 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-#release="focal"
-release="bionic"
+#release="bionic"
+release="focal"
 
 image="$release"
 container="$release"
@@ -56,17 +56,12 @@ build()
 
 create()
 {
-  docker create \
-    -it \
-	--hostname $container \
-	--env TZ=Asia/Tokyo \
-	--name $container \
-	$image
+  docker-compose up --no-start
 }
 
 start()
 {
-  docker start $container
+  docker-compose start
 }
 
 attach()
@@ -76,7 +71,7 @@ attach()
 
 stop()
 {
-  docker stop $container
+  docker-compose stop
 }
 
 ip()
