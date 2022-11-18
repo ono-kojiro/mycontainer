@@ -23,6 +23,15 @@ help()
   usage
 }
 
+all()
+{
+  init
+  config
+  add
+  update
+  build
+}
+
 init()
 {
   mkdir -p $workspace/conf/
@@ -69,6 +78,8 @@ EOS
     echo skip updating $recipefile
   fi
   
+  sed -i -e 's|^inherit cmake|inherit autotools|' $recipefile
+ 
   bbappend=$workspace/appends/${recipe_name}_git.bbappend
   grep 'EXTERNALSRC_BUILD' $bbappend > /dev/null 2>&1
   res=$?
@@ -93,6 +104,32 @@ build()
 {
   cmd="devtool build $recipe_name"
   echo $cmd; $cmd
+}
+
+image()
+{
+  cmd="devtool build-image core-image-minimal"
+  echo $cmd; $cmd
+}
+
+run()
+{
+  disk1="${top_dir}/disk1.ext4"
+  if [ ! -e "$disk1" ]; then
+    dd if=/dev/zero of=$disk1 bs=1024K count=1024
+  fi
+
+  params="-m 4096 -smp 4"
+  params="$params -device virtio-blk-device,drive=disk1"
+  params="$params -drive id=disk1,file=$disk1,if=none,format=raw"
+
+  bootparams="root=/dev/vdb"
+  image="core-image-minimal"
+
+  runqemu nographic slirp ${machine} \
+    qemuparams="$params" bootparams="$bootparams" \
+    $image
+  cd ${top_dir}
 }
 
 package()
