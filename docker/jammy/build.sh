@@ -8,17 +8,7 @@ release="jammy"
 image="$release"
 container="$release"
 
-case $release in
-  bionic )
-    root_url="https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-amd64-root.tar.gz"
-    ;;
-  focal )
-    root_url="https://partner-images.canonical.com/core/focal/current/ubuntu-focal-core-cloudimg-amd64-root.tar.gz"
-    ;;
-  jammy )
-    root_url="https://partner-images.canonical.com/core/$release/current/ubuntu-$release-core-cloudimg-amd64-root.tar.gz"
-    ;;
-esac
+root_url="https://partner-images.canonical.com/core/${release}/current/ubuntu-${release}-core-cloudimg-amd64-root.tar.gz"
 
 root_filename=`basename $root_url`
 
@@ -65,12 +55,6 @@ build()
 create()
 {
   docker-compose up --no-start
-  #docker create \
-  #  -it \
-  # --hostname $container \
-  # --env TZ=Asia/Tokyo \
-  # --name $container \
-  # $image
 }
 
 status()
@@ -81,7 +65,6 @@ status()
 
 start()
 {
-  #docker start $container
   docker-compose start
 }
 
@@ -92,7 +75,6 @@ attach()
 
 stop()
 {
-  # docker stop $container
   docker-compose stop
 }
 
