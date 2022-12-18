@@ -1,12 +1,12 @@
+HOSTS = hosts
+SITE_YML = site.yml
+
 all :
-	ansible-playbook -i hosts site.yml
+	ansible-playbook -i $(HOSTS) $(SITE_YML)
 
 list :
-	ansible-playbook -i hosts --list-tags site.yml
-
-slapd :
-	ansible-playbook -i hosts --tags slapd site.yml
+	ansible-playbook -i $(HOSTS) --list-tags $(SITE_YML)
 
 % :
-	ansible-playbook -i hosts --tags $@ site.yml
+	ansible-playbook -i $(HOSTS) --tags $@ $(SITE_YML)
 
