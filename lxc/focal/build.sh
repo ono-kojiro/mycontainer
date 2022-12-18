@@ -18,8 +18,8 @@ gateway="10.0.3.1"
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
-seckey="id_ed25519_focal"
-pubkey="id_ed25519_focal.pub"
+seckey="id_ed25519"
+pubkey="id_ed25519.pub"
 
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
@@ -58,11 +58,11 @@ all()
   enable_pubkey_auth
   test_ssh
 
-  enable_sssd
-  test_sssd
+  #enable_sssd
+  #test_sssd
 
-  setup_default_user
-  setup_user_config
+  #setup_default_user
+  #setup_user_config
 }
 
 create()
@@ -126,6 +126,8 @@ EOS
     chmod 644 /etc/apt/apt.conf
   }
 EOS
+
+  rm -f apt.conf
 
 }
 
@@ -195,7 +197,7 @@ EOS
 
 enable_pubkey_auth()
 {
-  rm -f ./id_ed25519_focal*
+  rm -f ./id_ed25519*
   
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
@@ -228,10 +230,45 @@ enable_sssd()
     apt -y install apt-utils
   }
 EOS
+
+  cat - << 'EOS' > sssd.conf
+[sssd]
+debug_level = 9
+config_file_version = 2
+services = nss, pam
+domains = LDAP
+
+[domain/LDAP]
+ldap_schema = rfc2307
+cache_credentials = true
+
+id_provider     = ldap
+auth_provider   = ldap
+chpass_provider = ldap
+
+ldap_uri = ldap://10.0.3.1
+ldap_search_base = dc=example,dc=com
+
+ldap_chpass_uri = ldap://10.0.3.1
+
+ldap_id_use_start_tls = true
+ldap_tls_reqcert = never
+
+ldap_user_search_base  = ou=Users,dc=example,dc=com
+ldap_group_search_base = ou=Groups,dc=example,dc=com
+
+access_provider = simple
+simple_allow_groups = ldapusers
+
+enumerate = true
+
+EOS
   
   scp $ssh_opts \
     ./sssd.conf root@$address:/etc/sssd/sssd.conf
-
+  rm -f ./sssd.conf
+ 
+  # change permission and start sssd
   cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
