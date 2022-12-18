@@ -1,0 +1,11 @@
+- hosts: targets
+
+  roles:
+    - role: add_users
+      tags: add_users
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished tasks'
+

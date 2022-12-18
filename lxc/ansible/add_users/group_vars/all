@@ -1,0 +1,33 @@
+---
+
+newgroups:
+    - name: newtype
+    - name: oldtype
+
+default_group: ldapusers
+
+newusers:
+    - name: garma
+      password: garma
+      gecos: "Garma Zabi"
+      memberof:
+        - ldapusers
+        - oldtype
+      mail: garma@example.com
+
+    - name: challiabull
+      password: challiabull
+      gecos: "Challia Bull"
+      memberof:
+        - ldapusers
+        - newtype
+      mail: challiabull@example.com
+
+    - name: kycilia
+      password: kycilia
+      gecos: "Kycilia Zabi"
+      memberof:
+        - ldapusers
+        - oldtype
+      mail: kycilia@example.com
+

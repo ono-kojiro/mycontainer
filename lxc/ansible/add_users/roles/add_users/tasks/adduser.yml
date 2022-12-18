@@ -1,0 +1,51 @@
+---
+- name: add groups
+  shell: |
+    ldapaddgroup "{{ item.name }}"
+  loop: "{{ newgroups }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add user in default group
+  shell: |
+    ldapadduser "{{ item.name }}" ldapusers
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add user to group
+  shell: |
+    ldapaddusertogroup "{{ item.0.name }}" "{{ item.1 }}"
+  loop: "{{ newusers | subelements('memberof') }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add gecos of gihren
+  shell: |
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    replace: gecos
+    gecos: "{{ item.gecos }}"
+    EOS
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: set ldap user password
+  shell: |
+    ldapsetpasswd "{{ item.name }}" `slappasswd -s "{{ item.password }}"`
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add mail
+  shell: |
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: mail
+    mail: "{{ item.mail }}"
+    EOS
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
