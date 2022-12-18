@@ -1,12 +1,32 @@
 ---
 
 newgroups:
+    - name: ldapusers
+    - name: ldapwheel
     - name: newtype
     - name: oldtype
 
 default_group: ldapusers
 
 newusers:
+    - name: gihren
+      password: gihren
+      gecos: "Gihren Zabi"
+      memberof:
+        - ldapusers
+        - ldapwheel
+        - oldtype
+      mail: gihren@example.com
+
+    - name: dozle
+      password: dozle
+      gecos: "Dozle Zabi"
+      memberof:
+        - ldapusers
+        - ldapwheel
+        - oldtype
+      mail: dozle@example.com
+
     - name: garma
       password: garma
       gecos: "Garma Zabi"
@@ -15,14 +35,6 @@ newusers:
         - oldtype
       mail: garma@example.com
 
-    - name: challiabull
-      password: challiabull
-      gecos: "Challia Bull"
-      memberof:
-        - ldapusers
-        - newtype
-      mail: challiabull@example.com
-
     - name: kycilia
       password: kycilia
       gecos: "Kycilia Zabi"
@@ -30,4 +42,20 @@ newusers:
         - ldapusers
         - oldtype
       mail: kycilia@example.com
+    
+    - name: challia
+      password: challia
+      gecos: "Challia Bull"
+      memberof:
+        - ldapusers
+        - newtype
+      mail: challia@example.com
+
+    - name: char
+      password: char
+      gecos: "Char Aznable"
+      memberof:
+        - ldapusers
+        - newtype
+      mail: char@example.com
 

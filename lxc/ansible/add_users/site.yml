@@ -4,6 +4,12 @@
     - role: add_users
       tags: add_users
 
+    - role: sudo
+      tags: sudo
+    
+    - role: check_users
+      tags: check_users
+
   post_tasks:
     - name: finished.
       debug:

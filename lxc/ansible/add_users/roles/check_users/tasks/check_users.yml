@@ -1,0 +1,29 @@
+---
+- name: check password database
+  shell: |
+    getent passwd "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: show group
+  shell: |
+    sssctl group-show "{{ item.name }}"
+  loop: "{{ newgroups }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: show user
+  shell: |
+    sssctl user-show "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: user-checks
+  shell: |
+    sssctl user-checks "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+

@@ -1,26 +1,30 @@
 ---
 - name: add groups
   shell: |
-    ldapaddgroup "{{ item.name }}"
+    num=$(getent group "{{ item.name }}" | wc -l)
+    if test $num -eq 0 ; then
+      ldapaddgroup "{{ item.name }}"
+    fi
   loop: "{{ newgroups }}"
   register: result
   failed_when: result.rc != 0
 
-- name: add user in default group
+- name: add user or add user to group
   shell: |
-    ldapadduser "{{ item.name }}" ldapusers
-  loop: "{{ newusers }}"
-  register: result
-  failed_when: result.rc != 0
+    num=$(getent passwd "{{ item.0.name }}" | wc -l)
+    if test "$num" -eq 0 ; then
+      ldapadduser "{{ item.0.name }}" "{{ item.1 }}"
+    fi
 
-- name: add user to group
-  shell: |
-    ldapaddusertogroup "{{ item.0.name }}" "{{ item.1 }}"
+    num=$(id -nG "{{ item.0.name }}" | grep "{{ item.1 }}" | wc -l)
+    if test "$num" -eq 0 ; then
+      ldapaddusertogroup "{{ item.0.name }}" "{{ item.1 }}"
+    fi
   loop: "{{ newusers | subelements('memberof') }}"
   register: result
   failed_when: result.rc != 0
 
-- name: add gecos of gihren
+- name: add gecos
   shell: |
     cat << EOS | ldapmodifyuser "{{ item.name }}"
     changetype: modify
