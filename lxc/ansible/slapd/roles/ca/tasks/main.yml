@@ -1,11 +1,14 @@
 ---
 - name: remove /etc/ssl/ca
-  shell:
-    cmd: rm -rf /etc/ssl/ca
+  ansible.builtin.file:
+    path: /etc/ssl/ca
+    state: absent
 
-- name: make directory /etc/ssl/ca
-  shell:
-    cmd: mkdir -p /etc/ssl/ca
+- name: create directory /etc/ssl/ca if it does not exist
+  ansible.builtin.file:
+    path: /etc/ssl/ca
+    state: directory
+    mode: '0755'
 
 - name: initialize database
   shell:
@@ -19,12 +22,17 @@
   shell: |
     printf 'y\n0\ny\n' | certutil -S -x -d /etc/ssl/ca -z /tmp/noise.bin -n MyCA -s "cn=MyCA" -t "CT,C,C" -k rsa -g 2048 -Z SHA256 -2
 
+- name: remove cacert
+  ansible.builtin.file:
+    path: /etc/ssl/certs/myca.crt
+    state: absent
+
 - name: export cacert
   shell: |
-    rm -f /etc/ssl/certs/myca.crt
     certutil -L -d /etc/ssl/ca -n MyCA -a > /etc/ssl/certs/myca.crt
 
 - name: remove noise.bin
-  shell:
-    cmd: rm -f /tmp/noise.bin
+  ansible.builtin.file:
+    path: /tmp/noise.bin
+    state: absent
 
