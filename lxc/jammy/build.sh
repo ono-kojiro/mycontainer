@@ -75,13 +75,13 @@ all()
   enable_pubkey_auth
   test_ssh
 
-  enable_sssd
-  test_sssd
+  #enable_sssd
+  #test_sssd
 
-  setup_default_user
-  setup_user_config
+  #setup_default_user
+  #setup_user_config
 
-  install_devel
+  #install_devel
 }
 
 create()
@@ -231,7 +231,23 @@ keygen()
 
 test_ssh()
 {
-  ssh -y $ssh_opts root@$address ip addr
+  command ssh -y $ssh_opts root@$address -- bash -c 'hostname; hostname -I'
+}
+
+ssh()
+{
+  command ssh -y $ssh_opts root@$address
+}
+
+
+check()
+{
+  ssh -y $ssh_opts root@$address ip link show eth0
+  if [ $? -eq 0 ]; then
+    echo "ssh connection passed"
+  else
+    echo "ssh connection failed"
+  fi
 }
 
 enable_sssd()
@@ -399,6 +415,7 @@ mclean()
 {
   lxc-stop -n $name -k || true
   lxc-destroy -n $name || true
+  rm -f id_ed25519*
 }
 
 
