@@ -2,8 +2,8 @@
 - name: copy samba.ldif
   shell: |
     cd /etc/ldap/
-    cp -f /usr/share/doc/samba/examples/LDAP/samba.ldif.gz .
-    gunzip -k -f samba.ldif.gz
+    cp -f /usr/share/doc/samba/examples/LDAP/samba.ldif .
+    #gunzip -k -f samba.ldif.gz
 
 - name: import samba.ldif
   shell: |

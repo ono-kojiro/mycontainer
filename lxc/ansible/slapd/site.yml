@@ -1,17 +1,38 @@
 - hosts: targets
 
   roles:
-    #- libnss3
-    #- ca
-    #- server
-    #- crt
-    #- samba
-    #- slapd
-    #- ldap
-    #- ldapscripts
-    - sssd
-    - sudo
+    - role: libnss3
+      tags: libnss3
 
+    - role: ca
+      tags: ca
+
+    - role: server
+      tags: server
+
+    - role: crt
+      tags: crt
+
+    - role: samba
+      tags: samba
+
+    - role: slapd
+      tags: slapd
+
+    - role: ldap
+      tags: ldap
+
+    - role: ldapscripts
+      tags: ldapscripts
+
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+
+    - role: check
+      tags: check
 
   post_tasks:
     - name: finished.

@@ -1,0 +1,6 @@
+---
+- name: check with sssctl
+  shell: |
+    sssctl user-show gihren
+
+
