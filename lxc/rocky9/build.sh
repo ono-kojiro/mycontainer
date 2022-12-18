@@ -71,13 +71,13 @@ all()
   enable_pubkey
   test_ssh
 
-  enable_sssd
-  test_sssd
+  #enable_sssd
+  #test_sssd
 
-  mkhomedir
+  #mkhomedir
 
-  copy_pubkey
-  post_proc
+  #copy_pubkey
+  #post_proc
 }
 
 create()
@@ -277,6 +277,12 @@ test_ssh()
 {
   ssh -y $ssh_opts root@$address ip addr
 }
+
+connect()
+{
+  ssh -y $ssh_opts root@$address
+}
+
 
 enable_sssd()
 {
