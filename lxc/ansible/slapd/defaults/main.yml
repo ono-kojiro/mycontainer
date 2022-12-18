@@ -1,5 +1,0 @@
----
-slapd_run_dir: /run/slapd
-slapd_olc_rootdn: cn=root,cn=config
-slapd_base_dn: dc=zeon,dc=org
-

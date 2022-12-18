@@ -28,8 +28,8 @@
     - role: sssd
       tags: sssd
 
-    - role: sudo
-      tags: sudo
+#    - role: sudo
+#      tags: sudo
 
     - role: check
       tags: check

@@ -1,6 +1,17 @@
 ---
-- name: check with sssctl
-  shell: |
-    sssctl user-show gihren
+#- name: collect facts about system services
+#  service_facts:
+#  register: services_state
+
+#- name: Debug
+#  debug:
+#    var: services_state
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Print service facts
+  ansible.builtin.debug:
+    var: ansible_facts.services['sssd']
 
 
