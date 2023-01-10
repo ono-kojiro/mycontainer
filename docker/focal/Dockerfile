@@ -83,11 +83,16 @@ RUN apt-get -qq update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install sphinx
-RUN apt-get -qq update \
-    && apt-get -qq install python3-sphinx \
-    && apt-get -qq install python3-sphinx-rtd-theme \
-    && apt-get -qq clean    \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get -qq update \
+#    && apt-get -qq install python3-sphinx \
+#    && apt-get -qq install python3-sphinx-rtd-theme \
+#    && apt-get -qq clean    \
+#    && rm -rf /var/lib/apt/lists/*
+
+# Install sphinx by PIP
+RUN python3 -m pip install --no-cache-dir sphinx \
+  && python3 -m pip install --no-cache-dir sphinx-rtd-theme \
+  && python3 -m pip install --no-cache-dir myst-parser
 
 ADD startup.sh /
 RUN chmod +x /startup.sh
