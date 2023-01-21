@@ -1,0 +1,8 @@
+dn: cn=config
+changetype: modify
+add: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ldap/certs/{{ certificatefile }}
+-
+add: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ldap/certs/{{ certificatekeyfile }}
+

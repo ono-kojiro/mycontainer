@@ -1,0 +1,11 @@
+- hosts: targets
+
+  roles:
+    - role: slapd
+      tags: slapd
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing slapd'
+

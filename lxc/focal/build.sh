@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
@@ -26,6 +24,10 @@ ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
 ssh_opts="$ssh_opts -i $seckey"
 
+alias lxc-create='systemd-run --user --scope -p "Delegate=yes" lxc-create'
+alias lxc-start='systemd-run --user --scope -p "Delegate=yes" lxc-start'
+alias lxc-attach='systemd-run --user --scope -p "Delegate=yes" lxc-attach --clear-env'
+
 help()
 {
   usage
@@ -33,16 +35,17 @@ help()
 
 usage()
 {
-	echo "usage : $0 [options] target1 target2 ..."
-    echo ""
-    echo "  target:"
-    echo "    create/init/start"
-    echo "    chpasswd"
-    echo "    enable_sshd"
-    echo "    update"
-    echo "    attach"
-    echo "    stop"
-    echo "    destroy"
+  echo "usage : $0 [options] target1 target2 ..."
+cat - << EOS
+  target:
+    create/init/start
+    chpasswd
+    enable_sshd
+    update
+    attach
+    stop
+    destroy
+EOS
 }
 
 all()
@@ -96,7 +99,7 @@ start()
   lxc-start -n $name
 }
 
-attach()
+bash()
 {
   lxc-attach -n $name --clear-env -- /bin/bash
 }
@@ -348,33 +351,38 @@ status()
 
 destroy()
 {
-  stop
-  lxc-destroy -n $name
+  lxc-stop    -n $name || true
+  lxc-destroy -n $name || true
 }
 
+clean()
+{
+  destroy
+}
 
 delegate()
 {
-    systemd-run --unit=myshell --user --scope \
+  systemd-run --unit=myshell --user --scope \
         -p "Delegate=yes" \
-    lxc-start -n $container
+  lxc-start -n $container
 }
 
 ls()
 {
-	lxc-ls -f
+  lxc-ls -f
 }
 
 attach()
 {
-	#lxc-attach -n $container -- /bin/sh
-	lxc-attach -n $container -- /bin/bash
+  lxc-attach -n $container -- /bin/bash
 }
 
 mclean()
 {
   lxc-stop -n $name -k || true
   lxc-destroy -n $name || true
+  rm -rf ./id_ed25519
+  rm -rf ./id_ed25519.pub
 }
 
 
@@ -395,6 +403,10 @@ while [ $# -ne 0 ]; do
   
   shift
 done
+
+if [ "x$args" = "x" ]; then
+  all
+fi
 
 for arg in $args; do
   LANG=C type $arg | grep 'function' > /dev/null 2>&1

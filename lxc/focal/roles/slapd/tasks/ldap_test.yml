@@ -1,0 +1,8 @@
+---
+- name: check ldap suffix again
+  shell: |
+    ldapsearch -H ldap://localhost -D cn=Manager,dc=zeon,dc=org \
+      -w secret -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix
+  register: result
+  failed_when: result.rc != 0
+

@@ -1,0 +1,13 @@
+- name: uninstall slapd packages
+  apt :
+    name: slapd
+    state: absent
+    purge: yes
+  
+- name: install slapd packages
+  apt:
+    name:
+      - slapd
+      - ldap-utils
+      - ldapscripts
+
