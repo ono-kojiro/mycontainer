@@ -1,0 +1,13 @@
+---
+- name: start apache2.service
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: apache2.service
+
+- name: enable apache2.service
+  ansible.builtin.systemd:
+    name: apache2.service
+    enabled: yes
+
+

@@ -1,0 +1,20 @@
+---
+- name: replace certificatefile
+  ansible.builtin.lineinfile:
+    path: /etc/apache2/sites-available/default-ssl.conf
+    regexp: '^(\s+)(SSLCertificateFile)(\s+)(.*)$'
+    line: '\1\2\3/etc/ssl/certs/focal.crt'
+    backrefs: yes
+
+- name: replace certificatekeyfile
+  ansible.builtin.lineinfile:
+    path: /etc/apache2/sites-available/default-ssl.conf
+    regexp: '^(\s+)(SSLCertificateKeyFile)(\s+)(.*)$'
+    line: '\1\2\3/etc/ssl/private/focal.key'
+    backrefs: yes
+
+- name: enable default-ssl
+  shell: |
+    a2ensite default-ssl
+
+

@@ -1,0 +1,7 @@
+---
+- name: enable ssl
+  community.general.apache2_module:
+    state: present
+    name: ssl
+
+
