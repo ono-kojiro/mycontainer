@@ -5,8 +5,18 @@
       tags: certs
     - role: slapd
       tags: slapd
-    - role: httpd
-      tags: httpd
+    - role: sssd
+      tags: sssd
+#    - role: httpd
+#      tags: httpd
+    - role: ldapscripts
+      tags: ldapscripts
+    - role: ldapinit
+      tags: ldapinit
+    - role: addusers
+      tags: addusers
+    - role: sudo
+      tags: sudo
 
   post_tasks:
     - name: finished.

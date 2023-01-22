@@ -9,7 +9,6 @@
     name:
       - slapd
       - ldap-utils
-      - ldapscripts
 
 - name: add user 'openldap' to group 'ssl-cert'
   user:

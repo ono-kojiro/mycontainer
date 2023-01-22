@@ -1,0 +1,5 @@
+- name: install ldapscripts
+  apt:
+    name:
+      - ldapscripts
+
