@@ -1,4 +1,4 @@
 ---
-certificatefile: focal.crt
-certificatekeyfile: focal.key
+certificatefile: /etc/ssl/certs/focal.crt
+certificatekeyfile: /etc/ssl/private/focal.key
 

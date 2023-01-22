@@ -1,8 +1,12 @@
 - hosts: targets
 
   roles:
+    - role: certs
+      tags: certs
     - role: slapd
       tags: slapd
+    - role: httpd
+      tags: httpd
 
   post_tasks:
     - name: finished.
