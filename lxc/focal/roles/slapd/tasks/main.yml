@@ -1,8 +1,6 @@
 ---
 - import_tasks: install.yml
 
-- import_tasks: copy_certs.yml
-
 - import_tasks: ldap_suffix.yml
 
 - import_tasks: ldap_rootdn.yml
