@@ -5,8 +5,6 @@
 
 - import_tasks: ldap_rootdn.yml
 
-#- import_tasks: ldap_samba.yml
-
 - import_tasks: ldap_tls.yml
 
 - import_tasks: ldap_access.yml

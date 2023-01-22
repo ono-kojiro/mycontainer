@@ -16,3 +16,24 @@
     groups: 'ssl-cert'
     append: yes
 
+- name: change BASE in /etc/ldap/ldap.conf
+  ansible.builtin.lineinfile:
+    path: /etc/ldap/ldap.conf
+    regexp: '^BASE '
+    insertafter: '^#BASE '
+    line: BASE {{ basedn }}
+
+- name: change URI in /etc/ldapV/ldap.conf
+  ansible.builtin.lineinfile:
+    path: /etc/ldap/ldap.conf
+    regexp: '^URI '
+    insertafter: '^#URI '
+    line: URI ldaps://127.0.0.1
+
+- name: insert TLS_REQCERT in /etc/ldapV/ldap.conf
+  ansible.builtin.lineinfile:
+    path: /etc/ldap/ldap.conf
+    regexp: '^TLS_REQCERT '
+    insertafter: '^#TLS_REQCERT '
+    line: TLS_REQCERT never
+

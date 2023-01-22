@@ -61,11 +61,6 @@ all()
   enable_pubkey_auth
   test_ssh
 
-  #enable_sssd
-  #test_sssd
-
-  #setup_default_user
-  #setup_user_config
 }
 
 create()
@@ -224,104 +219,6 @@ test_ssh()
   ssh -y $ssh_opts root@$address ip addr
 }
 
-enable_sssd()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
-  {
-    export DEBIAN_FRONTEND=noninteractive
-    apt -y install sssd-ldap oddjob-mkhomedir
-    apt -y install apt-utils
-  }
-EOS
-
-  cat - << 'EOS' > sssd.conf
-[sssd]
-debug_level = 9
-config_file_version = 2
-services = nss, pam
-domains = LDAP
-
-[domain/LDAP]
-ldap_schema = rfc2307
-cache_credentials = true
-
-id_provider     = ldap
-auth_provider   = ldap
-chpass_provider = ldap
-
-ldap_uri = ldap://10.0.3.1
-ldap_search_base = dc=example,dc=com
-
-ldap_chpass_uri = ldap://10.0.3.1
-
-ldap_id_use_start_tls = true
-ldap_tls_reqcert = never
-
-ldap_user_search_base  = ou=Users,dc=example,dc=com
-ldap_group_search_base = ou=Groups,dc=example,dc=com
-
-access_provider = simple
-simple_allow_groups = ldapusers
-
-enumerate = true
-
-EOS
-  
-  scp $ssh_opts \
-    ./sssd.conf root@$address:/etc/sssd/sssd.conf
-  rm -f ./sssd.conf
- 
-  # change permission and start sssd
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
-  {
-    export DEBIAN_FRONTEND=noninteractive
-    chmod 600 /etc/sssd/sssd.conf
-    systemctl restart sssd
-    pam-auth-update --enable mkhomedir
-  }
-EOS
-
-}
-
-test_sssd()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    id $user
-
-    gpasswd -a $user sudo
-  }
-EOS
-
-}
-
-setup_default_user()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    mkdir -p /home/$user
-    chmod 755 /home/$user
-    chown $user:ldapusers /home/$user
-    
-    mkdir -p  /home/$user/.ssh
-    chmod 700 /home/$user/.ssh
-    chown $user:ldapusers /home/$user/.ssh
-  }
-EOS
-
-  cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
-
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    chmod 755 /home/$user/.ssh/authorized_keys
-  }
-EOS
-
-}
-
 setup_user_config()
 {
   userfiles=""
@@ -385,6 +282,10 @@ mclean()
   rm -rf ./id_ed25519.pub
 }
 
+ansible()
+{
+  ansible-playbook -i hosts site.yml
+}
 
 args=""
 while [ $# -ne 0 ]; do
@@ -413,8 +314,9 @@ for arg in $args; do
   if [ $? -eq 0 ]; then
     $arg
   else
-    echo "ERROR : $arg is not shell function"
-    exit 1
+    #echo "ERROR : $arg is not shell function"
+    #exit 1
+    ansible-playbook -i hosts --tag $arg site.yml
   fi
 done
 

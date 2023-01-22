@@ -16,12 +16,10 @@
     dest: /etc/systemd/system/slapd.service.d/override.conf
 
 - name: start slapd.service
-  shell: |
-    systemctl start slapd
-
-- name: enable slapd.service
-  shell: |
-    systemctl enable slapd
+  ansible.builtin.systemd:
+    state: started
+    name: slapd
+    enabled: yes
 
 - name: ensure slapd is in a running state
   service:
@@ -31,5 +29,11 @@
   until: result.status.ActiveState == "active"
   retries: 3
   delay: 20
+
+- name: restart slapd.service
+  ansible.builtin.systemd:
+    state: restarted
+    name: slapd
+    daemon_reload: yes
 
 

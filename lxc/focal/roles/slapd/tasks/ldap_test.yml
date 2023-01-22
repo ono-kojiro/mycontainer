@@ -1,8 +1,25 @@
 ---
+- name: stop slapd
+  ansible.builtin.systemd:
+    state: stopped
+    name: slapd
+
+- name: start slapd again
+  ansible.builtin.systemd:
+    state: started
+    name: slapd
+
 - name: check ldap suffix again
   shell: |
-    ldapsearch -H ldap://localhost -D cn=Manager,dc=zeon,dc=org \
-      -w secret -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix
+    ldapsearch -H ldap://localhost -D {{ rootdn }} \
+      -w {{ rootpw }} -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix
+  register: result
+  failed_when: result.rc != 0
+
+- name: check suffix again using ldaps
+  shell: |
+    ldapsearch -H ldaps://localhost -D {{ rootdn }} \
+      -w {{ rootpw }} -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix
   register: result
   failed_when: result.rc != 0
 

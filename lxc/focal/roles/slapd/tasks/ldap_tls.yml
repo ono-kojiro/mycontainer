@@ -22,3 +22,9 @@
   register: result
   failed_when: result.rc != 0
 
+- name: restart slapd
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: slapd
+
