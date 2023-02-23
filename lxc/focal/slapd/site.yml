@@ -1,0 +1,25 @@
+- hosts: targets
+
+  roles:
+    - role: certs
+      tags: certs
+    - role: slapd
+      tags: slapd
+    - role: sssd
+      tags: sssd
+#    - role: httpd
+#      tags: httpd
+    - role: ldapscripts
+      tags: ldapscripts
+    - role: ldapinit
+      tags: ldapinit
+    - role: addusers
+      tags: addusers
+    - role: sudo
+      tags: sudo
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing slapd and sssd'
+

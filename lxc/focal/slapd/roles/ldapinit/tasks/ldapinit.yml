@@ -1,0 +1,12 @@
+---
+- name: initialize LDAP root DN
+  shell: |
+    /usr/sbin/ldapinit -r
+  ignore_errors: true
+
+- name: initialize LDAP remaining stuff
+  shell: |
+    /usr/sbin/ldapinit -s
+  ignore_errors: true
+
+

@@ -1,0 +1,7 @@
+---
+- name: add {{ admingroup }} to sudoer
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/80-ldapusers
+    line: '%{{ admingroup }}   ALL=(ALL:ALL) ALL'
+    create: yes
+

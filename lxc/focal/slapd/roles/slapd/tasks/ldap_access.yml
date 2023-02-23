@@ -1,0 +1,17 @@
+---
+- name: copy access.ldif
+  template:
+    src: access.ldif
+    dest: /etc/ldap/access.ldif
+
+- name: change ldap access
+  shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/access.ldif
+
+- name: check ldap access
+  shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={-1}frontend,cn=config" olcAccess | grep olcAccess
+  register: result
+  failed_when: result.rc != 0
+

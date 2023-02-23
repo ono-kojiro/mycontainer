@@ -1,0 +1,8 @@
+dn: olcDatabase={-1}frontend,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: {0}to attrs=userPassword,givenName,sn,photo  by self write  by anonymous auth  by dn.base="{{ rootdn }}" write  by * none
+-
+add: olcAccess
+olcAccess: {1}to *  by self read  by dn.base="{{ rootdn }}" write  by * read
+

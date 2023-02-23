@@ -1,0 +1,39 @@
+---
+- name: copy slapd-init.conf
+  template:
+    src: slapd-init.conf
+    dest: /etc/tmpfiles.d/slapd-init.conf
+
+- name: make slapd.service.d directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/slapd.service.d
+    state: directory
+    mode: '0755'
+
+- name: copy override.conf
+  template:
+    src: override.conf
+    dest: /etc/systemd/system/slapd.service.d/override.conf
+
+- name: start slapd.service
+  ansible.builtin.systemd:
+    state: started
+    name: slapd
+    enabled: yes
+
+- name: ensure slapd is in a running state
+  service:
+    name: slapd
+    state: started
+  register: result
+  until: result.status.ActiveState == "active"
+  retries: 3
+  delay: 20
+
+- name: restart slapd.service
+  ansible.builtin.systemd:
+    state: restarted
+    name: slapd
+    daemon_reload: yes
+
+
