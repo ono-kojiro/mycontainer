@@ -60,7 +60,7 @@ all()
 
   copy_files
 
-  #network
+  network
   dns
   gw
   up
@@ -71,13 +71,13 @@ all()
   enable_pubkey
   test_ssh
 
-  #enable_sssd
-  #test_sssd
+  enable_sssd
+  test_sssd
 
-  #mkhomedir
+  mkhomedir
 
-  #copy_pubkey
-  #post_proc
+  copy_pubkey
+  post_proc
 }
 
 create()
@@ -446,6 +446,10 @@ while [ $# -ne 0 ]; do
   
   shift
 done
+
+if [ -z "$args" ]; then
+  all
+fi
 
 for arg in $args; do
   LANG=C type $arg | grep 'function' > /dev/null 2>&1
