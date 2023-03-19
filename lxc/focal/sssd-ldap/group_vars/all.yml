@@ -1,0 +1,79 @@
+---
+# ca
+ca_nickname : "MyCA"
+ca_dir   : "/etc/ssl/ca"
+ca_crt   : "/etc/ssl/certs/myca.crt"
+ca_passwd: "secret"
+
+# server
+server_nickname: "MyServer"
+server_addr: "10.0.3.204"
+server_dir: "/etc/ssl/server"
+server_csr: "server.csr"
+server_crt: "server.crt"
+server_pem: "server.pem"
+server_p12: "server.p12"
+server_key: "server.key"
+server_passwd: "secret"
+
+
+sambadomain: "WORKGROUP"
+
+# /etc/smbldap-tools/smbldap.conf
+masterldap: "ldap://localhost"
+ldaptls: "1"
+cafile:     "/etc/ssl/certs/myca.crt"
+clientcert: "{{ server_dir }}/server.crt"
+clientkey:  "{{ server_dir }}/server.key"
+suffix: "dc=zeon,dc=org"
+
+# /etc/smbldap-tools/smbldap_bind.conf
+masterdn: "cn=Manager,{{ suffix }}"
+masterpw: "secret"
+
+newgroups:
+    - name: ldapusers
+    - name: ldapwheel
+    - name: newtype
+    - name: oldtype
+
+default_group: ldapusers
+admin_group: ldapwheel
+
+newusers:
+    - name: gihren
+      password: gihren
+      gecos: "Gihren Zabi"
+      groups: ldapusers,ldapwheel,oldtype
+      mail: gihren@example.com
+
+    - name: dozle
+      password: dozle
+      gecos: "Dozle Zabi"
+      groups: ldapusers,ldapwheel,oldtype
+      mail: dozle@example.com
+
+    - name: garma
+      password: garma
+      gecos: "Garma Zabi"
+      groups: ldapusers,oldtype
+      mail: garma@example.com
+
+    - name: kycilia
+      password: kycilia
+      gecos: "Kycilia Zabi"
+      groups: ldapusers,oldtype
+      mail: kycilia@example.com
+    
+    - name: challia
+      password: challia
+      gecos: "Challia Bull"
+      groups: ldapusers,newtype
+      mail: challia@example.com
+
+    - name: char
+      password: char
+      gecos: "Char Aznable"
+      groups: ldapusers,newtype
+      mail: char@example.com
+

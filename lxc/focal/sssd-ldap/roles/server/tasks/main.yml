@@ -1,0 +1,37 @@
+---
+- name: remove directory {{ server_dir }}
+  ansible.builtin.file:
+    path: "{{ server_dir }}"
+    state: absent
+
+- name: make directory {{ server_dir }}
+  ansible.builtin.file:
+    path: "{{ server_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: initialize server database
+  shell:
+    cmd: certutil -N -d "{{ server_dir }}" --empty-password
+
+- name: create noise.bin
+  shell:
+    cmd: dd if=/dev/urandom of=/tmp/noise.bin bs=1 count=2048 > /dev/null 2>&1
+
+- name: create csr
+  shell: |
+    echo "secret" > /tmp/password.txt
+    certutil -R -d "{{ server_dir }}" -s "cn={{ server_nickname }}" \
+      -f /tmp/password.txt \
+      -z /tmp/noise.bin \
+      -o "{{ server_dir }}/{{ server_csr }}" \
+      -a
+
+- name: remove noise.bin password.txt
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: absent
+  with_items:
+    - /tmp/noise.bin
+    - /tmp/password.txt
+

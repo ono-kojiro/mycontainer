@@ -1,0 +1,21 @@
+---
+- name: copy ldapscripts.conf
+  template:
+    src: ldapscripts.conf
+    dest: /etc/ldapscripts/ldapscripts.conf
+
+- name: copy ldapadduser.template
+  template:
+    src: ldapadduser.template
+    dest: /etc/ldapscripts/ldapadduser.template
+    mode: 0644
+
+- name: create ldapscripts.passwd
+  shell: |
+    echo -n 'secret' > /etc/ldapscripts/ldapscripts.passwd
+    chmod 600 /etc/ldapscripts/ldapscripts.passwd
+
+- name: initialize LDAP tree
+  shell: |
+    /usr/sbin/ldapinit
+

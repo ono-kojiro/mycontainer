@@ -1,0 +1,6 @@
+- name: install ldapscripts and expect
+  apt:
+    name:
+      - ldapscripts
+      - expect
+

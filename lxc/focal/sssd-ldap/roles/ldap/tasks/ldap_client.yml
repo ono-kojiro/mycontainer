@@ -1,0 +1,12 @@
+---
+- name: copy ldap.conf
+  template:
+    src: ldap.conf
+    dest: /etc/ldap/ldap.conf
+
+- name: check ldapsearch
+  shell: |
+    ldapsearch -x
+  register: result
+  failed_when: result.rc != 32
+
