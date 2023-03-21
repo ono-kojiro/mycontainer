@@ -20,7 +20,14 @@ target
   disk
   install
 
-  list
+  status
+
+  (after enabling pubkey auth...)
+  install_python
+  deploy
+
+  stop
+  destroy
 
   escape character is ^] (Ctrl + ])
 EOF
@@ -56,6 +63,12 @@ sftp()
   command sftp -i id_ed25519_freebsd root@${addr}
 }
 
+install_python()
+{
+  command ssh root@${addr} -i id_ed25519_freebsd -- pkg install -y python
+}
+
+
 debug()
 {
   ansible-playbook -i hosts debug.yml
@@ -71,6 +84,11 @@ shutdown()
   virsh shutdown $name
 }
 
+stop()
+{
+  shutdown
+}
+
 destroy()
 {
   virsh undefine $name
@@ -83,7 +101,6 @@ install()
     --ram 4096 \
     --disk=$disk,bus=virtio \
     --vcpus 2 \
-    --os-type bsd \
     --os-variant freebsd13.0 \
     --network network=default --noautoconsole \
     --console pty,target_type=serial \
@@ -102,6 +119,11 @@ all()
 list()
 {
   virsh list --all
+}
+
+status()
+{
+  list
 }
 
 osinfo()
