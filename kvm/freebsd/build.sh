@@ -86,6 +86,16 @@ shutdown()
   virsh shutdown $name
 }
 
+dumpxml()
+{
+  virsh dumpxml $name
+}
+
+dominfo()
+{
+  virsh dominfo $name
+}
+
 stop()
 {
   shutdown
