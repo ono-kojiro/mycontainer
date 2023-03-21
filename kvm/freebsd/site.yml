@@ -14,3 +14,7 @@
     - role: nsswitch
       tags: nsswitch
 
+    - role: sudo
+      tags: sudo
+
+

@@ -2,6 +2,8 @@
 
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
+# https://wiki.freebsd.org/KubilayKocak/SystemSecurityServicesDaemon
+
 name=freebsd
 disk=`pwd`/${name}.qcow2
 iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
@@ -71,7 +73,7 @@ install_python()
 
 debug()
 {
-  ansible-playbook -i hosts debug.yml
+  ansible-playbook -i hosts -t sudo site.yml
 }
 
 deploy()
