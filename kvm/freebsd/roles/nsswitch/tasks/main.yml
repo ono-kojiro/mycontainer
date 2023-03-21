@@ -1,0 +1,14 @@
+- name: add sss for nsswitch group
+  ansible.builtin.replace:
+    path: /etc/nsswitch.conf
+    regexp: '^group: compat'
+    replace: 'group: files sss'
+
+- name: add sss for nsswitch passwd
+  ansible.builtin.replace:
+    path: /etc/nsswitch.conf
+    regexp: '^passwd: compat'
+    replace: 'passwd: files sss'
+
+
+

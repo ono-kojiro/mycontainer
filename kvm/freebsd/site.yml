@@ -1,0 +1,16 @@
+---
+- hosts: targets
+
+  roles:
+    - role: base
+      tags: base
+
+    - role: sssd
+      tags: sssd
+    
+    - role: pam 
+      tags: pam
+    
+    - role: nsswitch
+      tags: nsswitch
+

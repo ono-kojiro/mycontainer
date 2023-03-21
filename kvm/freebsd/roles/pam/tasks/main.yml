@@ -1,0 +1,12 @@
+- name: copy sshd for pam
+  template:
+    src: sshd
+    dest: /etc/pam.d/sshd
+    mode: '0644'
+
+- name: copy system for pam
+  template:
+    src: system
+    dest: /etc/pam.d/system
+    mode: '0644'
+
