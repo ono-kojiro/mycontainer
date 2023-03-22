@@ -2,8 +2,8 @@ version: '3'
 services:
   focal:
     image: focal-sphinx
-    container_name: focal-sphinx
-    hostname: focal-sphinx
+    container_name: sphinx
+    hostname: sphinx
     restart:  always
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t

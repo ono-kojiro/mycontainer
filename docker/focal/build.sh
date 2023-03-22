@@ -71,7 +71,13 @@ start()
 
 attach()
 {
+  echo "press Ctrl+P, Ctrl+Q to detacch from the container"
   docker attach $container
+}
+
+bash()
+{
+  docker exec -it $container /bin/bash
 }
 
 stop()
