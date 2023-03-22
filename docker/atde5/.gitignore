@@ -1,0 +1,5 @@
+*.deb
+example/
+pkgs/
+*-root.tar.gz
+

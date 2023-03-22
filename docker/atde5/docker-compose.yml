@@ -1,0 +1,13 @@
+version: '3'
+services:
+  atde5:
+    image: atde5:latest
+    network_mode: bridge
+    container_name: atde5
+    hostname: atde5
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    ports:
+      - "22045:22"
+
