@@ -1,0 +1,36 @@
+---
+- name: add users
+  shell: |
+    smbldap-useradd -a -g "{{ default_group }}" "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: set password
+  shell: |
+    printf "{{ item.name }}\n" | smbldap-passwd -p "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: set groups
+  shell: |
+    smbldap-usermod -G "{{ item.groups }}" "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: set gecos
+  shell: |
+    smbldap-usermod --gecos "{{ item.gecos }}" "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: set mail
+  shell: |
+    smbldap-usermod --mail "{{ item.mail }}" "{{ item.name }}"
+  loop: "{{ newusers }}"
+  register: result
+  failed_when: result.rc != 0
+

@@ -1,0 +1,27 @@
+- name: copy smbldap.conf
+  ansible.builtin.template:
+    src: smbldap.conf
+    dest: /etc/smbldap-tools/smbldap.conf
+    mode: '0644'
+
+- name: copy smbldap_bind.conf
+  ansible.builtin.template:
+    src: smbldap_bind.conf
+    dest: /etc/smbldap-tools/smbldap_bind.conf
+    mode: '0600'
+
+- name: get SID
+  shell: |
+    net getlocalsid | awk '{ print $6 }'
+  register: sid
+
+- name: replace SID
+  ansible.builtin.lineinfile:
+    path: /etc/smbldap-tools/smbldap.conf
+    regexp: 'SID=".+"'
+    line: 'SID="{{ sid.stdout }}"'
+
+- name: run smbldap-populate
+  shell: |
+    printf '{{ masterpw }}\n{{ masterpw }}\n' | smbldap-populate
+

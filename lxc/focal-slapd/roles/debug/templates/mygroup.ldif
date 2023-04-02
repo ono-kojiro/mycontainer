@@ -1,0 +1,8 @@
+dn: cn=mygroup3,ou=Groups,dc=zeon,dc=org
+objectClass: posixGroup
+objectClass: groupOfNames
+cn: mygroup3
+gidNumber: 30003
+description: All users
+member: uid=myuser,ou=Users,dc=zeon,dc=org
+

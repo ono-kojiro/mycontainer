@@ -1,0 +1,8 @@
+---
+- name: add groups
+  shell: |
+    smbldap-groupadd -a "{{ item.name }}"
+  loop: "{{ newgroups }}"
+  register: result
+  failed_when: result.rc != 0
+

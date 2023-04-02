@@ -1,0 +1,10 @@
+---
+- name: copy mygroup.ldif
+  template:
+    src:  mygroup.ldif
+    dest: /etc/ldap/mygroup.ldif
+
+- name: add mygroup
+  shell: |
+    ldapadd -x -D {{ masterdn }} -w {{ masterpw }} -f /etc/ldap/mygroup.ldif
+

@@ -1,0 +1,6 @@
+- hosts: targets
+
+  roles:
+    - role: debug
+      tags: debug
+

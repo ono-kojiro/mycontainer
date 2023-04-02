@@ -1,0 +1,9 @@
+- name: copy memberof.ldif
+  ansible.builtin.template:
+    src: memberof.ldif
+    dest: /etc/ldap/memberof.ldif
+
+- name: enable memberof overlay
+  shell: |
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/memberof.ldif
+
