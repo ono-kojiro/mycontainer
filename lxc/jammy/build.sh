@@ -38,7 +38,6 @@ help()
 usage()
 {
   cat << "EOS"
-
 usage : $0 [options] target1 target2 ...
 
 target:
@@ -51,11 +50,8 @@ target:
   destroy
 
   config_network
-  enable_sshd
-  enable_pubkey_auth
-  test_ssh
-  enable_sssd
-  test_sssd
+  enable_sshd/enable_pubkey_auth/test_ssh
+  enable_sssd/test_sssd
 
   setup_default_user
   setup_user_config
@@ -436,6 +432,11 @@ while [ $# -ne 0 ]; do
   
   shift
 done
+
+if [ -z "$args" ]; then
+  help
+  exit 1
+fi
 
 for arg in $args; do
   num=`LANG=C type $arg | grep 'function' | wc -l`
