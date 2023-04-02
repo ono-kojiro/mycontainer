@@ -10,7 +10,13 @@ usage : $0 [options] target1 target2 ..."
   target:
     help
 
-    up
+    create
+    upload
+    start
+    stop
+
+    debug
+    ps
     down
 EOF
 }
@@ -20,7 +26,7 @@ create()
   docker-compose up --no-start
 }
 
-up()
+debug()
 {
   docker-compose up
 }
@@ -66,6 +72,14 @@ upload()
     redmine:/usr/src/redmine/config/puma.rb
   
   docker cp \
+    application.rb \
+    redmine:/usr/src/redmine/config/application.rb
+  
+  docker cp \
+    additional_environment.rb \
+    redmine:/usr/src/redmine/config/additional_environment.rb
+  
+  docker cp \
     development.rb \
     redmine:/usr/src/redmine/config/environments/development.rb
 
@@ -74,27 +88,20 @@ upload()
     redmine:/usr/src/redmine/config/environments/production.rb
 }
 
+fetch()
+{
+  docker cp \
+    redmine:/usr/src/redmine/config/application.rb \
+    .
+  
+  docker cp \
+    redmine:/usr/src/redmine/config/additional_environment.rb \
+    .
+}
+
 ps()
 {
   docker ps -a --no-trunc
-}
-
-debug()
-{
-  #docker cp redmine:/usr/local/bundle/gems/puma-6.1.1/lib/puma.rb .
-  #docker cp \
-  #  redmine:/usr/local/bundle/gems/puma-6.1.1/lib/rack/handler/puma.rb \
-  #  handler-puma.rb
-
-  #docker cp \
-  #  redmine:/usr/src/redmine/config/environments/development.rb .
-  #docker cp \
-  #  redmine:/usr/src/redmine/config/environments/production.rb .
-  #docker cp \
-  #  redmine:/usr/src/redmine/config/environments/test.rb .
-  
-  docker cp \
-    redmine:/docker-entrypoint.sh .
 }
 
 all()
