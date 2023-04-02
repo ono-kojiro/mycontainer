@@ -1,0 +1,24 @@
+---
+- name: copy sssd.conf
+  template:
+    src: sssd.conf
+    dest: /etc/sssd/sssd.conf
+    mode: 0600
+
+- name: restart sssd
+  ansible.builtin.systemd:
+    name: sssd
+    state: restarted
+    daemon_reload: yes
+
+- name: enable sssd
+  ansible.builtin.systemd:
+    name: sssd
+    enabled: yes
+    masked: no
+
+- name: enable mkhomedir
+  shell: |
+    pam-auth-update --enable mkhomedir --force
+
+
