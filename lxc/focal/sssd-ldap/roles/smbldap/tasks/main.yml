@@ -1,6 +1,7 @@
 ---
 - import_tasks: install.yml
 - import_tasks: configure.yml
+- import_tasks: memberof_overlay.yml
 - import_tasks: add_groups.yml
 - import_tasks: add_users.yml
 
