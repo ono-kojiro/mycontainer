@@ -4,7 +4,7 @@ services:
     image: trusty:latest
     network_mode: bridge
     container_name: trusty
-    hostname: strusty
+    hostname: trusty
     restart:  always
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
