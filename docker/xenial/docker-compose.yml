@@ -1,0 +1,13 @@
+version: '3'
+services:
+  xenial:
+    image: xenial:latest
+    network_mode: bridge
+    container_name: xenial
+    hostname: xenial
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    ports:
+      - "16040:22"
+
