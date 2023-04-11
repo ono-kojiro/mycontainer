@@ -1,0 +1,51 @@
+---
+- name: remove directory /etc/ldap/certs
+  ansible.builtin.file:
+    path: /etc/ldap/certs
+    state: absent
+
+- name: create directory /etc/ldap/certs
+  ansible.builtin.file:
+    path: /etc/ldap/certs
+    state: directory
+    mode: '0755'
+    owner: openldap
+    group: openldap
+
+#- name: copy server crt
+#  ansible.builtin.copy:
+#    src:  "{{ server_dir }}/{{ server_crt }}"
+#    dest: "/etc/ldap/certs/{{ server_crt }}"
+  
+- name: copy server crt
+  shell: |
+    cp -f "{{ server_dir}}/{{ server_crt }}" \
+      "/etc/ldap/certs/{{ server_crt }}"
+    chown openldap:openldap "/etc/ldap/certs/{{ server_crt }}"
+
+- name: change ownership of server crt
+  ansible.builtin.file:
+    path:  "/etc/ldap/certs/{{ server_crt }}"
+    owner: openldap
+    group: openldap
+
+#- name: copy server key
+#  ansible.builtin.copy:
+#    src:  "{{ server_dir }}/{{ server_key }}"
+#    dest: "/etc/ldap/certs/{{ server_key }}"
+#    owner: root
+#    group: root
+
+- name: copy server key
+  shell: |
+    cp -f "{{ server_dir}}/{{ server_key }}" \
+      "/etc/ldap/certs/{{ server_key }}"
+    chown openldap:openldap "/etc/ldap/certs/{{ server_key }}"
+
+- name: change ownership of server key
+  ansible.builtin.file:
+    path:  "/etc/ldap/certs/{{ server_key }}"
+    owner: openldap
+    group: openldap
+
+

@@ -1,0 +1,7 @@
+---
+- import_tasks: install.yml
+- import_tasks: configure.yml
+- import_tasks: enable_rfs_2307bis.yml
+- import_tasks: add_groups.yml
+- import_tasks: add_users.yml
+

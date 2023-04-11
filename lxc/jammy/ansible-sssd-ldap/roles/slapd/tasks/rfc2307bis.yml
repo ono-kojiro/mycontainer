@@ -1,0 +1,34 @@
+---
+- name: install rfc2307bis.schema
+  ansible.builtin.apt :
+    pkg :
+      - fusiondirectory-schema
+    state: present
+
+- name: copy convert_schema.conf
+  template:
+    src: convert_schema.conf
+    dest: /etc/ldap/convert_schema.conf
+
+- name: remove /tmp/ldif
+  ansible.builtin.file:
+    path: /tmp/ldif
+    state: absent
+
+- name: create /tmp/ldif
+  ansible.builtin.file:
+    path: /tmp/ldif
+    state: directory
+
+- name: convert rfc2307bis.schema to rfc2307bis.ldif
+  shell: |
+    slaptest -f /etc/ldap/convert_schema.conf \
+      -F /tmp/ldif
+
+- name: copy rfc2307bis.ldif
+  ansible.builtin.copy:
+    src:  '/tmp/ldif/cn=config/cn=schema/cn={13}rfc2307bis.ldif'
+    dest: /etc/ldap/schema/rfc2307bis.ldif
+    remote_src: yes
+
+

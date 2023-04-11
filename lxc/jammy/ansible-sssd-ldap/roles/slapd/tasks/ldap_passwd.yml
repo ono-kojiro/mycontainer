@@ -1,0 +1,11 @@
+---
+- name: change ldap rootpw
+  shell: |
+    echo "dn: olcDatabase={1}mdb,cn=config" > /tmp/newpasswd.ldif
+    echo "changetype: modify" >> /tmp/newpasswd.ldif
+    echo "replace: olcRootPW" >> /tmp/newpasswd.ldif
+    rootpw=`/usr/sbin/slappasswd -h {SSHA} -s {{ masterpw }}`
+    echo "olcRootPW: $rootpw" >> /tmp/newpasswd.ldif
+
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/newpasswd.ldif
+
