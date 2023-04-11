@@ -1,0 +1,23 @@
+- hosts: targets
+
+  roles:
+    - role: libnss3
+      tags: libnss3
+
+    - role: ca
+      tags: ca
+
+    - role: server
+      tags: server
+
+    - role: crt
+      tags: crt
+
+    - role: slapd
+      tags: slapd
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing slapd'
+

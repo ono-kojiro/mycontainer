@@ -1,0 +1,24 @@
+---
+# ca
+ca_nickname : "MyCA"
+ca_dir   : "/etc/ssl/ca"
+ca_crt   : "/etc/ssl/certs/myca.crt"
+ca_passwd: "secret"
+
+# server
+server_nickname: "MyServer"
+server_addr: "10.0.3.224"
+server_dir: "/etc/ssl/server"
+server_csr: "server.csr"
+server_crt: "server.crt"
+server_pem: "server.pem"
+server_p12: "server.p12"
+server_key: "server.key"
+server_passwd: "secret"
+
+suffix: "dc=zeon,dc=org"
+
+# /etc/smbldap-tools/smbldap_bind.conf
+masterdn: "cn=Manager,{{ suffix }}"
+masterpw: "secret"
+
