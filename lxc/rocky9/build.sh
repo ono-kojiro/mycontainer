@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
@@ -71,13 +69,13 @@ all()
   enable_pubkey
   test_ssh
 
-  enable_sssd
-  test_sssd
+  #enable_sssd
+  #test_sssd
 
-  mkhomedir
+  #mkhomedir
 
-  copy_pubkey
-  post_proc
+  #copy_pubkey
+  #post_proc
 }
 
 create()
@@ -104,6 +102,7 @@ start()
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
   lxc-start -n $name
+  lxc-attach -n $name --clear-env -- /bin/bash /enable_eth0.sh
 }
 
 attach()
@@ -145,12 +144,6 @@ update()
 EOS
 
 }
-
-attach()
-{
-  lxc-attach -n $name --clear-env /bin/bash
-}
-
 
 chpasswd()
 {
@@ -252,6 +245,18 @@ EOS
 
 }
 
+install_devtools()
+{
+  echo "INFO : install_devtools"
+  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    dnf -y groupinstall "Development Tools"
+    dnf -y install which
+  }
+EOS
+
+}
+
 enable_pubkey()
 {
   rm -f ./id_ed25519*
@@ -282,7 +287,6 @@ connect()
 {
   ssh -y $ssh_opts root@$address
 }
-
 
 enable_sssd()
 {
@@ -415,11 +419,6 @@ destroy()
 {
   stop
   lxc-destroy -n $name
-}
-
-attach()
-{
-	lxc-attach -n $container -- /bin/bash
 }
 
 mclean()
