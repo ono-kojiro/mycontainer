@@ -1,0 +1,19 @@
+version: '3'
+services:
+  jammy:
+    image: jammy
+    container_name: jammy-bridge
+    hostname: jammy-bridge
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    networks:
+      mybridge:
+        ipv4_address: 192.168.10.123
+    ports:
+      - "10224:22"
+
+networks:
+  mybridge:
+    external: true
+
