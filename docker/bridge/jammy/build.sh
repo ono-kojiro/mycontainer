@@ -3,10 +3,11 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-release="jammy"
+name="jammy-bridge"
 
+release="jammy"
 image="$release"
-container="$release"
+network="mynetwork"
 
 root_url="https://partner-images.canonical.com/core/${release}/current/ubuntu-${release}-core-cloudimg-amd64-root.tar.gz"
 
@@ -59,7 +60,7 @@ create()
 
 status()
 {
-  docker network inspect mynetwork
+  docker network inspect $network
 }
 
 start()
@@ -69,7 +70,7 @@ start()
 
 attach()
 {
-  docker attach $container
+  docker attach $name
 }
 
 stop()
