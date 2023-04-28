@@ -4,7 +4,7 @@
 
 - name: add sss for nsswitch group
   template:
-    src: ldapwheel.conf
+    src: 80-ldapwheel
     dest: /usr/local/etc/sudoers.d
     mode: '0644'
 
