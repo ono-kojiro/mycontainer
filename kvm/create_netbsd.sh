@@ -3,7 +3,7 @@
 disk=`pwd`/netbsd.qcow2
 qemu-img create -f qcow2 $disk 16G
 
-iso=~/Downloads/NetBSD-9.2-amd64.iso
+iso=~/Downloads/NetBSD-9.3-amd64.iso
 
 virt-install \
 --name netbsd \
@@ -15,6 +15,7 @@ virt-install \
 --graphics none \
 --console pty,target_type=serial \
 --cdrom=$iso \
+  --virt-type xen \
 --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
 --serial pty
 
