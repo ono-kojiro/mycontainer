@@ -41,14 +41,14 @@ all()
   sleep 2
   db
   user
+  
+  enable_ldap
+  enable_tls
 
   docker-compose stop
   docker-compose start
 
   #test_admin
-
-  enable_ldap
-
 }
 
 build()
@@ -137,6 +137,32 @@ test_ldap()
 {
    #PGSSLROOTCERT=$HOME/.local/share/mkcert/rootCA.pem \
     psql sampledb -h localhost -p 15432 -U $USER
+}
+
+enable_tls()
+{
+  docker cp postgres+3-key.pem postgres:/var/lib/postgresql/data/
+  docker cp postgres+3.pem     postgres:/var/lib/postgresql/data/
+
+  docker exec -i postgres /bin/bash << 'EOS'
+
+chown postgres:postgres /var/lib/postgresql/data/postgres+3*.pem
+
+config="/var/lib/postgresql/data/postgresql.conf"
+
+grep 'ssl = on' $config
+
+if [ $? -ne 0 ]; then
+{
+  echo "ssl = on"
+  echo "ssl_cert_file = 'postgres+3.pem'"
+  echo "ssl_key_file = 'postgres+3-key.pem'"
+} >> $config
+
+fi
+
+EOS
+
 }
 
 stop()
