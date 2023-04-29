@@ -40,6 +40,11 @@ help()
   usage
 }
 
+prepare()
+{
+  ansible-galaxy collection install community.general
+}
+
 disk()
 {
   qemu-img create -f qcow2 $disk 16G
@@ -81,6 +86,17 @@ deploy()
   # install python39 by hand
   ansible-playbook -i hosts site.yml
 }
+
+xorg()
+{
+  ansible-playbook -i hosts xorg.yml
+}
+
+gnome()
+{
+  ansible-playbook -i hosts gnome.yml
+}
+
 
 shutdown()
 {
