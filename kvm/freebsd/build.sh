@@ -78,6 +78,7 @@ debug()
 
 deploy()
 {
+  # install python39 by hand
   ansible-playbook -i hosts site.yml
 }
 
