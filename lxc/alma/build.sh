@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
@@ -26,6 +24,10 @@ ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
 ssh_opts="$ssh_opts -i $seckey"
+
+alias lxc-create='systemd-run --user --scope -p "Delegate=yes" lxc-create'
+alias lxc-start='systemd-run --user --scope -p "Delegate=yes" lxc-start'
+alias lxc-attach='systemd-run --user --scope -p "Delegate=yes" lxc-attach'
 
 help()
 {
@@ -106,6 +108,17 @@ attach()
   lxc-attach -n $name --clear-env -- /bin/bash
 }
 
+debug()
+{
+  cat - << EOS | lxc-attach -n $name --clear-env -- /bin/bash -s
+  {
+    ip link set eth0 up
+    ip route replace default via 10.0.3.1
+    echo 'nameserver 10.0.3.1' > /etc/resolv.conf
+  }
+EOS
+}
+
 copy_files()
 {
   cat enable_eth0.sh    | lxc-attach -n $name -- tee /enable_eth0.sh
@@ -140,12 +153,6 @@ update()
 EOS
 
 }
-
-attach()
-{
-  lxc-attach -n $name --clear-env /bin/bash
-}
-
 
 chpasswd()
 {
@@ -404,11 +411,6 @@ destroy()
 {
   stop
   lxc-destroy -n $name
-}
-
-attach()
-{
-	lxc-attach -n $container -- /bin/bash
 }
 
 mclean()
