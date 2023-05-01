@@ -1,0 +1,38 @@
+- name: install xfce
+  community.general.pkgng:
+    name:
+    - xfce
+    - lightdm
+    - lightdm-gtk-greeter
+    state: present
+
+- name: mount proc
+  ansible.posix.mount:
+    path: /proc
+    src: proc
+    fstype: procfs
+    opts: rw
+    state: present
+
+- name: enable dbus
+  community.general.sysrc:
+    name: dbus_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: enable lightdm
+  community.general.sysrc:
+    name: lightdm_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: copy xinitrc and xsession
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /usr/share/skel/
+  loop:
+    - dot.xinitrc
+    - dot.xsession
+

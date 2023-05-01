@@ -10,6 +10,8 @@ iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
 
 addr="192.168.122.123"
 
+seckey="id_ed25519"
+
 usage()
 {
   cat - << EOF
@@ -52,7 +54,7 @@ disk()
 
 key()
 {
-  ssh-keygen -t ed25519 -N '' -f id_ed25519_freebsd
+  ssh-keygen -t ed25519 -N '' -f $seckey -C freebsd
 }
 
 connect()
@@ -62,40 +64,39 @@ connect()
 
 ssh()
 {
-  command ssh root@${addr} -i id_ed25519_freebsd
+  command ssh root@${addr} -i $seckey
 }
 
 sftp()
 {
-  command sftp -i id_ed25519_freebsd root@${addr}
+  command sftp -i $seckey root@${addr}
 }
 
 install_python()
 {
-  command ssh root@${addr} -i id_ed25519_freebsd -- pkg install -y python
-}
-
-
-debug()
-{
-  ansible-playbook -i hosts -t sudo site.yml
+  command ssh root@${addr} -i $seckey -- pkg install -y python
 }
 
 deploy()
 {
-  # install python39 by hand
-  ansible-playbook -i hosts site.yml
+  ansible-playbook -K -i hosts site.yml
 }
 
 xorg()
 {
-  ansible-playbook -i hosts xorg.yml
+  ansible-playbook -K -i hosts xorg.yml
 }
 
 gnome()
 {
-  ansible-playbook -i hosts gnome.yml
+  ansible-playbook -K -i hosts gnome.yml
 }
+
+wayland()
+{
+  ansible-playbook -i hosts wayland.yml
+}
+
 
 
 shutdown()
@@ -198,8 +199,9 @@ for target in "$@"; do
   if [ $? -eq 0 ]; then
     $target
   else
-    echo "ERROR : $target is not a shell function"
-    exit 1
+    #echo "ERROR : $target is not a shell function"
+    #exit 1
+    ansible-playbook -K -i hosts ${target}.yml
   fi
 done
 

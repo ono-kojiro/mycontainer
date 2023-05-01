@@ -14,7 +14,9 @@
     - role: nsswitch
       tags: nsswitch
 
-    - role: sudo
-      tags: sudo
+    - role: xorg
+      tags: xorg
 
+    - role: xfce
+      tags: xfce
 

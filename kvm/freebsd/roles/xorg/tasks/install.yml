@@ -1,0 +1,19 @@
+- name: install xorg
+  community.general.pkgng:
+    name: xorg
+    state: present
+
+- name: install drm-kmod
+  community.general.pkgng:
+    name: drm-kmod
+    state: present
+
+- name: load intel driver
+  ansible.builtin.shell: |
+    sysrc kld_list="/boot/modules/i915kms.ko"
+
+- name: Xorg configure
+  ansible.builtin.shell: |
+    Xorg -configure
+    cp -f /root/xorg.conf.new /usr/local/etc/X11/xorg.conf.d/xorg.conf
+
