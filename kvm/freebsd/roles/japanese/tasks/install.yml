@@ -1,0 +1,29 @@
+- name: uninstall fcitx5
+  community.general.pkgng:
+    name:
+    - fcitx5
+    - fcitx5-gtk4
+    - fcitx5-configtool
+    state: absent
+
+- name: install ja-fcitx-mozc
+  community.general.pkgng:
+    name:
+    - zh-fcitx
+    - zh-fcitx-configtool
+    - ja-fcitx-mozc
+    state: present
+
+- name: install ja-font
+  community.general.pkgng:
+    name:
+    - ja-font-ipa
+    - ja-font-ipaex
+    - ja-font-hackgen
+    state: present
+
+- name: install dot.xprofile
+  ansible.builtin.template:
+    src: dot.xprofile
+    dest: /usr/share/skel/
+
