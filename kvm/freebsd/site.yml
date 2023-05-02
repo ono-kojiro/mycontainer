@@ -2,8 +2,17 @@
 - hosts: targets
 
   roles:
-    - role: base
-      tags: base
+    - role: xorg
+      tags: xorg
+
+    - role: mate
+      tags: mate
+
+    - role: lightdm
+      tags: lightdm
+
+    - role: japanese
+      tags: japanese
 
     - role: sssd
       tags: sssd
@@ -14,9 +23,7 @@
     - role: nsswitch
       tags: nsswitch
 
-    - role: xorg
-      tags: xorg
+    - role: sudo
+      tags: sudo
 
-    - role: xfce
-      tags: xfce
 

@@ -8,9 +8,17 @@ name=freebsd
 disk=`pwd`/${name}.qcow2
 iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
 
-addr="192.168.122.123"
+addr="192.168.10.178"
 
 seckey="id_ed25519"
+
+inventory="hosts"
+playbook="site.yml"
+
+#ansible_opts="-K"
+ansible_opts=""
+
+ansible_opts="$ansible_opts -i ${inventory}"
 
 usage()
 {
@@ -77,27 +85,17 @@ install_python()
   command ssh root@${addr} -i $seckey -- pkg install -y python
 }
 
-deploy()
-{
-  ansible-playbook -K -i hosts site.yml
-}
-
 xorg()
 {
-  ansible-playbook -K -i hosts xorg.yml
+  ansible-playbook ${ansible_opts} xorg.yml
 }
 
-gnome()
+deploy()
 {
-  ansible-playbook -K -i hosts gnome.yml
+  xorg
+  mate
+  lightdm
 }
-
-wayland()
-{
-  ansible-playbook -i hosts wayland.yml
-}
-
-
 
 shutdown()
 {
@@ -201,7 +199,7 @@ for target in "$@"; do
   else
     #echo "ERROR : $target is not a shell function"
     #exit 1
-    ansible-playbook -K -i hosts ${target}.yml
+    ansible-playbook ${ansible_opts} -i hosts -t ${target} site.yml
   fi
 done
 
