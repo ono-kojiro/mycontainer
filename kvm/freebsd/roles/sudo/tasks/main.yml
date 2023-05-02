@@ -1,6 +1,9 @@
+---
 - name: install sudo
-  shell: |
-    pkg install -y sudo
+  community.general.pkgng:
+    name:
+    - sudo
+    state: present
 
 - name: add sss for nsswitch group
   template:
