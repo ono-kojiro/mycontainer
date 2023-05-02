@@ -1,0 +1,14 @@
+- name: install lightdm
+  community.general.pkgng:
+    name:
+    - lightdm
+    - lightdm-gtk-greeter
+    state: present
+
+- name: enable lightdm
+  community.general.sysrc:
+    name: lightdm_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+

@@ -1,0 +1,6 @@
+- name: hide users
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/lightdm/lightdm.conf
+    regexp: '^#greeter-hide-users=false'
+    line: 'greeter-hide-users=true'
+
