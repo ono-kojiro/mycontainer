@@ -1,0 +1,34 @@
+- name: install sssd
+  community.general.pkgng:
+    name:
+    - bash
+    - sssd
+    - pam_mkhomedir
+    state: present
+
+- name: copy sssd.conf
+  ansible.builtin.template:
+    src: sssd.conf
+    dest: /usr/local/etc/sssd/sssd.conf
+    mode: '0600'
+
+- name: enable sssd
+  shell: |
+    sysrc sssd_enable="YES"
+
+- name: restart sssd
+  shell: |
+    service sssd restart
+
+- name: create symbolic link for bash
+  ansible.builtin.file:
+    src: /usr/local/bin/bash
+    dest: /bin/bash
+    state: link
+
+- name: create symbolic link for home
+  ansible.builtin.file:
+    src: /usr/home
+    dest: /home
+    state: link
+
