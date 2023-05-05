@@ -3,6 +3,7 @@ Description=myservice
 After=systemd-journald.service
 
 [Service]
+ExecStartPre=/bin/sleep 3
 ExecStart=/enable_eth0.sh
 
 [Install]

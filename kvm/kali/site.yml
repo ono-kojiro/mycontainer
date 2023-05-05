@@ -1,0 +1,9 @@
+- hosts: targets
+
+  roles:
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+

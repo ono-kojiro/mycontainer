@@ -8,7 +8,7 @@ name=freebsd
 disk=`pwd`/${name}.qcow2
 iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
 
-addr="192.168.10.178"
+addr="192.168.10.143"
 
 seckey="id_ed25519"
 
@@ -85,16 +85,11 @@ install_python()
   command ssh root@${addr} -i $seckey -- pkg install -y python
 }
 
-xorg()
-{
-  ansible-playbook ${ansible_opts} xorg.yml
-}
-
 deploy()
 {
-  xorg
-  mate
-  lightdm
+  playbook "xorg"
+  playbook "mate"
+  playbook "lightdm"
 }
 
 shutdown()

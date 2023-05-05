@@ -1,0 +1,14 @@
+- name: install sssd-ldap
+  ansible.builtin.apt:
+    name:
+      - sssd
+      - sssd-ldap
+      - sssd-tools
+      - oddjob-mkhomedir
+    state: present
+
+- name: check sssd is running
+  ansible.builtin.systemd:
+    state: started
+    name:  sssd
+

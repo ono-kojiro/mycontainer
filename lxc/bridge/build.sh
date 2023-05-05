@@ -71,6 +71,12 @@ unchange()
   sudo ip addr add $addr/24 dev eth0
 }
 
+up()
+{
+  sudo nmcli con up   br0
+  sudo nmcli con down eth0
+}
+
 down()
 {
   sudo nmcli con down br0

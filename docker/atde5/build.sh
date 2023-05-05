@@ -91,6 +91,11 @@ ip()
 	$(docker ps -q)
 }
 
+ssh()
+{
+  command ssh -p 22045 localhost
+}
+
 if [ "$#" = "0" ]; then
   usage
   exit 1

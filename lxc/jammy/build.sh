@@ -110,7 +110,9 @@ start()
   echo "INFO : start"
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
-  lxc-start -n $name -l info -o jammy.log
+  cmd="lxc-start -n $name -l info -o jammy.log"
+  echo $cmd
+  $cmd
 }
 
 debug()

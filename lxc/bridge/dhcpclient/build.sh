@@ -3,9 +3,6 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-# only Debiani 11(bullseye) can NOT get IPv4 DHCP address)
-# https://discuss.linuxcontainers.org/t/systemd-networkd-not-working-in-debian-sid-or-bullseye-images/11503/41
-
 name="dhcpclient"
 
 template="download"
@@ -89,8 +86,8 @@ init()
 
   cat - << EOS >> $config
 
-#lxc.net.0.ipv4.address = $address/24
-#lxc.net.0.ipv4.gateway = $gateway
+lxc.net.0.ipv4.address = $address/24
+lxc.net.0.ipv4.gateway = $gateway
 
 lxc.cgroup.devices.allow =
 lxc.cgroup.devices.deny =
@@ -147,10 +144,10 @@ config_network()
     gateway=$2
     echo "address is $address"
     echo "gateway is $gateway"
-    netplan set ethernets.eth0.dhcp4=true
-    #netplan set ethernets.eth0.addresses=[$address/24]
-    #netplan set ethernets.eth0.routes=[{\"to\":\"default\"\,\"via\":\"$gateway\"}]
-    #netplan set ethernets.eth0.nameservers.addresses=[8.8.8.8]
+    netplan set ethernets.eth0.dhcp4=false
+    netplan set ethernets.eth0.addresses=[$address/24]
+    netplan set ethernets.eth0.routes=[{\"to\":\"default\"\,\"via\":\"$gateway\"}]
+    netplan set ethernets.eth0.nameservers.addresses=[8.8.8.8]
 
     sleep 1s
 

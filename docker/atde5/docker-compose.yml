@@ -1,13 +1,19 @@
 version: '3'
 services:
   atde5:
-    image: atde5:latest
-    network_mode: bridge
+    image: atde5
     container_name: atde5
     hostname: atde5
     restart:  always
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
+    networks:
+      mybridge:
+        ipv4_address: 192.168.10.125
     ports:
       - "22045:22"
+
+networks:
+  mybridge:
+    external: true
 
