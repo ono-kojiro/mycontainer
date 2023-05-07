@@ -1,0 +1,13 @@
+---
+- name: enable sudo for ldapwheel group
+  template:
+    src: 80-ldapwheel
+    dest: /usr/pkg/etc/sudoers.d/
+    mode: '0644'
+
+- name: add sudo for pam
+  template:
+    src: sudo
+    dest: /etc/pam.d/sudo
+    mode: '0644'
+

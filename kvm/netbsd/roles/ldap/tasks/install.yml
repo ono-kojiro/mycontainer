@@ -12,10 +12,13 @@
   loop:
     - ldap.conf
 
-- name: create symbolic link
+- name: create symbolic link of ldap.conf
   ansible.builtin.file:
     src: /usr/pkg/etc/ldap.conf
-    dest: /etc/openldap/ldap.conf
+    dest: "{{ item }}"
     state: link
-
+  loop:
+    - /etc/openldap/ldap.conf
+    - /usr/pkg/etc/nss_ldap.conf
+    - /usr/pkg/etc/pam_ldap.conf
 

@@ -1,0 +1,11 @@
+---
+- name: build sudo
+  ansible.builtin.shell: |
+    cd /usr/pkgsrc/security/sudo
+    make PKG_DEFAULT_OPTIONS="skey pam"
+
+- name: install sudo
+  ansible.builtin.shell: |
+    cd /usr/pkgsrc/security/sudo
+    make install
+

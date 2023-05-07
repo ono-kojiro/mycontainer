@@ -10,7 +10,9 @@
 
     - role: nsswitch
       tags: nsswitch
-    
+
+    - { role: pkgsrc, tags: pkgsrc }
+
     - role: sudo
       tags: sudo 
 
