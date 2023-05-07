@@ -1,0 +1,17 @@
+---
+- hosts: targets
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: pam
+      tags: pam
+
+    - role: nsswitch
+      tags: nsswitch
+    
+    - role: sudo
+      tags: sudo 
+
+

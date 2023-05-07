@@ -1,0 +1,21 @@
+---
+- name: install nss_ldap
+  community.general.pkgin:
+    name:
+    - nss_ldap
+    state: present
+
+- name: copy ldap.conf
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /usr/pkg/etc/
+  loop:
+    - ldap.conf
+
+- name: create symbolic link
+  ansible.builtin.file:
+    src: /usr/pkg/etc/ldap.conf
+    dest: /etc/openldap/ldap.conf
+    state: link
+
+

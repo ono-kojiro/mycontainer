@@ -1,0 +1,8 @@
+targets:
+  hosts:
+    netbsd:
+      ansible_host: "{{ addr }}"
+      ansible_user: root
+      ansible_ssh_private_key_file: ./id_ed25519
+      ansible_python_interpreter: /usr/pkg/bin/python3.10
+

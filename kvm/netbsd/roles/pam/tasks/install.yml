@@ -1,0 +1,24 @@
+---
+- name: install pam-ldap
+  community.general.pkgin:
+    name:
+    - pam-ldap
+    - pam-mkhomedir
+    state: present
+
+- name: copy pam.d files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /etc/pam.d/
+    mode: '0644'
+  loop:
+    - sshd
+    - su
+    - system
+
+- name: make home directory
+  ansible.builtin.file:
+    path: /home
+    state: directory
+    mode: '0755'
+

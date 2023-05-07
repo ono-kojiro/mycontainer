@@ -1,0 +1,21 @@
+---
+- name: copy nsswitch.conf
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /etc/
+  loop:
+    - nsswitch.conf
+
+- name: install bash
+  community.general.pkgin:
+    name:
+    - bash
+    state: present
+
+- name: create symbolic link
+  ansible.builtin.file:
+    src: /usr/pkg/bin/bash
+    dest: /bin/bash
+    state: link
+
+
