@@ -1,0 +1,11 @@
+- hosts: all
+
+  roles:
+    - { role: "sssd",        tags: 'sssd' }
+    #- { role: '09-login',       tags: 'login' }
+ 
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing sssd'
+

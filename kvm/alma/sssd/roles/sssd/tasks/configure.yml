@@ -1,0 +1,27 @@
+---
+- name: disable sssd authentication
+  ansible.builtin.shell: |
+    authselect select minimal --force
+
+- name: copy sssd.conf
+  template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    mode: 0600
+
+- name: restart sssd
+  ansible.builtin.systemd:
+    name: sssd
+    state: restarted
+    daemon_reload: yes
+
+- name: enable sssd
+  ansible.builtin.systemd:
+    name: sssd
+    enabled: yes
+    masked: no
+
+- name: enable sssd authentication with mkhomedir
+  ansible.builtin.shell: |
+    authselect select sssd with-mkhomedir --force
+

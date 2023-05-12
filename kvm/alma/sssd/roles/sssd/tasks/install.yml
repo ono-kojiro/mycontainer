@@ -1,0 +1,24 @@
+- name: install sssd-ldap
+  dnf:
+    name:
+      - sssd
+      - sssd-ldap
+      - sssd-tools
+      - oddjob-mkhomedir
+
+- name: check sssd is running
+  ansible.builtin.systemd:
+    name:  sssd
+    state: started
+    enabled: yes
+
+- name: check oddjobd is running
+  ansible.builtin.systemd:
+    name:  oddjobd
+    state: started
+    enabled: yes
+
+- name: clean sss cache
+  ansible.builtin.shell: |
+    sss_cache -E
+

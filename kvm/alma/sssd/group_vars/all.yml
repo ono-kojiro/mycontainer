@@ -1,0 +1,4 @@
+---
+ldap_uri: ldap://192.168.0.98
+ldap_suffix: dc=example,dc=com
+
