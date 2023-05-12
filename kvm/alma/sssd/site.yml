@@ -1,8 +1,8 @@
 - hosts: all
 
   roles:
-    - { role: "sssd",        tags: 'sssd' }
-    #- { role: '09-login',       tags: 'login' }
+    - { role: "sssd",        tags: "sssd" }
+    - { role: "sudo",        tags: "sudo" }
  
   post_tasks:
     - name: finished.
