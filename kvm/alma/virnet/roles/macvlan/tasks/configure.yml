@@ -1,0 +1,22 @@
+---
+- name: delete macvlan0
+  ansible.builtin.shell: |
+    nmcli con | grep macvlan0
+    if [ $? -eq 0 ]; then
+      nmcli con del macvlan0
+    fi
+  register: res
+
+- name: debug
+  ansible.builtin.debug:
+    var: res.stdout_lines
+
+- name: add macvlan0
+  ansible.builtin.shell: |
+    nmcli con add ifname macvlan0 connection.id macvlan0 type macvlan dev enp0s25 mode bridge
+  register: res
+
+
+- name: debug
+  ansible.builtin.debug:
+    var: res.stdout_lines

@@ -1,0 +1,4 @@
+- name: debug
+  ansible.builtin.shell: |
+    echo debug
+

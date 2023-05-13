@@ -1,0 +1,11 @@
+- hosts: all
+
+  roles:
+    - role: macvlan
+      tags: macvlan
+ 
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished macvlan config'
+
