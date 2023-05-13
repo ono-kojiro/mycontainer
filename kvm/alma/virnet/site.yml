@@ -4,6 +4,12 @@
     - role: macvlan
       tags: macvlan
  
+    - role: container
+      tags: container
+    
+    - role: docker
+      tags: docker
+  
   post_tasks:
     - name: finished.
       debug:

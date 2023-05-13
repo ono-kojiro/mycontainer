@@ -1,0 +1,11 @@
+- name: install systemd-nspawn
+  ansible.builtin.dnf:
+    name: systemd-container
+    state: present
+
+
+- name: install debootstrap
+  ansible.builtin.dnf:
+    name: debootstrap
+    state: present
+
