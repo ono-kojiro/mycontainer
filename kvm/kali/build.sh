@@ -3,7 +3,7 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-host="192.168.10.178"
+host="192.168.0.178"
 user="dummy"
 ldap_uri="ldap://192.168.0.98"
 ldap_suffix="dc=example,dc=com"
