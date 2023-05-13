@@ -2,12 +2,25 @@ version: '3'
 services:
   jammy:
     image: jammy:latest
-    network_mode: bridge
     container_name: jammy
     hostname: jammy
     restart:  always
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
     ports:
-      - "10224:22"
+      - "22040:22"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    name: mynetwork
+    driver: macvlan
+    driver_opts:
+      parent: macvlan0
+    ipam:
+      config:
+      - subnet: 192.168.20.0/24
+        gateway: 192.168.20.1
+
 

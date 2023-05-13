@@ -52,9 +52,18 @@ build()
   docker build --tag $image .
 }
 
+network()
+{
+  docker network create -d macvlan \
+    --subnet=192.168.20.0/24 \
+    --gateway=192.168.20.1 \
+    -o parent=macvlan0 \
+    macvlan1
+}
+
 create()
 {
-  docker-compose up --no-start
+  docker compose up --no-start
 }
 
 status()
@@ -65,7 +74,7 @@ status()
 
 start()
 {
-  docker-compose start
+  docker compose start
 }
 
 attach()
@@ -73,9 +82,19 @@ attach()
   docker attach $container
 }
 
+ssh()
+{
+  command ssh -p 22040 localhost
+}
+
 stop()
 {
-  docker-compose stop
+  docker compose stop
+}
+
+down()
+{
+  docker compose down
 }
 
 ip()
