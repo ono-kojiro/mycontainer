@@ -1,11 +1,28 @@
 ---
+- name: remove macvlan network
+  ansible.builtin.shell: |
+    docker network ls | gawk '{ print $2 }' | grep macvlan
+    if [ $? -eq 0 ]; then
+      docker network rm macvlan
+    else
+      echo skip removing macvlan 
+    fi
+
 - name: create macvlan network
   ansible.builtin.shell: |
     docker network create \
       -d macvlan \
       --subnet=192.168.20.0/24 \
       --gateway=192.168.20.1 \
+      --ip-range=192.168.20.224/28 \
       -o parent=macvlan0 \
       macvlan
+
+#
+#    1000_0000 => 128
+#    1100_0000 => 192 (128+62)
+#    1110_0000 => 224 (192+32)
+#    1111_0000 => 240 (224+16)
+#
 
 
