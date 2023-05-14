@@ -41,6 +41,7 @@ RUN DEBIAN_FRONTEND=noninteractive
 
 # Install required tools.
 RUN apt-get -qq update \
+    && apt-get -qq upgrade \
     && apt-get -qq install tzdata \
     && apt-get -qq install vim-nox \
     && apt-get -qq install sudo \
