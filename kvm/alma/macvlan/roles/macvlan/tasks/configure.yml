@@ -19,12 +19,20 @@
     fi
   register: res
 
-- name: remove ip address from master
+#- name: remove ip address from master
+#  ansible.builtin.shell: |
+#    ip addr del 192.168.20.178/24 dev enp0s25
+#  register: res
+
+- name: connection down
   ansible.builtin.shell: |
-    ip addr del 192.168.20.178/24 dev enp0s25
-    #nmcli con mod enp0s25 -ipv4.addresses "192.168.20.78"
+    nmcli con down enp0s25
   register: res
 
+- name: disable autoconnect
+  ansible.builtin.shell: |
+    nmcli con mod  enp0s25 connection.autoconnect no
+  register: res
 
 - name: add macvlan0
   ansible.builtin.shell: |
@@ -37,6 +45,7 @@
       -- \
       ipv4.method manual \
       ipv4.addresses 192.168.20.178/24 \
+      ipv4.gateway   192.168.20.1 \
       ipv4.dns       "8.8.8.8, 8.8.4.4"
   register: res
       
