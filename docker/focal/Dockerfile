@@ -72,28 +72,6 @@ RUN chmod 600 /etc/sssd/sssd.conf \
 
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
 
-# Install LaTeX tools
-RUN apt-get -qq update \
-    && apt-get -qq install texlive-lang-japanese \
-    && apt-get -qq install texlive-latex-recommended \
-    && apt-get -qq install texlive-latex-extra \
-    && apt-get -qq install tex-gyre \
-    && apt-get -qq install latexmk \
-    && apt-get -qq clean    \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install sphinx
-#RUN apt-get -qq update \
-#    && apt-get -qq install python3-sphinx \
-#    && apt-get -qq install python3-sphinx-rtd-theme \
-#    && apt-get -qq clean    \
-#    && rm -rf /var/lib/apt/lists/*
-
-# Install sphinx by PIP
-RUN python3 -m pip install --no-cache-dir sphinx \
-  && python3 -m pip install --no-cache-dir sphinx-rtd-theme \
-  && python3 -m pip install --no-cache-dir myst-parser
-
 ADD startup.sh /
 RUN chmod +x /startup.sh
 CMD ["/startup.sh"]

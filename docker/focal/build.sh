@@ -5,8 +5,8 @@ cd $top_dir
 
 release="focal"
 
-image="${release}-sphinx"
-container="${release}-sphinx"
+image="${release}"
+container="${release}"
 
 root_url="https://partner-images.canonical.com/core/${release}/current/ubuntu-${release}-core-cloudimg-amd64-root.tar.gz"
 
@@ -55,7 +55,7 @@ build()
 
 create()
 {
-  docker-compose up --no-start
+  docker compose up --no-start
 }
 
 status()
@@ -66,7 +66,7 @@ status()
 
 start()
 {
-  docker-compose start
+  docker compose start
 }
 
 attach()
@@ -82,12 +82,12 @@ bash()
 
 stop()
 {
-  docker-compose stop
+  docker compose stop
 }
 
 down()
 {
-  docker-compose down
+  docker compose down
 }
 
 
