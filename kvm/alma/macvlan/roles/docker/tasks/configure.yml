@@ -1,0 +1,11 @@
+---
+- name: create macvlan network
+  ansible.builtin.shell: |
+    docker network create \
+      -d macvlan \
+      --subnet=192.168.20.0/24 \
+      --gateway=192.168.20.1 \
+      -o parent=macvlan0 \
+      macvlan
+
+

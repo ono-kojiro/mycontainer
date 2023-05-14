@@ -4,6 +4,9 @@
   roles:
     - role: macvlan
       tags: macvlan
+
+    - role: docker
+      tags: docker
  
   post_tasks:
     - name: finished.

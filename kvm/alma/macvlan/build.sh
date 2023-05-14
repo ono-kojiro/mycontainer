@@ -47,9 +47,9 @@ default()
   $cmd
 }
 
-revert()
+check()
 {
-  cmd="ansible-playbook ${ansible_opts} revert.yml"
+  cmd="ansible-playbook ${ansible_opts} check.yml"
   echo $cmd
   $cmd
 }

@@ -1,0 +1,37 @@
+---
+#- name: uninstall old docker
+#  ansible.builtin.dnf:
+#    name:
+#    - docker
+#    - docker-common
+#    - docker-selinux
+#    - docker-engine
+#    state: absent
+
+- name: install yum-utils
+  ansible.builtin.dnf:
+    name: yum-utils
+    state: present
+
+- name: add docker-ce repo
+  ansible.builtin.shell: |
+    yum-config-manager \
+      --add-repo \
+      https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: disable edge, test edition
+  ansible.builtin.shell: |
+    yum-config-manager --disable docker-ce-edge
+    yum-config-manager --disable docker-ce-test
+
+- name: install docker-ce
+  ansible.builtin.dnf:
+    name: docker-ce
+    state: present
+
+- name: start docker daemon
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+
