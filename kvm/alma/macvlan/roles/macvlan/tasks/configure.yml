@@ -1,0 +1,59 @@
+---
+
+# https://tenforward.hatenablog.com/entry/20111221/1324466720
+# https://yskwkzhr.blogspot.com/2017/06/using-macvtap-with-kvm-on-debian-gnu-linux.html
+- name: reset connection
+  ansible.builtin.shell: |
+    nmcli con del enp0s25
+    nmcli con add type ethernet ifname enp0s25 connection.id enp0s25
+    nmcli con mod enp0s25 ipv4.method manual ipv4.addresses "192.168.20.178/24" ipv4.gateway "192.168.20.1" ipv4.dns "8.8.8.8, 8.8.4.4"
+
+- name: delete macvlan0
+  ansible.builtin.shell: |
+    LANG=C nmcli -t con | gawk -F : '{ print $1 }' | grep macvlan0
+    if [ $? -eq 0 ]; then
+      echo macvlan0 found
+      nmcli con delete macvlan0
+    else
+      echo macvlan0 NOT found
+    fi
+  register: res
+
+- name: remove ip address from master
+  ansible.builtin.shell: |
+    ip addr del 192.168.20.178/24 dev enp0s25
+    #nmcli con mod enp0s25 -ipv4.addresses "192.168.20.78"
+  register: res
+
+
+- name: add macvlan0
+  ansible.builtin.shell: |
+    nmcli con add \
+      type macvlan \
+      ifname macvlan0 \
+      connection.id macvlan0 \
+      dev enp0s25 \
+      mode bridge \
+      -- \
+      ipv4.method manual \
+      ipv4.addresses 192.168.20.178/24 \
+      ipv4.dns       "8.8.8.8, 8.8.4.4"
+  register: res
+      
+#      ipv4.gateway   192.168.20.1 \
+
+#- name: restart master
+#  ansible.builtin.shell: |
+#    nmcli con down enp0s25
+#    nmcli con up   enp0s25
+#  register: res
+ 
+#- name: add ip address to macvlan0
+#  ansible.builtin.shell: |
+#    ip addr mod 192.168.20.78/24 dev macvlan0
+#
+#  register: res
+
+#- name: debug
+#  ansible.builtin.debug:
+#    var: res.stdout_lines
