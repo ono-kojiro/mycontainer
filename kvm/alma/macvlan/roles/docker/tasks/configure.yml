@@ -1,12 +1,16 @@
 ---
-- name: remove macvlan network
+- name: remove docker network
   ansible.builtin.shell: |
-    docker network ls | gawk '{ print $2 }' | grep macvlan
+    docker network ls | gawk '{ print $2 }' | grep "{{ item }}"
     if [ $? -eq 0 ]; then
-      docker network rm macvlan
+      docker network rm "{{ item }}"
     else
-      echo skip removing macvlan 
+      echo skip removing "{{ item }}"
     fi
+  loop:
+    - macvlan
+
+# - my-dhcp-net
 
 - name: create macvlan network
   ansible.builtin.shell: |
@@ -25,4 +29,12 @@
 #    1111_0000 => 240 (224+16)
 #
 
+#- name: create dhcp network
+#  ansible.builtin.shell: |
+#    docker network create \
+#      -d ghcr.io/devplayer0/docker-net-dhcp:release-linux-amd64 \
+#      --ipam-driver null \
+#      -o parent=macvlan0 \
+#      -o ipv6=false \
+#      my-dhcp-net
 

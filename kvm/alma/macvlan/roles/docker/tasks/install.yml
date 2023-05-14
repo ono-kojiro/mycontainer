@@ -29,6 +29,17 @@
     name: docker-ce
     state: present
 
+#- name: install docker-net-dhcp
+#  ansible.builtin.shell: |
+#    name="ghcr.io/devplayer0/docker-net-dhcp:release-linux-amd64"
+#    docker plugin ls | gawk '{ print $2 }' | grep $name
+#    if [ $? -ne 0 ]; then
+#      docker plugin install \
+#        --grant-all-permissions $name
+#    else
+#      echo skip install of docker plugin
+#    fi
+
 - name: start docker daemon
   ansible.builtin.systemd:
     name: docker
