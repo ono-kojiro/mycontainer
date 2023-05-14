@@ -1,13 +1,26 @@
 version: '3'
 services:
   focal:
-    image: focal-sphinx
-    container_name: sphinx
-    hostname: sphinx
+    image: focal
+    container_name: focal
+    hostname: focal
     restart:  always
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
     ports:
-      - "20041:22"
+      - "20040:22"
+    networks:
+      - mynetwork
 
+networks:
+  private:
+  mynetwork:
+    name: mynetwork
+    driver: macvlan
+    driver_opts:
+      parent: macvlan0
+    ipam:
+      config:
+      - subnet: 192.168.20.0/24
+        gateway: 192.168.20.1
 
