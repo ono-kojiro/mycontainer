@@ -2,10 +2,19 @@
 
 # https://tenforward.hatenablog.com/entry/20111221/1324466720
 # https://yskwkzhr.blogspot.com/2017/06/using-macvtap-with-kvm-on-debian-gnu-linux.html
-- name: reset connection
+- name: delete connection
   ansible.builtin.shell: |
-    nmcli con del enp0s25
+    status=`LANG=C nmcli dev | grep -e '^enp0s25 ' | gawk '{ print $3 }'`
+    if [ "$status" = "connected" ]; then
+      nmcli con del enp0s25
+    fi
+
+- name: add connection
+  ansible.builtin.shell: |
     nmcli con add type ethernet ifname enp0s25 connection.id enp0s25
+
+- name: modify connection
+  ansible.builtin.shell: |
     nmcli con mod enp0s25 ipv4.method manual ipv4.addresses "192.168.20.178/24" ipv4.gateway "192.168.20.1" ipv4.dns "8.8.8.8, 8.8.4.4"
 
 - name: delete macvlan0

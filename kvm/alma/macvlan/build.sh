@@ -12,7 +12,9 @@ playbook="site.yml"
 
 ansible_opts=""
 ansible_opts="$ansible_opts -i ${inventory}"
-#ansible_opts="$ansible_opts -K"
+ansible_opts="$ansible_opts -K"
+ansible_opts="$ansible_opts -u $USER"
+ansible_opts="$ansible_opts --private-key $HOME/.ssh/id_ed25519"
 
 usage()
 {
@@ -39,6 +41,11 @@ key()
   ssh-keygen -t ed25519 -N '' -f $seckey -C $hostname
 }
 
+gen_hosts()
+{
+  ansible-inventory -i inventory --list --yaml > hosts
+}
+
 default()
 {
   tag=$1
@@ -58,6 +65,8 @@ all()
 {
   usage
 }
+
+gen_hosts
 
 while [ $# -ne 0 ]; do
   case "$1" in
