@@ -52,6 +52,16 @@ build()
   docker build --tag $image .
 }
 
+save()
+{
+  docker image save $image | xz -cz - > ${image}.tar.xz
+}
+
+load()
+{
+  cat ${name}.tar.xz | xz -d | docker load
+}
+
 network()
 {
   docker network create -d macvlan \
