@@ -59,7 +59,7 @@ save()
 
 load()
 {
-  cat ${name}.tar.xz | xz -d | docker load
+  cat ${image}.tar.xz | xz -d | docker load
 }
 
 network()
