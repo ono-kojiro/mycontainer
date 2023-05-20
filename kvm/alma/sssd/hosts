@@ -1,8 +1,12 @@
 all:
-  hosts:
-    almalinux:
-      ansible_host: "{{ server_addr }}"
-      ansible_user: root
-      ansible_ssh_private_key_file: ./id_ed25519
-      ansible_python_interpreter: /usr/libexec/platform-python
-
+  children:
+    servers:
+      hosts:
+        almalinux9:
+          ansible_host: 192.168.0.178
+          ansible_python_interpreter: /usr/libexec/platform-python
+          ansible_ssh_private_key_file: ./id_ed25519
+          ansible_user: root
+          ldap_suffix: dc=example,dc=com
+          ldap_uri: ldap://192.168.0.98
+    ungrouped: {}

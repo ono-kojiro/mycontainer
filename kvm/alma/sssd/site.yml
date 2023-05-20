@@ -1,8 +1,11 @@
-- hosts: all
+- hosts: almalinux9
 
   roles:
-    - { role: "sssd",        tags: "sssd" }
-    - { role: "sudo",        tags: "sudo" }
+    - role: "sssd"
+      tags: "sssd"
+
+    - role: "sudo"
+      tags: "sudo"
  
   post_tasks:
     - name: finished.

@@ -33,7 +33,17 @@ prepare()
 
 key()
 {
-  ssh-keygen -t ed25519 -N '' -f $seckey -C almalinux
+  ssh-keygen -t ed25519 -N '' -f $seckey -C almalinux9
+}
+
+gen_hosts()
+{
+  ansible-inventory -i inventory --list --yaml > hosts
+}
+
+deploy()
+{
+  ansible-playbook -i hosts site.yml
 }
 
 connect()
@@ -51,12 +61,7 @@ sftp()
   command sftp -i $seckey root@${addr}
 }
 
-install_python()
-{
-  command ssh root@${addr} -i $seckey -- pkg install -y python
-}
-
-default()
+_default()
 {
   tag=$1
   cmd="ansible-playbook ${ansible_opts} -t ${tag} ${playbook}"
@@ -68,6 +73,8 @@ all()
 {
   usage
 }
+
+gen_hosts
 
 while [ $# -ne 0 ]; do
   case "$1" in
@@ -98,7 +105,7 @@ for target in "$@"; do
   else
     #echo "ERROR : $target is not a shell function"
     #exit 1
-    default ${target}
+    _default ${target}
   fi
 done
 
