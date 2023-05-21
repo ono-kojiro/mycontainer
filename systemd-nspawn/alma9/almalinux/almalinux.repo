@@ -1,0 +1,7 @@
+[almalinux]
+name=almalinux
+baseurl=http://ftp.jaist.ac.jp/pub/Linux/almalinux/9/BaseOS/x86_64/os
+enabled=1
+gpgcheck=0
+
+

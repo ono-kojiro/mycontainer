@@ -3,8 +3,14 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-release="jammy"
+# Host:      Ubuntu 22.04
+# Container: AlmaLinux 9
+
+release="alma9"
 name="${release}"
+    
+reposdir=`pwd`/almalinux
+setopt="reposdir=${reposdir}"
 
 help()
 {
@@ -21,8 +27,11 @@ usage : $0 [options] target1 target2 ...
 
     build
 
-    run
+    run/login
+
+    list
     start/stop/restart
+    destroy
 EOS
 }
 
@@ -38,52 +47,33 @@ prepare()
 
 build()
 {
-  url="http://jp.archive.ubuntu.com/ubuntu/"
-
   cat - << EOF | sudo -- sh -s
 {
   cd /var/lib/machines
-  /usr/sbin/debootstrap --include=systemd-container \
-    --components="main,universe" \
-    $release $name $url
+  dnf -y --releasever=9 \
+    --nogpgcheck \
+    --setopt=${setopt} \
+    --installroot=/var/lib/machines/${name} \
+    groupinstall "Base"
+
+  dnf -y --releasever=9 \
+    --nogpgcheck \
+    --setopt=${setopt} \
+    --installroot=/var/lib/machines/${name} \
+    install passwd dnf epel-release vim-minimal
+  
+  dnf -y --releasever=9 \
+    --nogpgcheck \
+    --setopt=${setopt} \
+    --installroot=/var/lib/machines/${name} \
+    install systemd-resolved systemd-networkd
 }
 EOF
 
   config_network
-  
-  echo "Build finished."
-  echo "Pleaes run '$0 run' to set root password"
-}
 
-status()
-{
-  #machinectl list-images
-  sudo systemctl status systemd-nspawn@${name}
-}
-
-run()
-{
-  sudo -- sh -c "cd /var/lib/machines; systemd-nspawn -D ${name}"
-}
-
-start()
-{
-  sudo systemctl start systemd-nspawn@${name}
-}
-
-restart()
-{
-  sudo systemctl restart systemd-nspawn@${name}
-}
-
-stop()
-{
-  sudo systemctl stop systemd-nspawn@${name}
-}
-
-login()
-{
-  sudo machinectl login ${name}
+  echo "Build finished"
+  echo "Please execute 'sh $0 run' to set root password'"
 }
 
 config_network()
@@ -114,9 +104,50 @@ EOF
   
 }
 
+destroy()
+{
+  sudo rm -rf /var/lib/machines/${name}
+}
+
 list()
 {
   machinectl list-images
+}
+
+status()
+{
+  #machinectl list-images
+  systemctl status systemd-nspawn@${name}
+}
+
+run()
+{
+  sudo -- sh -c "cd /var/lib/machines; systemd-nspawn -D $name"
+}
+
+debug()
+{
+  sudo systemd-nspawn --register=no -D /var/lib/machines/alma9
+}
+
+start()
+{
+  sudo systemctl start systemd-nspawn@${name}
+}
+
+restart()
+{
+  sudo systemctl restart systemd-nspawn@${name}
+}
+
+stop()
+{
+  sudo systemctl stop systemd-nspawn@${name}
+}
+
+login()
+{
+  sudo machinectl login $name
 }
 
 if [ $# -eq 0 ]; then

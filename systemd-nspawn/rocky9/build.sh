@@ -3,8 +3,17 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-release="jammy"
-name="${release}"
+# Host:      Ubuntu 22.04
+# Container: Rocky Linux 9
+
+release="rocky9"
+
+image="${release}"
+name="${release}-02"
+    
+reposdir=`pwd`/rocky
+setopt="reposdir=${reposdir}"
+#config=`pwd`/rocky/rocky.repo
 
 help()
 {
@@ -20,9 +29,13 @@ usage : $0 [options] target1 target2 ...
     prepare
 
     build
+    network
 
-    run
+    run/login
+
+    list
     start/stop/restart
+    destroy
 EOS
 }
 
@@ -38,55 +51,32 @@ prepare()
 
 build()
 {
-  url="http://jp.archive.ubuntu.com/ubuntu/"
-
   cat - << EOF | sudo -- sh -s
 {
   cd /var/lib/machines
-  /usr/sbin/debootstrap --include=systemd-container \
-    --components="main,universe" \
-    $release $name $url
+  dnf -y --releasever=9 \
+    --nogpgcheck \
+    --setopt=${setopt} \
+    --installroot=/var/lib/machines/${name} \
+    groupinstall "Base"
+
+  dnf -y --releasever=9 \
+    --nogpgcheck \
+    --setopt=${setopt} \
+    --installroot=/var/lib/machines/${name} \
+    install passwd dnf epel-release vim-minimal
+  
+  dnf -y --releasever=9 \
+    --nogpgcheck \
+    --setopt=${setopt} \
+    --installroot=/var/lib/machines/${name} \
+    install systemd-resolved systemd-networkd
 }
 EOF
 
-  config_network
-  
-  echo "Build finished."
-  echo "Pleaes run '$0 run' to set root password"
 }
 
-status()
-{
-  #machinectl list-images
-  sudo systemctl status systemd-nspawn@${name}
-}
-
-run()
-{
-  sudo -- sh -c "cd /var/lib/machines; systemd-nspawn -D ${name}"
-}
-
-start()
-{
-  sudo systemctl start systemd-nspawn@${name}
-}
-
-restart()
-{
-  sudo systemctl restart systemd-nspawn@${name}
-}
-
-stop()
-{
-  sudo systemctl stop systemd-nspawn@${name}
-}
-
-login()
-{
-  sudo machinectl login ${name}
-}
-
-config_network()
+network()
 {
   # use macvlan
   # (same as 'sudo systemctl edit systemd-nspawn@${name}')
@@ -114,9 +104,45 @@ EOF
   
 }
 
+destroy()
+{
+  sudo rm -rf /var/lib/machines/${name}
+}
+
 list()
 {
   machinectl list-images
+}
+
+status()
+{
+  #machinectl list-images
+  systemctl status systemd-nspawn@${name}
+}
+
+run()
+{
+  sudo -- sh -c "cd /var/lib/machines; systemd-nspawn -D $name"
+}
+
+start()
+{
+  sudo systemctl start systemd-nspawn@${name}
+}
+
+restart()
+{
+  sudo systemctl restart systemd-nspawn@${name}
+}
+
+stop()
+{
+  sudo systemctl stop systemd-nspawn@${name}
+}
+
+login()
+{
+  sudo machinectl login $name
 }
 
 if [ $# -eq 0 ]; then

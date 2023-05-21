@@ -53,6 +53,17 @@ build()
   docker build --tag $image .
 }
 
+save()
+{
+  docker image save $image | xz -cz - > ${image}.tar.xz
+}
+
+load()
+{
+  cat ${image}.tar.xz | xz -d | docker load
+}
+
+
 create()
 {
   docker compose up --no-start
