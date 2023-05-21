@@ -4,8 +4,6 @@ top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
 release="jammy"
-
-image="${release}"
 name="${release}"
 
 help()
@@ -19,7 +17,12 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    debootstrap
+    prepare
+
+    build
+
+    run
+    start/stop/restart
 EOS
 }
 
@@ -33,7 +36,7 @@ prepare()
   sudo apt-get -y install debootstrap
 }
 
-image()
+build()
 {
   url="http://jp.archive.ubuntu.com/ubuntu/"
 
@@ -46,6 +49,10 @@ image()
 }
 EOF
 
+  config_network
+  
+  echo "Build finished."
+  echo "Pleaes run '$0 run' to set root password"
 }
 
 status()
@@ -56,12 +63,7 @@ status()
 
 run()
 {
-  sudo -- sh -c "cd /var/lib/machines; systemd-nspawn -D $name"
-}
-
-edit()
-{
-  sudo systemctl edit systemd-nspawn@${name}
+  sudo -- sh -c "cd /var/lib/machines; systemd-nspawn -D ${name}"
 }
 
 start()
@@ -74,26 +76,48 @@ restart()
   sudo systemctl restart systemd-nspawn@${name}
 }
 
+stop()
+{
+  sudo systemctl stop systemd-nspawn@${name}
+}
 
 login()
 {
-  sudo machinectl login $name
+  sudo machinectl login ${name}
 }
 
-network()
+config_network()
 {
-  echo "add follogin code to /etc/netplan/99-custom.yaml and restart container"
+  # use macvlan
+  # (same as 'sudo systemctl edit systemd-nspawn@${name}')
+  config_dir="/etc/systemd/system/systemd-nspawn@${name}.service.d"
+  config="${config_dir}/override.conf"
+  sudo mkdir -p ${config_dir}
 
-  cat - << EOF
-network:
-  version: 2
-  ethernets:
-    mv-macvlan0:
-      dhcp4: true
+  cat - << EOF | sudo tee ${config}
+[Service]
+ExecStart=
+ExecStart=systemd-nspawn -b --network-macvlan=macvlan0 -U --private-users=0 --private-users-chown -D /var/lib/machines/%i
 EOF
+  
+  # enable DHCP
+  installroot="/var/lib/machines/${name}"
+  config="${installroot}/etc/systemd/network/mv-macvlan0.network"
 
+  cat - << EOF | sudo tee ${config}
+[Match]
+Name=mv-macvlan0
+
+[Network]
+DHCP=yes
+EOF
+  
 }
 
+list()
+{
+  machinectl list-images
+}
 
 if [ $# -eq 0 ]; then
   usage
