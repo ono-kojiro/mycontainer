@@ -2,9 +2,9 @@ version: '3.1'
 
 services:
   gitbucket:
-    image: gitbucket-custom
-    container_name: gitbucket-custom
-    hostname: gitbucket-custom
+    image: gitbucket/gitbucket:4.38.4
+    container_name: gitbucket
+    hostname: gitbucket
     restart: always
     ports:
       - "8080:8080"
@@ -21,6 +21,7 @@ services:
       GITBUCKET_KEYSTOREPATH: "/var/lib/gitbucket/192.168.20.178+2.jks"
       GITBUCKET_KEYSTOREPASSWORD: "secret"
       GITBUCKET_KEYMANAGERPASSWORD: "secret"
+    entrypoint: [ "/startup.sh" ]
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
     volumes:
