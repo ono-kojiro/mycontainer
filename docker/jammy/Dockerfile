@@ -66,6 +66,12 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
  && sed -i -e 's|^\s\+GSSAPIAuthentication\s\+.\+|    GSSAPIAuthentication no|' /etc/ssh/ssh_config \
  && update-rc.d ssh defaults
 
+# Install cron
+RUN apt-get -qq update \
+    && apt-get -qq install cron \
+    && apt-get -qq clean    \
+    && rm -rf /var/lib/apt/lists/*
+
 # Configure SSSD.
 ADD sssd.conf /etc/sssd/
 RUN chmod 600 /etc/sssd/sssd.conf \
