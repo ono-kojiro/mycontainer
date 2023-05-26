@@ -15,6 +15,17 @@ services:
         nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.crt"
         nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.key"
         letsencrypt['enable'] = false
+       
+        gitlab_rails['ldap_enabled'] = true
+        gitlab_rails['ldap_servers']['main']['label'] = 'LDAP'
+        gitlab_rails['ldap_servers']['main']['host'] = '192.168.0.98'
+        gitlab_rails['ldap_servers']['main']['port'] = 389
+        gitlab_rails['ldap_servers']['main']['uid'] = 'uid'
+        gitlab_rails['ldap_servers']['main']['encryption'] = 'start_tls'
+        gitlab_rails['ldap_servers']['main']['verify_certificates'] = false
+        gitlab_rails['ldap_servers']['main']['active_directory'] = false
+        gitlab_rails['ldap_servers']['main']['base'] = 'dc=example,dc=com'
+        gitlab_rails['ldap_servers']['main']['user_filter'] = '(memberOf=cn=gitlabusers,ou=Groups,dc=example,dc=com)'
         # Add any other gitlab.rb configuration here, each on its own line
     ports:
       - '30443:443'
