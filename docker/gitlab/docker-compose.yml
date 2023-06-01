@@ -6,9 +6,10 @@ services:
     hostname: gitlab
     restart: always
     environment:
+      GITLAB_HOME: /var/lib/gitlab
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://192.168.0.98:30443/gitlab'
-        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        gitlab_rails['gitlab_shell_ssh_port'] = 30022
         nginx['enable'] = true
         nginx['listen_port'] = 443
         nginx['redirect_http_to_https'] = true
@@ -28,19 +29,13 @@ services:
         gitlab_rails['ldap_servers']['main']['user_filter'] = '(memberOf=cn=gitlabusers,ou=Groups,dc=example,dc=com)'
         # Add any other gitlab.rb configuration here, each on its own line
     ports:
+      - '30022:22'
+      - '30080:80'
       - '30443:443'
-      - '2222:22'
     volumes:
-      - type: bind
-        source: /var/lib/gitlab
-        target: /var/lib/gitlab
-      - type: bind
-        source: /etc/gitlab
-        target: /etc/gitlab
-      - type: bind
-        source: /var/log/gitlab
-        target: /var/log/gitlab
-      - type: bind
-        source: /var/opt/gitlab
-        target: /var/opt/gitlab
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    shm_size: '256m'
+
 

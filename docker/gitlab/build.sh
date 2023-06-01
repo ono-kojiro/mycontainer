@@ -3,6 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+export GITLAB_HOME=/var/lib/gitlab
+
 name="gitlab"
 
 help()
@@ -30,9 +32,9 @@ all()
   destroy
   init
 
-  sudo mkdir -p /etc/gitlab/ssl
-  sudo cp -f $HOME/.local/share/gitlab/gitlab.crt /etc/gitlab/ssl/
-  sudo cp -f $HOME/.local/share/gitlab/gitlab.key /etc/gitlab/ssl/
+  sudo mkdir -p $GITLAB_HOME/config/ssl/
+  sudo cp -f $HOME/.local/share/gitlab/gitlab.crt $GITLAB_HOME/config/ssl/
+  sudo cp -f $HOME/.local/share/gitlab/gitlab.key $GITLAB_HOME/config/ssl/
 
   create
   start
@@ -99,19 +101,13 @@ ip()
 
 init()
 {
-  sudo mkdir -p /etc/gitlab
-  sudo mkdir -p /var/log/gitlab
   sudo mkdir -p /var/lib/gitlab
-  sudo mkdir -p /var/opt/gitlab
 }
 
 
 destroy()
 {
-  sudo rm -rf /etc/gitlab
-  sudo rm -rf /var/log/gitlab
   sudo rm -rf /var/lib/gitlab
-  sudo rm -rf /var/opt/gitlab
 }
 
 if [ $# -eq 0 ]; then
