@@ -2,15 +2,16 @@ version: '3.7'
 
 services:
   jenkins:
-    image: jenkins/jenkins:lts-jdk11
+    image: jenkins/jenkins:2.401.1-lts-jdk11
     container_name: jenkins
     hostname: jenkins
     restart: always
     ports:
       - 18080:8080
       - 18443:8443
+    user: "133:141" # jenkins:jenkins
     volumes:
       - /home/jenkins:/var/jenkins_home
     environment:
-      - 'JENKINS_OPTS=--httpPort=8080 --httpsPort=8443 --httpsKeyStore=/var/jenkins_home/mylocalserver.jks --httpsKeyStorePassword=secret'
+      - 'JENKINS_OPTS=--prefix=/jenkins --httpPort=8080 --httpsPort=8443 --httpsKeyStore=/var/jenkins_home/jenkins.jks --httpsKeyStorePassword=secret'
 

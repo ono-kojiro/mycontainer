@@ -1,0 +1,34 @@
+
+LDAP AUTHENTICATION
+==================================
+
+# keytool -import -trustcacerts -cacerts \
+    -storepass changeit -noprompt -alias mylocalca \
+    -file /tmp/mylocalca.pem
+
+
+Jenkins Security Configuration
+===================================
+
+Server
+  ldaps://192.168.0.98
+
+root DN
+  dc=example,dc=com
+
+User search base
+  ou=Users
+
+User search filter
+  (&(uid={0})(objectClass=posixAccount)(memberOf=cn=jenkinsusers,ou=Groups,dc=example,dc=com))
+
+Parse user attribute for list of LDAP groups
+  memberOf
+
+Display Name LDAP attribute
+  gecos
+
+Email Address LDAP attribute
+  mail
+
+
