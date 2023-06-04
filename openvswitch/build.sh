@@ -24,13 +24,18 @@ usage : $0 [options] target1 target2 ...
 
   target
     add
-    delete
+    del
 EOS
 }
 
 all()
 {
   help
+}
+
+prepare()
+{
+  sudo dnf -y install NetworkManager-ovs
 }
 
 add_bridge()
@@ -45,21 +50,6 @@ delete_bridge()
   sudo nmcli con del $name
 }
 
-debug()
-{
-  sh -s << EOF
-  i=0
-  echo initial i is \$i
-  echo num_port is $num_port
-  while [ "\$i" -lt $num_port ]; do
-    echo i is \$i
-    i=\$(expr \$i + 1)
-    echo end of loop, i is \$i
-  done
-EOF
-
-}
-
 add_port()
 {
   echo "add_port"
@@ -70,7 +60,7 @@ add_port()
       conn.interface ovs-port\${i} \
       master $name \
       con-name ovs-port\${i} \
-      ovs-port.tag 50
+      ovs-port.tag 2
     i=\`expr \$i + 1\`
   done
 EOF
@@ -83,7 +73,7 @@ nmcli con add type ovs-port \
   conn.interface ovs-mng-port \
   master $name \
   con-name ovs-mng-port \
-  ovs-port.tag 50
+  ovs-port.tag 2
 EOF
   
 }
@@ -107,9 +97,9 @@ nmcli con add type ovs-interface slave-type ovs-port \
 
 nmcli con mod ovs-mng-if \
   ipv4.method manual \
-  ipv4.address 192.168.50.254/24 \
-  ipv4.dns     192.168.50.1 \
-  ipv4.gateway 192.168.50.1 \
+  ipv4.address 192.168.20.254/24 \
+  ipv4.dns     192.168.20.1 \
+  ipv4.gateway 192.168.20.1 \
   ipv6.method disabled
 
 nmcli con up ovs-mng-if
@@ -132,13 +122,28 @@ nmcli con mod ovs-if0 ipv6.method disabled
 EOF
 }
 
+debug()
+{
+  cat - << EOF | sudo sh -s
+nmcli con mod br0 master ovs-port0 slave-type ovs-port
+EOF
+  
+}
+
 add_docker_br()
 {
   cat - << EOF | sudo sh -s
-nmcli con add type bridge ifname if0-br0 con-name if0-br0
-nmcli con mod if0-br0 master ovs-if0 slave-type bridge
+nmcli con add type bridge ifname ovs-br0 con-name ovs-br0
+nmcli con mod ovs-br0 master ovs-port0 slave-type ovs-port
 EOF
 
+}
+
+delete_docker_br()
+{
+  cat - << EOF | sudo sh -s
+nmcli con del ovs-br0
+EOF
 }
 
 delete_docker_if()
@@ -183,13 +188,14 @@ add()
   add_port
   add_mng_port
   add_mng_if
-  add_docker_if
+  #add_docker_if
+  add_docker_br
 }
-
 
 delete()
 {
-  delete_docker_if
+  delete_docker_br
+  #delete_docker_if
   delete_mng_if
   delete_mng_port
   delete_port
