@@ -38,6 +38,12 @@ all()
   help
 }
 
+install()
+{
+  docker plugin install --grant-all-permissions \
+    ghcr.io/devplayer0/docker-net-dhcp:release-linux-amd64
+}
+
 init()
 {
   cat - << EOF | sudo sh -s
@@ -49,7 +55,13 @@ bridge()
 {
   cat - << EOF | sudo sh -s
 nmcli con add type bridge ifname $br0 con-name $br0
-nmcli con modify enp0s25 master $br0 slave-type bridge
+nmcli con mod $br0 ipv4.method auto
+nmcli con mod $br0 ipv6.method disabled
+nmcli con mod $br0 autoconnect yes
+
+nmcli con add type ethernet con-name $conn ifname $conn
+nmcli con mod $conn master $br0
+
 nmcli con down $conn
 nmcli con up   $conn
 
@@ -57,6 +69,15 @@ nmcli con down $br0
 nmcli con up   $br0
 EOF
 
+}
+
+del_bridge()
+{
+  cat - << EOF | sudo sh -s
+nmcli con del $br0
+nmcli con del $conn
+EOF
+  
 }
 
 network()
@@ -69,6 +90,11 @@ network()
     my-dhcp-net
 }
 
+net()
+{
+  network
+}
+
 del()
 {
   docker network remove my-dhcp-net
@@ -79,9 +105,21 @@ create()
   docker compose up --no-start
 }
 
+debug()
+{
+  sudo sysctl -w net.bridge.bridge-nf-call-ip6tables=0
+  sudo sysctl -w net.bridge.bridge-nf-call-iptables=0
+  sudo sysctl -w net.bridge.bridge-nf-call-arptables=0
+}
+
 start()
 {
   docker compose start
+}
+
+log()
+{
+  sudo find /var/lib/docker/plugins/ -name "*.log" -print -exec cat {} \;
 }
 
 attach()
