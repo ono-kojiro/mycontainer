@@ -1,0 +1,104 @@
+
+https://wiki.archlinux.jp/index.php/%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%82%AC%E3%82%A4%E3%83%89
+
+# loadkeys jp106
+# timedatectl status
+
+# fdisk -l
+
+# gdisk /dev/sda
+Command (? for help): n
+Partition number (1-128, default 1): 1
+First sector (32-33554398, default = 2048) or {+-}size{KMGTP}: (enter)
+Last sector (2048-33554398, default = 33552383) or {+-}size{KMGTP}: +512M
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300): ef00    // EFI System
+
+Command (? for help): n
+Partition number (2-128, default 2): 2
+First sector (34-33554398, default = 1050624) or {+-}size{KMGTP}: (enter)
+Last sector (1050624-33554398, default = 33552383) or {+-}size{KMGTP}: (empty)
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300): 8300
+
+Command (? for help): p
+
+(confirm  partition table)
+
+Command (? for help): w
+
+Do you want to proceed? (Y/N): y
+OK; writing new GUID partition table (GPT) to /dev/sda.
+The operation has completed successfully.
+
+# mkfs.ext4      /dev/sda2
+# mkfs.fat -F 32 /dev/sda1
+
+
+# mount /dev/sda2 /mnt
+# mkdir /mnt/boot
+# mount /dev/sda1 /mnt/boot
+
+
+
+# vim /etc/pacman.d/mirrorlist
+jpのサイトを最上位に持ってくる
+## Score: 1.5, Japan
+Server = https://ftp.jaist.ac.jp/pub/Linux/ArchLinux/$repo/os/$arch
+## Score: 1.9, Japan
+Server = https://ftp.tsukuba.wide.ad.jp/Linux/archlinux/$repo/os/$arch
+
+# ip addr add 192.168.10.93/24 dev enp0s3
+# ip route add default via 192.168.10.1 dev enp0s3
+
+# systemctl restart systemd-resolved
+
+# pacstrap -K /mnt base linux linux-firmware openssh
+
+
+# genfstab -U -p /mnt >> /mnt/etc/fstab
+# arch-chroot /mnt
+# pacman -S --needed vim
+# alias vi='vim'
+# vim /etc/locale.gen
+
+   en_US.UTF-8 UTF-8
+   ja_JP.UTF-8 UTF-8
+   のコメントを外す
+
+# locale-gen
+# echo LANG=en_US.UTF-8 > /etc/locale.conf
+# export LANG=en_US.UTF-8
+# echo KEYMAP=jp106 > /etc/vconsole.conf
+
+# ln -f -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+# hwclock --systohc --utc
+# echo localhost > /etc/hostname
+
+# passwd
+
+# pacman -S grub efibootmgr
+
+# bootctl install
+
+# grub-install --target=x86_64-efi \
+    --efi-directory=/boot --bootloader-id=arch_grub --recheck --debug
+
+...
+Installation finished. No error reported.
+               
+# grub-mkconfig -o /boot/grub/grub.cfg
+    Generating grub configuration file ...
+    Found linux image: /boot/vmlinuz-linux
+    Found initrd image: /boot/initramfs-linux.img
+    Found fallback initrd image(s) in /boot: initramfs-linux-fallback.img
+    done
+               
+# pacman -S --needed dhcpcd
+# systemctl enable dhcpcd
+
+# exit
+# umount -R /mnt
+# reboot
+
+
