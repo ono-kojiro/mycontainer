@@ -75,13 +75,13 @@ all()
   enable_pubkey_auth
   test_ssh
 
-  enable_sssd
-  test_sssd
+#  enable_sssd
+#  test_sssd
 
-  setup_default_user
-  setup_user_config
+#  setup_default_user
+#  setup_user_config
 
-  install_devel
+#  install_devel
 }
 
 create()
