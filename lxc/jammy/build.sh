@@ -138,7 +138,8 @@ EOS
 
 test_attach()
 {
-  lxc-attach -n $name -- ps
+  #lxc-attach -n $name -- ps
+  lxc-attach -n $name
 }
 
 config_network()
