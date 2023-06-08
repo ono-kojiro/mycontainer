@@ -6,6 +6,9 @@
 
     - role: docker
       tags: docker
+    
+    - role: machine
+      tags: machine
  
   post_tasks:
     - name: finished.

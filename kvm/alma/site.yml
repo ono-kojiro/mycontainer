@@ -1,17 +1,11 @@
-- hosts: all
+- hosts: almalinux9
 
   roles:
-    - { role: "01-ca",          tags: 'ca' }
-    - { role: "02-server",      tags: 'server' }
-    - { role: "05-dirsrv",      tags: 'dirsrv' }
-    - { role: "07-ldapscripts", tags: 'ldapscripts' }
-    - { role: '08-useradd',     tags: 'useradd' }
-    - { role: '10-sudo',        tags: 'sudo' }
-    - { role: "06-sssd",        tags: 'sssd' }
-    #- { role: '09-login',       tags: 'login' }
+    - role: "sssd"
+      tags: "sssd"
  
   post_tasks:
     - name: finished.
       debug:
-        msg='finished installing slapd'
+        msg='finished installing sssd'
 

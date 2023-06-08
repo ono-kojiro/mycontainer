@@ -17,7 +17,9 @@ usage()
 usage : $0 target1 target2 ...
 
 target
-  all
+  key
+
+  deploy
 EOF
 }
 
