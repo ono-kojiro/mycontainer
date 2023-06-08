@@ -113,12 +113,12 @@ add_docker_if()
 nmcli con add \
   type ovs-interface \
   slave-type ovs-port \
-  conn.interface ovs-if0 \
-  connection.id ovs-if0 \
+  conn.interface ovs-if1 \
+  connection.id ovs-if1 \
   master ovs-port0
 
-nmcli con mod ovs-if0 ipv4.method disabled
-nmcli con mod ovs-if0 ipv6.method disabled
+#nmcli con mod ovs-if1 ipv4.method disabled
+#nmcli con mod ovs-if1 ipv6.method disabled
 EOF
 }
 
@@ -133,16 +133,19 @@ EOF
 add_docker_br()
 {
   cat - << EOF | sudo sh -s
-nmcli con add type bridge ifname ovs-br0 con-name ovs-br0
-nmcli con mod ovs-br0 master ovs-port0 slave-type ovs-port
+nmcli con add type bridge ifname ovs-br1 con-name ovs-br1
+nmcli con mod ovs-br1 ipv4.method auto
+nmcli con mod ovs-br1 ipv6.method auto
+
+nmcli con mod ovs-br1 master ovs-port1 slave-type ovs-port
 EOF
 
 }
 
-delete_docker_br()
+del_docker_br()
 {
   cat - << EOF | sudo sh -s
-nmcli con del ovs-br0
+nmcli con del ovs-br1
 EOF
 }
 
@@ -186,18 +189,18 @@ add()
 {
   add_bridge
   add_port
-  add_mng_port
-  add_mng_if
+  #add_mng_port
+  #add_mng_if
   #add_docker_if
-  add_docker_br
+  #add_docker_br
 }
 
 delete()
 {
-  delete_docker_br
+  #delete_docker_br
   #delete_docker_if
-  delete_mng_if
-  delete_mng_port
+  #delete_mng_if
+  #delete_mng_port
   delete_port
   delete_bridge
 }
