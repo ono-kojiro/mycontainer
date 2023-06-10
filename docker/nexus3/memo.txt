@@ -32,4 +32,19 @@ LDAP AUTHENTICATION
   Group type: Dynamic Groups
   Group member of attribute: memberOf
 
+
+  $ docker login 191.168.0.98:5001
+  Username: xxxxxxx
+  Password:
+  WARNING! Your password will be stored unencrypted in
+  /home/xxxxxxx/.docker/config.json.
+  Configure a credential helper to remove this warning.
+  See https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+  Login Succeeded
+
+  $ docker tag  focal 192.168.0.98:5001/repository/docker-hosted/focal
+
+  $ docker push 192.168.0.98:5001/repository/docker-hosted/focal
+
 END

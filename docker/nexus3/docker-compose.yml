@@ -8,6 +8,8 @@ services:
     hostname: nexus3
     restart: always
     ports:
-      - 8081:8081
-      - 8082:8082
+      - 8081:8081  # http
+      - 8082:8082  # https
+      - 5000:5000  # docker registry http
+      - 5001:5001  # docker registry https
 
