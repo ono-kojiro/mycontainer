@@ -16,10 +16,18 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
+    prepare
     create
     start
+
+    get
+    patch
+    put
+
     stop
+
     down
+    destroy
 EOS
 }
 
@@ -83,6 +91,7 @@ clean()
 {
   rm -f jetty-https.xml.orig jetty-https.xml
   rm -f nexus.properties.orig nexus.properties
+  rm -f keystore.jks
 }
 
 tmp()
@@ -103,6 +112,10 @@ tmp()
 
 put()
 {
+  if [ -f "$HOME/.local/share/nexus3/keystore.jks" ]; then
+    cp -f $HOME/.local/share/nexus3/keystore.jks .
+  fi
+
   cmd="docker cp keystore.jks $name:/nexus-data/keystores/"
   echo $cmd
   $cmd
