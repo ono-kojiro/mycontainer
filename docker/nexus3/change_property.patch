@@ -1,0 +1,20 @@
+*** nexus.properties.orig	2023-06-10 10:51:11.443493709 +0900
+--- nexus.properties	2023-06-10 10:52:03.876121673 +0900
+***************
+*** 1,7 ****
+  # Jetty section
+  # application-port=8081
+  # application-host=0.0.0.0
+! # nexus-args=${jetty.etc}/jetty.xml,${jetty.etc}/jetty-http.xml,${jetty.etc}/jetty-requestlog.xml
+  # nexus-context-path=/${NEXUS_CONTEXT}
+  
+  # Nexus section
+--- 1,8 ----
+  # Jetty section
+  # application-port=8081
++ application-port-ssl=8082
+  # application-host=0.0.0.0
+! nexus-args=${jetty.etc}/jetty.xml,${jetty.etc}/jetty-http.xml,${jetty.etc}/jetty-requestlog.xml,/nexus-data/etc/jetty/jetty-https.xml
+  # nexus-context-path=/${NEXUS_CONTEXT}
+  
+  # Nexus section

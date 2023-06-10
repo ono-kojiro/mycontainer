@@ -2,12 +2,12 @@
 version: '3.1'
 
 services:
-
-  couchdb:
-    image: sonatype/nexus3
-    container_name: nexus
-    hostname: nexus
+  nexus3:
+    image: sonatype/nexus3:3.55.0
+    container_name: nexus3
+    hostname: nexus3
     restart: always
     ports:
       - 8081:8081
+      - 8082:8082
 
