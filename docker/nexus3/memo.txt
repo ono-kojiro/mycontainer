@@ -29,13 +29,7 @@ LDAP AUTHENTICATION
 
 
   Map LDAP group as roles: yes
-  Group type: Static Groups
-  Group relative DN: ou=Groups
-  Group subtree: (no)
-  Group object class: posixGroup
-  Group ID attribute: cn
-  Group member attribute: member
-  Group member format: uid=${username},ou=Groups,dc=example,dc=com
-
+  Group type: Dynamic Groups
+  Group member of attribute: memberOf
 
 END
