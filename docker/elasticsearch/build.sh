@@ -41,7 +41,34 @@ prepare()
   sudo mkdir -p /var/lib/elasticsearch/data
   sudo mkdir -p /var/lib/elasticsearch/etc
 
+  sudo cp -f elasticsearch.crt /var/lib/elasticsearch/certs/
+  sudo cp -f elasticsearch.key /var/lib/elasticsearch/certs/
+  sudo cp -f mylocalca.pem     /var/lib/elasticsearch/certs/
+  
   sudo chown -R 1000:1000 /var/lib/elasticsearch
+  
+  sudo mkdir -p /var/lib/kibana
+  sudo mkdir -p /var/lib/kibana/config/certs
+  sudo cp    -f mylocalca.pem     /var/lib/kibana/config/certs/
+  sudo cp    -f kibana.yml        /var/lib/kibana/config/
+  sudo chown -R 1000:1000 /var/lib/kibana
+  
+}
+
+restart()
+{
+  stop
+  start
+}
+
+pull()
+{
+  docker cp kibana:/usr/share/kibana/config/kibana.yml .
+}
+
+push()
+{
+  docker cp kibana.yml.mod kibana:/usr/share/kibana/config/kibana.yml
 }
 
 create()
@@ -57,6 +84,11 @@ start()
 attach()
 {
   docker exec -it --user root elasticsearch /bin/bash
+}
+
+kibana()
+{
+  docker exec -it --user root kibana /bin/bash
 }
 
 stop()
@@ -79,6 +111,7 @@ ip()
 destroy()
 {
   sudo rm -rf /var/lib/elasticsearch
+  sudo rm -rf /var/lib/kibana
 }
 
 
