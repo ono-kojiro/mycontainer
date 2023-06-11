@@ -36,7 +36,12 @@ all()
 
 prepare()
 {
-  :
+  sudo mkdir -p /var/lib/elasticsearch
+  sudo mkdir -p /var/lib/elasticsearch/certs
+  sudo mkdir -p /var/lib/elasticsearch/data
+  sudo mkdir -p /var/lib/elasticsearch/etc
+
+  sudo chown -R 1000:1000 /var/lib/elasticsearch
 }
 
 create()
@@ -73,7 +78,7 @@ ip()
 
 destroy()
 {
-  :
+  sudo rm -rf /var/lib/elasticsearch
 }
 
 

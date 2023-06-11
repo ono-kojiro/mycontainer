@@ -9,6 +9,10 @@ services:
     hostname: elasticsearch
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
+    volumes:
+      - /var/lib/elasticsearch/certs:/usr/share/elasticsearch/config/certs
+      - /var/lib/elasticsearch/data:/usr/share/elasticsearch/data
+      - /var/lib/elasticsearch/etc:/etc/elasticsearch
     ports:
       - ${ES_PORT}:9200
     environment:
