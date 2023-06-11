@@ -68,7 +68,26 @@ pull()
 
 push()
 {
-  docker cp kibana.yml.mod kibana:/usr/share/kibana/config/kibana.yml
+  docker cp kibana.yml kibana:/usr/share/kibana/config/kibana.yml
+  docker exec --user kibana kibana mkdir -p /usr/share/kibana/config/certs/
+  docker exec --user root kibana chown -R 1000:1000 /usr/share/kibana/config/certs/
+  docker cp mylocalca.pem     kibana:/usr/share/kibana/config/certs/
+}
+
+passwd()
+{
+   echo "Setting kibana_system password";
+   curl -s \
+     -X POST --cacert mylocalca.pem \
+     -u "elastic:elastic" \
+     -H "Content-Type: application/json" \
+     https://192.168.0.98:9200/_security/user/kibana_system/_password \
+     -d "{ \"password\":\"elastic\" }"
+}
+
+debug()
+{
+  docker cp kibana:/usr/share/kibana/logs/kibana.log .
 }
 
 create()
@@ -81,7 +100,7 @@ start()
   docker compose start
 }
 
-attach()
+es()
 {
   docker exec -it --user root elasticsearch /bin/bash
 }

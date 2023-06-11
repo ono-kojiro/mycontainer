@@ -43,16 +43,16 @@ services:
     hostname: kibana
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
-    volumes:
-      - /var/lib/kibana/config/certs:/usr/share/kibana/config/certs
+    #volumes:
+    #  - /var/lib/kibana/config/certs:/usr/share/kibana/config/certs
     environment:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - SERVER_NAME=kibana
       - ELASTICSEARCH_HOSTS=https://${ES_HOST}:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/mylocalca.pem
-      - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
+    #  - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/mylocalca.pem
+    #  - ELASTICSEARCH_SSL_VERIFICATIONMODE=none
     mem_limit: ${MEM_LIMIT}
     ports:
        - ${KIBANA_PORT}:5601
