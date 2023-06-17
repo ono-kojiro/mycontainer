@@ -15,6 +15,6 @@ services:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - discovery.type=single-node
-      - xpack.security.enabled=false
+      - xpack.security.enabled=true
     mem_limit: ${MEM_LIMIT}
   

@@ -1,0 +1,31 @@
+cluster:
+  name: "docker-cluster"
+
+network:
+  host: 0.0.0.0
+
+discovery:
+  type: single-node
+
+xpack:
+  security:
+    enabled: true
+    http:
+      ssl:
+        enabled: true
+        key:         certs/elasticsearch.key
+        certificate: certs/elasticsearch.crt
+        certificate_authorities: certs/mylocalca.pem
+        verification_mode: none
+    transport:
+      ssl:
+        enabled: true
+        key:         certs/elasticsearch.key
+        certificate: certs/elasticsearch.crt
+        certificate_authorities: certs/mylocalca.pem
+        verification_mode: none
+  license:
+    self_generated:
+      type: basic
+
+

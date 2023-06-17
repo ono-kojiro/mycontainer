@@ -66,6 +66,24 @@ pull()
   docker cp kibana:/usr/share/kibana/config/kibana.yml .
 }
 
+enable_https()
+{
+  echo "enable https"
+  config="/usr/share/elasticsearch/config"
+  user="elasticsearch"
+  name="elasticsearch"
+
+  docker exec --user root $name mkdir -p $config/certs/
+  docker cp elasticsearch.yml $name:$config/
+  docker cp mylocalca.pem $name:$config/certs/
+  docker cp elasticsearch.key $name:$config/certs/
+  docker cp elasticsearch.crt $name:$config/certs/
+
+  docker exec --user root $name chown $name:root $config/elasticsearch.yml
+  docker exec --user root $name chown -R $name:root $config/certs/
+  
+}
+
 push()
 {
   echo "change elasticsearch config"
@@ -115,7 +133,7 @@ test_https()
      -H "Content-Type: application/json" \
      https://192.168.0.98:9200/
    
-  w3m -dump http://192.168.0.98:5601/
+  #w3m -dump http://192.168.0.98:5601/
 }
 
 
@@ -154,6 +172,12 @@ kibana()
 {
   docker exec -it --user root kibana /bin/bash
 }
+
+attach()
+{
+  docker exec -it --user root elasticsearch /bin/bash
+}
+
 
 stop()
 {
