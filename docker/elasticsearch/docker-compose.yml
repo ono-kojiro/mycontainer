@@ -16,5 +16,30 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - discovery.type=single-node
       - xpack.security.enabled=true
+    volumes:
+      - /var/lib/elasticsearch/certs:/usr/share/elasticsearch/config/certs
+      - /var/lib/elasticsearch/data:/usr/share/elasticsearch/data
+      - /var/lib/elasticsearch/etc:/etc/elasticsearch
+      - /var/lib/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     mem_limit: ${MEM_LIMIT}
+  
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    container_name: kibana
+    hostname: kibana
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    volumes:
+      - /var/lib/kibana/config/certs:/usr/share/kibana/config/certs
+      - /var/lib/kibana/data:/usr/share/kibana/data
+      - /var/lib/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=https://${ES_HOST}:9200
+    mem_limit: ${MEM_LIMIT}
+    ports:
+       - ${KIBANA_PORT}:5601
   
