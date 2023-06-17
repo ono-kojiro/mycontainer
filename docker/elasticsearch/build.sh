@@ -73,17 +73,27 @@ push()
   user="elasticsearch"
 
   docker cp elasticsearch.yml elasticsearch:$config/
+  docker exec --user root elasticsearch \
+    chown root.root $config/elasticsearch.yml
   docker exec --user elasticsearch elasticsearch mkdir -p $config/certs/
   docker cp mylocalca.pem elasticsearch:$config/certs/
   docker cp elasticsearch.key elasticsearch:$config/certs/
   docker cp elasticsearch.crt elasticsearch:$config/certs/
-  docker exec --user root elasticsearch chown -R elasticsearch:root $config/certs/
+  docker exec --user root elasticsearch chown -R elasticsearch:elasticsearch $config/certs/
+}
 
+push_kibana()
+{
   echo "change kibana config"
   docker cp kibana.yml kibana:/usr/share/kibana/config/kibana.yml
   docker exec --user kibana kibana mkdir -p /usr/share/kibana/config/certs/
   docker exec --user root kibana chown -R 1000:1000 /usr/share/kibana/config/certs/
   docker cp mylocalca.pem     kibana:/usr/share/kibana/config/certs/
+}
+
+test()
+{
+  test_http
 }
 
 test_http()
@@ -94,16 +104,18 @@ test_http()
      -H "Content-Type: application/json" \
      http://192.168.0.98:9200/
 
-   w3m -dump http://192.168.0.98:5601/
+   #w3m -dump http://192.168.0.98:5601/
 }
 
 test_https()
 {
    echo "test https"
-   curl -s \
+   curl \
      -u "elastic:elastic" \
      -H "Content-Type: application/json" \
      https://192.168.0.98:9200/
+   
+  w3m -dump http://192.168.0.98:5601/
 }
 
 

@@ -9,48 +9,12 @@ services:
     hostname: elasticsearch
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
-    volumes:
-      - /var/lib/elasticsearch/certs:/usr/share/elasticsearch/config/certs
-      - /var/lib/elasticsearch/data:/usr/share/elasticsearch/data
-      - /var/lib/elasticsearch/etc:/etc/elasticsearch
     ports:
       - ${ES_PORT}:9200
     environment:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - discovery.type=single-node
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=certs/elasticsearch.key
-      - xpack.security.http.ssl.certificate=certs/elasticsearch.crt
-      - xpack.security.http.ssl.certificate_authorities=certs/mylocalca.pem
-      #- xpack.security.http.ssl.verification_mode=certificate
-      - xpack.security.http.ssl.verification_mode=none
-      - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=certs/elasticsearch.key
-      - xpack.security.transport.ssl.certificate=certs/elasticsearch.crt
-      - xpack.security.transport.ssl.certificate_authorities=certs/mylocalca.p>
-      #- xpack.security.transport.ssl.verification_mode=certificate
-      - xpack.security.transport.ssl.verification_mode=none
-      - xpack.license.self_generated.type=${LICENSE}
+      - xpack.security.enabled=false
     mem_limit: ${MEM_LIMIT}
   
-  kibana:
-    depends_on:
-      - elasticsearch
-    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
-    container_name: kibana
-    hostname: kibana
-    stdin_open: true   # docker run -i
-    tty:        true   # docker run -t
-    #volumes:
-    #  - /var/lib/kibana/config/certs:/usr/share/kibana/config/certs
-    environment:
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - SERVER_NAME=kibana
-      - ELASTICSEARCH_HOSTS=http://${ES_HOST}:9200
-    mem_limit: ${MEM_LIMIT}
-    ports:
-       - ${KIBANA_PORT}:5601
-
-
