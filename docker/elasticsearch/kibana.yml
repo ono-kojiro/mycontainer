@@ -8,8 +8,16 @@ server.shutdownTimeout: "5s"
 #elasticsearch.hosts: [ "http://elasticsearch:9200" ]
 monitoring.ui.container.elasticsearch.enabled: true
 
-server.name: kibana
 elasticsearch.hosts: https://192.168.0.98:9200
+
+server:
+  name: kibana
+  publicBaseUrl: https://192.168.0.98:5601
+  ssl:
+    enabled: true
+    certificate: /usr/share/kibana/config/certs/kibana.crt
+    key:         /usr/share/kibana/config/certs/kibana.key
+    
 elasticsearch.username: kibana_system
 elasticsearch.password: elastic
 

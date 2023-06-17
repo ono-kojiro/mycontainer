@@ -34,7 +34,6 @@ all()
 prepare()
 {
   cat - << 'EOF' | sudo bash -s
-    rm -rf /var/lib/elasticsearch
     mkdir -p /var/lib/elasticsearch
     mkdir -p /var/lib/elasticsearch/certs
     mkdir -p /var/lib/elasticsearch/data
