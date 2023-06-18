@@ -2,10 +2,8 @@
 # https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-amd64-root.tar.gz
 #
 
-FROM scratch
-#ADD ubuntu-bionic-core-cloudimg-amd64-root.tar.gz /
-#ADD ubuntu-focal-core-cloudimg-amd64-root.tar.gz /
-ADD ubuntu-jammy-core-cloudimg-amd64-root.tar.gz /
+FROM ubuntu:22.04
+#ADD ubuntu-jammy-core-cloudimg-amd64-root.tar.gz /
 
 RUN set -xe \
     \
@@ -37,21 +35,18 @@ RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 # https://stackoverflow.com/questions/22886470/start-sshd-automatically-with-docker-container
 #
 
-RUN DEBIAN_FRONTEND=noninteractive
-
 # Install required tools.
 RUN apt-get -qq update \
-    && apt-get -qq upgrade \
-    && apt-get -qq install tzdata \
-    && apt-get -qq install vim-nox \
-    && apt-get -qq install sudo \
-    && apt-get -qq install python3-pip \
-    && apt-get -qq install openssh-server \
-    && apt-get -qq install iproute2 \
-    && apt-get -qq install sssd-ldap \
-    && apt-get -qq install oddjob-mkhomedir \
-    && apt-get -qq install tzdata \
-    && apt-get -qq clean    \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qq upgrade \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qq install \
+      tzdata \
+      vim-nox \
+      sudo \
+      openssh-server \
+      iproute2 \
+      sssd-ldap \
+      oddjob-mkhomedir \
+    && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure SSHD.
@@ -65,12 +60,6 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
  && ssh-keygen -A -v \
  && sed -i -e 's|^\s\+GSSAPIAuthentication\s\+.\+|    GSSAPIAuthentication no|' /etc/ssh/ssh_config \
  && update-rc.d ssh defaults
-
-# Install cron
-RUN apt-get -qq update \
-    && apt-get -qq install cron \
-    && apt-get -qq clean    \
-    && rm -rf /var/lib/apt/lists/*
 
 # Configure SSSD.
 ADD sssd.conf /etc/sssd/
