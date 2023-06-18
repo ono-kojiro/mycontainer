@@ -407,7 +407,7 @@ ls()
 attach()
 {
 	#lxc-attach -n $container -- /bin/sh
-	lxc-attach -n $container -- /bin/bash
+	lxc-attach -n $name
 }
 
 mclean()
