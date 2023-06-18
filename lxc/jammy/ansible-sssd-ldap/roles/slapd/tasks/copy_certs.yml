@@ -12,16 +12,21 @@
     owner: openldap
     group: openldap
 
-#- name: copy server crt
-#  ansible.builtin.copy:
-#    src:  "{{ server_dir }}/{{ server_crt }}"
-#    dest: "/etc/ldap/certs/{{ server_crt }}"
-  
 - name: copy server crt
-  shell: |
-    cp -f "{{ server_dir}}/{{ server_crt }}" \
-      "/etc/ldap/certs/{{ server_crt }}"
-    chown openldap:openldap "/etc/ldap/certs/{{ server_crt }}"
+  ansible.builtin.template:
+    src:  server.crt
+    dest: /etc/ldap/certs/
+
+- name: copy server key
+  ansible.builtin.template:
+    src:  server.key
+    dest: /etc/ldap/certs/
+  
+#- name: copy server crt
+#  shell: |
+#    cp -f "{{ server_dir}}/{{ server_crt }}" \
+#      "/etc/ldap/certs/{{ server_crt }}"
+#    chown openldap:openldap "/etc/ldap/certs/{{ server_crt }}"
 
 - name: change ownership of server crt
   ansible.builtin.file:
@@ -36,11 +41,11 @@
 #    owner: root
 #    group: root
 
-- name: copy server key
-  shell: |
-    cp -f "{{ server_dir}}/{{ server_key }}" \
-      "/etc/ldap/certs/{{ server_key }}"
-    chown openldap:openldap "/etc/ldap/certs/{{ server_key }}"
+#- name: copy server key
+#  shell: |
+#    cp -f "{{ server_dir}}/{{ server_key }}" \
+#      "/etc/ldap/certs/{{ server_key }}"
+#    chown openldap:openldap "/etc/ldap/certs/{{ server_key }}"
 
 - name: change ownership of server key
   ansible.builtin.file:

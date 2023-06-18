@@ -3,6 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+ansible-inventory -i groups --list --yaml > hosts
+
 help()
 {
   usage

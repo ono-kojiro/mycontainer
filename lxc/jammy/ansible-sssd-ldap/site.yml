@@ -1,4 +1,4 @@
-- hosts: targets
+- hosts: jammy
 
   roles:
     - role: slapd
