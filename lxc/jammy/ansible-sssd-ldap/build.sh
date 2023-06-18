@@ -29,6 +29,11 @@ deploy()
   ansible-playbook -i hosts site.yml
 }
 
+ssh()
+{
+  command ssh -i id_ed25519 jammy
+}
+
 args=""
 while [ $# -ne 0 ]; do
   case $1 in

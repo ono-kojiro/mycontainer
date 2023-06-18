@@ -15,3 +15,12 @@
   register: result
   failed_when: result.rc != 0
 
+- name: copy disable_anonymous_access.ldif
+  template:
+    src: disable_anonymous_access.ldif
+    dest: /etc/ldap/
+
+- name: disable anonymous access
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/disable_anonymous_access.ldif
+
