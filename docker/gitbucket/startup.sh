@@ -7,6 +7,8 @@ java -jar /opt/gitbucket.war \
   --redirect_https=${GITBUCKET_REDIRECTHTTPS} \
   --port=${GITBUCKET_PORT} \
   --secure_port=${GITBUCKET_SECUREPORT} \
+  --key_store_path=${GITBUCKET_KEYSTOREPATH} \
+  --key_store_password=${GITBUCKET_KEYSTOREPASSWORD} \
   > /var/lib/gitbucket/gitbucket.log 2>&1
 
 

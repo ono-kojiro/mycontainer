@@ -4,7 +4,9 @@ top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
 image="gitbucket"
-name="${image}-custom"
+name="${image}"
+
+docker_compose="docker compose"
 
 help()
 {
@@ -33,7 +35,7 @@ all()
 
 fetch()
 {
-  docker compose pull
+  $docker_compose pull
 }
 
 pull()
@@ -46,25 +48,43 @@ build()
   docker build -t ${name} .
 }
 
+prepare()
+{
+  sudo mkdir -p /var/lib/gitbucket
+}
+
 create()
 {
-  docker compose up --no-start
+  $docker_compose up --no-start
+}
+
+copy()
+{
+  docker cp startup.sh gitbucket:/
+  docker cp gitbucket.jks gitbucket:/var/lib/gitbucket/
+  #docker cp server.p12 gitbucket:/var/lib/gitbucket/
 }
 
 status()
 {
-  ip addr show docker0
-  docker network inspect bridge
+  #ip addr show docker0
+  #docker network inspect bridge
+  docker ps -a | grep gitbucket
+}
+
+log()
+{
+  docker cp gitbucket:/var/lib/gitbucket/gitbucket.log .
 }
 
 start()
 {
-  docker compose start
+  $docker_compose start
 }
 
 attach()
 {
-  docker attach ${name}
+  docker exec -it $name /bin/bash
 }
 
 ssh()
@@ -74,12 +94,12 @@ ssh()
 
 stop()
 {
-  docker compose stop
+  $docker_compose stop
 }
 
 down()
 {
-  docker compose down
+  $docker_compose down
 }
 
 ip()
