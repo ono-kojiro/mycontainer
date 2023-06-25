@@ -1,0 +1,14 @@
+"System settings" -> "Authentication" tab
+
+enable "LDAP"
+
+  LDAP host: (your ldap server)
+  LDAP port: 636
+  Bind DN  : cn=Manager,dc=example,dc=com
+  Bind password : xxxxxxxx
+  Base DN  : dc=example,dc=com
+  User name attribute : uid
+  Full name attribute : gecos
+  Mail address attribute : mail
+  Enable SSL : enable
+

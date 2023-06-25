@@ -20,11 +20,16 @@ usage : $0 [options] target1 target2 ...
 
   target
     fetch
-    build
+    prepare
     create
+    enable_https
+
     start
+    (configure ldap auth...)
     stop
-    ip
+
+    enable_ldaps
+    start
 EOS
 }
 
@@ -58,11 +63,22 @@ create()
   $docker_compose up --no-start
 }
 
-copy()
+enable_https()
 {
   docker cp startup.sh gitbucket:/
   docker cp gitbucket.jks gitbucket:/var/lib/gitbucket/
-  #docker cp server.p12 gitbucket:/var/lib/gitbucket/
+}
+
+enable_ldaps()
+{
+  docker cp mylocalca.pem gitbucket:/var/lib/gitbucket/
+  docker exec --user root ${name} \
+    keytool -import -trustcacerts \
+    -keystore /opt/java/openjdk/lib/security/cacerts \
+    -storepass changeit \
+    -noprompt \
+    -alias mylocalca \
+    -file /var/lib/gitbucket/mylocalca.pem
 }
 
 status()
@@ -84,7 +100,7 @@ start()
 
 attach()
 {
-  docker exec -it $name /bin/bash
+  docker exec -it --user 0 $name /bin/bash
 }
 
 ssh()
@@ -97,6 +113,12 @@ stop()
   $docker_compose stop
 }
 
+restart()
+{
+  $docker_compose stop
+  $docker_compose start
+}
+
 down()
 {
   $docker_compose down
@@ -107,6 +129,11 @@ ip()
   docker inspect \
     --format '{{.Name}} {{ .NetworkSettings.IPAddress }}' \
 	$(docker ps -q)
+}
+
+destroy()
+{
+  sudo rm -rf /var/lib/gitbucket/
 }
 
 if [ $# -eq 0 ]; then
