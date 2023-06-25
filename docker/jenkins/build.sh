@@ -17,6 +17,7 @@ usage : $0 [options] target1 target2 ...
 
   target
     fetch
+    init
     build
     create
     start
@@ -56,8 +57,9 @@ create()
 
 status()
 {
-  ip addr show docker0
-  docker network inspect bridge
+  #ip addr show docker0
+  #docker network inspect bridge
+  docker ps -a | grep ${name}
 }
 
 start()
@@ -95,14 +97,29 @@ ip()
 
 init()
 {
-  sudo mkdir -p /home/jenkins/
-  sudo cp $HOME/.local/share/jenkins/jenkins.jks /home/jenkins/
-  sudo chown jenkins:jenkins /home/jenkins/
+  #sudo mkdir -p /home/jenkins/
+  #sudo cp $HOME/.local/share/jenkins/jenkins.jks /home/jenkins/
+  #sudo chown jenkins:jenkins /home/jenkins/
+  docker cp $HOME/.local/share/jenkins/jenkins.jks ${name}:/var/jenkins_home/
 }
 
 destroy()
 {
   sudo rm -rf /home/jenkins/
+}
+
+import_cacert()
+{
+  docker cp ./mylocalca.pem ${name}:/var/jenkins_home/
+
+  # call keytool with absolute cacert path
+  docker exec --user root ${name} \
+    keytool -import -trustcacerts \
+    -keystore /opt/java/openjdk/lib/security/cacerts \
+    -storepass changeit \
+    -noprompt \
+    -alias mylocalca \
+    -file /var/jenkins_home/mylocalca.pem
 }
 
 plugin()
@@ -118,9 +135,11 @@ plugin()
 
 restart()
 {
-  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
-    -auth jenkins:jenkins \
-    restart
+  #java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
+  #  -auth jenkins:jenkins \
+  #  restart
+  stop
+  start
 }
 
 if [ $# -eq 0 ]; then

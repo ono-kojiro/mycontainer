@@ -9,9 +9,10 @@ services:
     ports:
       - 18080:8080
       - 18443:8443
-    user: "133:141" # jenkins:jenkins
-    volumes:
-      - /home/jenkins:/var/jenkins_home
+    #user: "133:141" # jenkins:jenkins
+    #volumes:
+    #  - /home/jenkins:/var/jenkins_home
     environment:
+    #  - 'JAVA_OPTS=-Djavax.net.ssl.trustStore=/var/jenkins_home/jenkins.jks'
       - 'JENKINS_OPTS=--prefix=/jenkins --httpPort=8080 --httpsPort=8443 --httpsKeyStore=/var/jenkins_home/jenkins.jks --httpsKeyStorePassword=secret'
 
