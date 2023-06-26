@@ -1,0 +1,29 @@
+- name: enable macvlan
+  hosts: localhost
+
+  tasks:
+    - name: dummy
+      ansible.builtin.shell: |
+        echo hello world
+
+    - name: add macvlan0
+      ansible.builtin.shell: |
+        nmcli con add type macvlan \
+          connection.id macvlan0 \
+          dev eth0 \
+          mode bridge \
+          ifname macvlan0
+
+    - name: down eth0
+      ansible.builtin.shell: |
+        nmcli con down eth0
+
+    - name: enable macvlan0
+      ansible.builtin.shell: |
+        nmcli con mod macvlan0 \
+          ipv4.method manual \
+          ipv4.addresses 192.168.10.1/24 \
+          ipv4.dns 192.168.0.1
+
+
+

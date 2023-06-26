@@ -1,0 +1,13 @@
+- name: disable macvlan
+  hosts: localhost
+
+  tasks:
+    - name: remove macvlan0
+      ansible.builtin.shell: |
+        nmcli con del macvlan0
+    
+    - name: enable eth0
+      ansible.builtin.shell: |
+        nmcli con up eth0
+
+
