@@ -1,0 +1,4 @@
+- name: configure ldap.conf
+  ansible.builtin.template:
+    src: ldap.conf
+    dest: /etc/ldap/

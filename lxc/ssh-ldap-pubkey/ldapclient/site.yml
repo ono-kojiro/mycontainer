@@ -1,0 +1,18 @@
+- name: setup ldapclient
+  hosts: ldapclient
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing sssd'
+

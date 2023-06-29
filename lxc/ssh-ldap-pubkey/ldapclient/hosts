@@ -1,0 +1,15 @@
+all:
+  children:
+    targets:
+      hosts:
+        ldapclient:
+          admin_group: ldapwheel
+          ansible_host: 10.0.3.225
+          ansible_ssh_private_key_file: ./id_ed25519
+          ansible_user: root
+          default_group: ldapusers
+          masterdn: cn=Manager,{{ suffix }}
+          masterpw: secret
+          server_addr: 10.0.3.224
+          suffix: dc=zeon,dc=org
+    ungrouped: {}

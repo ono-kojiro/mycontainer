@@ -1,0 +1,11 @@
+---
+# server
+server_addr: "10.0.3.224"
+
+suffix: "dc=zeon,dc=org"
+masterdn: "cn=Manager,{{ suffix }}"
+masterpw: "secret"
+
+default_group: ldapusers
+admin_group: ldapwheel
+
