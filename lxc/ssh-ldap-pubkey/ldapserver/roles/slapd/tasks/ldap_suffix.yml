@@ -1,0 +1,17 @@
+---
+- name: copy suffix.ldif
+  template:
+    src: suffix.ldif
+    dest: /etc/ldap/suffix.ldif
+
+- name: change ldap suffix
+  shell: |
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/suffix.ldif
+
+- name: check ldap suffix
+  shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix | grep olcSuffix
+  register: result
+  failed_when: result.rc != 0
+

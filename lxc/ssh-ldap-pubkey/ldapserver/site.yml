@@ -1,0 +1,24 @@
+- name: setup ldapserver
+  hosts: ldapserver
+
+  roles:
+    - role: slapd
+      tags: slapd
+    
+    - role: ldapscripts
+      tags: ldapscripts
+    
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+
+  post_tasks:
+    - name: finished.
+      debug:
+        msg='finished installing sssd'
+

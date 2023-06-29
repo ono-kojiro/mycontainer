@@ -1,0 +1,58 @@
+---
+# server
+server_addr: "10.0.3.224"
+server_dir: "/etc/ssl/server"
+server_crt: "ldapserver.crt"
+server_key: "ldapserver.key"
+server_passwd: "secret"
+
+suffix: "dc=zeon,dc=org"
+masterdn: "cn=Manager,{{ suffix }}"
+masterpw: "secret"
+
+newgroups:
+    - name: ldapusers
+    - name: ldapwheel
+    - name: newtype
+    - name: oldtype
+
+default_group: ldapusers
+admin_group: ldapwheel
+
+newusers:
+    - name: gihren
+      password: gihren
+      gecos: "Gihren Zabi"
+      groups: ldapusers,ldapwheel,oldtype
+      mail: gihren@example.com
+
+    - name: dozle
+      password: dozle
+      gecos: "Dozle Zabi"
+      groups: ldapusers,ldapwheel,oldtype
+      mail: dozle@example.com
+
+    - name: garma
+      password: garma
+      gecos: "Garma Zabi"
+      groups: ldapusers,oldtype
+      mail: garma@example.com
+
+    - name: kycilia
+      password: kycilia
+      gecos: "Kycilia Zabi"
+      groups: ldapusers,oldtype
+      mail: kycilia@example.com
+    
+    - name: challia
+      password: challia
+      gecos: "Challia Bull"
+      groups: ldapusers,newtype
+      mail: challia@example.com
+
+    - name: char
+      password: char
+      gecos: "Char Aznable"
+      groups: ldapusers,newtype
+      mail: char@example.com
+

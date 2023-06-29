@@ -1,0 +1,55 @@
+all:
+  children:
+    targets:
+      hosts:
+        ldapserver:
+          admin_group: ldapwheel
+          ansible_host: 10.0.3.224
+          ansible_ssh_private_key_file: ./id_ed25519
+          ansible_user: root
+          default_group: ldapusers
+          masterdn: cn=Manager,{{ suffix }}
+          masterpw: secret
+          newgroups:
+          - name: ldapusers
+          - name: ldapwheel
+          - name: newtype
+          - name: oldtype
+          newusers:
+          - gecos: Gihren Zabi
+            groups: ldapusers,ldapwheel,oldtype
+            mail: gihren@example.com
+            name: gihren
+            password: gihren
+          - gecos: Dozle Zabi
+            groups: ldapusers,ldapwheel,oldtype
+            mail: dozle@example.com
+            name: dozle
+            password: dozle
+          - gecos: Garma Zabi
+            groups: ldapusers,oldtype
+            mail: garma@example.com
+            name: garma
+            password: garma
+          - gecos: Kycilia Zabi
+            groups: ldapusers,oldtype
+            mail: kycilia@example.com
+            name: kycilia
+            password: kycilia
+          - gecos: Challia Bull
+            groups: ldapusers,newtype
+            mail: challia@example.com
+            name: challia
+            password: challia
+          - gecos: Char Aznable
+            groups: ldapusers,newtype
+            mail: char@example.com
+            name: char
+            password: char
+          server_addr: 10.0.3.224
+          server_crt: ldapserver.crt
+          server_dir: /etc/ssl/server
+          server_key: ldapserver.key
+          server_passwd: secret
+          suffix: dc=zeon,dc=org
+    ungrouped: {}
