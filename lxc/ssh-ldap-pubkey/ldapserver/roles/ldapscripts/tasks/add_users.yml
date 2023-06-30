@@ -1,8 +1,15 @@
 ---
+- name: clear sssd cache
+  ansible.builtin.shell: |
+    which sss_cache
+    if test $? -eq 0 ; then
+      sss_cache -EG
+    fi
+
 - name: add user
-  shell: |
+  ansible.builtin.shell: |
     num=$(ldapfinger "{{ item.name }}" | wc -l)
-    if test "$num" -eq 0 ; then
+    if test $num -eq 0 ; then
       ldapadduser "{{ item.name }}" "{{ default_group }}"
     fi
   loop: "{{ newusers }}"
@@ -10,7 +17,7 @@
   failed_when: result.rc != 0
 
 - name: add user to group
-  shell: |
+  ansible.builtin.shell: |
     groups="$(echo {{ item.groups }} | tr ',' ' ')"
     for group in $groups; do
       ldapaddusertogroup "{{ item.name }}" "$group"

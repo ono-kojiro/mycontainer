@@ -4,12 +4,16 @@
     state: absent
 
 - name: uninstall slapd packages
-  apt:
+  ansible.builtin.apt:
     name:
       - slapd
       - ldap-utils
+      - sssd
+      - sssd-ldap
+      - sssd-tools
       - fusiondirectory-schema
     state: absent
+    autoremove: true
     purge: true
 
 - name: install slapd packages

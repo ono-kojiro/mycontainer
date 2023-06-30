@@ -291,6 +291,8 @@ hosts()
 
 deploy()
 {
+  cp -f $HOME/.local/share/ldapserver/ldapserver.key ./roles/slapd/templates/
+  cp -f $HOME/.local/share/ldapserver/ldapserver.crt ./roles/slapd/templates/
   ansible-playbook -i hosts site.yml
 }
 
