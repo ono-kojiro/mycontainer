@@ -70,15 +70,15 @@
 #      /tmp/id_ed25519_{{ item.name }}.pub
 #  loop: "{{ newusers }}"
 
-- name: add sshPublicKey
-  ansible.builtin.shell: |
-    #key=`cat /tmp/{{ item.pubkey }} | awk '{ print $2 }'`
-    key=`cat /tmp/{{ item.pubkey }}`
-
-    cat << EOS | ldapmodifyuser "{{ item.name }}"
-    changetype: modify
-    add: sshPublicKey
-    sshPublicKey: $key
-    EOS
-  loop: "{{ newusers }}"
+#- name: add sshPublicKey
+#  ansible.builtin.shell: |
+#    #key=`cat /tmp/{{ item.pubkey }} | awk '{ print $2 }'`
+#    key=`cat /tmp/{{ item.pubkey }}`
+#
+#    cat << EOS | ldapmodifyuser "{{ item.name }}"
+#    changetype: modify
+#    add: sshPublicKey
+#    sshPublicKey: $key
+#    EOS
+#  loop: "{{ newusers }}"
 

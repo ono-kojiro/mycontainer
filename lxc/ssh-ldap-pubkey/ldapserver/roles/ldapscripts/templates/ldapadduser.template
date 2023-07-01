@@ -3,7 +3,6 @@ objectClass: top
 objectClass: person
 objectClass: posixAccount
 objectClass: inetOrgPerson
-objectClass: ldapPublicKey
 cn: <user>
 uid: <user>
 uidNumber: <uid>

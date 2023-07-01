@@ -307,10 +307,10 @@ keys()
 
   users="gihren dozle garma kycilia challia char"
   for user in $users; do
-    #ssh-keygen -t ed25519 -N '' -C ${user} \
-    #  -f ./roles/ldapscripts/templates/id_ed25519_${user}
-    ssh-keygen -t rsa -N '' -C ${user} \
-      -f ./roles/ldapscripts/templates/id_rsa_${user}
+    ssh-keygen -t ed25519 -N '' -C ${user} \
+      -f ./roles/ssh-ldap-pubkey/templates/id_ed25519_${user}
+    #ssh-keygen -t rsa -N '' -C ${user} \
+    #  -f ./roles/ldapscripts/templates/id_rsa_${user}
   done
 }
 

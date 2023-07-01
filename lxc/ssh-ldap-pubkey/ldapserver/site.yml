@@ -5,20 +5,17 @@
     - role: slapd
       tags: slapd
     
-    - role: ssh-ldap-pubkey
-      tags: ssh-ldap-pubkey
-    
     - role: ldapscripts
       tags: ldapscripts
     
-    - role: ldap
-      tags: ldap
-
     - role: sssd
       tags: sssd
 
     - role: sudo
       tags: sudo
+    
+    - role: ssh-ldap-pubkey
+      tags: ssh-ldap-pubkey
     
   post_tasks:
     - name: finished.
