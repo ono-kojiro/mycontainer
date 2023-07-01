@@ -18,7 +18,7 @@ newgroups:
 
 default_group: ldapusers
 admin_group: ldapwheel
-type_of_key: rsa
+type_of_key: ed25519
 
 newusers:
     - name: gihren
