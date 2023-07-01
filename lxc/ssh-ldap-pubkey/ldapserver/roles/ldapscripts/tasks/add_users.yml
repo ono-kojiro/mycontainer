@@ -55,3 +55,30 @@
   register: result
   failed_when: result.rc != 0
 
+- name: copy public key
+  ansible.builtin.template:
+    src: "id_{{ type_of_key }}_{{ item.name}}.pub"
+    dest: /tmp/
+  loop: "{{ newusers }}"
+
+#- name: add sshPublicKey
+#  ansible.builtin.shell: |
+#    echo -n "{{ item.password }}\n" | \
+#    ssh-ldap-pubkey add \
+#      -D {{ masterdn }} \
+#      -u {{ item.name }} \
+#      /tmp/id_ed25519_{{ item.name }}.pub
+#  loop: "{{ newusers }}"
+
+- name: add sshPublicKey
+  ansible.builtin.shell: |
+    #key=`cat /tmp/{{ item.pubkey }} | awk '{ print $2 }'`
+    key=`cat /tmp/{{ item.pubkey }}`
+
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: sshPublicKey
+    sshPublicKey: $key
+    EOS
+  loop: "{{ newusers }}"
+

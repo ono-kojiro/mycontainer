@@ -2,3 +2,11 @@
   ansible.builtin.template:
     src: ldap.conf
     dest: /etc/ldap/
+
+- name: create symbolic link of ldap.conf
+  ansible.builtin.file:
+    src: /etc/ldap/ldap.conf
+    dest: /etc/ldap.conf
+    state: link
+
+

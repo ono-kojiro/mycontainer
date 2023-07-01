@@ -18,6 +18,7 @@ newgroups:
 
 default_group: ldapusers
 admin_group: ldapwheel
+type_of_key: rsa
 
 newusers:
     - name: gihren
@@ -25,34 +26,40 @@ newusers:
       gecos: "Gihren Zabi"
       groups: ldapusers,ldapwheel,oldtype
       mail: gihren@example.com
+      pubkey: id_{{ type_of_key }}_gihren.pub
 
     - name: dozle
       password: dozle
       gecos: "Dozle Zabi"
       groups: ldapusers,ldapwheel,oldtype
       mail: dozle@example.com
+      pubkey: id_{{ type_of_key }}_dozle.pub
 
     - name: garma
       password: garma
       gecos: "Garma Zabi"
       groups: ldapusers,oldtype
       mail: garma@example.com
+      pubkey: id_{{ type_of_key }}_garma.pub
 
     - name: kycilia
       password: kycilia
       gecos: "Kycilia Zabi"
       groups: ldapusers,oldtype
       mail: kycilia@example.com
+      pubkey: id_{{ type_of_key }}_kycilia.pub
     
     - name: challia
       password: challia
       gecos: "Challia Bull"
       groups: ldapusers,newtype
       mail: challia@example.com
+      pubkey: id_{{ type_of_key }}_challia.pub
 
     - name: char
       password: char
       gecos: "Char Aznable"
       groups: ldapusers,newtype
       mail: char@example.com
+      pubkey: id_{{ type_of_key }}_char.pub
 

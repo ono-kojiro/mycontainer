@@ -20,7 +20,7 @@
     src: disable_anonymous_access.ldif
     dest: /etc/ldap/
 
-- name: disable anonymous access
-  ansible.builtin.shell: |
-    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/disable_anonymous_access.ldif
+#- name: disable anonymous access
+#  ansible.builtin.shell: |
+#    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/disable_anonymous_access.ldif
 

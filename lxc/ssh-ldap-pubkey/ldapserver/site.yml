@@ -5,6 +5,9 @@
     - role: slapd
       tags: slapd
     
+    - role: ssh-ldap-pubkey
+      tags: ssh-ldap-pubkey
+    
     - role: ldapscripts
       tags: ldapscripts
     
@@ -16,7 +19,7 @@
 
     - role: sudo
       tags: sudo
-
+    
   post_tasks:
     - name: finished.
       debug:

@@ -296,6 +296,24 @@ deploy()
   ansible-playbook -i hosts site.yml
 }
 
+ssh_ldap_pubkey()
+{
+  ansible-playbook -i hosts -t ssh-ldap-pubkey site.yml
+}
+
+keys()
+{
+  rm -f ./roles/ssh-ldap-pubkey/templates/id_ed25519*
+
+  users="gihren dozle garma kycilia challia char"
+  for user in $users; do
+    #ssh-keygen -t ed25519 -N '' -C ${user} \
+    #  -f ./roles/ldapscripts/templates/id_ed25519_${user}
+    ssh-keygen -t rsa -N '' -C ${user} \
+      -f ./roles/ldapscripts/templates/id_rsa_${user}
+  done
+}
+
 args=""
 while [ $# -ne 0 ]; do
   case $1 in
