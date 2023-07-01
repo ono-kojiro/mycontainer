@@ -11,6 +11,9 @@
     - role: sudo
       tags: sudo
 
+    - role: ssh-ldap-pubkey
+      tags: ssh-ldap-pubkey
+
   post_tasks:
     - name: finished.
       debug:
