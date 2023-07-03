@@ -1,0 +1,11 @@
+---
+ldapserver: 192.168.0.98
+suffix: dc=example,dc=com
+masterdn: cn=Manager,{{ suffix }}
+masterpw: secret
+
+default_group: ldapusers
+admin_group: ldapwheel
+
+servername: abaoaqu
+

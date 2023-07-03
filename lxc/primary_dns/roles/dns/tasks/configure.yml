@@ -1,0 +1,22 @@
+---
+- name: copy local file
+  ansible.builtin.template:
+    src:  named.conf.local
+    dest: /etc/bind/
+
+- name: copy options file
+  ansible.builtin.template:
+    src:  named.conf.options
+    dest: /etc/bind/
+
+- name: copy zone file
+  ansible.builtin.template:
+    src:  db.example.com
+    dest: /etc/bind/
+
+- name: restart named
+  ansible.builtin.systemd:
+    name: named
+    state: restarted
+
+

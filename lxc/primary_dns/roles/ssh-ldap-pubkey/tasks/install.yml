@@ -1,0 +1,12 @@
+---
+- name: copy ssh-ldap-pubkey_1.4.0_amd64.deb
+  ansible.builtin.copy:
+    src: ssh-ldap-pubkey_1.4.0_amd64.deb
+    dest: /tmp/ssh-ldap-pubkey_1.4.0_amd64.deb
+    remote_src: false
+
+- name: install ssh-ldap-pubkey_1.4.0_amd64.deb
+  ansible.builtin.apt :
+    deb: /tmp/ssh-ldap-pubkey_1.4.0_amd64.deb
+
+
