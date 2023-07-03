@@ -1,0 +1,16 @@
+all:
+  children:
+    servers:
+      hosts:
+        jammy:
+          admin_group: ldapwheel
+          ansible_host: 10.0.3.231
+          ansible_password: secret
+          ansible_user: root
+          default_group: ldapusers
+          ldapserver: 192.168.0.98
+          masterdn: cn=Manager,{{ suffix }}
+          masterpw: secret
+          servername: solomon
+          suffix: dc=example,dc=com
+    ungrouped: {}

@@ -1,0 +1,16 @@
+- hosts: jammy
+
+  roles:
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+    
+    - role: ssh-ldap-pubkey
+      tags: ssh-ldap-pubkey
+    
+    - role: dns
+      tags: dns
+
+
