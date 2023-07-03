@@ -12,7 +12,7 @@ $ORIGIN example.com. ; base domain-name
 ; name server RR for the domain
            IN      NS      secondarydns.example.com.
            IN      A       10.0.3.231
-secondary IN      A       10.0.3.231
+secondarydns IN      A       10.0.3.231
 ; domain hosts includes NS and MX records defined above
 ; plus any others required
 ; for instance a user query for the A RR of joe.example.com will

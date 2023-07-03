@@ -1,0 +1,13 @@
+; BIND reverse data file
+$TTL 2d    ; default TTL for zone
+@         IN      SOA   secondarydns.example.com. root.example.com. (
+                                2023070301 ; serial number
+                                12h        ; refresh
+                                15m        ; update retry
+                                3w         ; expiry
+                                2h         ; minimum
+                                )
+; name server RR for the domain
+@           IN      NS     secondarydns.example.com.
+178          IN      PTR    solomon.example.com.
+
