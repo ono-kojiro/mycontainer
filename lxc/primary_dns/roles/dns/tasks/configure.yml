@@ -14,6 +14,11 @@
     src:  db.example.com
     dest: /etc/bind/
 
+- name: copy reverse data file
+  ansible.builtin.template:
+    src:  db.192.168.0
+    dest: /etc/bind/
+
 - name: restart named
   ansible.builtin.systemd:
     name: named

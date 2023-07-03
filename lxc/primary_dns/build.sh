@@ -138,14 +138,16 @@ hosts()
 
 deploy()
 {
-  ansible-playbook -i hosts site.yml
+  ansible-playbook -i hosts $ansible_options site.yml
 }
 
 default()
 {
   tags="$1"
-  ansible-playbook -i hosts -t $tags site.yml
+  ansible-playbook -i hosts -t $tags $ansible_options site.yml
 }
+
+ansible_options=""
 
 args=""
 while [ $# -ne 0 ]; do
@@ -156,6 +158,9 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -* )
+      ansible_options="$ansible_options $1"
       ;;
     * )
       args="$args $1"
