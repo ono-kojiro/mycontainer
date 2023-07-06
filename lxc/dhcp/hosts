@@ -1,0 +1,9 @@
+all:
+  children:
+    dhcpservers:
+      hosts:
+        dhcpserver:
+          ansible_become: true
+          ansible_host: 127.0.0.1
+          ansible_user: '{{ lookup(''ansible.builtin.env'', ''USER'') }}'
+    ungrouped: {}
