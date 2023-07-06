@@ -1,0 +1,44 @@
+- name:  dns server
+  hosts: dnsserver
+  become: true
+
+  tasks:
+    - name: install bind9
+      ansible.builtin.apt:
+        name:
+        - bind9
+        - bind9-dnsutils
+        state: present
+
+    - name: copy config files
+      ansible.builtin.template:
+        src: "{{ item }}"
+        dest: /etc/bind/
+      loop:
+      - db.192.168.10
+      - db.example.com
+      - named.conf.local
+      - named.conf.options
+      - named.conf.logging
+    
+    - name: copy default config files
+      ansible.builtin.template:
+        src: "{{ item }}"
+        dest: /etc/default/
+      loop:
+      - named
+
+    - name: create /var/log/named
+      ansible.builtin.file:
+        path: /var/log/named
+        state: directory
+        owner: bind
+        group: bind
+        mode: '0755'
+
+
+    - name: start named
+      ansible.builtin.systemd:
+        name: named
+        state: restarted
+
