@@ -1,0 +1,10 @@
+- hosts: targets
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: ssh-ldap-pubkey
+      tags: ssh-ldap-pubkey
+
+

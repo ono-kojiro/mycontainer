@@ -1,13 +1,3 @@
-- name: uninstall sssd-ldap
-  apt:
-    name:
-      - sssd
-      - sssd-ldap
-      - sssd-tools
-      - oddjob-mkhomedir
-    state: absent
-    purge: yes
-
 - name: install sssd-ldap
   apt:
     name:
@@ -20,5 +10,4 @@
   ansible.builtin.systemd:
     state: started
     name:  sssd
-
 

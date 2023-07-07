@@ -216,25 +216,19 @@ keygen()
 
 test_ssh()
 {
-  ssh -y $ssh_opts root@$address ip addr
+  command ssh -y $ssh_opts root@$address ip addr
 }
 
-setup_user_config()
+ssh_root()
 {
-  userfiles=""
-  userfiles="$userfiles $HOME/.vimrc"
-  userfiles="$userfiles $HOME/.tmux.conf"
-  userfiles="$userfiles $HOME/.gitconfig"
-  userfiles="$userfiles $HOME/.profile"
-  userfiles="$userfiles $HOME/.bashrc"
-  userfiles="$userfiles $HOME/.git-prompt.sh"
-
-  for userfile in $userfiles; do
-    if [ -e "$userfile" ]; then
-      scp $userfile $address:$HOME/
-    fi
-  done
+  command ssh -y $ssh_opts root@$address
 }
+
+ssh()
+{
+  command ssh -y $ssh_opts $address
+}
+
 
 stop()
 {
@@ -282,10 +276,22 @@ mclean()
   rm -rf ./id_ed25519.pub
 }
 
-ansible()
+hosts()
 {
-  ansible-playbook -i hosts site.yml
+  ansible-inventory -i groups --list --yaml > hosts.yml
 }
+
+sssd()
+{
+  ansible-playbook -i hosts.yml sssd.yml
+}
+
+pubkey()
+{
+  ansible-playbook -i hosts.yml ssh-ldap-pubkey.yml
+}
+
+hosts
 
 args=""
 while [ $# -ne 0 ]; do
