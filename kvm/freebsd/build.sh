@@ -164,6 +164,17 @@ console()
   virsh console $name
 }
 
+hosts()
+{
+  ansible-inventory -i groups --list --yaml > hosts.yml
+}
+
+sssd()
+{
+  ansible-playbook -i hosts.yml sssd-ldap.yml
+}
+
+hosts
 
 while [ $# -ne 0 ]; do
   case "$1" in

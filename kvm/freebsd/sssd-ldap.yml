@@ -1,0 +1,18 @@
+- hosts: freebsd
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+
+    - role: nsswitch
+      tags: nsswitch
+
+    - role: pam
+      tags: pam
+
+    - role: sudo
+      tags: sudo
+

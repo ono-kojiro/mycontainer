@@ -1,3 +1,4 @@
 ---
-addr: 192.168.10.143
+ldap_suffix: dc=example,dc=com
+ldap_uri:    ldap://192.168.0.98
 

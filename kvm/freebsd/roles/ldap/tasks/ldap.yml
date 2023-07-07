@@ -1,0 +1,7 @@
+---
+- name: copy ldap.conf
+  ansible.builtin.template:
+    src: ldap.conf
+    dest: /usr/local/etc/openldap/ldap.conf
+
+
