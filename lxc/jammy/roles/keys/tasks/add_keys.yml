@@ -1,0 +1,41 @@
+---
+- name: copy openssh-lpk.schema
+  ansible.builtin.template:
+    src: openssh-lpk.schema
+    dest: /etc/ldap/schema/
+
+- name: import openssh-lpk.schema
+  ansible.builtin.shell:
+    ldap-schema-manager -i /etc/ldap/schema/openssh-lpk.schema
+
+- name: copy public keys
+  ansible.builtin.template:
+    src: "id_ed25519_{{ item.name }}.pub"
+    dest: /tmp/
+  loop: "{{ newusers }}"
+
+#- name: add public keys
+#  ansible.builtin.shell: 
+#    ssh-ldap-pubkey add "/tmp/id_ed25519_{{ item.name }}.pub"
+#  loop: "{{ newusers }}"
+
+- name: add ldapPublicKey
+  ansible.builtin.shell: |
+    :
+    #cat << EOS | ldapmodifyuser "{{ item.name }}"
+    #changetype: modify
+    #add: objectClass
+    #objectClass: ldapPublicKey
+    #EOS
+  loop: "{{ newusers }}"
+
+- name: add sshPublicKey
+  ansible.builtin.shell: |
+    pubkey=`cat /tmp/id_ed25519_{{ item.name }}.pub`
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: sshPublicKey
+    sshPublicKey: $pubkey
+    EOS
+  loop: "{{ newusers }}"
+

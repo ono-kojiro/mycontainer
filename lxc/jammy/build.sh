@@ -287,6 +287,17 @@ native()
   ansible-playbook -i hosts.yml native.yml
 }
 
+virtual()
+{
+  ansible-playbook -i hosts.yml virtual.yml
+}
+
+keys()
+{
+  ansible-playbook -i hosts.yml -t keys virtual.yml
+}
+
+
 
 slapd()
 {

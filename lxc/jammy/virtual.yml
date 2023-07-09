@@ -1,0 +1,20 @@
+- name: sssd setup with virtual ldap server
+  hosts: jammy
+  vars_files:
+  - vars/virtual.yml
+  - vars/groups.yml
+  - vars/users.yml
+
+  roles:
+    - role: ca
+    - role: server
+    - role: crt
+    - role: slapd
+    - role: ldapscripts
+    - role: users
+    - role: ldap
+    - role: sssd
+    - role: ssh-ldap-pubkey
+    - role: keys
+      tags: keys
+
