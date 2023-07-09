@@ -6,6 +6,14 @@
 // organization
 //include "/etc/bind/zones.rfc1918";
 
+zone "main.example.com" {
+        type forward;
+        forward only;
+        forwarders {
+            10.0.3.230;
+        };
+};
+
 zone "sub.example.com" {
         type master; 
         file "/etc/bind/db.sub.example.com";

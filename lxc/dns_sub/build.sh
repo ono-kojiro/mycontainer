@@ -137,6 +137,8 @@ check()
 
   dig -x 10.0.3.231 @$dns +short
   dig -x 10.0.3.8   @$dns +short
+
+  dig @$dns zeong.main.example.com +short
 }
 
 default()
