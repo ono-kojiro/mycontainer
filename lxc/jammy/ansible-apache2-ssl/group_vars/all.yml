@@ -1,3 +1,0 @@
----
-ssl_sslcertificatefile: /etc/ssl/certs/jammy.crt
-ssl_sslcertificatekeyfile: /etc/ssl/private/jammy.key

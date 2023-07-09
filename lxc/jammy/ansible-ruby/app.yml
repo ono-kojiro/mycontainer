@@ -1,9 +1,0 @@
----
-- hosts: all
-
-  roles:
-    - role: common
-      tags: common
-
-    - role: ruby
-      tags: ruby
