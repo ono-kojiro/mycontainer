@@ -1,6 +1,0 @@
----
-- name: add 80-ldapwheel
-  ansible.builtin.template:
-    src:  80-ldapwheel
-    dest: /etc/sudoers.d/80-ldapwheel
-

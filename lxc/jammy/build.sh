@@ -26,9 +26,22 @@ ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
 ssh_opts="$ssh_opts -i $seckey"
 
-alias lxc-create='systemd-run --user --scope -p "Delegate=yes" lxc-create'
-alias lxc-start='systemd-run --user --scope -p "Delegate=yes" lxc-start'
-alias lxc-attach='systemd-run --user --scope -p "Delegate=yes" lxc-attach --clear-env'
+alias systemd-run='systemd-run --user --scope -p "Delegate=yes"'
+alias lxc-create='systemd-run lxc-create'
+alias lxc-start='systemd-run lxc-start'
+alias lxc-attach='systemd-run lxc-attach --clear-env'
+
+ret=0
+
+which ansible-playbook > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "ERROR : no ansible-playbook command"
+  ret=`expr $ret + 1`
+fi
+
+if [ "$ret" -ne 0 ]; then
+  exit 1
+fi
 
 help()
 {
@@ -37,24 +50,19 @@ help()
 
 usage()
 {
-  cat << "EOS"
+  cat << EOS
 usage : $0 [options] target1 target2 ...
 
 target:
-  create/init/start
-  chpasswd
+  create
+  start
   set_locale
-  enable_sshd
-  update
-  stop
-  destroy
-
+  chpasswd
   config_network
-  enable_sshd/enable_pubkey_auth/test_ssh
-  enable_sssd/test_sssd
-
-  setup_default_user
-  setup_user_config
+  update
+  enable_sshd
+  enable_pubkey_auth
+  test_ssh
 EOS
 
 }
@@ -404,8 +412,8 @@ attach()
 
 mclean()
 {
-  lxc-stop -n $name -k || true
-  lxc-destroy -n $name || true
+  lxc-stop -n $name -k > /dev/null 2>&1 || true
+  lxc-destroy -n $name > /dev/null 2>&1 || true
   rm -f id_ed25519*
 }
 
