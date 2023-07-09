@@ -282,6 +282,12 @@ hosts()
   ansible-inventory -i groups --list --yaml > hosts.yml
 }
 
+native()
+{
+  ansible-playbook -i hosts.yml native.yml
+}
+
+
 slapd()
 {
   ansible-playbook -i hosts.yml slapd-ldapscripts.yml
