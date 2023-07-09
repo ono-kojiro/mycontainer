@@ -1,0 +1,15 @@
+; BIND reverse data file
+$TTL 2d    ; default TTL for zone
+$ORIGIN 3.0.10.in-addr.arpa.
+@         IN      SOA   dns.sub.example.com. root.example.com. (
+                                2023070301 ; serial number
+                                12h        ; refresh
+                                15m        ; update retry
+                                3w         ; expiry
+                                2h         ; minimum
+                                )
+; name server RR for the domain
+@           IN      NS     dns.sub.example.com.
+231         IN      PTR    dns.sub.example.com.
+8           IN      PTR    bygzam.sub.example.com.
+

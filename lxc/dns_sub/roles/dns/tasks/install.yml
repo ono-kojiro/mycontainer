@@ -1,0 +1,8 @@
+- name: install bind9
+  ansible.builtin.apt:
+    name:
+    - bind9
+    - bind9-utils
+    - dnsutils
+    state: present
+
