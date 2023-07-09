@@ -21,12 +21,18 @@
 
 - name: add ldapPublicKey
   ansible.builtin.shell: |
-    :
-    #cat << EOS | ldapmodifyuser "{{ item.name }}"
-    #changetype: modify
-    #add: objectClass
-    #objectClass: ldapPublicKey
-    #EOS
+    ldapsearch -D {{ masterdn }} -w {{ masterpw }}  cn={{ item.name }} objectClass -LLL | \
+      awk '{ print $2 }' | grep -e '^ldapPublicKey$'
+    if [ $? -ne 0 ]; then
+      cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: objectClass
+    objectClass: ldapPublicKey
+    EOS
+
+    else
+      echo "skip add objectClass, ldapPublicKey"
+    fi
   loop: "{{ newusers }}"
 
 - name: add sshPublicKey

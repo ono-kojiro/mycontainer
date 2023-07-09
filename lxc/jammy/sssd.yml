@@ -1,8 +1,8 @@
-- hosts: servers
+- hosts: jammy
 
   vars_files:
-  - variables/groups.yml
-  - variables/users.yml
+  - vars/native.yml
+  - vars/groups.yml
 
   roles:
     - role: ldap
