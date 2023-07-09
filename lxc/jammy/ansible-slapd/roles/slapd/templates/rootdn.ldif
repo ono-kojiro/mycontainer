@@ -1,5 +1,0 @@
-dn: olcDatabase={1}mdb,cn=config
-changetype: modify
-replace: olcRootDN
-olcRootDN: {{ masterdn }}
-
