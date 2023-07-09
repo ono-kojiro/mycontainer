@@ -63,6 +63,13 @@ target:
   enable_sshd
   enable_pubkey_auth
   test_ssh
+
+  ssh_root
+
+  sssd
+  pubkey
+
+  ssh_user
 EOS
 
 }
@@ -100,7 +107,6 @@ lxc.net.0.ipv4.gateway = $gateway
 lxc.cgroup.devices.allow =
 lxc.cgroup.devices.deny =
  
-#lxc.init.cmd = /lib/systemd/systemd systemd.unified_cgroup_hierarchy=1
 EOS
 
 }
@@ -233,147 +239,15 @@ test_ssh()
   command ssh -y $ssh_opts root@$address -- bash -c 'hostname; hostname -I'
 }
 
-ssh()
+ssh_root()
 {
   command ssh -y $ssh_opts root@$address
 }
 
-
-check()
+ssh_user()
 {
-  ssh -y $ssh_opts root@$address ip link show eth0
-  if [ $? -eq 0 ]; then
-    echo "ssh connection passed"
-  else
-    echo "ssh connection failed"
-  fi
+  command ssh $address
 }
-
-enable_sssd()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
-  {
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get -y install sssd-ldap oddjob-mkhomedir
-    apt-get -y install apt-utils
-  }
-EOS
-  
-  cat - << 'EOS' | lxc-attach -n $name -- tee /etc/sssd/sssd.conf
-[sssd]
-debug_level = 9
-config_file_version = 2
-services = nss, pam
-domains = LDAP
-
-[domain/LDAP]
-ldap_schema = rfc2307
-cache_credentials = true
-
-id_provider     = ldap
-auth_provider   = ldap
-chpass_provider = ldap
-
-ldap_uri = ldap://10.0.3.1
-ldap_search_base = dc=example,dc=com
-
-ldap_chpass_uri = ldap://10.0.3.1
-
-ldap_id_use_start_tls = true
-ldap_tls_reqcert = never
-
-ldap_user_search_base  = ou=Users,dc=example,dc=com
-ldap_group_search_base = ou=Groups,dc=example,dc=com
-
-access_provider = simple
-simple_allow_groups = ldapusers
-
-enumerate = true
-EOS
-
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
-  {
-    export DEBIAN_FRONTEND=noninteractive
-    chmod 600 /etc/sssd/sssd.conf
-    systemctl restart sssd
-    pam-auth-update --enable mkhomedir
-  }
-EOS
-
-}
-
-test_sssd()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    id $user
-
-    gpasswd -a $user sudo
-  }
-EOS
-
-}
-
-setup_default_user()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    mkdir -p /home/$user
-    chmod 755 /home/$user
-    chown $user:ldapusers /home/$user
-    
-    mkdir -p  /home/$user/.ssh
-    chmod 700 /home/$user/.ssh
-    chown $user:ldapusers /home/$user/.ssh
-  }
-EOS
- 
-  if [ -e "$HOME/.ssh/id_ed25519.pub" ]; then 
-    cat $HOME/.ssh/id_ed25519.pub | \
-      lxc-attach -n $name -- tee -a $HOME/.ssh/authorized_keys
-  fi
-
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    chmod 755 /home/$user/.ssh/authorized_keys
-  }
-EOS
-}
-
-setup_user_config()
-{
-  userfiles=""
-  userfiles="$userfiles $HOME/.vimrc"
-  userfiles="$userfiles $HOME/.tmux.conf"
-  userfiles="$userfiles $HOME/.gitconfig"
-  userfiles="$userfiles $HOME/.profile"
-  userfiles="$userfiles $HOME/.bashrc"
-  userfiles="$userfiles $HOME/.git-prompt.sh"
-
-  for userfile in $userfiles; do
-    if [ -e "$userfile" ]; then
-      scp $userfile $address:$HOME/
-    fi
-  done
-}
-
-install_devel()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    apt-get -y install \
-       build-essential \
-       automake autoconf libtool \
-       autopoint \
-       git
-  }
-EOS
-
-}
-
 
 stop()
 {
@@ -391,23 +265,9 @@ destroy()
   lxc-destroy -n $name
 }
 
-
-delegate()
-{
-    systemd-run --unit=myshell --user --scope \
-        -p "Delegate=yes" \
-    lxc-start -n $container
-}
-
-ls()
-{
-	lxc-ls -f
-}
-
 attach()
 {
-	#lxc-attach -n $container -- /bin/sh
-	lxc-attach -n $name
+  lxc-attach -n $name
 }
 
 mclean()
@@ -431,7 +291,6 @@ pubkey()
 {
   ansible-playbook -i hosts.yml ssh-ldap-pubkey.yml
 }
-
 
 hosts
 

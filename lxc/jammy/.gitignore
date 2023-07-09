@@ -1,2 +1,5 @@
 id_ed25519*
+hosts.yml
+*~
+*.log
 

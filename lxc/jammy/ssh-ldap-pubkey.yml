@@ -1,0 +1,10 @@
+- hosts: servers
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: ssh-ldap-pubkey
+      tags: ssh-ldap-pubkey
+
+

@@ -1,0 +1,12 @@
+- hosts: servers
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+
