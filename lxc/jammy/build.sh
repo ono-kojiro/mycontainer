@@ -70,14 +70,6 @@ all()
   enable_sshd
   enable_pubkey_auth
   test_ssh
-
-  #enable_sssd
-  #test_sssd
-
-  #setup_default_user
-  #setup_user_config
-
-  #install_devel
 }
 
 create()
@@ -417,6 +409,23 @@ mclean()
   rm -f id_ed25519*
 }
 
+hosts()
+{
+  ansible-inventory -i groups --list --yaml > hosts.yml
+}
+
+sssd()
+{
+  ansible-playbook -i hosts.yml sssd-ldap.yml
+}
+
+pubkey()
+{
+  ansible-playbook -i hosts.yml ssh-ldap-pubkey.yml
+}
+
+
+hosts
 
 args=""
 while [ $# -ne 0 ]; do
