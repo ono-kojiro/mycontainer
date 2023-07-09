@@ -1,0 +1,35 @@
+---
+- name: copy local file
+  ansible.builtin.template:
+    src:  named.conf.local
+    dest: /etc/bind/
+
+- name: copy options file
+  ansible.builtin.template:
+    src:  named.conf.options
+    dest: /etc/bind/
+
+- name: copy zone file
+  ansible.builtin.template:
+    src:  db.main.example.com
+    dest: /etc/bind/
+
+- name: copy reverse data file
+  ansible.builtin.template:
+    src:  db.10.0.3
+    dest: /etc/bind/
+
+- name: copy test scripts
+  ansible.builtin.template:
+    src:  "{{ item }}"
+    dest: /etc/bind/
+  loop:
+  - test.sh
+  - check.sh
+
+- name: restart named
+  ansible.builtin.systemd:
+    name: named
+    state: restarted
+
+

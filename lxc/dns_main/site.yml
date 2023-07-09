@@ -1,0 +1,7 @@
+- hosts: jammy
+
+  roles:
+    - role: dns
+      tags: dns
+
+

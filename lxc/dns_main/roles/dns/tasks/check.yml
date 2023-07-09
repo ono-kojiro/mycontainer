@@ -1,0 +1,21 @@
+---
+- name: check lookup
+  ansible.builtin.shell: |
+    exp="192.168.0.98"
+    got=`dig +short abaoaqu.example.com`
+    if [ "$exp" = "$got" ]; then
+      echo "ok : forward lookup passed"
+    else
+      echo "not ok : forward lookup failed"
+    fi
+
+- name: check reverse lookup
+  ansible.builtin.shell: |
+    exp="abaoaqu.example.com."
+    got=`dig +short -x 192.168.0.98`
+    if [ "$exp" = "$got" ]; then
+      echo "ok : reverse lookup passed"
+    else
+      echo "not ok : reverse lookup failed"
+    fi
+
