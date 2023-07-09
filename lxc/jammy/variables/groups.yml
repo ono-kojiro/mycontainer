@@ -1,0 +1,10 @@
+---
+newgroups:
+    - name: ldapusers
+    - name: ldapwheel
+    - name: newtype
+    - name: oldtype
+
+default_group: ldapusers
+admin_group: ldapwheel
+

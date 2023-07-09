@@ -1,5 +1,9 @@
 - hosts: servers
 
+  vars_files:
+  - variables/groups.yml
+  - variables/users.yml
+
   roles:
     - role: ldap
       tags: ldap

@@ -282,9 +282,19 @@ hosts()
   ansible-inventory -i groups --list --yaml > hosts.yml
 }
 
+slapd()
+{
+  ansible-playbook -i hosts.yml slapd-ldapscripts.yml
+}
+
+adduser()
+{
+  ansible-playbook -i hosts.yml addusers.yml
+}
+
 sssd()
 {
-  ansible-playbook -i hosts.yml sssd-ldap.yml
+  ansible-playbook -i hosts.yml sssd.yml
 }
 
 pubkey()

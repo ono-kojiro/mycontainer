@@ -1,0 +1,24 @@
+---
+- name: copy tls.ldif
+  template:
+    src: tls.ldif
+    dest: /etc/ldap/tls.ldif
+
+- name: change ldap tls
+  shell: |
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/tls.ldif
+
+- name: check ldap tls certificate file
+  shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "cn=config" olcTLSCertificateFile | grep TLS
+  register: result
+  failed_when: result.rc != 0
+
+- name: check ldap tls certificate keyfile
+  shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "cn=config" olcTLSCertificateKeyFile | grep TLS
+  register: result
+  failed_when: result.rc != 0
+

@@ -1,0 +1,23 @@
+---
+- name: create /etc/ssl/private directory
+  apt:
+    name:
+      - ssl-cert
+
+- name: copy certificate
+  template:
+    src: focal.crt
+    dest: /etc/ssl/certs/
+
+- name: copy certificate key
+  template:
+    src: focal.key
+    dest: /etc/ssl/private/
+
+- name: change ownership
+  ansible.builtin.file:
+    path: /etc/ssl/private/focal.key
+    owner: root
+    group: ssl-cert
+    mode: '0640'
+

@@ -1,0 +1,9 @@
+- hosts: jammy
+
+  vars_files:
+  - variables/groups.yml
+  - variables/users.yml
+ 
+  roles:
+    - role: users
+

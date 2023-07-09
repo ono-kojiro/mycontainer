@@ -1,0 +1,12 @@
+- hosts: jammy
+
+  roles:
+    - role: ca
+    - role: server
+    - role: crt
+
+    - role: slapd
+      tags: slapd
+
+    - role: ldapscripts
+

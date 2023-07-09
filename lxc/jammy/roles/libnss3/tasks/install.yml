@@ -1,0 +1,10 @@
+- name: apt-get update
+  become: yes
+  apt:
+    update_cache=yes
+  
+- name: install libnss3 packages
+  apt:
+    name:
+      - libnss3-tools
+

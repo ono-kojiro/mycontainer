@@ -1,0 +1,12 @@
+- name: uninstall ldapscripts
+  ansible.builtin.apt:
+    pkg:
+      - ldapscripts
+    state: absent
+    purge: true
+
+- name: install ldapscripts
+  apt:
+    name:
+      - ldapscripts
+
