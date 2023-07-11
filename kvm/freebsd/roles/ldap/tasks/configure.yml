@@ -1,0 +1,12 @@
+---
+- name: copy ldap.conf
+  ansible.builtin.template:
+    src: ldap.conf
+    dest: /usr/local/etc/openldap/ldap.conf
+
+- name: create symbolic link of ldap.conf
+  ansible.builtin.file:
+    src: /usr/local/etc/openldap/ldap.conf
+    dest: /etc/ldap.conf
+    state: link
+

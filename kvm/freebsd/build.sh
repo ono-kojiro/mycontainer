@@ -174,6 +174,18 @@ sssd()
   ansible-playbook -i hosts.yml sssd-ldap.yml
 }
 
+pubkey()
+{
+  ansible-playbook -i hosts.yml ssh-ldap-pubkey.yml
+}
+
+
+dns()
+{
+  ansible-playbook -i hosts.yml dns.yml
+}
+
+
 hosts
 
 while [ $# -ne 0 ]; do

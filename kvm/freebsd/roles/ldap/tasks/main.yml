@@ -1,3 +1,4 @@
 ---
-- import_tasks: ldap.yml
+- import_tasks: install.yml
+- import_tasks: configure.yml
 

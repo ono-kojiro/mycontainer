@@ -1,0 +1,7 @@
+---
+- name: install openldap26-client
+  community.general.pkgng:
+    name:
+    - openldap26-client
+    state: present
+

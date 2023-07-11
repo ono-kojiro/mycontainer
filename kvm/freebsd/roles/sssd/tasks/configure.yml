@@ -1,0 +1,24 @@
+- name: enable sss_ssh_authorizedkeys
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommand '
+    line: AuthorizedKeysCommand /usr/local/bin/sss_ssh_authorizedkeys
+
+- name: enable AuthorizedKeysCommandUser
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommandUser '
+    line: AuthorizedKeysCommandUser nobody
+
+#- name: restart sssd and sshd
+#  ansible.builtin.service:
+#    name:
+#    - sssd
+#    - sshd
+#    state: restarted
+#    enabled: yes
+
+- name: restart sssd and sshd
+  ansible.builtin.shell: |
+    service sssd restart
+    service sshd restart
