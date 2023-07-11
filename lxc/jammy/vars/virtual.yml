@@ -20,9 +20,12 @@ server_p12: server.p12
 server_key: server.key
 server_passwd: secret
 
-ldap_suffix: dc=zeon,dc=org
+ldap_addr: 192.168.0.98
+ldap_suffix: dc=example,dc=com
 masterdn: cn=Manager,{{ ldap_suffix }}
 masterpw: secret
 
-ldap_uri:    ldap://10.0.3.224
+ldap_uri:    ldap://{{ ldap_addr }}
+
+authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 

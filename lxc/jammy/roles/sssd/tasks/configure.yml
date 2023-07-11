@@ -5,6 +5,18 @@
     dest: /etc/sssd/sssd.conf
     mode: 0600
 
+- name: enable sss_ssh_authorizedkeys
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommand '
+    line: AuthorizedKeysCommand {{ authorizedkeyscommand }}
+
+- name: enable AuthorizedKeysCommandUser
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommandUser '
+    line: AuthorizedKeysCommandUser nobody
+
 - name: restart sssd
   ansible.builtin.systemd:
     name: sssd
@@ -16,6 +28,12 @@
     name: sssd
     enabled: yes
     masked: no
+
+- name: restart sshd
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: yes
 
 - name: enable mkhomedir
   shell: |
