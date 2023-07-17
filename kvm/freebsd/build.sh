@@ -6,7 +6,8 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 name=freebsd
 disk=`pwd`/${name}.qcow2
-iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
+#iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
+iso="$HOME/Downloads/FreeBSD-13.2-RELEASE-amd64-dvd1.iso"
 
 addr="192.168.10.143"
 
@@ -114,8 +115,11 @@ stop()
 
 destroy()
 {
+  virsh destroy  $name
   virsh undefine $name
 }
+
+
 
 install()
 {
@@ -125,12 +129,13 @@ install()
     --disk=$disk,bus=virtio \
     --vcpus 2 \
     --os-variant freebsd13.0 \
-    --network network=default --noautoconsole \
+    --network bridge=br0 \
     --console pty,target_type=serial \
     --cdrom=$iso \
     --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
     --serial pty
 
+#    --network network=default --noautoconsole \
 #  --extra-args 'console=ttyS0,115200n8 serial'
 }
 
@@ -215,9 +220,9 @@ for target in "$@"; do
   if [ $? -eq 0 ]; then
     $target
   else
-    #echo "ERROR : $target is not a shell function"
-    #exit 1
-    ansible-playbook ${ansible_opts} -i hosts -t ${target} site.yml
+    echo "ERROR : $target is not a shell function"
+    exit 1
+    #ansible-playbook ${ansible_opts} -i hosts -t ${target} site.yml
   fi
 done
 
