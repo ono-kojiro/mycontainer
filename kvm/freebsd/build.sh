@@ -9,7 +9,7 @@ disk=`pwd`/${name}.qcow2
 #iso="$HOME/Downloads/FreeBSD-13.1-RELEASE-amd64-disc1.iso"
 iso="$HOME/Downloads/FreeBSD-13.2-RELEASE-amd64-dvd1.iso"
 
-addr="192.168.10.143"
+addr="192.168.10.111"
 
 seckey="id_ed25519"
 
@@ -73,7 +73,11 @@ connect()
 
 ssh()
 {
-  command ssh root@${addr} -i $seckey
+  command ssh root@${addr} -i $seckey \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null
+
+
 }
 
 sftp()
@@ -171,12 +175,12 @@ console()
 
 hosts()
 {
-  ansible-inventory -i groups --list --yaml > hosts.yml
+  ansible-inventory -i groups.ini --list --yaml > hosts.yml
 }
 
 sssd()
 {
-  ansible-playbook -i hosts.yml sssd-ldap.yml
+  ansible-playbook -i hosts.yml sssd.yml
 }
 
 pubkey()
