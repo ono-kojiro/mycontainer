@@ -1,0 +1,21 @@
+- name: install isc-dhcp-server
+  ansible.builtin.apt :
+    name:
+    - isc-dhcp-server
+    state: present
+
+- name: copy dhcpd.conf
+  ansible.builtin.template:
+    src: dhcpd.conf
+    dest: /etc/dhcp/dhcpd.conf
+
+- name: copy isc-dhcp-server
+  ansible.builtin.template:
+    src: isc-dhcp-server
+    dest: /etc/default/isc-dhcp-server
+
+- name: restart daemon
+  ansible.builtin.systemd:
+    name: isc-dhcp-server
+    state: restarted
+

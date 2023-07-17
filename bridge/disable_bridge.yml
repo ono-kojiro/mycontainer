@@ -1,0 +1,38 @@
+- name: disable macvlan
+  hosts: myserver
+
+  tasks:
+    - name: down {{ new_con }}
+      ansible.builtin.shell: |
+        nmcli con down {{ new_con }}
+      ignore_errors: true
+
+    - name: remove {{ new_con }}
+      ansible.builtin.shell: |
+        nmcli con del {{ new_con }}
+      ignore_errors: true
+
+    - name: remove eth0
+      ansible.builtin.shell: |
+        nmcli con del eth0
+    
+    - name: add eth0
+      ansible.builtin.shell: |
+        nmcli con add \
+          type ethernet \
+          con-name eth0 \
+          ifname eth0
+
+    - name: modify eth0
+      ansible.builtin.shell: |
+        nmcli con mod eth0 \
+          ipv4.method manual \
+          ipv4.addresses 192.168.10.1/24 \
+          ipv4.dns 192.168.0.1
+
+    - name: restart eth0
+      ansible.builtin.shell: |
+        nmcli con down eth0
+        sleep 1
+        nmcli con up   eth0
+

@@ -1,0 +1,64 @@
+- name: enable bridge
+  hosts: myserver
+
+  tasks:
+    - name: install iptables-persistent
+      ansible.builtin.apt:
+        name:
+        - iptables-persistent
+        state: present
+
+    #- name: connect eth0 to bridge
+    #  ansible.builtin.shell: |
+    #    nmcli con modify eth0 slave-type bridge master {{ new_con }}
+
+    #- name: disable autoconnection of eth0
+    #  ansible.builtin.shell: |
+    #    nmcli con mod eth0 connection.autoconnect no
+
+    - name: add {{ new_con }}
+      ansible.builtin.shell: |
+        nmcli con add type bridge \
+          con-name {{ new_con }} \
+          ifname {{ new_con }}
+      ignore_errors: true
+    
+    - name: disable STP of {{ new_con }}
+      ansible.builtin.shell: |
+        nmcli con mod br0 bridge.stp no
+
+    - name: connect eth0 to bridge
+      ansible.builtin.shell: |
+        nmcli con modify eth0 master {{ new_con }} slave-type bridge
+
+    - name: restart eth0
+      ansible.builtin.shell: |
+        nmcli con up eth0
+      ignore_errors: true
+    
+    - name: enable {{ new_con }}
+      ansible.builtin.shell: |
+        nmcli con mod {{ new_con }} \
+          ipv4.method manual \
+          ipv4.addresses 192.168.10.1/24 \
+          ipv4.dns 192.168.0.1
+    
+    #- name: down eth0
+    #  ansible.builtin.shell: |
+    #    nmcli con down eth0
+    #  ignore_errors: true
+
+    - name: restart  {{ new_con }}
+      ansible.builtin.shell: |
+        nmcli con up   {{ new_con }}
+
+    - name: enable nat
+      ansible.builtin.shell: |
+        iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o wlan0 -j MASQUERADE
+      
+    - name: enable ip_forward
+      ansible.builtin.shell: |
+        sed -i -e "s|^#?(net.ipv4.ip_forward)=(.*)|net.ipv4.ip_forward=1|" /etc/sysctl.conf
+ 
+
+    

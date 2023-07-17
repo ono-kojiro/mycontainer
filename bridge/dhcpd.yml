@@ -1,0 +1,7 @@
+- name: enable dhcpd
+  hosts: myserver
+
+  roles:
+    - name: dhcpd
+      tags: dhcpd
+
