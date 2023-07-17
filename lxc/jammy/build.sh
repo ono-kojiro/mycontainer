@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#set -e
-
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
@@ -13,8 +11,9 @@ dist="ubuntu"
 release="$name"
 arch="amd64"
 
-address="10.0.3.224"
-gateway="10.0.3.1"
+link_dev=br0
+address=192.168.10.224
+gateway=192.168.10.1
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
@@ -67,7 +66,6 @@ target:
   ssh_root
 
   sssd
-  pubkey
 
   ssh_user
 EOS
@@ -77,37 +75,68 @@ EOS
 all()
 {
   create
+  enable_dhcp
   start
-  set_locale
   chpasswd
   config_network
+  set_locale
   update
   enable_sshd
   enable_pubkey_auth
-  test_ssh
+  #test_ssh
 }
 
 create()
 {
   lxc-create -t download -n $name -- -d $dist -r $release -a $arch
-
-  init
+  _init
 }
 
-init()
+_init()
 {
   echo "INFO : init"
   config="$HOME/.local/share/lxc/$name/config"
 
   cat - << EOS >> $config
 
-lxc.net.0.ipv4.address = $address/24
-lxc.net.0.ipv4.gateway = $gateway
+#lxc.net.0.ipv4.address = x.x.x.x/xx
+#lxc.net.0.ipv4.gateway = x.x.x.x
 
 lxc.cgroup.devices.allow =
 lxc.cgroup.devices.deny =
  
 EOS
+
+}
+
+enable_static()
+{
+  echo "enable static address"
+  config="$HOME/.local/share/lxc/$name/config"
+  key="lxc.net.0.ipv4.address"
+  sed -i -e "s|^#?$key = .*|$key = $address/24|" $config
+  key="lxc.net.0.ipv4.gateway"
+  sed -i -e "s|^#?$key = .*|$key = $gateway|" $config
+
+  key="lxc.net.0.link"
+  sed -i -e "s|$key = .*|$key = $link_dev|" $config
+
+  cat - << EOF | lxc-execute -n $name -- tee /etc/netplan/10-lxc.yaml 1>/dev/null
+network:
+  version: 2
+  ethernets:
+    eth0:
+      addresses:
+      - $address/24
+      nameservers:
+        addresses:
+        - $nameserver
+      dhcp-identifier: mac
+      dhcp4: false
+      routes:
+      - to: default
+        via: $gateway
+EOF
 
 }
 
@@ -129,6 +158,7 @@ debug()
 set_locale()
 {
   echo "INFO : set locale"
+  sleep 3
 
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
@@ -137,9 +167,31 @@ set_locale()
     locale-gen ja_JP.UTF-8
     localectl set-locale LANG=ja_JP.UTF-8
     apt-get -y install language-pack-ja
+    timedatectl set-timezone Asia/Tokyo
   }
 EOS
 
+}
+
+enable_dhcp()
+{
+  echo "enable dhcp"
+  config="$HOME/.local/share/lxc/$name/config"
+  key="lxc.net.0.ipv4.address"
+  sed -i -e "s|^$key = .*|#$key = $address/24|" $config
+  key="lxc.net.0.ipv4.gateway"
+  sed -i -e "s|^$key = .*|#$key = $gateway|" $config
+  
+  key="lxc.net.0.link"
+  sed -i -e "s|$key = .*|$key = $link_dev|" $config
+
+  cat - << EOF | lxc-execute -n $name -- tee /etc/netplan/10-lxc.yaml 1>/dev/null
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+EOF
 }
 
 test_attach()
@@ -216,7 +268,7 @@ EOS
 enable_pubkey_auth()
 {
   rm -f $pubkey $seckey
-  
+ 
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     mkdir -p /root/.ssh
@@ -224,7 +276,7 @@ enable_pubkey_auth()
   }
 EOS
 
-  ssh-keygen -t ed25519 -f $seckey -N ''
+  ssh-keygen -t ed25519 -f $seckey -N '' -C jammy
   cat $pubkey | lxc-attach -n $name --clear-env -- \
     tee -a /root/.ssh/authorized_keys
 }
@@ -279,7 +331,7 @@ mclean()
 
 hosts()
 {
-  ansible-inventory -i groups --list --yaml > hosts.yml
+  ansible-inventory -i groups.ini --list --yaml > hosts.yml
 }
 
 native()
@@ -312,11 +364,6 @@ adduser()
 sssd()
 {
   ansible-playbook -i hosts.yml sssd.yml
-}
-
-pubkey()
-{
-  ansible-playbook -i hosts.yml ssh-ldap-pubkey.yml
 }
 
 hosts

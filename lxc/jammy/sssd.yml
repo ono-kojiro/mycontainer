@@ -1,8 +1,8 @@
 - hosts: jammy
 
-  vars_files:
-  - vars/virtual.yml
-  - vars/groups.yml
+#  vars_files:
+#  - vars/virtual.yml
+#  - vars/groups.yml
 
   roles:
     - role: ldap
