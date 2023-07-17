@@ -7,14 +7,30 @@
 
   roles:
     - role: ca
+      tags: ca
+
     - role: server
+      tags: server
+    
     - role: crt
+      tags: crt
+
     - role: slapd
+      tags: slapd
+
     - role: ldapscripts
+      tags: ldapscripts
+
     - role: users
+      tags: users
+
     - role: ldap
+      tags: ldap
+
     - role: sssd
-    - role: ssh-ldap-pubkey
+      tags: sssd
+
     - role: keys
       tags: keys
+
 
