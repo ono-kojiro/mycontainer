@@ -23,7 +23,7 @@ pubkey="id_ed25519.pub"
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
-ssh_opts="$ssh_opts -i $seckey"
+ssh_opts="$ssh_opts -i $HOME/.ssh/$seckey"
 
 alias systemd-run='systemd-run --user --scope -p "Delegate=yes"'
 alias lxc-create='systemd-run lxc-create'
@@ -55,19 +55,16 @@ usage : $0 [options] target1 target2 ...
 target:
   create
   start
-  set_locale
-  chpasswd
-  config_network
+  network
   update
   enable_sshd
-  enable_pubkey_auth
+  send_pubkey
   test_ssh
-
   ssh_root
-
+  
   sssd
 
-  ssh_user
+  ssh
 EOS
 
 }
@@ -77,13 +74,10 @@ all()
   create
   enable_dhcp
   start
-  chpasswd
-  config_network
-  set_locale
+  network
   update
   enable_sshd
-  enable_pubkey_auth
-  #test_ssh
+  send_pubkey
 }
 
 create()
@@ -150,29 +144,6 @@ start()
   $cmd
 }
 
-debug()
-{
-  lxc-start -n $name -l debug -o ${name}.log
-}
-
-set_locale()
-{
-  echo "INFO : set locale"
-  sleep 3
-
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
-  {
-    export DEBIAN_FRONTEND=noninteractive
-    
-    locale-gen ja_JP.UTF-8
-    localectl set-locale LANG=ja_JP.UTF-8
-    apt-get -y install language-pack-ja
-    timedatectl set-timezone Asia/Tokyo
-  }
-EOS
-
-}
-
 enable_dhcp()
 {
   echo "enable dhcp"
@@ -194,15 +165,9 @@ network:
 EOF
 }
 
-test_attach()
+network()
 {
-  #lxc-attach -n $name -- ps
-  lxc-attach -n $name
-}
-
-config_network()
-{
-  echo "INFO : config_network"
+  echo "INFO : network"
 
   cat - << EOS | lxc-attach -n $name --clear-env -- /bin/bash -s $address $gateway
   {
@@ -228,19 +193,8 @@ update()
   echo "INFO : update"
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
-    #export DEBIAN_FRONTEND=noninteractive
+    export DEBIAN_FRONTEND=noninteractive
     apt-get -y update
-  }
-EOS
-
-}
-
-chpasswd()
-{
-  echo "INFO : chpasswd"
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
-  {
-    echo 'root:secret' | chpasswd
   }
 EOS
 
@@ -252,7 +206,6 @@ enable_sshd()
   cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
   {
     export DEBIAN_FRONTEND=noninteractive
-    apt-get -y update
     apt-get -y install openssh-server
 
     cat /etc/ssh/sshd_config | grep 'PermitRootLogin yes' > /dev/null
@@ -265,7 +218,7 @@ EOS
 
 }
 
-enable_pubkey_auth()
+send_pubkey()
 {
   rm -f $pubkey $seckey
  
@@ -276,19 +229,8 @@ enable_pubkey_auth()
   }
 EOS
 
-  ssh-keygen -t ed25519 -f $seckey -N '' -C jammy
-  cat $pubkey | lxc-attach -n $name --clear-env -- \
+  cat $HOME/.ssh/$pubkey | lxc-attach -n $name --clear-env -- \
     tee -a /root/.ssh/authorized_keys
-}
-
-keygen()
-{
-  enable_pubkey_auth
-}
-
-test_ssh()
-{
-  command ssh -y $ssh_opts root@$address -- bash -c 'hostname; hostname -I'
 }
 
 ssh_root()
@@ -296,7 +238,7 @@ ssh_root()
   command ssh -y $ssh_opts root@$address
 }
 
-ssh_user()
+ssh()
 {
   command ssh $address
 }
@@ -334,36 +276,14 @@ hosts()
   ansible-inventory -i groups.ini --list --yaml > hosts.yml
 }
 
-native()
-{
-  ansible-playbook -i hosts.yml native.yml
-}
-
-virtual()
-{
-  ansible-playbook -i hosts.yml virtual.yml
-}
-
-keys()
-{
-  ansible-playbook -i hosts.yml -t keys virtual.yml
-}
-
-
-
-slapd()
-{
-  ansible-playbook -i hosts.yml slapd-ldapscripts.yml
-}
-
-adduser()
-{
-  ansible-playbook -i hosts.yml addusers.yml
-}
-
 sssd()
 {
-  ansible-playbook -i hosts.yml sssd.yml
+  ansible-playbook -i hosts.yml site.yml
+}
+
+deploy()
+{
+  sssd
 }
 
 hosts

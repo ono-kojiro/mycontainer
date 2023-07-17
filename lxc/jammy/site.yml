@@ -1,10 +1,9 @@
 - hosts: jammy
 
-#  vars_files:
-#  - vars/virtual.yml
-#  - vars/groups.yml
-
   roles:
+    - role: japanese
+      tags: japanese
+
     - role: ldap
       tags: ldap
 

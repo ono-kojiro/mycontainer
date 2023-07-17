@@ -1,0 +1,10 @@
+---
+- name: locale-gen
+  ansible.builtin.shell: |
+    locale-gen ja_JP.UTF-8
+    localectl set-locale LANG=ja_JP.UTF-8
+
+- name: set timezone
+  ansible.builtin.shell: |
+    timedatectl set-timezone Asia/Tokyo
+
