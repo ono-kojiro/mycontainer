@@ -1,8 +1,0 @@
-[targets]
-10.0.3.224
-
-[all:vars]
-ansible_ssh_user=root
-ansible_ssh_private_key_file=./id_ed25519_jammy
-ansible_python_interpreter=/usr/bin/python3
-
