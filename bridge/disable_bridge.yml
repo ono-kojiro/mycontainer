@@ -29,6 +29,15 @@
           ipv4.method manual \
           ipv4.addresses 192.168.10.1/24 \
           ipv4.dns 192.168.0.1
+    
+    - name: disable nat
+      ansible.builtin.iptables:
+        table: nat
+        chain: POSTROUTING
+        source: 192.168.10.0/24
+        out_interface: wlan0
+        jump: MASQUERADE
+        state: absent
 
     - name: restart eth0
       ansible.builtin.shell: |

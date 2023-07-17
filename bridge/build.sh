@@ -3,6 +3,12 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+which ansible-playbook >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo ERROR: no ansible-playbook command
+  exit 1
+fi
+
 help()
 {
   usage

@@ -52,9 +52,16 @@
       ansible.builtin.shell: |
         nmcli con up   {{ new_con }}
 
+    #- name: enable nat
+    #  ansible.builtin.shell: |
+    #    iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o wlan0 -j MASQUERADE
     - name: enable nat
-      ansible.builtin.shell: |
-        iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o wlan0 -j MASQUERADE
+      ansible.builtin.iptables:
+        table: nat
+        chain: POSTROUTING
+        source: 192.168.10.0/24
+        out_interface: wlan0
+        jump: MASQUERADE
       
     - name: enable ip_forward
       ansible.builtin.shell: |
