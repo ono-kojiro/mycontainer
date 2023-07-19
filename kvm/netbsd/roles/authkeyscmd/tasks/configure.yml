@@ -1,0 +1,5 @@
+---
+- name: restart sshd
+  ansible.builtin.shell: |
+    /usr/sbin/service sshd restart
+

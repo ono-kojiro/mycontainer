@@ -6,7 +6,7 @@ name=netbsd
 disk=`pwd`/${name}.qcow2
 iso="$HOME/Downloads/NetBSD-9.3-amd64.iso"
 
-addr="192.168.10.147"
+addr="192.168.10.105"
 
 inventory="hosts"
 playbook="site.yml"
@@ -80,9 +80,14 @@ debug()
   ansible-playbook -i hosts -t sudo site.yml
 }
 
+hosts()
+{
+  ansible-inventory -i groups.ini --list --yaml > hosts.yml
+}
+
 deploy()
 {
-  ansible-playbook -i hosts site.yml
+  ansible-playbook -i hosts.yml site.yml
 }
 
 shutdown()
@@ -107,6 +112,12 @@ stop()
 
 destroy()
 {
+  virsh destroy $name
+}
+
+
+undefine()
+{
   virsh undefine $name
 }
 
@@ -118,13 +129,14 @@ install()
     --disk=$disk,bus=virtio \
     --vcpus 4 \
     --os-variant netbsd9.0 \
-    --network network=default --noautoconsole \
+    --network bridge=br0 \
     --console pty,target_type=serial \
     --cdrom=$iso \
     --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
     --serial pty
 
 #  --extra-args 'console=ttyS0,115200n8 serial'
+#   --network network=default --noautoconsole \
 }
 
 all()

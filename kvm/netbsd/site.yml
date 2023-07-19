@@ -1,5 +1,5 @@
 ---
-- hosts: targets
+- hosts: netbsd
 
   roles:
     - role: ldap
@@ -11,9 +11,10 @@
     - role: nsswitch
       tags: nsswitch
 
-    - { role: pkgsrc, tags: pkgsrc }
+    - role: doas
+      tags: doas
 
-    - role: sudo
-      tags: sudo 
+    - role: authkeyscmd
+      tags: authkeyscmd
 
 

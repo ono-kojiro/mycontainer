@@ -1,0 +1,16 @@
+---
+- name: upload /usr/pkg/etc/doas.conf
+  ansible.builtin.template:
+    src:  doas.conf
+    dest: /usr/pkg/etc/
+    mode: '0644'
+
+- name: create symbolic link to /usr/pkg/bin/sudo
+  ansible.builtin.file:
+    src:  /usr/pkg/bin/doas
+    dest: /usr/pkg/bin/sudo
+    owner: root
+    group: wheel
+    state: link
+
+
