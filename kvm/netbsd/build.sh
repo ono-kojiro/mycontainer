@@ -46,8 +46,30 @@ help()
 
 disk()
 {
-  qemu-img create -f qcow2 $disk 16G
+  if [ ! -e $disk ]; then
+    qemu-img create -f qcow2 $disk 16G
+  fi
 }
+
+
+install()
+{
+  virt-install \
+    --name ${name} \
+    --ram 4096 \
+    --disk=$disk,bus=virtio \
+    --vcpus 4 \
+    --os-variant netbsd9.0 \
+    --network bridge=br0 \
+    --console pty,target_type=serial \
+    --cdrom=$iso \
+    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
+    --serial pty
+
+#  --extra-args 'console=ttyS0,115200n8 serial'
+#   --network network=default --noautoconsole \
+}
+
 
 key()
 {
@@ -72,12 +94,6 @@ sftp()
 install_python()
 {
   command ssh root@${addr} -i id_ed25519 -- pkg install -y python
-}
-
-
-debug()
-{
-  ansible-playbook -i hosts -t sudo site.yml
 }
 
 hosts()
@@ -119,24 +135,6 @@ destroy()
 undefine()
 {
   virsh undefine $name
-}
-
-install()
-{
-  virt-install \
-    --name ${name} \
-    --ram 4096 \
-    --disk=$disk,bus=virtio \
-    --vcpus 4 \
-    --os-variant netbsd9.0 \
-    --network bridge=br0 \
-    --console pty,target_type=serial \
-    --cdrom=$iso \
-    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
-    --serial pty
-
-#  --extra-args 'console=ttyS0,115200n8 serial'
-#   --network network=default --noautoconsole \
 }
 
 all()

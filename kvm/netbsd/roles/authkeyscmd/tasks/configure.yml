@@ -1,4 +1,16 @@
 ---
+- name: edit AuthorizedKeysCommand
+  ansible.builtin.replace:
+    path:  /etc/ssh/sshd_config
+    regexp: '^#?(AuthorizedKeysCommand) (.+)'
+    replace: '\1 /usr/pkg/bin/authkeyscmd %u'
+
+- name: edit AuthorizedKeysCommandUser
+  ansible.builtin.replace:
+    path:  /etc/ssh/sshd_config
+    regexp: '^#?(AuthorizedKeysCommandUser) (.+)'
+    replace: '\1 nobody'
+
 - name: restart sshd
   ansible.builtin.shell: |
     /usr/sbin/service sshd restart

@@ -1,0 +1,44 @@
+Bootblocks selection
+
+  b: Use serial port com0
+  f: Set serial baud rate
+       e: 115200
+
+Enable console on NetBSD
+
+After reboot, login
+
+# vi /etc/ttys
+tty00 "/usr/libexec/getty std.9600"   vt100   on secure local
+
+# ttyflags tty00
+# kill -s HUP 1
+
+
+uncomment 'export PKG_PATH=...'
+# vi ~/.profile
+
+# pkg_add pkgin
+
+# pkgin bash
+
+
+==============================
+prepare for ansible
+
+# vi /etc/ssh/sshd_config
+...
+PermitRootLogin yes
+...
+
+# service sshd restart
+
+# mkdir ~/.ssh/
+# vi ~/.ssh/authorized_keys
+
+# export PKG_PATH=ftp://ftp7.jp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/9.3/All
+
+# pkg_add pkgin
+# pkgin install python311
+
+

@@ -1,5 +1,5 @@
 ---
 - name: install doas
   ansible.builtin.shell: |
-    pkgin install doas
+    pkgin -y install doas
 
