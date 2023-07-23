@@ -1,0 +1,29 @@
+---
+- name: comment out all settings
+  ansible.builtin.replace:
+    path: "{{ syslog_default_conf }}"
+    regexp:  '^[^#](.+)'
+    replace: '#\1'
+
+- name: check if forwarding is enabled
+  ansible.builtin.shell: |
+    cat "{{ syslog_default_conf }}" | grep -F -c "{{ syslog_server }}" || true
+  register: res
+
+- name: add forwarding rule
+  ansible.builtin.lineinfile:
+    path: "{{ syslog_default_conf }}"
+    line: '*.* @@{{ syslog_server}}:{{ syslog_tcp_port }}'
+  when: res.stdout == "0"
+
+- name: enable forwarding if exists
+  ansible.builtin.replace:
+    path: "{{ syslog_default_conf }}"
+    regexp:  '^#(\*\.\* @@.+)'
+    replace: '\1'
+
+- name: restart syslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+
