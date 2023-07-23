@@ -1,0 +1,7 @@
+- name: setup rsyslog
+  hosts: myserver
+
+  roles:
+    - role: rsyslog
+      tags: rsyslog
+

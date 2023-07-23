@@ -1,0 +1,8 @@
+---
+- name: install rsyslog
+  ansible.builtin.apt:
+    name:
+    - rsyslog
+    state: present
+
+

@@ -1,0 +1,30 @@
+---
+- name: module load imtcp
+  ansible.builtin.replace:
+    path: /etc/rsyslog.conf
+    regexp:  '^#?module\(load="imtcp"\)'
+    replace:    'module(load="imtcp")'
+
+- name: set tcp port
+  ansible.builtin.replace:
+    path: /etc/rsyslog.conf
+    regexp:  '^#?input\(type="imtcp" port=".+"\)'
+    replace:    'input(type="imtcp" port="{{ syslog_tcp_port }}")'
+
+- name: check if AllowedSender exists
+  ansible.builtin.shell: |
+    cat /etc/rsyslog.conf | grep -c "^AllowedSender" || true
+  register: res
+
+- name: add AllowedSender
+  ansible.builtin.lineinfile:
+    path: /etc/rsyslog.conf
+    line: '$AllowedSender TCP, 127.0.0.1, {{ syslog_allowedsender }}'
+  when: res.stdout == "0"
+
+- name: restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+
+
