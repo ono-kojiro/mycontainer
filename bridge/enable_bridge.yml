@@ -67,5 +67,33 @@
       ansible.builtin.shell: |
         sed -i -e "s|^#?(net.ipv4.ip_forward)=(.*)|net.ipv4.ip_forward=1|" /etc/sysctl.conf
  
+    - name: change NIC for dhcp
+      ansible.builtin.replace:
+        path:  /etc/default/isc-dhcp-server
+        regexp: '^(INTERFACESv)4="(.+)"'
+        replace: '\1="br0"'
+
+    - name: restart dhcp
+      ansible.builtin.systemd:
+        name: isc-dhcp-server
+        state: restarted
+
+    - name: check if docker exists
+      ansible.builtin.shell: |
+        which docker
+      register: result
+      ignore_errors: true
+     
+    - name: install docker-net-dhcp plugin
+      ansible.builtin.shell: |
+        docker plugin install \
+          --grant-all-permissions \
+          ghcr.io/devplayer0/docker-net-dhcp:release-linux-amd64
+        docker network create \
+          -d ghcr.io/devplayer0/docker-net-dhcp:release-linux-amd64 \
+          --ipam-driver null \
+          -o bridge=br0 \
+          mydhcpnet
+      when: result is succeeded
 
     

@@ -1,7 +1,26 @@
-- name: disable macvlan
+- name: disable bridge
   hosts: myserver
 
   tasks:
+    - name: check if docker exists
+      ansible.builtin.shell: |
+        which docker
+      register: result
+      ignore_errors: true
+     
+    - name: remove docker-net-dhcp plugin
+      ansible.builtin.shell: |
+        docker network remove mydhcpnet
+        docker plugin remove \
+          ghcr.io/devplayer0/docker-net-dhcp:release-linux-amd64
+      when: result is succeeded
+      ignore_errors: true
+    
+    - name: stop dhcp
+      ansible.builtin.systemd:
+        name: isc-dhcp-server
+        state: stopped
+
     - name: down {{ new_con }}
       ansible.builtin.shell: |
         nmcli con down {{ new_con }}
@@ -44,4 +63,15 @@
         nmcli con down eth0
         sleep 1
         nmcli con up   eth0
+    
+    - name: change NIC for dhcp
+      ansible.builtin.replace:
+        path:  /etc/default/isc-dhcp-server
+        regexp: '^(INTERFACESv)4="(.+)"'
+        replace: '\1="eth0"'
+
+    - name: start dhcp
+      ansible.builtin.systemd:
+        name: isc-dhcp-server
+        state: started
 
