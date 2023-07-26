@@ -4,8 +4,10 @@ top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
 image="postgres"
-tag="14.5-alpine3.16"
+tag="15.3-alpine3.18"
 container="$image"
+
+docker_compose="docker compose"
 
 help()
 {
@@ -22,10 +24,10 @@ usage : $0 [options] target1 target2 ...
     start
     
     db/user
-
     test_admin
 
     enable_ldap
+    test_ldap
 
     stop
     destroy
@@ -45,8 +47,8 @@ all()
   enable_ldap
   enable_tls
 
-  docker-compose stop
-  docker-compose start
+  $docker_compose stop
+  $docker_compose start
 
   #test_admin
 }
@@ -58,12 +60,12 @@ build()
 
 create()
 {
-  docker-compose up --no-start
+  $docker_compose up --no-start
 }
 
 start()
 {
-  docker-compose start
+  $docker_compose start
 }
 
 status()
@@ -141,12 +143,16 @@ test_ldap()
 
 enable_tls()
 {
-  docker cp postgres+3-key.pem postgres:/var/lib/postgresql/data/
-  docker cp postgres+3.pem     postgres:/var/lib/postgresql/data/
+  crtfile="postgres.crt"
+  keyfile="postgres.key"
 
-  docker exec -i postgres /bin/bash << 'EOS'
+  docker cp $crtfile postgres:/var/lib/postgresql/data/
+  docker cp $keyfile     postgres:/var/lib/postgresql/data/
 
-chown postgres:postgres /var/lib/postgresql/data/postgres+3*.pem
+  docker exec -i postgres /bin/bash << EOS
+
+chown postgres:postgres /var/lib/postgresql/data/postgres.crt
+chown postgres:postgres /var/lib/postgresql/data/postgres.key
 
 config="/var/lib/postgresql/data/postgresql.conf"
 
@@ -155,8 +161,8 @@ grep 'ssl = on' $config
 if [ $? -ne 0 ]; then
 {
   echo "ssl = on"
-  echo "ssl_cert_file = 'postgres+3.pem'"
-  echo "ssl_key_file = 'postgres+3-key.pem'"
+  echo "ssl_cert_file = '$crtfile'"
+  echo "ssl_key_file = '$keyfile'"
 } >> $config
 
 fi
@@ -167,13 +173,12 @@ EOS
 
 stop()
 {
-  docker-compose stop
+  $docker_compose stop
 }
 
 destroy()
 {
-  docker-compose down
-  #docker rmi $(docker images -q $image)
+  $docker_compose down
 }
 
 clean()
