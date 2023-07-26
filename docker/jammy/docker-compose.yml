@@ -9,10 +9,3 @@ services:
     tty:        true   # docker run -t
     ports:
       - "22040:22"
-    networks:
-      - mynetwork
-
-networks:
-  mynetwork:
-   name: macvlan
-   external: true

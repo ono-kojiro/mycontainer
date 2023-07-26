@@ -65,7 +65,9 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 ADD sssd.conf /etc/sssd/
 RUN chmod 600 /etc/sssd/sssd.conf \
     && pam-auth-update --enable mkhomedir \
-    && sed 's|-D -f|-D|' -i /etc/default/sssd
+    && sed 's|-D -f|-D|' -i /etc/default/sssd \
+    && sed -i -e 's|^#\(AuthorizedKeysCommand\)\s\+.\+|\1 /usr/bin/sss_ssh_authorizedkeys|' /etc/ssh/sshd_config \
+    && sed -i -e 's|^#\(AuthorizedKeysCommandUser\)\s\+\(.\+\)|\1 \2|' /etc/ssh/sshd_config
 
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
 
