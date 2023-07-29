@@ -1,0 +1,45 @@
+---
+
+
+- name: setup ldapclient
+  ansible.builtin.shell: |
+    ldapclient manual \
+      -a credentialLevel=proxy \
+      -a authenticationMethod=simple \
+      -a defaultSearchBase={{ ldap_suffix }} \
+      -a defaultServerList={{ ldap_server }} \
+      -a proxyDN={{ binddn }} \
+      -a proxyPassword={{ bindpw }} \
+      -a attributeMap=group:memberUid=memberOf \
+      -a attributeMap=group:gidnumber=gidNumber \
+      -a attributeMap=passwd:gidnumber=gidNumber \
+      -a attributeMap=passwd:uidnumber=uidNumber \
+      -a attributeMap=passwd:homedirectory=homeDirectory \
+      -a attributeMap=passwd:loginshell=loginShell \
+      -a attributeMap=shadow:userpassword=userPassword \
+      -a objectClassMap=group:posixGroup=posixgroup \
+      -a objectClassMap=passwd:posixAccount=posixaccount \
+      -a objectClassMap=shadow:shadowAccount=posixaccount \
+      -a serviceSearchDescriptor=passwd:ou=Users,{{ ldap_suffix }} \
+      -a serviceSearchDescriptor=group:ou=Groups,{{ ldap_suffix }} \
+      -a serviceSearchDescriptor=shadow:ou=Users,{{ ldap_suffix }}
+
+- name: add dns to /etc/nsswitch.conf (need to network connection)
+  ansible.builtin.replace:
+    path: /etc/nsswitch.conf
+    regexp: '^(hosts:\s+files\s+)(ldap)'
+    replace: '\1dns \2'
+
+- name: update /etc/pam.conf
+  ansible.builtin.template:
+    src:  pam.conf
+    dest: /etc/pam.conf
+
+- name: copy authkeyscmd
+  ansible.builtin.template:
+    src: authkeyscmd
+    dest: /usr/bin/
+    owner: root
+    group: root
+    mode: '0755'
+

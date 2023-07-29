@@ -1,0 +1,10 @@
+- name: enable ldap authentication
+  hosts: omnios
+
+  roles:
+    - name: ldapclient
+      tags: ldapclient
+
+    - name: sudo
+      tags: sudo
+

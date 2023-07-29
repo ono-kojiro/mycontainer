@@ -1,0 +1,7 @@
+---
+- name: allow ldapwheel members to run sudo command
+  template:
+    src: 80-ldapwheel
+    dest: /etc/sudoers.d/
+    mode: '0644'
+

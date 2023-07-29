@@ -14,10 +14,7 @@ all()
 install()
 {
   qemu-img create -f qcow2 $disk 16G
-
-  #iso=/home/$USER/Downloads/omnios-r151042.iso
-  #iso=/media/$USER/SSD512GB/Downloads/OS/Unix/omnios-r151042.iso
-  iso=$HOME/Downloads/omnios-r151042.iso
+  iso=$HOME/Downloads/omnios-r151046.iso
 
   virt-install \
     --name $name \
@@ -45,11 +42,15 @@ list()
   virsh list --all
 }
 
+start()
+{
+  virsh start $name
+}
+
 status()
 {
   list
 }
-
 
 shutdown()
 {
@@ -69,6 +70,11 @@ destroy()
 undefine()
 {
   virsh undefine $name
+}
+
+deploy()
+{
+  ansible-playbook -i hosts.yml site.yml
 }
 
 while [ $# -ne 0 ]; do
