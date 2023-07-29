@@ -1,0 +1,13 @@
+---
+- hosts: archlinux
+
+  roles:
+    - role: gdisk
+    - role: pacstrap
+    - role: base
+    - role: password
+    - role: grub
+    - role: dhcpcd
+    - role: umount
+    - role: reboot
+

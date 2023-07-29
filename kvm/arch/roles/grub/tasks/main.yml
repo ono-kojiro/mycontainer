@@ -1,0 +1,23 @@
+---
+- name: install grub
+  ansible.builtin.shell: |
+    arch-chroot /mnt pacman -S --noconfirm grub
+
+- name: install efibootmgr
+  ansible.builtin.shell: |
+    arch-chroot /mnt pacman -S --noconfirm efibootmgr
+
+- name: bootctl install
+  ansible.builtin.shell: |
+    arch-chroot /mnt bootctl install
+
+- name: bootctl install
+  ansible.builtin.shell: |
+    arch-chroot /mnt grub-install --target=x86_64-efi \
+      --efi-directory=/boot --bootloader-id=arch_grub --recheck --debug
+
+- name: grub-mkconfig
+  ansible.builtin.shell: |
+    arch-chroot /mnt \
+      grub-mkconfig -o /boot/grub/grub.cfg
+

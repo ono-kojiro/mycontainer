@@ -1,0 +1,6 @@
+---
+- name: reboot
+  ansible.builtin.shell: |
+    reboot; exit;
+
+

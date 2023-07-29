@@ -1,0 +1,9 @@
+---
+- name: pacstrap
+  ansible.builtin.shell: |
+    pacstrap /mnt base base-devel linux linux-firmware openssh
+
+#- name: unmount
+#  ansible.builtin.shell: |
+#    umount /mnt
+

@@ -1,0 +1,5 @@
+---
+- name: no task to install now
+  ansible.builtin.shell: |
+    echo no task to install now
+ 

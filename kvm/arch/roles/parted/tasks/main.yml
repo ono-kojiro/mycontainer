@@ -1,0 +1,21 @@
+---
+- name: create bios partition
+  community.general.parted:
+    device: /dev/vda
+    number: 1
+    state: present
+    part_type: primary
+    fs_type: fat32
+    part_start: 2MiB  # 2048 sector
+    part_end:   512MiB
+
+- name: create root
+  community.general.parted:
+    device: /dev/vda
+    number: 2
+    state: present
+    part_type: primary
+    fs_type: xfs
+    part_start: 512MiB
+    part_end:   "100%"
+      

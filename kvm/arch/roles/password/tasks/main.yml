@@ -1,0 +1,6 @@
+---
+- name: change password
+  ansible.builtin.shell: |
+    arch-chroot /mnt bash -c " \
+      echo -e 'secret\nsecret\n' | passwd; \
+    "

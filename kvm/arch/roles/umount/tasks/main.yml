@@ -1,0 +1,7 @@
+---
+- name: unmount
+  ansible.builtin.shell: |
+    cd /
+    umount -R /mnt
+
+

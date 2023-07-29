@@ -1,0 +1,12 @@
+---
+ansible_host: 192.168.10.142
+ansible_user: root
+ansible_python_interpreter: /usr/bin/python3
+ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+ansible_ssh_extra_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+ldap_suffix: dc=example,dc=com
+ldap_server: 192.168.0.98
+ldap_uri: ldap://{{ ldap_server }}
+binddn: cn=Manager,{{ ldap_suffix }}
+bindpw: secret
+

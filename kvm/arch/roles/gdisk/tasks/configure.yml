@@ -1,0 +1,30 @@
+---
+- name: remove partition 2
+  community.general.parted:
+    device: /dev/vda
+    number: 2
+    state: absent
+
+- name: remove partition 1
+  community.general.parted:
+    device: /dev/vda
+    number: 1
+    state: absent
+
+- name: create partitions
+  ansible.builtin.shell: |
+    echo -e "n\n1\n\n+1GiB\nef00\nw\ny\nquit\n" | gdisk /dev/vda
+    echo -e "n\n2\n\n\n\nw\ny\nquit\n" | gdisk /dev/vda
+
+- name: create filesystem
+  ansible.builtin.shell: |
+    mkfs.vfat -F 32 /dev/vda1
+    mkfs.xfs -f /dev/vda2
+
+- name: mount filesystem
+  ansible.builtin.shell: |
+    mount /dev/vda2 /mnt
+    mkdir /mnt/boot
+    mount /dev/vda1 /mnt/boot
+
+
