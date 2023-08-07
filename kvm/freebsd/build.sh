@@ -178,20 +178,9 @@ hosts()
   ansible-inventory -i groups.ini --list --yaml > hosts.yml
 }
 
-sssd()
+deploy()
 {
-  ansible-playbook -i hosts.yml sssd.yml
-}
-
-pubkey()
-{
-  ansible-playbook -i hosts.yml ssh-ldap-pubkey.yml
-}
-
-
-dns()
-{
-  ansible-playbook -i hosts.yml dns.yml
+  ansible-playbook -i hosts.yml site.yml
 }
 
 

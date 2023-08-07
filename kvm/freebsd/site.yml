@@ -1,29 +1,18 @@
----
-- hosts: targets
+- hosts: freebsd
 
   roles:
-    - role: xorg
-      tags: xorg
-
-    - role: mate
-      tags: mate
-
-    - role: lightdm
-      tags: lightdm
-
-    - role: japanese
-      tags: japanese
+    - role: ldap
+      tags: ldap
 
     - role: sssd
       tags: sssd
-    
-    - role: pam 
-      tags: pam
-    
+
     - role: nsswitch
       tags: nsswitch
 
+    - role: pam
+      tags: pam
+
     - role: sudo
       tags: sudo
-
 
