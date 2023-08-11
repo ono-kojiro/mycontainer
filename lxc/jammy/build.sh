@@ -11,9 +11,11 @@ dist="ubuntu"
 release="$name"
 arch="amd64"
 
+#link_dev=eth0
 link_dev=br0
 address=192.168.10.224
 gateway=192.168.10.1
+nameserver=192.168.0.1
 
 rootfs="$HOME/.local/share/lxc/$name/rootfs"
   
@@ -55,7 +57,7 @@ usage : $0 [options] target1 target2 ...
 target:
   create
   start
-  network
+  netplan
   update
   enable_sshd
   send_pubkey
@@ -72,7 +74,8 @@ EOS
 all()
 {
   create
-  enable_dhcp
+  #enable_dhcp
+  enable_static
   start
   network
   update
@@ -108,9 +111,9 @@ enable_static()
   echo "enable static address"
   config="$HOME/.local/share/lxc/$name/config"
   key="lxc.net.0.ipv4.address"
-  sed -i -e "s|^#?$key = .*|$key = $address/24|" $config
+  sed -i -e "s|^#\?$key = .*|$key = $address/24|" $config
   key="lxc.net.0.ipv4.gateway"
-  sed -i -e "s|^#?$key = .*|$key = $gateway|" $config
+  sed -i -e "s|^#\?$key = .*|$key = $gateway|" $config
 
   key="lxc.net.0.link"
   sed -i -e "s|$key = .*|$key = $link_dev|" $config
@@ -165,9 +168,9 @@ network:
 EOF
 }
 
-network()
+netplan()
 {
-  echo "INFO : network"
+  echo "INFO : netplan"
 
   cat - << EOS | lxc-attach -n $name --clear-env -- /bin/bash -s $address $gateway
   {
