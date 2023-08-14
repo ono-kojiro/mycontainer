@@ -3,6 +3,12 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+name=elasticsearch
+     
+username="elastic"
+#password="*fcGVoJfc6ZYTHnxZD*Y"
+password="N1HSk2rOkdHFF2NwZ29C"
+
 help()
 {
   usage
@@ -19,8 +25,9 @@ usage : $0 [options] target1 target2 ...
     start
 
     chpasswd
-    
     restart
+
+    test_simple, test_http, test_https
     down
     destroy
 EOS
@@ -31,30 +38,52 @@ all()
   help
 }
 
-prepare()
+fetch()
 {
-  cat - << 'EOF' | sudo bash -s
-    mkdir -p /var/lib/elasticsearch
-    mkdir -p /var/lib/elasticsearch/certs
-    mkdir -p /var/lib/elasticsearch/data
-    mkdir -p /var/lib/elasticsearch/etc
-  
-    cp -f elasticsearch.yml /var/lib/elasticsearch/
-    cp -f elasticsearch.crt /var/lib/elasticsearch/certs/
-    cp -f elasticsearch.key /var/lib/elasticsearch/certs/
-    cp -f mylocalca.pem     /var/lib/elasticsearch/certs/
-    
-    chown -R 1000:1000 /var/lib/elasticsearch
-  
-    mkdir -p /var/lib/kibana
-    mkdir -p /var/lib/kibana/config/certs
-    mkdir -p /var/lib/kibana/data
-    cp    -f mylocalca.pem     /var/lib/kibana/config/certs/
-    cp    -f kibana.crt        /var/lib/kibana/config/certs/
-    cp    -f kibana.key        /var/lib/kibana/config/certs/
-    cp    -f kibana.yml        /var/lib/kibana/config/
-    chown -R 1000:1000 /var/lib/kibana
-EOF
+  ES_VER=8.6.2
+  ES_ARCH=amd64
+  wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VER-$ES_ARCH.deb
+}
+
+build()
+{
+  docker build -t elasticsearch .
+}
+
+create()
+{
+  docker compose up --no-start
+}
+
+start()
+{
+  docker compose start
+}
+
+status()
+{
+  docker ps -f name=$name
+}
+
+deploy()
+{
+  ansible-playbook -K -i hosts.yml site.yml
+}
+
+reset()
+{
+  ansible-playbook -K -i hosts.yml reset.yml
+}
+
+chpasswd()
+{
+   echo "Setting kibana_system password";
+   curl \
+     -X POST --cacert mylocalca.pem \
+     -u "elastic:elastic" \
+     -H "Content-Type: application/json" \
+     https://192.168.0.98:9200/_security/user/kibana_system/_password \
+     -d "{ \"password\":\"elastic\" }"
 }
 
 restart()
@@ -72,7 +101,7 @@ test_http()
 {
    echo "test http"
    curl -s \
-     -u "elastic:elastic" \
+     -u "elastic:*fcGVoJfc6ZYTHnxZD*Y" \
      -H "Content-Type: application/json" \
      http://192.168.0.98:9200/
 
@@ -82,26 +111,15 @@ test_http()
 test_https()
 {
    echo "test https"
-   curl \
-     -u "elastic:elastic" \
+   curl -k \
+     -u "$username:$password" \
      -H "Content-Type: application/json" \
      https://192.168.0.98:9200/
    
   #w3m -dump http://192.168.0.98:5601/
 }
 
-chpasswd()
-{
-   echo "Setting kibana_system password";
-   curl \
-     -X POST --cacert mylocalca.pem \
-     -u "elastic:elastic" \
-     -H "Content-Type: application/json" \
-     https://192.168.0.98:9200/_security/user/kibana_system/_password \
-     -d "{ \"password\":\"elastic\" }"
-}
-
-test_access()
+test_simple()
 {
    curl \
      -X GET --cacert mylocalca.pem \
@@ -148,16 +166,6 @@ debug()
   docker cp kibana:/usr/share/kibana/logs/kibana.log .
 }
 
-create()
-{
-  docker compose up --no-start
-}
-
-start()
-{
-  docker compose start
-}
-
 es()
 {
   docker exec -it --user root elasticsearch /bin/bash
@@ -167,6 +175,12 @@ kibana()
 {
   docker exec -it --user root kibana /bin/bash
 }
+
+logstash()
+{
+  docker exec -it --user root logstash /bin/bash
+}
+
 
 attach()
 {

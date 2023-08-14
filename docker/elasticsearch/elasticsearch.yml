@@ -28,4 +28,8 @@ xpack:
     self_generated:
       type: basic
 
+path:
+  logs: /var/log/elasticsearch
+  data: /var/lib/elasticsearch
+
 
