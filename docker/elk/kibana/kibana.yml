@@ -1,0 +1,39 @@
+#
+# ** THIS IS AN AUTO-GENERATED FILE **
+#
+
+# Default Kibana configuration for docker target
+server.host: "0.0.0.0"
+server.shutdownTimeout: "5s"
+#elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+monitoring.ui.container.elasticsearch.enabled: true
+
+elasticsearch.hosts: https://192.168.0.98:9200
+
+server:
+  name: kibana
+  publicBaseUrl: https://192.168.0.98:5601
+  ssl:
+    enabled: true
+    certificate: /etc/kibana/certs/kibana.crt
+    key:         /etc/kibana/certs/kibana.key
+    
+elasticsearch.username: kibana_system
+elasticsearch.password: elastic
+
+logging:
+  root:
+    level: all
+  loggers:
+    - name: root
+      appenders: [ file ]
+      level: debug
+  appenders:
+    file:
+      type: file
+      fileName: /var/log/kibana/kibana.log
+      layout:
+        type: json
+
+elasticsearch.ssl.verificationMode: none
+
