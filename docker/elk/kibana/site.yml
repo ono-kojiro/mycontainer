@@ -90,22 +90,22 @@
       mode: '0755'
 
 
-#  - name: start elasticsearch
-#    ansible.builtin.shell: |
-#      service elasticsearch start
+  - name: start kibana
+    ansible.builtin.shell: |
+      service kibana start
 
-#  - name: check elasticsearch is enabled
-#    ansible.builtin.shell: |
-#      grep 'service elasticsearch start' /startup.sh
-#    register: res
-#    ignore_errors: true
+  - name: check kibana is enabled
+    ansible.builtin.shell: |
+      grep 'service kibana start' /startup.sh
+    register: res
+    ignore_errors: true
 
-#  - name: enable elasticsearch
-#    ansible.builtin.replace:
-#      path: /startup.sh
-#      regexp: '^service sssd start'
-#      replace: |
-#        service sssd start
-#        service elasticsearch start
-#    when: res is failed
+  - name: enable kibana
+    ansible.builtin.replace:
+      path: /startup.sh
+      regexp: '^service elasticsearch start'
+      replace: |
+        service elasticsearch start
+        service kibana start
+    when: res is failed
 
