@@ -51,13 +51,13 @@
       group: kibana
       mode: '0660'
   
-#  - name: copy init.d script
-#    ansible.builtin.copy:
-#      src:  etc-init.d-elasticsearch
-#      dest: /etc/init.d/elasticsearch
-#      owner: root
-#      group: root
-#      mode: '0755'
+  - name: copy init.d script
+    ansible.builtin.copy:
+      src:  etc-init.d-kibana
+      dest: /etc/init.d/kibana
+      owner: root
+      group: root
+      mode: '0755'
   
 #  - name: copy /etc/default/elasticsearch
 #    ansible.builtin.copy:
