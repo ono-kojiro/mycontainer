@@ -5,8 +5,8 @@ cd $top_dir
 
 name=elasticsearch
      
-username="elastic"
-password="MvRIiqh1+f8Vp5Ha5Oqu"
+username=`cat netrc | grep login | awk '{ print $2 }'`
+password=`cat netrc | grep password | awk '{ print $2 }'`
 
 help()
 {
@@ -44,6 +44,28 @@ fetch()
   wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VER-$ES_ARCH.deb
 }
 
+create()
+{
+  docker compose up --no-start
+}
+
+start()
+{
+  docker compose start
+}
+
+stop()
+{
+  docker compose stop
+}
+
+down()
+{
+  docker compose down
+}
+
+
+
 deploy()
 {
   ansible-playbook -K -i hosts.yml site.yml
@@ -65,10 +87,8 @@ test_https()
 
 test_simple()
 {
-   curl \
-     -X GET --cacert mylocalca.pem \
-     -u "kibana_system:elastic" \
-     -H "Content-Type: application/json" \
+   curl -k \
+     -u "$username:$password" \
      https://192.168.0.98:9200/ 
 }
 
