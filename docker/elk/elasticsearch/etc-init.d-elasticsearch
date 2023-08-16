@@ -12,9 +12,9 @@
 DESCRIPTION="elasticsearch"
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 NAME=elasticsearch
-DAEMON_OPTS=""
 DAEMON=/usr/share/elasticsearch/bin/$NAME
-PIDFILE=/var/run/$NAME.pid
+PIDFILE=/var/run/$NAME/$NAME.pid
+DAEMON_OPTS="-d -p $PIDFILE"
 
 DAEMON_USER=elasticsearch
 DAEMON_GROUP=elasticsearch
@@ -28,7 +28,7 @@ export PATH="${PATH:+$PATH:}/usr/sbin:/sbin"
 case "$1" in
   start)
 	start-stop-daemon --start --quiet --oknodo --chuid $DAEMON_USER:$DAEMON_GROUP \
-		--background --make-pidfile --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+	    --background --exec $DAEMON -- $DAEMON_OPTS
 	RC=$?
         case "$RC" in
 	  0)
@@ -43,7 +43,7 @@ case "$1" in
 	;;
   stop)
 	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESCRIPTION" "$NAME"
-	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+	start-stop-daemon --user $DAEMON_USER --stop --quiet --oknodo --pidfile $PIDFILE
 	RC=$?
         case "$RC" in
 	  0)

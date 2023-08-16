@@ -48,6 +48,7 @@
     loop:
     - /var/lib/elasticsearch
     - /var/log/elasticsearch
+    - /var/run/elasticsearch
  
   - name: copy elasticsearch.yml
     ansible.builtin.copy:
