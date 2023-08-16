@@ -2,12 +2,19 @@
   hosts: elasticsearch
 
   tasks:
-  - name: reset password
+  - name: reset elastic password
     ansible.builtin.shell:
       /usr/share/elasticsearch/bin/elasticsearch-reset-password \
         -u elastic --silent --batch
     register: res
 
   - debug: msg="{{ res.stdout }}"
+  
+  - name: reset kibana_system password
+    ansible.builtin.shell:
+      /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u kibana_system --silent --batch
+    register: res
 
+  - debug: msg="{{ res.stdout }}"
 
