@@ -117,6 +117,34 @@
     - example.conf
     - filebeat.conf
 
+  - name: create sample directory
+    ansible.builtin.file:
+      path:  /home/data/csv
+      state: directory
+      owner: logstash
+      group: logstash
+      recurse: yes
+  
+  - name: install python3-psutil
+    ansible.builtin.apt:
+      name: python3-psutil
+      state: present
+
+  - name: copy cpu_mem_load.py
+    ansible.builtin.copy:
+      src:  "{{ item }}"
+      dest: /home/data/csv/
+      owner: logstash
+      group: logstash
+      mode: '0755'
+    loop:
+    - cpu_mem_load.py
+  
+  - name: run cpu_mem_load.py
+    ansible.builtin.shell: |
+      cd /home/data/csv/
+      python3 cpu_mem_load.py --format csv -n 5
+
   - name: start logstash
     ansible.builtin.shell: |
       service logstash restart
