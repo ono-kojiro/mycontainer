@@ -88,31 +88,22 @@
       group: logstash
       mode: '0644'
 
-#  - name: copy kibana.crt
-#    ansible.builtin.copy:
-#      src:  kibana.crt
-#      dest: /etc/kibana/certs/
-#      owner: kibana
-#      group: kibana
-#      mode: '0755'
+  - name: start logstash
+    ansible.builtin.shell: |
+      service logstash start
 
+  - name: check logstash is enabled
+    ansible.builtin.shell: |
+      grep 'service logstash start' /startup.sh
+    register: res
+    ignore_errors: true
 
-#  - name: start kibana
-#    ansible.builtin.shell: |
-#      service kibana start
-
-#  - name: check kibana is enabled
-#    ansible.builtin.shell: |
-#      grep 'service kibana start' /startup.sh
-#    register: res
-#    ignore_errors: true
-
-#  - name: enable kibana
-#    ansible.builtin.replace:
-#      path: /startup.sh
-#      regexp: '^service elasticsearch start'
-#      replace: |
-#        service elasticsearch start
-#        service kibana start
-#    when: res is failed
+  - name: enable logstash
+    ansible.builtin.replace:
+      path: /startup.sh
+      regexp: '^service kibana start'
+      replace: |
+        service kibana start
+        service logstash start
+    when: res is failed
 
