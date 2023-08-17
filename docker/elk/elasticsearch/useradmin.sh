@@ -13,6 +13,8 @@ help() {
   cat - << EOS
 usage :
   $0 create -u <username> [-p <password>]
+  $0 passwd -u <username> [-p <password>]
+  $0 check  -u <username> [-p <password>]
   $0 delete -u <username>
 EOS
 }
@@ -88,8 +90,45 @@ delete()
     -XDELETE "$es_host/_security/user/$username?pretty"
 }
 
-password()
+passwd()
 {
+  if [ -z "$username" ]; then
+    echo "no username option"
+    ret=`expr $ret + 1`
+  fi
+
+  if [ $ret -ne 0 ]; then
+    usage
+    exit $ret
+  fi
+
+  if [ -z "$password" ]; then
+    echo -n "enter user password (first): "
+    stty_orig=$(stty -g)
+    stty -echo
+    read password1
+    stty $stty_orig
+    tty -s && echo
+  
+    echo -n "enter user password (second): "
+    stty_orig=$(stty -g)
+    stty -echo
+    read password2
+    stty $stty_orig
+    tty -s && echo
+
+    if [ "$password1" != "$password2" ]; then
+      echo "ERROR: password not match"
+      ret=`expr $ret + 1`
+    fi
+    password=$password1
+  fi
+
+  if [ $ret -ne 0 ]; then
+    usage
+    exit $ret
+  fi
+
   curl -k --netrc-file $netrc \
     -H 'Content-Type: application/json' \
     -XPOST "$es_host/_security/user/$username/_password?pretty" --data @- << EOS
@@ -97,6 +136,52 @@ password()
   "password" : "$password"
 }
 EOS
+}
+
+
+check()
+{
+  if [ -z "$username" ]; then
+    echo "no username option"
+    ret=`expr $ret + 1`
+  fi
+
+  if [ $ret -ne 0 ]; then
+    usage
+    exit $ret
+  fi
+
+  if [ -z "$password" ]; then
+    echo -n "enter user password (first): "
+    stty_orig=$(stty -g)
+    stty -echo
+    read password1
+    stty $stty_orig
+    tty -s && echo
+  
+    echo -n "enter user password (second): "
+    stty_orig=$(stty -g)
+    stty -echo
+    read password2
+    stty $stty_orig
+    tty -s && echo
+
+    if [ "$password1" != "$password2" ]; then
+      echo "ERROR: password not match"
+      ret=`expr $ret + 1`
+    fi
+    password=$password1
+  fi
+
+  if [ $ret -ne 0 ]; then
+    usage
+    exit $ret
+  fi
+
+  curl -k \
+    -H 'Content-Type: application/json' \
+    -u "$username:$password" \
+    -XGET "$es_host"
 }
 
 version() {
