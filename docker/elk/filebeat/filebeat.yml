@@ -10,10 +10,29 @@
 # For more available modules and options, please see the filebeat.reference.yml sample
 # configuration file.
 
+# ============================== DEBUG: output.console ===============================
+#output.console:
+#  enable: true
+#  pretty: true
+
+# ============================== DEBUG: output.elasticsearch ===============================
+#output.elasticsearch:
+  #enable: true
+  #hosts: ["localhost:9200"]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "Bx0UEZuHxE*Xn30PAy-W"
+
 # ============================== Filebeat inputs ===============================
 
 filebeat.inputs:
 - type: log
+  enabled: true
   paths:
   - /home/data/filebeat/*.csv
   exclude_lines: ['^Timestamp']
@@ -152,6 +171,7 @@ setup.kibana:
 
 # ---------------------------- Elasticsearch Output ----------------------------
 output.elasticsearch:
+  enabled: true
   # Array of hosts to connect to.
   hosts: ["localhost:9200"]
 
@@ -160,10 +180,13 @@ output.elasticsearch:
 
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
-  username: "filebeat"
-  password: "filebeat"
+  username: "elastic"
+  password: "Bx0UEZuHxE*Xn30PAy-W"
 
   ssl.verification_mode: none
+
+  indices:
+    - index: "myfilebeat"
 
 # ------------------------------ Logstash Output -------------------------------
 #output.logstash:
