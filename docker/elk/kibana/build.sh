@@ -28,9 +28,9 @@ all()
 
 fetch()
 {
-  ES_VER=8.6.2
+  ES_VER=8.9.0
   ES_ARCH=amd64
-  wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VER-$ES_ARCH.deb
+  wget https://artifacts.elastic.co/downloads/kibana/kibana-$ES_VER-$ES_ARCH.deb
 }
 
 deploy()

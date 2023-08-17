@@ -1,15 +1,17 @@
 - name: install kibana
   hosts: elk
+  vars:
+    pkgver: 8.9.0
 
   tasks:
   - name: copy deb package
     ansible.builtin.copy:
-      src: kibana-8.6.2-amd64.deb
+      src: kibana-{{ pkgver }}-amd64.deb
       dest: /tmp/
 
   - name: install kibana
     ansible.builtin.apt:
-      deb: /tmp/kibana-8.6.2-amd64.deb
+      deb: /tmp/kibana-{{ pkgver }}-amd64.deb
   
   - name: change user ID and group ID
     ansible.builtin.shell: |
@@ -41,7 +43,7 @@
     loop:
     - /var/lib/kibana
     - /var/log/kibana
-    - /var/log/kibana
+    - /var/run/kibana
 
   - name: copy kibana.yml
     ansible.builtin.copy:
