@@ -14,7 +14,7 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 NAME=logstash
 DAEMON_OPTS="--path.settings /etc/logstash --config.reload.automatic"
 DAEMON=/usr/share/logstash/bin/$NAME
-PIDFILE=/var/run/$NAME.pid
+PIDFILE=/var/run/$NAME/$NAME.pid
 
 DAEMON_USER=logstash
 DAEMON_GROUP=logstash
