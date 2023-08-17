@@ -39,7 +39,7 @@ all()
 
 fetch()
 {
-  ES_VER=8.6.2
+  ES_VER=8.9.0
   ES_ARCH=amd64
   wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VER-$ES_ARCH.deb
 }
@@ -91,6 +91,7 @@ test_simple()
      -u "$username:$password" \
      https://192.168.0.98:9200/ 
 }
+
 
 if [ $# -eq 0 ]; then
   usage

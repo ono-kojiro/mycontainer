@@ -1,15 +1,17 @@
 - name: install elasticsearch
   hosts: elasticsearch
+  vars:
+    es_ver: 8.9.0
 
   tasks:
   - name: copy deb package
     ansible.builtin.copy:
-      src: elasticsearch-8.6.2-amd64.deb
+      src: elasticsearch-{{ es_ver }}-amd64.deb
       dest: /tmp/
 
   - name: install elasticsearch
     ansible.builtin.apt:
-      deb: /tmp/elasticsearch-8.6.2-amd64.deb
+      deb: /tmp/elasticsearch-{{ es_ver }}-amd64.deb
   
   - name: change user ID and group ID
     ansible.builtin.shell: |
