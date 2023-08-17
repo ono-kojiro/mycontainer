@@ -80,17 +80,44 @@
       group: logstash
       mode: '0600'
   
-  - name: copy example.conf
+  - name: copy ca cert
     ansible.builtin.copy:
-      src:  example.conf
-      dest: /etc/logstash/conf.d/
+      src:  mylocalca.pem
+      dest: /etc/logstash/certs/
+      owner: logstash
+      group: logstash
+      mode: '0644'
+  
+  - name: copy client cert
+    ansible.builtin.copy:
+      src:  logstash.crt
+      dest: /etc/logstash/certs/
       owner: logstash
       group: logstash
       mode: '0644'
 
+  - name: copy client key
+    ansible.builtin.copy:
+      src:  logstash.key
+      dest: /etc/logstash/certs/
+      owner: logstash
+      group: logstash
+      mode: '0600'
+  
+  - name: copy config files
+    ansible.builtin.copy:
+      src:  "{{ item }}"
+      dest: /etc/logstash/conf.d/
+      owner: logstash
+      group: logstash
+      mode: '0644'
+    loop:
+    - example.conf
+    - filebeat.conf
+
   - name: start logstash
     ansible.builtin.shell: |
-      service logstash start
+      service logstash restart
 
   - name: check logstash is enabled
     ansible.builtin.shell: |
