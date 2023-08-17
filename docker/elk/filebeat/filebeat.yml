@@ -180,8 +180,11 @@ output.elasticsearch:
 
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
-  username: "elastic"
-  password: "Bx0UEZuHxE*Xn30PAy-W"
+  #username: "elastic"
+  #password: "Bx0UEZuHxE*Xn30PAy-W"
+  #username: "filebeat"
+  #password: "filebeat"
+  api_key: "0k_kA4oBF9d_uYaTcyV8:872RPRRaRhmRhCvrWqOWZA"
 
   ssl.verification_mode: none
 
