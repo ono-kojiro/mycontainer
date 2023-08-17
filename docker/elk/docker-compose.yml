@@ -1,0 +1,19 @@
+version: "3"
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+
+services:
+  elasticsearch:
+    image: jammy
+    container_name: elk
+    hostname: elk
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "22043:22"
+      - "9200:9200" # elasticsearch
+      - "5601:5601" # kibana
+      - "9600:9600" # logstash
+
