@@ -106,8 +106,8 @@ def main():
             }
             fp.write(json.dumps(data) + '\n')
         elif fmt == 'csv' :
-            fp.write('Timestamp,CPU,MEM\n')
-            fp.write('{0},{1},{2}\n'.format(ts, cpu, mem))
+            fp.write('Timestamp,CPU\n')
+            fp.write('{0},{1}\n'.format(ts, cpu))
         
         if output is None:
             fp.close()

@@ -119,7 +119,7 @@
 
   - name: create sample directory
     ansible.builtin.file:
-      path:  /home/data/csv
+      path:  /home/data/logstash
       state: directory
       owner: logstash
       group: logstash
@@ -130,20 +130,20 @@
       name: python3-psutil
       state: present
 
-  - name: copy cpu_mem_load.py
+  - name: copy cpu_load.py
     ansible.builtin.copy:
       src:  "{{ item }}"
-      dest: /home/data/csv/
+      dest: /home/data/logstash
       owner: logstash
       group: logstash
       mode: '0755'
     loop:
-    - cpu_mem_load.py
+    - cpu_load.py
   
-  - name: run cpu_mem_load.py
+  - name: run cpu_load.py
     ansible.builtin.shell: |
-      cd /home/data/csv/
-      python3 cpu_mem_load.py --format csv -n 5
+      cd /home/data/logstash
+      python3 cpu_load.py --format csv -n 5
 
   - name: start logstash
     ansible.builtin.shell: |
