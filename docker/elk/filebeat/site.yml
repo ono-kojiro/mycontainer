@@ -1,40 +1,17 @@
 - name: install filebeat
   hosts: elk
+  vars:
+    pkgver: 8.9.0
 
   tasks:
   - name: copy deb package
     ansible.builtin.copy:
-      src: filebeat-8.6.2-amd64.deb
+      src: filebeat-{{ pkgver }}-amd64.deb
       dest: /tmp/
 
   - name: install filebeat
     ansible.builtin.apt:
-      deb: /tmp/filebeat-8.6.2-amd64.deb
-
-  - name: add group 'filebeat'
-    ansible.builtin.group:
-      name: filebeat
-      state: present
-      gid:   5000
- 
-  - name: add user 'filebeat'
-    ansible.builtin.user:
-      name: filebeat
-      shell: /usr/sbin/nologin
-      group: filebeat
-      uid:   5000
-      
-#  - name: change user ID and group ID
-#    ansible.builtin.shell: |
-#      groupmod -g 4000 logstash
-#      usermod  -u 4000 logstash
-
-#  - name: change owner of /etc/default/kibana
-#    ansible.builtin.file:
-#      path:  /etc/default/kibana
-#      state: file
-#      owner: root
-#      group: kibana
+      deb: /tmp/filebeat-{{ pkgver }}-amd64.deb
 
   - name: change owner of /var directories
     ansible.builtin.file:
@@ -51,25 +28,9 @@
       src:  filebeat.yml
       dest: /etc/filebeat/filebeat.yml
       owner: root
-      group: filebeat
+      group: root
       mode: '0600'
   
-#  - name: copy init.d script
-#    ansible.builtin.copy:
-#      src:  etc-init.d-logstash
-#      dest: /etc/init.d/logstash
-#      owner: root
-#      group: root
-#      mode: '0755'
-  
-#  - name: copy /etc/default/elasticsearch
-#    ansible.builtin.copy:
-#      src:  etc-default-elasticsearch
-#      dest: /etc/default/elasticsearch
-#      owner: root
-#      group: elasticsearch
-#      mode: '0664'
-
   - name: create directory for certs
     ansible.builtin.file:
       path:  /etc/filebeat/certs
@@ -100,6 +61,35 @@
       owner: root
       group: root
       mode: '0600'
+  
+  - name: create sample directory
+    ansible.builtin.file:
+      path:  /home/data/filebeat
+      state: directory
+      owner: root
+      group: root
+      recurse: yes
+      mode: '0755'
+  
+  - name: install python3-psutil
+    ansible.builtin.apt:
+      name: python3-psutil
+      state: present
+
+  - name: copy mem_load.py
+    ansible.builtin.copy:
+      src:  "{{ item }}"
+      dest: /home/data/filebeat
+      owner: root
+      group: root
+      mode: '0755'
+    loop:
+    - mem_load.py
+  
+  - name: run mem_load.py
+    ansible.builtin.shell: |
+      cd /home/data/filebeat
+      python3 mem_load.py --format csv -n 5
 
   - name: start filebeat
     ansible.builtin.shell: |
