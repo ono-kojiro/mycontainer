@@ -3,7 +3,7 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-LS_VER=8.6.2
+LS_VER=8.9.0
 LS_ARCH=amd64
 
 username="elastic"
@@ -31,8 +31,8 @@ all()
 
 fetch()
 {
-  ES_VER=8.6.2
-  ES_ARCH=amd64
+  LS_VER=8.9.0
+  LS_ARCH=amd64
   wget https://artifacts.elastic.co/downloads/logstash/logstash-$LS_VER-$LS_ARCH.deb
 }
 
