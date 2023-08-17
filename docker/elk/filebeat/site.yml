@@ -1,0 +1,122 @@
+- name: install filebeat
+  hosts: elk
+
+  tasks:
+  - name: copy deb package
+    ansible.builtin.copy:
+      src: filebeat-8.6.2-amd64.deb
+      dest: /tmp/
+
+  - name: install filebeat
+    ansible.builtin.apt:
+      deb: /tmp/filebeat-8.6.2-amd64.deb
+
+  - name: add group 'filebeat'
+    ansible.builtin.group:
+      name: filebeat
+      state: present
+      gid:   5000
+ 
+  - name: add user 'filebeat'
+    ansible.builtin.user:
+      name: filebeat
+      shell: /usr/sbin/nologin
+      group: filebeat
+      uid:   5000
+      
+#  - name: change user ID and group ID
+#    ansible.builtin.shell: |
+#      groupmod -g 4000 logstash
+#      usermod  -u 4000 logstash
+
+#  - name: change owner of /etc/default/kibana
+#    ansible.builtin.file:
+#      path:  /etc/default/kibana
+#      state: file
+#      owner: root
+#      group: kibana
+
+  - name: change owner of /var directories
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: root
+      recurse: yes
+    loop:
+    - /var/log/filebeat
+
+  - name: copy filebeat.yml
+    ansible.builtin.copy:
+      src:  filebeat.yml
+      dest: /etc/filebeat/filebeat.yml
+      owner: root
+      group: filebeat
+      mode: '0600'
+  
+#  - name: copy init.d script
+#    ansible.builtin.copy:
+#      src:  etc-init.d-logstash
+#      dest: /etc/init.d/logstash
+#      owner: root
+#      group: root
+#      mode: '0755'
+  
+#  - name: copy /etc/default/elasticsearch
+#    ansible.builtin.copy:
+#      src:  etc-default-elasticsearch
+#      dest: /etc/default/elasticsearch
+#      owner: root
+#      group: elasticsearch
+#      mode: '0664'
+
+  - name: create directory for certs
+    ansible.builtin.file:
+      path:  /etc/filebeat/certs
+      state: directory
+      owner: root
+      group: root
+
+  - name: copy ca cert
+    ansible.builtin.copy:
+      src:  mylocalca.pem
+      dest: /etc/filebeat/certs/
+      owner: root 
+      group: root
+      mode: '0644'
+  
+  - name: copy client cert
+    ansible.builtin.copy:
+      src:  filebeat.crt
+      dest: /etc/filebeat/certs/
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: copy client key
+    ansible.builtin.copy:
+      src:  filebeat.key
+      dest: /etc/filebeat/certs/
+      owner: root
+      group: root
+      mode: '0600'
+
+  - name: start filebeat
+    ansible.builtin.shell: |
+      service filebeat start
+
+  - name: check filebeat is enabled
+    ansible.builtin.shell: |
+      grep 'service filebeat start' /startup.sh
+    register: res
+    ignore_errors: true
+
+  - name: enable filebeat
+    ansible.builtin.replace:
+      path: /startup.sh
+      regexp: '^service logstash start'
+      replace: |
+        service logstash start
+        service filebeat start
+    when: res is failed
+
