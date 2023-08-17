@@ -71,6 +71,19 @@ RUN chmod 600 /etc/sssd/sssd.conf \
 
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
 
+# change timezone and locale
+ENV TZ Asia/Tokyo
+RUN    DEBIAN_FRONTEND=noninteractive apt-get -qq update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -qq install \
+      language-pack-ja \
+    && update-locale LANG=ja_JP.UTF-8 \
+    && ln -s -f /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+ENV LANG ja_JP.UTF-8
+ENV LANGUAGE ja_JP:ja
+ENV LC_ALL ja_JP.UTF-8
+
 ADD startup.sh /
 RUN chmod +x /startup.sh
 CMD ["/startup.sh"]
