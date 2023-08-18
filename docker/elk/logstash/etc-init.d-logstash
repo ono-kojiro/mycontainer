@@ -12,7 +12,8 @@
 DESCRIPTION="logstash"
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 NAME=logstash
-DAEMON_OPTS="--path.settings /etc/logstash --config.reload.automatic"
+#DAEMON_OPTS="--path.settings /etc/logstash --config.reload.automatic"
+DAEMON_OPTS="--path.settings /etc/logstash"
 DAEMON=/usr/share/logstash/bin/$NAME
 PIDFILE=/var/run/$NAME/$NAME.pid
 
@@ -27,6 +28,7 @@ export PATH="${PATH:+$PATH:}/usr/sbin:/sbin"
 
 case "$1" in
   start)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESCRIPTION" "$NAME"
 	start-stop-daemon --start --quiet --oknodo --chuid $DAEMON_USER:$DAEMON_GROUP \
 		--background --make-pidfile --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
 	RC=$?
