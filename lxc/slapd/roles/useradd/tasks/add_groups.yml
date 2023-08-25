@@ -1,0 +1,20 @@
+---
+- name: clear sssd cache
+  ansible.builtin.shell: |
+    which sss_cache
+    if [ $? -eq 0 ]; then
+      sss_cache -E
+    fi
+
+- name: add groups
+  ansible.builtin.shell: |
+    num=$(ldapfinger "{{ item.name }}" | wc -l)
+    if test $num -eq 0 ; then
+      ldapaddgroup "{{ item.name }}"
+    fi
+  loop: "{{ ldap_groups }}"
+  register: result
+  failed_when: result.rc != 0
+
+
+

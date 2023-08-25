@@ -269,7 +269,19 @@ hosts()
   ansible-inventory -i groups.yml --list --yaml > hosts.yml
 }
 
-#hosts
+deploy()
+{
+  ansible-playbook -i hosts.yml site.yml
+}
+
+default()
+{
+  tag=$1
+  ansible-playbook -i hosts.yml -t $tag site.yml
+}
+
+
+hosts
 
 args=""
 while [ $# -ne 0 ]; do
@@ -301,7 +313,7 @@ for arg in $args; do
   else
     #echo "ERROR : $arg is not shell function"
     #exit 1
-    ansible-playbook -i hosts.yml -t $arg site.yml
+    default $arg
   fi
 done
 

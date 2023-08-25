@@ -1,0 +1,26 @@
+---
+- name: copy access.ldif
+  ansible.builtin.template:
+    src: access.ldif
+    dest: /etc/ldap/access.ldif
+
+- name: change ldap access
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/access.ldif
+
+- name: check ldap access
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={-1}frontend,cn=config" olcAccess | grep olcAccess
+  register: result
+  failed_when: result.rc != 0
+
+- name: copy disable_anonymous_access.ldif
+  ansible.builtin.template:
+    src: disable_anonymous_access.ldif
+    dest: /etc/ldap/
+
+#- name: disable anonymous access
+#  ansible.builtin.shell: |
+#    ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/disable_anonymous_access.ldif
+
