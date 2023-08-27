@@ -1,0 +1,10 @@
+---
+- name: copy dynlist.ldif
+  template:
+    src:  dynlist.ldif
+    dest: /etc/ldap/dynlist.ldif
+
+- name: enable dynlist overlay
+  shell: |
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/dynlist.ldif
+

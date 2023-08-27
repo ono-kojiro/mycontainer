@@ -1,0 +1,18 @@
+---
+# CA
+ca_nickname : MyCA
+ca_dir   : /etc/ssl/myca
+ca_crt   : myca.crt
+ca_passwd: secret
+
+# Server
+server_nickname: consumer
+server_addr: 192.168.10.124
+server_dir: /etc/ssl/myserver
+server_csr: myserver.csr
+server_crt: myserver.crt
+server_pem: myserver.pem
+server_p12: myserver.p12
+server_key: myserver.key
+server_passwd: secret
+

@@ -1,0 +1,32 @@
+- name: uninstall slapd
+  hosts: consumer
+
+  tasks:
+  - name: remove packages
+    ansible.builtin.apt:
+      name:
+      - slapd
+      - sssd-ldap
+      - sssd
+      - sssd-common
+      - sssd-tools
+      - libnss3-tools
+      state: absent
+      purge: yes
+  
+  - name: autoremove
+    ansible.builtin.apt:
+      autoremove: yes
+      purge: yes
+  
+  - name: remove var directory
+    ansible.builtin.file:
+      state: absent
+      path: "{{ item }}"
+    loop:
+      - /var/lib/sss
+      - /var/lib/ldap
+      - "{{ ca_dir }}"
+      - "{{ server_dir }}"
+      - /etc/ldap/certs
+

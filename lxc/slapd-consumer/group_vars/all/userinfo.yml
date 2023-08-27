@@ -1,0 +1,6 @@
+---
+admin_group: mywheel
+
+# sssd.conf
+allow_groups: mygroup
+

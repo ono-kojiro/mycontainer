@@ -1,0 +1,7 @@
+---
+- name: install openldap
+  ansible.builtin.apt:
+    name:
+    - ldap-utils
+    state: present
+

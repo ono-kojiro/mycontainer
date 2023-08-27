@@ -1,0 +1,28 @@
+- name: setup slapd consumer (slave)
+  hosts: consumer
+
+  roles:
+    - role: ca
+      tags: ca
+
+    - role: csr
+      tags: csr
+
+    - role: crt
+      tags: crt
+
+    - role: slapd
+      tags: slapd
+
+    - role: sync
+      tags: sync
+    
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+    
+    - role: sssd
+      tags: sssd
+

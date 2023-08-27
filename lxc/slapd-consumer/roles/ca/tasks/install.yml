@@ -1,0 +1,7 @@
+---
+- name: install libnss3-tools
+  ansible.builtin.apt:
+    name: libnss3-tools
+    state: present
+    update_cache: true   # same as apt-get update
+
