@@ -46,7 +46,7 @@
     dn: cn=config
     changetype: modify
     replace: olcLogLevel
-    olcLogLevel: 2047
+    olcLogLevel: acl sync
     EOF
 
 - name: check ldap loglevel
