@@ -1,3 +1,3 @@
 ---
-- import_tasks: enable_syncprov.yml
+- import_tasks: configure.yml
 

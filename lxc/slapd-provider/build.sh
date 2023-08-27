@@ -236,6 +236,22 @@ stop()
   lxc-stop -n $name
 }
 
+snap()
+{
+  lxc-snapshot -n $name -N snap0
+}
+
+restore()
+{
+  lxc-snapshot -n $name -r snap0
+}
+
+
+list()
+{
+  lxc-snapshot -n $name --list
+}
+
 status()
 {
   lxc-ls -f
