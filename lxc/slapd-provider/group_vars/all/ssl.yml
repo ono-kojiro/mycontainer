@@ -9,10 +9,10 @@ ca_passwd: secret
 server_nickname: provider
 server_addr: 192.168.10.123
 server_dir: /etc/ssl/myserver
-server_csr: myserver.csr
-server_crt: myserver.crt
-server_pem: myserver.pem
-server_p12: myserver.p12
-server_key: myserver.key
+server_csr: "{{ server_nickname }}.csr"
+server_crt: "{{ server_nickname }}.crt"
+server_pem: "{{ server_nickname }}.pem"
+server_p12: "{{ server_nickname }}.p12"
+server_key: "{{ server_nickname }}.key"
 server_passwd: secret
 
