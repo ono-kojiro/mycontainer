@@ -2,14 +2,8 @@
   hosts: consumer
 
   roles:
-    - role: ca
-      tags: ca
-
-    - role: csr
-      tags: csr
-
-    - role: crt
-      tags: crt
+    - role: certs
+      tags: certs
 
     - role: slapd
       tags: slapd
