@@ -31,7 +31,6 @@ link_dev="br0"
 ssh_opts=""
 ssh_opts="$ssh_opts -o UserKnownHostsFile=/dev/null"
 ssh_opts="$ssh_opts -o StrictHostKeyChecking=no"
-ssh_opts="$ssh_opts -i $seckey"
 
 alias lxc-create='systemd-run --user --scope -p "Delegate=yes" lxc-create'
 alias lxc-start='systemd-run --user --scope -p "Delegate=yes" lxc-start'
@@ -61,7 +60,8 @@ all()
 
   # configure using lxc-execute command
   enable_static
-  copy_files
+  set_nameserver
+  #copy_files
   chpasswd
   send_pubkey
 
@@ -99,6 +99,9 @@ _init()
 
 lxc.cgroup.devices.allow =
 lxc.cgroup.devices.deny =
+
+security.nesting = true
+lxc.include = /usr/share/lxc/config/nesting.conf
 EOS
 }
 
@@ -121,12 +124,22 @@ start()
   chmod 755 $HOME/.local
   chmod 755 $HOME/.local/share
   lxc-start -n $name
-  lxc-attach -n $name --clear-env -- /bin/bash /enable_eth0.sh
+  
+  sleep 1
+  lxc-attach -n $name -- nmcli con up eth0
 }
 
 attach()
 {
   lxc-attach -n $name --clear-env -- /bin/bash
+}
+
+set_nameserver()
+{
+  cat - << EOF | lxc-execute -n $name -- \
+    /bin/bash -c 'tee /etc/resolv.conf'
+nameserver $nameserver
+EOF
 }
 
 copy_files()
@@ -154,7 +167,7 @@ ExecStart=/enable_eth0.sh
 WantedBy=multi-user.target
 EOF
 
-  lxc-execute -n $name -- /bin/bash -c 'systemctl enable myservice'
+  #lxc-execute -n $name -- /bin/bash -c 'systemctl enable myservice'
   
 }
 
