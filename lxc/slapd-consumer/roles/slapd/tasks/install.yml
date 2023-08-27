@@ -29,6 +29,7 @@
 
 - name: restart rsyslog
   ansible.builtin.systemd:
-    name: rsyslogd
-    daemon_reexec: true
+    name: rsyslog
+    state: restarted
+    daemon_reload: true
 

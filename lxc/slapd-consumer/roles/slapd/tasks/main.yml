@@ -1,15 +1,5 @@
 ---
 - import_tasks: prepare.yml
 - import_tasks: install.yml
-- import_tasks: copy_certs.yml
-- import_tasks: ldap_loglevel.yml
-- import_tasks: ldap_suffix.yml
-- import_tasks: ldap_rootdn.yml
-- import_tasks: ldap_tls.yml
-- import_tasks: ldap_access.yml
-- import_tasks: ldap_passwd.yml
-- import_tasks: ldap_memberof.yml
-- import_tasks: enable_rfc2307bis.yml
-- import_tasks: enable_pubkey.yml
-- import_tasks: systemd.yml
+- import_tasks: configure.yml
 
