@@ -1,0 +1,14 @@
+- name: copy rfc2307bis.schema
+  ansible.builtin.copy:
+    src:  /etc/ldap/schema/fusiondirectory/rfc2307bis.schema
+    dest: /etc/ldap/schema/rfc2307bis.schema
+    remote_src: yes
+
+- name: disable nis.schema
+  shell: |
+    ldap-schema-manager -e nis.schema --yes
+
+- name: enable rfc2307bis.schema
+  shell: |
+    ldap-schema-manager -i rfc2307bis.schema --yes
+

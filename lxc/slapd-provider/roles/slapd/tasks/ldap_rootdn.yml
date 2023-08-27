@@ -1,0 +1,17 @@
+---
+- name: copy rootdn.ldif
+  template:
+    src: rootdn.ldif
+    dest: /etc/ldap/rootdn.ldif
+
+- name: change ldap rootdn
+  shell: |
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/rootdn.ldif
+
+- name: check ldap rootdn
+  shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={1}mdb,cn=config" olcRootDN | grep olcRootDN
+  register: result
+  failed_when: result.rc != 0
+

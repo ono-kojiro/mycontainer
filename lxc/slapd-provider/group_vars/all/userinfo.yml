@@ -1,0 +1,50 @@
+---
+ldap_groups:
+    - name: mygroup
+    - name: mywheel
+    - name: newtype
+    - name: oldtype
+
+default_group: mygroup
+admin_group: mywheel
+
+# sssd.conf
+allow_groups: mygroup
+
+ldap_users:
+- name:     gihren
+  password: gihren
+  gecos:    Gihren Zabi
+  groups:   mygroup,mywheel,oldtype
+  mail:     gihren@example.com
+
+- name:     dozle
+  password: dozle
+  gecos:    Dozle Zabi
+  groups:   mygroup,mywheel,oldtype
+  mail:     dozle@example.com
+
+- name:     garma
+  password: garma
+  gecos:    Garma Zabi
+  groups:   mygroup,oldtype
+  mail:     garma@example.com
+
+- name:     kycilia
+  password: kycilia
+  gecos:    Kycilia Zabi
+  groups:   mygroup,oldtype
+  mail:     kycilia@example.com
+
+- name:     challia
+  password: challia
+  gecos:    Challia Bull
+  groups:   mygroup,newtype
+  mail:     challia@example.com
+
+- name:     char
+  password: char
+  gecos:    Char Aznable
+  groups:   mygroup,newtype
+  mail:     char@example.com
+

@@ -1,0 +1,34 @@
+- name: setup slapd provider (master)
+  hosts: provider
+
+  roles:
+    - role: ca
+      tags: ca
+
+    - role: csr
+      tags: csr
+    
+    - role: crt
+      tags: crt
+
+    - role: slapd
+      tags: slapd
+
+    - role: ldapscripts
+      tags: ldapscripts
+
+    - role: useradd
+      tags: useradd
+
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+
+    - role: keys
+      tags: keys
+
+    - role: replication
+      tags: replication
+

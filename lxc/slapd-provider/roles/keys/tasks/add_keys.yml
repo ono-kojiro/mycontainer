@@ -1,0 +1,49 @@
+---
+# moved to slapd role
+#
+#- name: copy openssh-lpk.schema
+#  ansible.builtin.template:
+#    src: openssh-lpk.schema
+#    dest: /etc/ldap/schema/
+
+#- name: import openssh-lpk.schema
+#  ansible.builtin.shell:
+#    ldap-schema-manager -i /etc/ldap/schema/openssh-lpk.schema
+
+- name: copy public keys
+  ansible.builtin.template:
+    src: "id_ed25519_{{ item.name }}.pub"
+    dest: /tmp/
+  loop: "{{ ldap_users }}"
+
+#- name: add public keys
+#  ansible.builtin.shell: 
+#    ssh-ldap-pubkey add "/tmp/id_ed25519_{{ item.name }}.pub"
+#  loop: "{{ newusers }}"
+
+- name: add ldapPublicKey
+  ansible.builtin.shell: |
+    ldapsearch -D {{ masterdn }} -w {{ masterpw }}  cn={{ item.name }} objectClass -LLL | \
+      awk '{ print $2 }' | grep -e '^ldapPublicKey$'
+    if [ $? -ne 0 ]; then
+      cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: objectClass
+    objectClass: ldapPublicKey
+    EOS
+
+    else
+      echo "skip add objectClass, ldapPublicKey"
+    fi
+  loop: "{{ ldap_users }}"
+
+- name: add sshPublicKey
+  ansible.builtin.shell: |
+    pubkey=`cat /tmp/id_ed25519_{{ item.name }}.pub`
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: sshPublicKey
+    sshPublicKey: $pubkey
+    EOS
+  loop: "{{ ldap_users }}"
+

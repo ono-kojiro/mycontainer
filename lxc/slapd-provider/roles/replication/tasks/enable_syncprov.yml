@@ -1,0 +1,26 @@
+---
+- name: enable syncprov module
+  ansible.builtin.shell: |
+    cat - << EOF | echo ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: syncprov
+    EOF
+
+
+- name: add syncprov
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay={0}syncprov,olcDatabase={1}mdb,cn=config
+    changetype: add
+    objectClass: olcOverlayConfig
+    objectClass: olcSyncProvConfig
+    olcOverlay: {0}syncprov
+    olcSpCheckpoint: 20 10
+    olcSpSessionLog: 100
+    EOF
+
+# structuralObjectClass: olcSyncProvConfig
+
+
