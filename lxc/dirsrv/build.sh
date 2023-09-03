@@ -16,7 +16,6 @@ dist="rockylinux"
 release="9"
 arch="amd64"
 
-#address="10.0.3.6${release}"
 address="192.168.10.69"
 gateway="192.168.10.1"
 nameserver="192.168.0.1"
@@ -47,8 +46,8 @@ usage()
     echo ""
     echo "  target:"
     echo "    create/init/start"
-    echo "    chpasswd/copy_files"
-    echo "    permit_root_login/enable_pubkey/test_ssh"
+    echo "    chpasswd"
+    echo "    permit_root_login/test_ssh"
     echo "    attach"
     echo "    stop"
     echo "    destroy"
@@ -60,24 +59,17 @@ all()
 
   # configure using lxc-execute command
   enable_static
-  set_nameserver
-  #copy_files
   chpasswd
   send_pubkey
 
   start
+
+  # configure using lxc-attach command after start
+  set_network
  
   install_sshd 
   permit_root_login
   test_ssh
-
-  #enable_sssd
-  #test_sssd
-
-  #mkhomedir
-
-  #copy_pubkey
-  #post_proc
 }
 
 create()
@@ -134,41 +126,15 @@ attach()
   lxc-attach -n $name --clear-env -- /bin/bash
 }
 
-set_nameserver()
+set_network()
 {
-  cat - << EOF | lxc-execute -n $name -- \
-    /bin/bash -c 'tee /etc/resolv.conf'
-nameserver $nameserver
+  cat - << EOF | lxc-attach -n $name --clear-env -- /bin/bash -s
+nmcli con mod eth0 ipv4.addresses $address/24
+nmcli con mod eth0 ipv4.gateway 192.168.10.1
+nmcli con mod eth0 ipv4.dns     192.168.0.1
+nmcli con down eth0
+nmcli con up   eth0
 EOF
-}
-
-copy_files()
-{
-  cat - << EOF | lxc-execute -n $name -- /bin/bash -c 'tee /enable_eth0.sh'
-#!/bin/sh
-ip link set eth0 up
-ip route replace default via $gateway
-echo "nameserver $nameserver" > /etc/resolv.conf
-EOF
-
-  lxc-execute -n $name -- /bin/bash -c 'chmod 755 /enable_eth0.sh'
-  
-  cat - << EOF | lxc-execute -n $name -- \
-    /bin/bash -c 'tee /etc/systemd/system/myservice.service'
-[Unit]
-Description=myservice
-After=systemd-journald.service
-
-[Service]
-ExecStartPre=/bin/sleep 3
-ExecStart=/enable_eth0.sh
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  #lxc-execute -n $name -- /bin/bash -c 'systemctl enable myservice'
-  
 }
 
 chpasswd()
@@ -194,7 +160,6 @@ EOS
 
 }
 
-
 permit_root_login()
 {
   echo "INFO : permit_root_login"
@@ -214,18 +179,6 @@ EOS
 
 }
 
-install_devtools()
-{
-  echo "INFO : install_devtools"
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
-  {
-    dnf -y groupinstall "Development Tools"
-    dnf -y install which
-  }
-EOS
-
-}
-
 send_pubkey()
 {
   cat - << EOF | lxc-execute -n $name -- /bin/bash -s
@@ -236,11 +189,6 @@ send_pubkey()
 EOF
 
   cat $HOME/.ssh/id_ed25519.pub | lxc-execute -n $name -- tee /root/.ssh/authorized_keys
-}
-
-keygen()
-{
-  enable_pubkey
 }
 
 test_ssh()
@@ -256,118 +204,6 @@ connect()
 ssh()
 {
   connect
-}
-
-enable_sssd()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
-  {
-    dnf -y install sssd sssd-tools sssd-ldap authselect oddjob-mkhomedir
-  }
-EOS
-
-  cat - << 'EOS' | lxc-attach -n $name -- tee /etc/sssd/sssd.conf
-[sssd]
-debug_level = 9
-config_file_version = 2
-services = nss, pam
-domains = LDAP
-
-[domain/LDAP]
-ldap_schema = rfc2307
-cache_credentials = true
-
-id_provider     = ldap
-auth_provider   = ldap
-chpass_provider = ldap
-
-ldap_uri = ldap://10.0.3.1
-ldap_search_base = dc=example,dc=com
-
-ldap_chpass_uri = ldap://10.0.3.1
-
-ldap_id_use_start_tls = true
-ldap_tls_reqcert = never
-
-ldap_user_search_base  = ou=Users,dc=example,dc=com
-ldap_group_search_base = ou=Groups,dc=example,dc=com
-
-access_provider = simple
-simple_allow_groups = ldapusers
-
-enumerate = true
-EOS
-  
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s
-  {
-    chmod 600 /etc/sssd/sssd.conf
-    systemctl restart sssd
-
-    authselect select sssd with-sudo with-mkhomedir --force
-    systemctl enable --now oddjobd.service
-  }
-EOS
-
-}
-
-test_sssd()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    id $user
-
-    gpasswd -a $user wheel
-  }
-EOS
-
-}
-
-mkhomedir()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    mkdir -p /home/$user
-    chmod 755 /home/$user
-    chown $user:ldapusers /home/$user
-    
-    mkdir -p  /home/$user/.ssh
-    chmod 700 /home/$user/.ssh
-    chown $user:ldapusers /home/$user/.ssh
-  }
-EOS
-}
-
-copy_pubkey()
-{
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    mkdir -p              /home/$user/.ssh
-    chown $user:ldapusers /home/$user/.ssh
-    chmod 700             /home/$user/.ssh
-  }
-EOS
-
-  cat $HOME/.ssh/id_ed25519.pub | lxc-attach -n $name -- tee $HOME/.ssh/authorized_keys
-
-  cat - << 'EOS' | ssh $ssh_opts root@$address /bin/bash -s $USER
-  {
-    user=$1
-    chmod 755 /home/$user/.ssh/authorized_keys
-  }
-EOS
-}
-
-post_proc()
-{
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s
-  {
-    systemctl enable myservice.service
-  }
-EOS
-
 }
 
 stop()
@@ -392,12 +228,7 @@ list()
 
 status()
 {
-  #lxc-ls -f
-  cat - << 'EOS' | lxc-attach -n $name --clear-env -- /bin/bash -s $gateway
-  {
-    ip addr show eth0
-  }
-EOS
+  lxc-ls -f
 }
 
 destroy()
