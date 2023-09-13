@@ -21,24 +21,29 @@ usage : $0 [options] target1 target2 ..."
 EOF
 }
 
+help()
+{
+  usage
+}
+
 create()
 {
-  docker-compose up --no-start
+  docker compose up --no-start
 }
 
 debug()
 {
-  docker-compose up
+  docker compose up
 }
 
 start()
 {
-  docker-compose start
+  docker compose start
 }
 
 stop()
 {
-  docker-compose stop
+  docker compose stop
 }
 
 restart()
@@ -49,7 +54,7 @@ restart()
 
 down()
 {
-  docker-compose down
+  docker compose down
 }
 
 attach()
@@ -70,15 +75,19 @@ upload()
   docker cp \
     puma.rb \
     redmine:/usr/src/redmine/config/puma.rb
-  
+
+  if [ -e "application.rb" ]; then  
   docker cp \
     application.rb \
     redmine:/usr/src/redmine/config/application.rb
-  
+  fi
+
+  if [ -e "additional_environment.rb" ]; then  
   docker cp \
     additional_environment.rb \
     redmine:/usr/src/redmine/config/additional_environment.rb
-  
+  fi
+
   docker cp \
     development.rb \
     redmine:/usr/src/redmine/config/environments/development.rb
