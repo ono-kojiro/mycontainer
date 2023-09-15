@@ -1,0 +1,13 @@
+version: '3'
+services:
+  sphinx:
+    image: sphinx
+    container_name: sphinx
+    hostname: sphinx
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "22044:22"
