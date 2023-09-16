@@ -10,11 +10,11 @@
 
   - debug: msg="{{ res.stdout }}"
   
-  - name: reset kibana_system password
-    ansible.builtin.shell:
-      /usr/share/elasticsearch/bin/elasticsearch-reset-password \
-        -u kibana_system --silent --batch
-    register: res
-
-  - debug: msg="{{ res.stdout }}"
+#  - name: reset kibana_system password
+#    ansible.builtin.shell:
+#      /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+#        -u kibana_system --silent --batch
+#    register: res
+#
+#  - debug: msg="{{ res.stdout }}"
 

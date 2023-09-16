@@ -1,30 +1,21 @@
 - name: install elasticsearch
   hosts: elasticsearch
-  vars:
-    es_ver: 8.9.0
 
   tasks:
   - name: copy deb package
     ansible.builtin.copy:
-      src: elasticsearch-{{ es_ver }}-amd64.deb
+      src: elasticsearch-{{ es_ver }}-{{ es_arch }}.deb
       dest: /tmp/
 
   - name: install elasticsearch
     ansible.builtin.apt:
-      deb: /tmp/elasticsearch-{{ es_ver }}-amd64.deb
+      deb: /tmp/elasticsearch-{{ es_ver }}-{{ es_arch }}.deb
   
   - name: change user ID and group ID
     ansible.builtin.shell: |
       groupmod -g 2000 elasticsearch
       usermod  -u 2000 elasticsearch
 
-#  - name: change owner of directory
-#    ansible.builtin.shell: |
-#      chown -R root:elasticsearch /etc/default/elasticsearch \
-#                                /etc/elasticsearch
-#      chown -R elasticsearch:elasticsearch /var/lib/elasticsearch \
-#                                         /var/log/elasticsearch
-  
   - name: change owner of /etc/default/elasticsearch
     ansible.builtin.file:
       path:  /etc/default/elasticsearch

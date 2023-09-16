@@ -3,6 +3,9 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+es_ver=8.9.2
+es_arch=amd64
+
 name=elasticsearch
      
 username=`cat netrc | grep login | awk '{ print $2 }'`
@@ -39,9 +42,9 @@ all()
 
 fetch()
 {
-  ES_VER=8.9.0
-  ES_ARCH=amd64
-  wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VER-$ES_ARCH.deb
+  debfile="elasticsearch-${es_ver}-${es_arch}.deb"
+  wget \
+    https://artifacts.elastic.co/downloads/elasticsearch/${debfile}
 }
 
 create()
@@ -52,6 +55,11 @@ create()
 start()
 {
   docker compose start
+}
+
+status()
+{
+  docker ps -a | grep elk
 }
 
 stop()
@@ -73,14 +81,35 @@ deploy()
 
 reset()
 {
-  ansible-playbook -K -i hosts.yml reset.yml
+  #ansible-playbook -K -i hosts.yml reset.yml
+  ssh -t elk \
+    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u elastic --silent --batch
+}
+
+gennetrc()
+{
+  ssh -t elk \
+    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u elastic --silent --batch | tee tmp.log
+
+  sed -i -e 's|||' tmp.log
+  newpass=`cat tmp.log | grep -v -F '[sudo]'`
+  #rm -f tmp.log
+
+  {
+    echo "machine 192.168.0.98"
+    echo "login   elastic"
+    echo "password $newpass"
+    echo ""
+  } > netrc
 }
 
 test_https()
 {
    echo "test https"
    curl -k \
-     -u "$username:$password" \
+     --netrc-file netrc \
      -H "Content-Type: application/json" \
      https://192.168.0.98:9200/
 }
@@ -88,7 +117,7 @@ test_https()
 test_simple()
 {
    curl -k \
-     -u "$username:$password" \
+     --netrc-file netrc \
      https://192.168.0.98:9200/ 
 }
 
