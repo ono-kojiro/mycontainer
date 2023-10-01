@@ -41,22 +41,51 @@ deploy()
   ansible-playbook -K -i hosts.yml site.yml
 }
 
+update()
+{
+  ansible-playbook -K -i hosts.yml update.yml
+}
+
+
+reset()
+{
+  ssh -t elk \
+    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u logstash_system --silent --batch | tee password.log
+  
+  sed -i -e 's|||' password.log
+  pass=`cat password.log | grep -v -F '[sudo]'`
+
+  {
+    echo "machine  192.168.0.98"
+    echo "login    logstash_system"
+    echo "password $pass"
+  } > netrc
+  
+  sed -i -e "s|\(\s*\)password => .*|\1password => \"$pass\"|" example.conf
+  rm -f password.log
+}
+
 test_https()
 {
    echo "test https"
    curl -k \
-     -u "$username:$password" \
-     -H "Content-Type: application/json" \
+     --netrc-file netrc \
      https://192.168.0.98:9200/
 }
 
-test_simple()
+test_http()
 {
-   curl \
-     -X GET --cacert mylocalca.pem \
-     -u "kibana_system:elastic" \
-     -H "Content-Type: application/json" \
+   echo "test http"
+   curl -k \
+     --netrc-file netrc \
      https://192.168.0.98:9200/ 
+}
+
+check()
+{
+  test_http
+  test_https
 }
 
 if [ $# -eq 0 ]; then
