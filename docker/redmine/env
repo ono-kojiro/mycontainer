@@ -1,0 +1,7 @@
+CONTAINER_NAME=redmine
+HOSTNAME=redmine
+
+LOCAL_PORT=60080
+
+DB_CONTAINER_NAME=redmine-db
+

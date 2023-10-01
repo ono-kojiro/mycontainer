@@ -2,6 +2,8 @@
 
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
+. ./env
+
 usage()
 {
   cat - << EOF
@@ -11,9 +13,13 @@ usage : $0 [options] target1 target2 ..."
     help
 
     create
-    upload
+    enable_ssl
     start
     stop
+
+    fetch
+    patch
+    upload
 
     debug
     ps
@@ -28,22 +34,17 @@ help()
 
 create()
 {
-  docker compose up --no-start
-}
-
-debug()
-{
-  docker compose up
+  docker compose --env-file ./env up --no-start
 }
 
 start()
 {
-  docker compose start
+  docker compose --env-file ./env start
 }
 
 stop()
 {
-  docker compose stop
+  docker compose --env-file ./env stop
 }
 
 restart()
@@ -54,58 +55,59 @@ restart()
 
 down()
 {
-  docker compose down
+  docker compose --env-file ./env down
 }
 
 attach()
 {
-  docker exec -it redmine /bin/bash
+  docker exec -it ${CONTAINER_NAME} /bin/bash
 }
 
-upload()
+enable_ssl()
 {
-  docker cp \
-    redmine.crt \
-    redmine:/usr/src/redmine/config/redmine.crt
-
-  docker cp \
-    redmine.key \
-    redmine:/usr/src/redmine/config/redmine.key
-
-  docker cp \
-    puma.rb \
-    redmine:/usr/src/redmine/config/puma.rb
-
-  if [ -e "application.rb" ]; then  
-  docker cp \
-    application.rb \
-    redmine:/usr/src/redmine/config/application.rb
-  fi
-
-  if [ -e "additional_environment.rb" ]; then  
-  docker cp \
-    additional_environment.rb \
-    redmine:/usr/src/redmine/config/additional_environment.rb
-  fi
-
-  docker cp \
-    development.rb \
-    redmine:/usr/src/redmine/config/environments/development.rb
-
-  docker cp \
-    production.rb \
-    redmine:/usr/src/redmine/config/environments/production.rb
+  files="redmine.crt redmine.key"
+  for file in $files; do
+    docker cp $file ${CONTAINER_NAME}:/usr/src/redmine/config/
+  done
 }
 
 fetch()
 {
-  docker cp \
-    redmine:/usr/src/redmine/config/application.rb \
-    .
+  files=""
+  files="$files config/environment.rb"
+  files="$files config.ru"
+
+  for file in $files; do
+    echo "fetch $file ..."
+    docker cp ${CONTAINER_NAME}:/usr/src/redmine/$file .
+  done
+}
+
+patch()
+{
+  command patch -p1 -i 0000-change_prefix.patch
+}
+
+upload()
+{
+  # config.ru, environment.rb
+
+  files=""
+  files="$files environment.rb"
   
-  docker cp \
-    redmine:/usr/src/redmine/config/additional_environment.rb \
-    .
+  for file in $files; do
+    docker cp $file ${CONTAINER_NAME}:/usr/src/redmine/config/
+  done
+  
+  filename="config.ru"
+  if [ -e "$filename" ]; then  
+    docker cp $filename ${CONTAINER_NAME}:/usr/src/redmine/
+  fi
+}
+
+config()
+{
+  upload
 }
 
 ps()

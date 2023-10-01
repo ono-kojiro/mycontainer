@@ -4,12 +4,13 @@ version: '3.1'
 services:
   redmine:
     image: "redmine:5.0.5-bullseye"
-    container_name: redmine
-    hostname: redmine
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
     restart: always
+    # using SSL, enable following line
     entrypoint: "/docker-entrypoint.sh rails server -p 3000 -b 'ssl://0.0.0.0:3000?cert=config/redmine.crt&key=config/redmine.key'"
     ports:
-      - "60080:3000"
+      - "${LOCAL_PORT}:3000"
     environment:
       REDMINE_DB_POSTGRES: db
       REDMINE_DB_PASSWORD: secret
@@ -19,7 +20,7 @@ services:
 
   db:
     image: "postgres:15.2-bullseye"
-    container_name: "redmine-db"
+    container_name: ${DB_CONTAINER_NAME}
     restart: always
     environment:
       POSTGRES_USER: postgres
