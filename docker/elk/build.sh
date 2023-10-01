@@ -3,6 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+. ./env
+
 help()
 {
   usage
@@ -28,12 +30,22 @@ all()
 
 create()
 {
-  docker compose up --no-start
+  docker compose --env-file ./env up --no-start
 }
 
 start()
 {
-  docker compose start
+  docker compose --env-file ./env start
+}
+
+ssh()
+{
+  command ssh localhost -p ${SSH_PORT}
+}
+
+attach()
+{
+  docker attach $container
 }
 
 status()
@@ -54,12 +66,12 @@ test()
 
 stop()
 {
-  docker compose stop
+  docker compose --env-file ./env stop
 }
 
 down()
 {
-  docker compose down
+  docker compose --env-file ./env down
 }
 
 
