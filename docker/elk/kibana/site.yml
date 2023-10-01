@@ -1,17 +1,18 @@
 - name: install kibana
   hosts: elk
   vars:
-    pkgver: 8.9.0
+    kb_ver: 8.9.2
+    kb_arch: amd64
 
   tasks:
   - name: copy deb package
     ansible.builtin.copy:
-      src: kibana-{{ pkgver }}-amd64.deb
+      src: kibana-{{ kb_ver }}-{{ kb_arch }}.deb
       dest: /tmp/
 
   - name: install kibana
     ansible.builtin.apt:
-      deb: /tmp/kibana-{{ pkgver }}-amd64.deb
+      deb: /tmp/kibana-{{ kb_ver }}-{{ kb_arch }}.deb
   
   - name: change user ID and group ID
     ansible.builtin.shell: |
@@ -52,6 +53,20 @@
       owner: root
       group: kibana
       mode: '0660'
+ 
+  - name: create config directory
+    ansible.builtin.file:
+      path:  /usr/share/kibana/config
+      state: directory
+      mode: '0755'
+ 
+  - name: create symbolic link
+    ansible.builtin.file:
+      src:  /etc/kibana/kibana.yml
+      dest: /usr/share/kibana/config/kibana.yml
+      owner: root
+      group: kibana
+      state: link
   
   - name: copy init.d script
     ansible.builtin.copy:

@@ -3,8 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-username="elastic"
-password="MvRIiqh1+f8Vp5Ha5Oqu"
+KB_VER=8.9.2
+KB_ARCH=amd64
 
 help()
 {
@@ -28,9 +28,8 @@ all()
 
 fetch()
 {
-  ES_VER=8.9.0
-  ES_ARCH=amd64
-  wget https://artifacts.elastic.co/downloads/kibana/kibana-$ES_VER-$ES_ARCH.deb
+  KB_ARCH=amd64
+  wget https://artifacts.elastic.co/downloads/kibana/kibana-$KB_VER-$KB_ARCH.deb
 }
 
 deploy()
@@ -38,23 +37,49 @@ deploy()
   ansible-playbook -K -i hosts.yml site.yml
 }
 
+reset()
+{
+  ssh -t elk \
+    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u kibana_system --silent --batch | tee kibana.log
+  
+  sed -i -e 's|||' kibana.log
+  es_pass=`cat kibana.log | grep -v -F '[sudo]'`
+
+  {
+    echo "machine  192.168.0.98"
+    echo "login    kibana_system"
+    echo "password $es_pass"
+  } > netrc
+
+  sed -i -e "s|^\(elasticsearch.password\): .*|\1: $es_pass|" kibana.yml
+
+  rm -f kibana.log
+}
+
 test_https()
 {
    echo "test https"
    curl -k \
-     -u "$username:$password" \
-     -H "Content-Type: application/json" \
+     --netrc-file netrc \
      https://192.168.0.98:9200/
 }
 
-test_simple()
+test_http()
 {
-   curl \
-     -X GET --cacert mylocalca.pem \
-     -u "kibana_system:elastic" \
-     -H "Content-Type: application/json" \
+   echo "test http"
+   curl -k \
+     --netrc-file netrc \
      https://192.168.0.98:9200/ 
 }
+
+check()
+{
+  test_http
+  test_https
+}
+
+
 
 if [ $# -eq 0 ]; then
   usage

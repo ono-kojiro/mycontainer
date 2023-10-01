@@ -19,7 +19,7 @@ server:
     key:         /etc/kibana/certs/kibana.key
     
 elasticsearch.username: kibana_system
-elasticsearch.password: H0N_Zf5W1BS++sy=MCwA
+elasticsearch.password: cwtE039K38fPdd+kXa=N
 
 logging:
   root:
