@@ -8,9 +8,6 @@ es_arch=amd64
 
 name=elasticsearch
      
-username=`cat netrc | grep login | awk '{ print $2 }'`
-password=`cat netrc | grep password | awk '{ print $2 }'`
-
 help()
 {
   usage
@@ -22,16 +19,12 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    prepare
-    create
-    start
+    deploy
+    reset
+    netrc
+    check
 
-    chpasswd
-    restart
-
-    test_simple, test_http, test_https
-    down
-    destroy
+    test_http, test_https
 EOS
 }
 
@@ -81,28 +74,57 @@ deploy()
 
 reset()
 {
-  #ansible-playbook -K -i hosts.yml reset.yml
   ssh -t elk \
     sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
         -u elastic --silent --batch
+}
+
+netrc()
+{
+  ssh -t elk \
+    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u elastic --silent --batch | tee elastic.log
+  
+  sed -i -e 's|||' elastic.log
+  es_pass=`cat elastic.log | grep -v -F '[sudo]'`
+
+  {
+    echo "machine  192.168.0.98"
+    echo "login    elastic"
+    echo "password $es_pass"
+  } > netrc
+
+  rm -f elastic.log
 }
 
 gennetrc()
 {
   ssh -t elk \
     sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
-        -u elastic --silent --batch | tee tmp.log
+        -u elastic --silent --batch | tee elastic.log
+  
+  ssh -t elk \
+    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u kibana_system --silent --batch | tee kibana_system.log
 
-  sed -i -e 's|||' tmp.log
-  newpass=`cat tmp.log | grep -v -F '[sudo]'`
-  #rm -f tmp.log
+  sed -i -e 's|||' elastic.log
+  es_pass=`cat elastic.log | grep -v -F '[sudo]'`
+  
+  sed -i -e 's|||' kibana_system.log
+  kb_pass=`cat kibana_system.log | grep -v -F '[sudo]'`
 
   {
-    echo "machine 192.168.0.98"
-    echo "login   elastic"
-    echo "password $newpass"
+    echo "machine  192.168.0.98"
+    echo "login    elastic"
+    echo "password $es_pass"
+    echo ""
+    echo "machine  192.168.0.98"
+    echo "login    kibana_system"
+    echo "password $kb_pass"
     echo ""
   } > netrc
+
+  rm -f elastic.log kibana_system.log
 }
 
 test_https()
@@ -110,15 +132,21 @@ test_https()
    echo "test https"
    curl -k \
      --netrc-file netrc \
-     -H "Content-Type: application/json" \
      https://192.168.0.98:9200/
 }
 
-test_simple()
+test_http()
 {
+   echo "test http"
    curl -k \
      --netrc-file netrc \
      https://192.168.0.98:9200/ 
+}
+
+check()
+{
+  test_http
+  test_https
 }
 
 
