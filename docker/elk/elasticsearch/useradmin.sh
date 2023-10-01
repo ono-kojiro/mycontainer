@@ -185,11 +185,17 @@ check()
 }
 
 version() {
-  curl -k --netrc-file $user_netrc $es_host?pretty
+  curl -k --netrc-file $netrc $es_host?pretty
 }
 
+list()
+{
+  curl -k --netrc-file $netrc "$es_host/_security/user?pretty"
+}
+
+
 indices() {
-  curl -k --netrc-file $user_netrc "$es_host/_cat/indices?v"
+  curl -k --netrc-file $netrc "$es_host/_cat/indices?v"
 }
 
 tables() {
