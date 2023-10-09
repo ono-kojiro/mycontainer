@@ -3,11 +3,9 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-LS_VER=8.9.0
-LS_ARCH=amd64
+. ./env
 
-username="elastic"
-password="MvRIiqh1+f8Vp5Ha5Oqu"
+extra_vars=`cat env | tr '\n' ' '`
 
 help()
 {
@@ -31,21 +29,18 @@ all()
 
 fetch()
 {
-  LS_VER=8.9.0
-  LS_ARCH=amd64
   wget https://artifacts.elastic.co/downloads/logstash/logstash-$LS_VER-$LS_ARCH.deb
 }
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook -K -i hosts.yml --extra-vars "$extra_vars" site.yml
 }
 
 update()
 {
-  ansible-playbook -K -i hosts.yml update.yml
+  ansible-playbook -K -i hosts.yml --extra-vars "$extra_vars" update.yml
 }
-
 
 reset()
 {
