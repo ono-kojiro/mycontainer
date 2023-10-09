@@ -1,7 +1,7 @@
 - name: install kibana
   hosts: elk
   vars:
-    kb_ver: 8.9.2
+    kb_ver: 8.10.2
     kb_arch: amd64
 
   tasks:
@@ -113,16 +113,15 @@
 
   - name: check kibana is enabled
     ansible.builtin.shell: |
-      grep 'service kibana start' /startup.sh
+      grep -c 'service kibana start' /startup.sh || true
     register: res
-    ignore_errors: true
 
   - name: enable kibana
     ansible.builtin.replace:
       path: /startup.sh
       regexp: '^service elasticsearch start'
-      replace: |
+      replace: |+
         service elasticsearch start
         service kibana start
-    when: res is failed
+    when: res.stdout == "0"
 

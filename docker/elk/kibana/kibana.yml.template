@@ -5,7 +5,6 @@
 # Default Kibana configuration for docker target
 server.host: "0.0.0.0"
 server.shutdownTimeout: "5s"
-#elasticsearch.hosts: [ "http://elasticsearch:9200" ]
 monitoring.ui.container.elasticsearch.enabled: true
 
 elasticsearch.hosts: https://192.168.0.98:9200
@@ -19,7 +18,7 @@ server:
     key:         /etc/kibana/certs/kibana.key
     
 elasticsearch.username: kibana_system
-elasticsearch.password: cwtE039K38fPdd+kXa=N
+elasticsearch.password: XXXXXXXXXXXXXXXXXXXX
 
 logging:
   root:

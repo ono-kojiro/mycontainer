@@ -3,7 +3,7 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-KB_VER=8.9.2
+KB_VER=8.10.2
 KB_ARCH=amd64
 
 help()
@@ -17,7 +17,9 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    destroy
+    reset
+    deploy
+    check
 EOS
 }
 
@@ -52,7 +54,8 @@ reset()
     echo "password $es_pass"
   } > netrc
 
-  sed -i -e "s|^\(elasticsearch.password\): .*|\1: $es_pass|" kibana.yml
+  sed -i -e "s|^\(elasticsearch.password\): .*|\1: $es_pass|" \
+    kibana.yml.template > kibana.yml
 
   rm -f kibana.log
 }
@@ -75,7 +78,7 @@ test_http()
 
 check()
 {
-  test_http
+  #test_http
   test_https
 }
 
