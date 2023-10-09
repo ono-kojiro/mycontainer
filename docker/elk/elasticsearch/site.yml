@@ -95,21 +95,21 @@
 
 
   - name: start elasticsearch
-    ansible.builtin.shell: |
-      service elasticsearch start
+    ansible.builtin.service: |
+      name: elasticsearch
+      state: started
 
   - name: check elasticsearch is enabled
     ansible.builtin.shell: |
-      grep 'service elasticsearch start' /startup.sh
+      grep -c 'service elasticsearch start' /startup.sh || true
     register: res
-    ignore_errors: true
 
   - name: enable elasticsearch
     ansible.builtin.replace:
       path: /startup.sh
       regexp: '^service sssd start'
-      replace: |
+      replace: |-
         service sssd start
         service elasticsearch start
-    when: res is failed
+    when: res.stdout == "0"
 

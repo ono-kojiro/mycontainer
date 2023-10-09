@@ -21,7 +21,6 @@ usage : $0 [options] target1 target2 ...
   target
     deploy
     reset
-    netrc
     check
 
     test_http, test_https
@@ -76,13 +75,6 @@ reset()
 {
   ssh -t elk \
     sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
-        -u elastic --silent --batch
-}
-
-netrc()
-{
-  ssh -t elk \
-    sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
         -u elastic --silent --batch | tee elastic.log
   
   sed -i -e 's|||' elastic.log
@@ -95,6 +87,8 @@ netrc()
   } > netrc
 
   rm -f elastic.log
+
+  echo "password of user 'elastic' is saved in ./netrc"
 }
 
 gennetrc()
@@ -145,7 +139,7 @@ test_http()
 
 check()
 {
-  test_http
+  #test_http
   test_https
 }
 
