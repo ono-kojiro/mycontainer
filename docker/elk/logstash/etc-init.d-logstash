@@ -45,7 +45,7 @@ case "$1" in
 	;;
   stop)
 	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESCRIPTION" "$NAME"
-	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE -u $DAEMON_USER
 	RC=$?
         case "$RC" in
 	  0)
