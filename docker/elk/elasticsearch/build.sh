@@ -64,8 +64,6 @@ down()
   docker compose down
 }
 
-
-
 deploy()
 {
   ansible-playbook -K -i hosts.yml site.yml
