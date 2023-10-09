@@ -95,7 +95,7 @@
 
 
   - name: start elasticsearch
-    ansible.builtin.service: |
+    ansible.builtin.service:
       name: elasticsearch
       state: started
 
