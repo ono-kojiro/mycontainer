@@ -1,0 +1,5 @@
+---
+addr: 192.168.10.178
+ansible_user: ghost
+seckey: ./id_ed25519
+

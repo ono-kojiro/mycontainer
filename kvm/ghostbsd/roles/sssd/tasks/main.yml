@@ -1,0 +1,48 @@
+---
+- name: install sssd
+  ansible.builtin.shell: |
+    pkg install --automatic --yes sssd pam_mkhomedir
+
+- name: copy sssd.conf
+  template:
+    src: sssd.conf
+    dest: /usr/local/etc/sssd/sssd.conf
+    mode: '0600'
+
+- name: enable sssd
+  ansible.builtin.shell: |
+    sysrc sssd_enable="YES"
+
+- name: restart sssd
+  ansible.builtin.shell: |
+    service sssd restart
+
+- name: create symbolic link for bash
+  ansible.builtin.file:
+    src: /usr/local/bin/bash
+    dest: /bin/bash
+    state: link
+
+- name: create symbolic link for home
+  ansible.builtin.file:
+    src: /usr/home
+    dest: /home
+    state: link
+
+- name: enable sss_ssh_authorizedkeys
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommand '
+    line: AuthorizedKeysCommand /usr/local/bin/sss_ssh_authorizedkeys
+
+- name: enable AuthorizedKeysCommandUser
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommandUser '
+    line: AuthorizedKeysCommandUser nobody
+
+- name: restart sshd
+  ansible.builtin.shell: |
+    service sshd restart
+
+

@@ -1,0 +1,12 @@
+
+$ sudo vi /etc/ssh/sshd_config
+
+- 
+$ sudo sysrc sshd_enable="YES"
+$ sudo service sshd keygen
+$ sudo service sshd start
+
+
+$ sudo pkg update
+$ sudo pkg install python311
+

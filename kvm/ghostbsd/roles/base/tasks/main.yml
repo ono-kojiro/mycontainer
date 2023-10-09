@@ -1,0 +1,8 @@
+- name: install base packages
+  shell: |
+    pkg install --automatic --yes bash
+
+- name: install devel packages
+  shell: |
+    pkg install --automatic --yes automake autoconf libtool
+
