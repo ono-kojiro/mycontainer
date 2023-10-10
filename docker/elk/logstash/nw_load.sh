@@ -1,10 +1,13 @@
 #!/bin/sh
 
-#2023-10-10 21:59:52+09:00
-ts=`date --rfc-3339=seconds`
+n=3600
+
+while [ $n -ne 0 ]; do
+  #2023-10-10 21:59:52+09:00
+  ts=`date --rfc-3339=seconds`
 
 # need tcpdump
-sudo timeout 3 tcpdump -w output.pcap -i wlan0 > /dev/null 2>&1
+timeout 3 tcpdump -w output.pcap -i eth0 > /dev/null 2>&1
 
 # need tshark
 capinfos output.pcap | grep 'Data bit rate: ' | tee output.log
@@ -21,6 +24,10 @@ case "$unit" in
     val=`echo $val \* 1000.0 | bc -l`
     unit="bps"
     ;;
+  "Mbps" )
+    val=`echo $val \* 1000.0 \* 1000.0 | bc -l`
+    unit="bps"
+    ;;
   * )
     ;;
 esac
@@ -28,9 +35,11 @@ esac
 filename=`echo $ts | sed 's/[-:]//g' | sed 's/ /-/g' | head -c 15`
 
 {
-  echo "Timestamp,Bitrate"
+  echo "Timestamp,NW"
   #echo \"$ts\",\"$val $unit\"
   echo $ts,$val
 } > $filename.csv
 
+  n=`expr $n - 1`
+done
 

@@ -34,7 +34,7 @@ def main():
     output = None
     index  = None
     num    = 1
-    fmt    = None
+    fmt    = 'csv'
 
     for o, a in opts:
         if o == "-v":
