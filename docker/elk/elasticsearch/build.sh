@@ -141,6 +141,21 @@ check()
   test_https
 }
 
+remove_index()
+{
+   indices=""
+   indices="$indices logstash-2023.10.09"
+
+   for index in $indices; do
+     echo remove $index
+     curl -k \
+       --netrc-file netrc \
+       -XDELETE \
+       https://192.168.0.98:9200/$index?pretty
+   done
+}
+
+
 
 if [ $# -eq 0 ]; then
   usage
