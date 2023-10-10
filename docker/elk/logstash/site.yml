@@ -125,11 +125,14 @@
     loop:
     - pipelines.yml
   
-  - name: install python3-psutil
+  - name: install measurement tools
     ansible.builtin.apt:
-      name: python3-psutil
+      name:
+      - python3-psutil
+      - tcpdump
+      - tshark
+      - bc
       state: present
-
 
   - name: create data directory
     ansible.builtin.file:
