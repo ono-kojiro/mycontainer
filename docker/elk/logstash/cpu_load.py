@@ -54,7 +54,7 @@ def main():
         else:
             assert False, "unknown option"
     
-    tz = timezone(timedelta(hours=+0), 'UTC')
+    tz = timezone(timedelta(hours=+9), 'JST')
     now = datetime.now(tz)
     
     if index is None:
@@ -62,10 +62,10 @@ def main():
         #ret += 1
         index = now.strftime('mymetrics-%Y.%m.%d')
         
-    if fmt is None or fmt == 'json' :
-        ext = '.json'
-    elif fmt == 'csv' :
+    if fmt is None or fmt == 'csv' :
         ext = '.csv'
+    elif fmt == 'json' :
+        ext = '.json'
     else:
        print('unknown format, {0}'.format(fmt))
        sys.exit(1)
@@ -81,8 +81,7 @@ def main():
 
     for i in range(num) :
         now = datetime.now(tz)
-        #ts = now.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-        ts = now.strftime('%Y-%m-%d %H:%M:%S')
+        ts = now.strftime('%Y-%m-%d %H:%M:%S+09:00')
         
         
         if output is None:
