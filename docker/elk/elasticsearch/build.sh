@@ -29,7 +29,10 @@ EOS
 
 all()
 {
-  help
+  deploy
+  reset
+  check
+  test_https
 }
 
 fetch()
