@@ -25,7 +25,9 @@ EOS
 
 all()
 {
-  help
+  reset
+  deploy
+  check
 }
 
 fetch()
@@ -54,7 +56,7 @@ reset()
     echo "password $es_pass"
   } > netrc
 
-  sed -i -e "s|^\(elasticsearch.password\): .*|\1: $es_pass|" \
+  sed -e "s|^\(elasticsearch.password\): .*|\1: $es_pass|" \
     kibana.yml.template > kibana.yml
 
   rm -f kibana.log

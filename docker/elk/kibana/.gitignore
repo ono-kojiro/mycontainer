@@ -3,4 +3,5 @@
 *.pem
 *.deb
 netrc
+kibana.yml
 
