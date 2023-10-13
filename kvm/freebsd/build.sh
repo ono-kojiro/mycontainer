@@ -90,13 +90,6 @@ install_python()
   command ssh root@${addr} -i $seckey -- pkg install -y python
 }
 
-deploy()
-{
-  playbook "xorg"
-  playbook "mate"
-  playbook "lightdm"
-}
-
 shutdown()
 {
   virsh shutdown $name
@@ -183,6 +176,12 @@ deploy()
   ansible-playbook -i hosts.yml site.yml
 }
 
+default()
+{
+  playbook=$1
+  ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}
+}
+
 
 hosts
 
@@ -195,6 +194,10 @@ while [ $# -ne 0 ]; do
     -o | --output)
       shift
       output=$1
+      ;;
+    -p | --playbook)
+      shift
+      playbook=$1
       ;;
     *)
       break
@@ -213,8 +216,9 @@ for target in "$@"; do
   if [ $? -eq 0 ]; then
     $target
   else
-    echo "ERROR : $target is not a shell function"
-    exit 1
+    default $target
+    #echo "ERROR : $target is not a shell function"
+    #exit 1
     #ansible-playbook ${ansible_opts} -i hosts -t ${target} site.yml
   fi
 done
