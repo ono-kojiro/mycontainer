@@ -122,6 +122,13 @@ import_cacert()
     -file /var/jenkins_home/mylocalca.pem
 }
 
+debug()
+{
+  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
+    -auth jenkins:jenkins \
+    install-plugin "Matrix Authorization Strategy"
+}
+
 plugin()
 {  
   java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
@@ -131,6 +138,12 @@ plugin()
   java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
     -auth jenkins:jenkins \
     restart
+}
+
+test_ssh()
+{
+  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
+    -ssh -user $USER
 }
 
 restart()
