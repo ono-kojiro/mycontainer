@@ -4,6 +4,12 @@ top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
 name="jenkins"
+  
+JAVA_OPTS="-Djavax.net.ssl.trustStore=$top_dir/cacerts"
+  
+JENKINS_URL="https://192.168.0.98:18443/jenkins"
+
+username=$USER
 
 help()
 {
@@ -97,10 +103,7 @@ ip()
 
 init()
 {
-  #sudo mkdir -p /home/jenkins/
-  #sudo cp $HOME/.local/share/jenkins/jenkins.jks /home/jenkins/
-  #sudo chown jenkins:jenkins /home/jenkins/
-  docker cp $HOME/.local/share/jenkins/jenkins.jks ${name}:/var/jenkins_home/
+  docker cp jenkins.jks ${name}:/var/jenkins_home/
 }
 
 destroy()
@@ -108,9 +111,9 @@ destroy()
   sudo rm -rf /home/jenkins/
 }
 
-import_cacert()
+cacert()
 {
-  docker cp ./mylocalca.pem ${name}:/var/jenkins_home/
+  docker cp ./myca.pem ${name}:/var/jenkins_home/
 
   # call keytool with absolute cacert path
   docker exec --user root ${name} \
@@ -118,37 +121,75 @@ import_cacert()
     -keystore /opt/java/openjdk/lib/security/cacerts \
     -storepass changeit \
     -noprompt \
-    -alias mylocalca \
-    -file /var/jenkins_home/mylocalca.pem
+    -alias myca \
+    -file /var/jenkins_home/myca.pem
 }
 
-debug()
+show_ca()
 {
-  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
-    -auth jenkins:jenkins \
-    install-plugin "Matrix Authorization Strategy"
+  docker exec --user root ${name} \
+    keytool -list \
+    -keystore /opt/java/openjdk/lib/security/cacerts \
+    -storepass changeit \
+    | grep myca
+}
+
+cacerts()
+{
+  docker cp jenkins:/opt/java/openjdk/lib/security/cacerts .
+}
+
+cli_help()
+{
+  java $JAVA_OPTS -jar jenkins-cli.jar -s $JENKINS_URL help
+}
+
+get_cli()
+{
+  curl -k -O $JENKINS_URL/jnlpJars/jenkins-cli.jar
 }
 
 plugin()
-{  
-  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
-    -auth jenkins:jenkins \
-    install-plugin LDAP
+{
+  plugins="LDAP matrix-auth sshd"
+  plugins="$plugins ssh-slaves"          # ssh-slaves
+  plugins="$plugins workflow-aggregator" # pipeline
 
-  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
-    -auth jenkins:jenkins \
+  if [ -z "$password" ]; then
+    echo -n "enter user password: "
+    stty_orig=$(stty -g)
+    stty -echo
+    read password
+    stty $stty_orig
+  fi
+
+  tty -s && echo
+
+  for name in $plugins; do
+    echo "install plugin: $name"
+    java $JAVA_OPTS -jar jenkins-cli.jar -s $JENKINS_URL \
+      -auth $username:$password \
+      install-plugin $name
+  done
+}
+
+restart_jenkins()
+{
+  java $JAVA_OPTS \
+    -jar jenkins-cli.jar -s $JENKINS_URL \
+    -auth $username:$password \
     restart
 }
 
 test_ssh()
 {
-  java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
-    -ssh -user $USER
+  java -jar jenkins-cli.jar -s $JENKINS_URL \
+    -ssh -user jenkins
 }
 
 restart()
 {
-  #java -jar jenkins-cli.jar -s https://192.168.0.98:18443/jenkins/ \
+  #java -jar jenkins-cli.jar -s $JENKINS_URL \
   #  -auth jenkins:jenkins \
   #  restart
   stop

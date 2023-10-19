@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   jenkins:
-    image: jenkins/jenkins:2.401.1-lts-jdk11
+    image: jenkins/jenkins:2.414.3-lts-jdk17
     container_name: jenkins
     hostname: jenkins
     restart: always
@@ -14,5 +14,6 @@ services:
     #  - /home/jenkins:/var/jenkins_home
     environment:
     #  - 'JAVA_OPTS=-Djavax.net.ssl.trustStore=/var/jenkins_home/jenkins.jks'
+      - 'JAVA_OPTS=-Djavax.net.ssl.trustStore=/opt/java/openjdk/lib/security/cacerts'
       - 'JENKINS_OPTS=--prefix=/jenkins --httpPort=8080 --httpsPort=8443 --httpsKeyStore=/var/jenkins_home/jenkins.jks --httpsKeyStorePassword=secret'
 
