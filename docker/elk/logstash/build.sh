@@ -18,7 +18,8 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    destroy
+    reset
+    deploy
 EOS
 }
 
@@ -46,19 +47,29 @@ reset()
 {
   ssh -t elk \
     sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password \
-        -u logstash_system --silent --batch | tee password.log
+        -u logstash_internal --silent --batch | tee password.log
   
   sed -i -e 's|||' password.log
-  pass=`cat password.log | grep -v -F '[sudo]'`
+  password=`cat password.log | grep -v -F '[sudo]'`
 
   {
     echo "machine  192.168.0.98"
-    echo "login    logstash_system"
-    echo "password $pass"
+    echo "login    logstash_internal"
+    echo "password $password"
   } > netrc
-  
-  sed -i -e "s|\(\s*\)password => .*|\1password => \"$pass\"|" example.conf
+ 
+  mkdir -p group_vars/all 
+  cat - << EOF > group_vars/all/username.yml
+---
+username: logstash_internal
+password: $password
+EOF
   rm -f password.log
+}
+
+hosts()
+{
+  ansible-inventory -i groups.yml --list --yaml
 }
 
 test_https()

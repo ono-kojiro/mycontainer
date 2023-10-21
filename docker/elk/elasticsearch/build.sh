@@ -23,6 +23,9 @@ usage : $0 [options] target1 target2 ...
     reset
     check
 
+    roles
+    users
+
     test_http, test_https
 EOS
 }
@@ -142,6 +145,20 @@ check()
 {
   #test_http
   test_https
+}
+
+roles()
+{
+  echo "create logstash_writer role"
+  sh roleadmin.sh update
+}
+
+users()
+{
+  echo "create first user, $USER"
+  sh useradmin.sh create -u $USER
+  echo "create logstash_internal"
+  sh useradmin.sh create_logstash
 }
 
 remove_index()

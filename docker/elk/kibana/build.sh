@@ -41,6 +41,11 @@ deploy()
   ansible-playbook -K -i hosts.yml site.yml
 }
 
+hosts()
+{
+  ansible-inventory -i groups.yml --list --yaml
+}
+
 reset()
 {
   ssh -t elk \
@@ -48,16 +53,20 @@ reset()
         -u kibana_system --silent --batch | tee kibana.log
   
   sed -i -e 's|||' kibana.log
-  es_pass=`cat kibana.log | grep -v -F '[sudo]'`
+  password=`cat kibana.log | grep -v -F '[sudo]'`
 
   {
     echo "machine  192.168.0.98"
     echo "login    kibana_system"
-    echo "password $es_pass"
+    echo "password $password"
   } > netrc
 
-  sed -e "s|^\(elasticsearch.password\): .*|\1: $es_pass|" \
-    kibana.yml.template > kibana.yml
+  mkdir -p group_vars/all
+  cat - << EOF > group_vars/all/username.yml
+---
+username: kibana_system
+password: $password
+EOF
 
   rm -f kibana.log
 }

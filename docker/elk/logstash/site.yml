@@ -2,47 +2,6 @@
   hosts: elk
 
   tasks:
-  - name: copy deb package
-    ansible.builtin.copy:
-      src: logstash-{{ LS_VER }}-{{ LS_ARCH }}.deb
-      dest: /tmp/
-
-  - name: install kibana
-    ansible.builtin.apt:
-      deb: /tmp/logstash-{{ LS_VER }}-{{ LS_ARCH }}.deb
-  
-  - name: change user ID and group ID
-    ansible.builtin.shell: |
-      groupmod -g 4000 logstash
-      usermod  -u 4000 logstash
-
-#  - name: change owner of /etc/default/kibana
-#    ansible.builtin.file:
-#      path:  /etc/default/kibana
-#      state: file
-#      owner: root
-#      group: kibana
-
-#  - name: change owner of /etc directory
-#    ansible.builtin.file:
-#      path:  /etc/kibana/
-#      state: directory
-#      owner: root
-#      group: kibana
-#      recurse: yes
- 
-  - name: change owner of /var directories
-    ansible.builtin.file:
-      path: "{{ item }}"
-      state: directory
-      owner: logstash
-      group: logstash
-      recurse: yes
-    loop:
-    - /var/lib/logstash
-    - /var/log/logstash
-    - /var/run/logstash
-
   - name: copy logstash.yml
     ansible.builtin.copy:
       src:  logstash.yml
@@ -59,14 +18,6 @@
       group: root
       mode: '0755'
   
-#  - name: copy /etc/default/elasticsearch
-#    ansible.builtin.copy:
-#      src:  etc-default-elasticsearch
-#      dest: /etc/default/elasticsearch
-#      owner: root
-#      group: elasticsearch
-#      mode: '0664'
-
   - name: create /etc/logstash/certs
     ansible.builtin.file:
       path:  /etc/logstash/certs
@@ -105,7 +56,7 @@
       mode: '0600'
   
   - name: copy config files
-    ansible.builtin.copy:
+    ansible.builtin.template:
       src:  "{{ item }}"
       dest: /etc/logstash/conf.d/
       owner: root
@@ -114,6 +65,7 @@
     loop:
     - cpu_load.conf
     - nw_load.conf
+    - beats.conf
   
   - name: copy pipelines.yml
     ansible.builtin.copy:
@@ -125,14 +77,14 @@
     loop:
     - pipelines.yml
   
-  - name: install measurement tools
-    ansible.builtin.apt:
-      name:
-      - python3-psutil
-      - tcpdump
-      - tshark
-      - bc
-      state: present
+#  - name: install measurement tools
+#    ansible.builtin.apt:
+#      name:
+#      - python3-psutil
+#      - tcpdump
+#      - tshark
+#      - bc
+#      state: present
 
   - name: create data directory
     ansible.builtin.file:

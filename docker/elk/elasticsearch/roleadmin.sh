@@ -32,16 +32,16 @@ clean()
 # REST APIs
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html
 
-add()
+update()
 {
   curl -k --netrc-file $netrc \
     -H 'Content-Type: application/json' \
-    -XPOST "$es_host/_security/role/logstash_writer" --data @- << EOS
+    -XPOST "$es_host/_security/role/logstash_writer?pretty" --data @- << EOS
 {
   "cluster": ["manage_index_templates", "monitor", "manage_ilm"], 
   "indices": [
     {
-      "names": [ "logstash-*" ],
+      "names": [ "logstash-*", "cpu_load-*", "nw_load-*" ],
       "privileges": ["write","create","create_index","manage","manage_ilm"]  
     }
   ]
@@ -56,6 +56,14 @@ delete()
     -H 'Content-Type: application/json' \
     -XDELETE "$es_host/_security/role/logstash_writer?pretty"
 }
+
+list()
+{
+  curl -k --netrc-file $netrc \
+    -H 'Content-Type: application/json' \
+    -XGET "$es_host/_security/role?pretty"
+}
+
 
 all()
 {

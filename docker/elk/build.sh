@@ -28,6 +28,11 @@ all()
   help
 }
 
+build()
+{
+  docker build --tag elk .
+}
+
 create()
 {
   docker compose --env-file ./env up --no-start

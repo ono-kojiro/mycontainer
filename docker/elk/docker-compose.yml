@@ -4,7 +4,7 @@ version: "3"
 
 services:
   elasticsearch:
-    image: jammy
+    image: elk
     container_name: elk
     hostname: elk
     stdin_open: true   # docker run -i
@@ -14,6 +14,7 @@ services:
     ports:
       - "${SSH_PORT}:22"
       - "9200:9200" # elasticsearch
+      - "5044:5044" # logstash beats
       - "5601:5601" # kibana
-      - "9600:9600" # logstash
+      - "9600:9600" # logstash web api
 

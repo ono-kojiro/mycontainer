@@ -73,6 +73,22 @@ EOS
 
 }
 
+create_logstash()
+{
+  username="logstash_internal"
+
+  curl -k --netrc-file $netrc \
+    -H 'Content-Type: application/json' \
+    -XPOST "$es_host/_security/user/$username?pretty" --data @- << EOS
+{
+  "password" : "logstash",
+  "roles" : [ "logstash_writer"],
+  "full_name" : "Internal Logstash User"
+}
+EOS
+
+}
+
 delete()
 {
   if [ -z "$username" ]; then
@@ -190,7 +206,7 @@ version() {
 
 list()
 {
-  curl -k --netrc-file $netrc "$es_host/_security/user?pretty"
+  curl --silent -k --netrc-file $netrc "$es_host/_security/user?pretty"
 }
 
 

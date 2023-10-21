@@ -5,49 +5,8 @@
     kb_arch: amd64
 
   tasks:
-  - name: copy deb package
-    ansible.builtin.copy:
-      src: kibana-{{ kb_ver }}-{{ kb_arch }}.deb
-      dest: /tmp/
-
-  - name: install kibana
-    ansible.builtin.apt:
-      deb: /tmp/kibana-{{ kb_ver }}-{{ kb_arch }}.deb
-  
-  - name: change user ID and group ID
-    ansible.builtin.shell: |
-      groupmod -g 3000 kibana
-      usermod  -u 3000 kibana
-
-#  - name: change owner of /etc/default/kibana
-#    ansible.builtin.file:
-#      path:  /etc/default/kibana
-#      state: file
-#      owner: root
-#      group: kibana
-
-  - name: change owner of /etc directory
-    ansible.builtin.file:
-      path:  /etc/kibana/
-      state: directory
-      owner: root
-      group: kibana
-      recurse: yes
- 
-  - name: change owner of /var directories
-    ansible.builtin.file:
-      path: "{{ item }}"
-      state: directory
-      owner: kibana
-      group: kibana
-      recurse: yes
-    loop:
-    - /var/lib/kibana
-    - /var/log/kibana
-    - /var/run/kibana
-
   - name: copy kibana.yml
-    ansible.builtin.copy:
+    ansible.builtin.template:
       src:  kibana.yml
       dest: /etc/kibana/kibana.yml
       owner: root
@@ -76,15 +35,6 @@
       group: root
       mode: '0755'
   
-#  - name: copy /etc/default/elasticsearch
-#    ansible.builtin.copy:
-#      src:  etc-default-elasticsearch
-#      dest: /etc/default/elasticsearch
-#      owner: root
-#      group: elasticsearch
-#      mode: '0664'
-
-
   - name: create /etc/kibana/certs
     ansible.builtin.file:
       path:  /etc/kibana/certs
@@ -105,7 +55,6 @@
       owner: kibana
       group: kibana
       mode: '0755'
-
 
   - name: start kibana
     ansible.builtin.shell: |

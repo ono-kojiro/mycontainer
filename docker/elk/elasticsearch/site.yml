@@ -2,47 +2,6 @@
   hosts: elasticsearch
 
   tasks:
-  - name: copy deb package
-    ansible.builtin.copy:
-      src: elasticsearch-{{ es_ver }}-{{ es_arch }}.deb
-      dest: /tmp/
-
-  - name: install elasticsearch
-    ansible.builtin.apt:
-      deb: /tmp/elasticsearch-{{ es_ver }}-{{ es_arch }}.deb
-  
-  - name: change user ID and group ID
-    ansible.builtin.shell: |
-      groupmod -g 2000 elasticsearch
-      usermod  -u 2000 elasticsearch
-
-  - name: change owner of /etc/default/elasticsearch
-    ansible.builtin.file:
-      path:  /etc/default/elasticsearch
-      state: file
-      owner: root
-      group: elasticsearch
-
-  - name: change owner of /etc/elasticsearch directory
-    ansible.builtin.file:
-      path:  /etc/elasticsearch/
-      state: directory
-      owner: root
-      group: elasticsearch
-      recurse: yes
- 
-  - name: change owner of /var directories
-    ansible.builtin.file:
-      path: "{{ item }}"
-      state: directory
-      owner: elasticsearch
-      group: elasticsearch
-      recurse: yes
-    loop:
-    - /var/lib/elasticsearch
-    - /var/log/elasticsearch
-    - /var/run/elasticsearch
- 
   - name: copy elasticsearch.yml
     ansible.builtin.copy:
       src:  elasticsearch.yml
