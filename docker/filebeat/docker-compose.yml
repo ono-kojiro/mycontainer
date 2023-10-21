@@ -1,0 +1,16 @@
+version: "3"
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+
+services:
+  filebeat:
+    image: filebeat
+    container_name: filebeat
+    hostname: filebeat
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "${SSH_PORT}:22"
+

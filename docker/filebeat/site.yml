@@ -1,0 +1,64 @@
+- name: deploy filebeat
+  hosts: filebeat
+
+  tasks:
+  - name: copy filebeat.yml
+    ansible.builtin.template:
+      src:  filebeat.yml
+      dest: /etc/filebeat/filebeat.yml
+      owner: filebeat
+      group: filebeat
+      mode: '0600'
+  
+  - name: copy init.d script
+    ansible.builtin.copy:
+      src:  filebeat
+      dest: /etc/init.d/filebeat
+      owner: root
+      group: root
+      mode: '0755'
+  
+#  - name: copy /etc/default/elasticsearch
+#    ansible.builtin.copy:
+#      src:  etc-default-elasticsearch
+#      dest: /etc/default/elasticsearch
+#      owner: root
+#      group: elasticsearch
+#      mode: '0664'
+
+#  - name: create /etc/logstash/certs
+#    ansible.builtin.file:
+#      path:  /etc/logstash/certs
+#      state: directory
+
+#  - name: copy keystore.jks
+#    ansible.builtin.copy:
+#      src:  keystore.jks
+#      dest: /etc/logstash/certs/
+#      owner: logstash
+#      group: logstash
+#      mode: '0600'
+  
+#  - name: copy ca cert
+#    ansible.builtin.copy:
+#      src:  mylocalca.pem
+#      dest: /etc/logstash/certs/
+#      owner: logstash
+#      group: logstash
+#      mode: '0644'
+  
+#  - name: copy client cert
+#    ansible.builtin.copy:
+#      src:  logstash.crt
+#      dest: /etc/logstash/certs/
+#      owner: logstash
+#      group: logstash
+#      mode: '0644'
+
+#  - name: copy client key
+#    ansible.builtin.copy:
+#      src:  logstash.key
+#      dest: /etc/logstash/certs/
+#      owner: logstash
+#      group: logstash
+#      mode: '0600'
