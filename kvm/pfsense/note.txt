@@ -1,0 +1,69 @@
+System / User Manager / Authentication Servers
+
+  Authentication Servers
+
+    Descriptive name: LDAP
+    Type: LDAP
+    Hostname or IP address: 192.168.0.98
+    Port value: 389
+    Transport: STARTTLS Encrypted
+
+    Peer Certificate Authority: myca
+
+    Protocol version: 3 (default)
+    Server Timeout: 25 (default)
+
+    Search scope:
+      Level: Entire Subtree (IMPORTANT!)
+      Base DN: dc=example,dc=com
+
+    Authentication containers: ou=Users,dc=example,dc=com
+    Extended query:
+      Enable extended query: ON
+      Query: memberOf=cn=ldapwheel,ou=Groups,dc=example,dc=com
+
+    Bind anonymous:
+      Use anonymous binds to resolve distinguished names: ON
+
+    User naming attribute: cn
+    Group naming attribute: cn
+    Group member attribute: memberOf
+
+    RFC 2307 Groups:
+      LDAP Server uses RFC 2307 style group membership: OFF (IMPORTANT!)
+
+    Group Object Class: posixGroup
+    Shell Authentication Group DN: cn=ldapwheel,ou=Groups,dc=example,dc=com
+
+    UTF8 Encode:
+      UTF8 encode LDAP parameters before sending them to the server: ON
+    Username Alterations:
+      Do not strip away parts of the username after the @ symbol: OFF (default)
+
+    Allow unauthenticated bind:
+      Allow unauthenticated bind: ON
+
+System / User Manager / Settings
+  Settings:
+    Authentication Server: LDAP
+
+System / User Manager / Groups
+  Groups:
+    Group Properties:
+      Group name: ldapwheel
+      Scope: Remote (IMPORTANT!)
+      Group membership:
+        Members: admin
+
+    Assigned Privileges
+      Name: WebCfg - All pages
+
+Diagnostics / Authentication
+
+  Authentication Server: LDAP
+
+  (Enter username and password and push "Test" button.
+   Confirm that your group is shown.)
+
+
+
