@@ -1,0 +1,80 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:		packetbeat
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:	$remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		
+# Short-Description:	packetbeat
+### END INIT INFO
+
+NAME="packetbeat"
+DESCRIPTION="${NAME}"
+PATH="/bin:/usr/bin:/sbin:/usr/sbin"
+DAEMON_OPTS="-c /etc/${NAME}/${NAME}.yml"
+DAEMON_OPTS="$DAEMON_OPTS --path.home   /var/lib/${NAME}"
+DAEMON_OPTS="$DAEMON_OPTS --path.config /etc/${NAME}"
+DAEMON_OPTS="$DAEMON_OPTS --path.data   /var/lib/${NAME}"
+DAEMON_OPTS="$DAEMON_OPTS --path.logs   /var/log/${NAME}"
+DAEMON="/usr/share/${NAME}/bin/$NAME"
+PIDFILE="/var/run/$NAME/$NAME.pid"
+
+DAEMON_USER="$NAME"
+#DAEMON_USER="root"
+DAEMON_GROUP="$NAME"
+#DAEMON_GROUP="root"
+
+umask 022
+
+. /lib/lsb/init-functions
+
+export PATH="${PATH:+$PATH:}/usr/sbin:/sbin"
+
+case "$1" in
+  start)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESCRIPTION" "$NAME"
+	start-stop-daemon --start --quiet --oknodo --chuid $DAEMON_USER:$DAEMON_GROUP \
+		--background --make-pidfile --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+	RC=$?
+        case "$RC" in
+	  0)
+	    [ "$VERBOSE" != no ] && log_end_msg $RC
+	    ;;
+	  *)
+	    # Report error also when VERBOSE=no
+	    log_daemon_msg "Starting $DESCRIPTION" "$NAME"
+	    log_end_msg $RC
+	    ;;
+	esac
+	;;
+  stop)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESCRIPTION" "$NAME"
+	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE -u $DAEMON_USER
+	RC=$?
+        case "$RC" in
+	  0)
+	    [ "$VERBOSE" != no ] && log_end_msg $RC
+	    ;;
+	  *)
+	    log_daemon_msg "Stopping $DESCRIPTION" "$NAME"
+	    log_end_msg $RC
+	    ;;
+	esac
+	;;
+
+  reload|force-reload|restart)
+	$0 stop
+	$0 start
+	;;
+
+  status)
+	status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+	;;
+
+  *)
+	log_action_msg "Usage: /etc/init.d/$NAME {start|stop|reload|force-reload|restart|try-restart|status}" || true
+	exit 1
+esac
+
+exit 0
