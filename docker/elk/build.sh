@@ -4,6 +4,7 @@ top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
 . ./env
+extra_vars=`cat env | tr '\n' ' '`
 
 help()
 {
@@ -26,6 +27,24 @@ EOS
 all()
 {
   help
+}
+
+fetch()
+{
+  debfile="elasticsearch-${STACK_VER}-${STACK_ARCH}.deb"
+  if [ ! -e "$debfile" ]; then
+    wget https://artifacts.elastic.co/downloads/elasticsearch/$debfile
+  else
+    echo "skip download $debfile"
+  fi
+
+  debfile="kibana-${STACK_VER}-${STACK_ARCH}.deb"
+  if [ ! -e "$debfile" ]; then
+    wget https://artifacts.elastic.co/downloads/kibana/$debfile
+  else
+    echo "skip download $debfile"
+  fi
+
 }
 
 build()
