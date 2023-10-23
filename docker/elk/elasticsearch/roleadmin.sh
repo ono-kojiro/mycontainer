@@ -41,8 +41,8 @@ update()
   "cluster": ["manage_index_templates", "monitor", "manage_ilm"], 
   "indices": [
     {
-      "names": [ "logstash-*", "cpu_load-*", "nw_load-*" ],
-      "privileges": ["write","create","create_index","manage","manage_ilm"]  
+      "names": [ "logstash-*", "cpu_load-*", "nw_load-*", "filebeat-*" ],
+      "privileges": ["write","create","create_index","manage","manage_ilm", "auto_configure", "all" ]  
     }
   ]
 }
