@@ -1,0 +1,17 @@
+- name:  setup openvswitch
+  hosts: myserver
+  become: true
+
+  tasks:
+    - name: install openvswitch
+      ansible.builtin.apt:
+        name:
+        - openvswitch-switch
+        - python3-openvswitch
+        state: present
+
+    - name: start service
+      ansible.builtin.systemd:
+        name: openvswitch-switch
+        state: restarted
+
