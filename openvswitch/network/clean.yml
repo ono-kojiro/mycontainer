@@ -1,0 +1,26 @@
+- name:  delete ovs network
+  hosts: myserver
+  become: true
+  vars_files:
+    - common.yml
+
+  tasks:
+    - name: destroy and undefine network
+      ansible.builtin.shell: |
+        virsh net-destroy  {{ item.ovsnet }}
+        virsh net-undefine {{ item.ovsnet }}
+      ignore_errors: true
+      loop: "{{ networks }}"
+    
+    - name: down bridge
+      ansible.builtin.shell: |
+        ip link set {{ item.ovsbr }} down
+      ignore_errors: true
+      loop: "{{ networks }}"
+
+    - name: delete ovs bridge
+      ansible.builtin.shell: |
+        ovs-vsctl del-br {{ item.ovsbr }}
+      ignore_errors: true
+      loop: "{{ networks }}"
+
