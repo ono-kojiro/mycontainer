@@ -1,0 +1,23 @@
+- name: install sssd-ldap (Debian family)
+  ansible.builtin.apt:
+    name:
+      - sssd
+      - sssd-ldap
+      - sssd-tools
+      - oddjob-mkhomedir
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install sssd-ldap (RedHat family)
+  ansible.builtin.dnf:
+    name:
+      - sssd
+      - sssd-ldap
+      - sssd-tools
+      - oddjob-mkhomedir
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: check sssd is running
+  ansible.builtin.systemd:
+    state: started
+    name:  sssd
+

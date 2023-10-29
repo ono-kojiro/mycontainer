@@ -1,0 +1,17 @@
+- name: sssd setup
+  #hosts: raspberrypi
+  hosts: almalinux
+
+  vars_files:
+    - "{{ ansible_os_family }}.yml"
+
+  roles:
+    - role: ldap
+      tags: ldap
+
+    - role: sssd
+      tags: sssd
+
+    - role: sudo
+      tags: sudo
+

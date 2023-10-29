@@ -1,0 +1,15 @@
+---
+- name: install openldap (Debian family)
+  ansible.builtin.apt:
+    name:
+    - ldap-utils
+    state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install openldap (Redhat family)
+  ansible.builtin.dnf:
+    name:
+    - openldap-clients
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+

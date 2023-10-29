@@ -1,0 +1,15 @@
+---
+ansible_python_interpreter:   /usr/bin/python3
+
+ldap_addr: 192.168.0.98
+ldap_suffix: dc=example,dc=com
+
+ldap_uri:    ldap://{{ ldap_addr }}
+
+authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
+
+admin_group: ldapwheel
+default_group: ldapusers
+ansible_become: true
+ansible_become_user: root
+

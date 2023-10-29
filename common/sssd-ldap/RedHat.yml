@@ -1,0 +1,3 @@
+---
+ldap_conf_path: "/etc/openldap/ldap.conf"
+
