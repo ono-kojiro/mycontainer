@@ -1,0 +1,34 @@
+
+2) Use text mode
+
+1) Language settings
+
+36) Japanese
+  2) Japanese (Japan)
+
+2) Time settings
+  1) Change timezone
+    2) Asia
+      73) Tokyo
+
+5) 
+  1) DISK: 8GiB (vda)
+    c
+    c
+    1) Standard Partition
+      c
+
+6) Kdump
+  1 Enable kdump -> off
+  c
+
+7) Network configuration
+  1) Set hostname
+  2) Configure device enp1s0
+  c
+
+8) Root Password
+
+b
+
+
