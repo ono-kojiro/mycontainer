@@ -49,5 +49,6 @@
   ansible.builtin.systemd:
     name: oddjobd
     state: restarted
+    enabled: true
     daemon_reload: yes
 
