@@ -1,0 +1,10 @@
+- name: setup vega
+  hosts: server
+
+  roles:
+  - name: node
+    tags: node
+
+  - name: vega
+    tags: vega
+

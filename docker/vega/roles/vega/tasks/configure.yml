@@ -1,0 +1,54 @@
+---
+- name: extract vega source into /tmp/
+  ansible.builtin.unarchive:
+    src: v5.25.0.tar.gz
+    dest: /tmp/
+  
+- name: rename vega directory
+  ansible.builtin.copy:
+    src: /tmp/vega-5.25.0/
+    dest: /usr/local/vega
+    remote_src: true
+  become: true
+
+- name: rename vega directory
+  ansible.builtin.copy:
+    src: /tmp/vega-5.25.0/
+    dest: /usr/local/vega
+    remote_src: true
+  become: true
+
+- name: fix lerna.json
+  ansible.builtin.template:
+    src: lerna.json
+    dest: /usr/local/vega/
+  become: true
+
+- name: install yarn
+  ansible.builtin.shell: |
+    . /usr/local/nodenv.bashrc
+    npm install --global yarn
+    nodenv rehash
+  become: true
+  
+- name: install lerna
+  ansible.builtin.shell: |
+    . /usr/local/nodenv.bashrc
+    npm install --global lerna
+    nodenv rehash
+  become: true
+
+- name: install dependencies
+  ansible.builtin.shell: |
+    . /usr/local/nodenv.bashrc
+    cd /usr/local/vega
+    npm install
+  become: true
+
+- name: build vega
+  ansible.builtin.shell: |
+    . /usr/local/nodenv.bashrc
+    cd /usr/local/vega
+    yarn build
+  become: true
+
