@@ -1,0 +1,9 @@
+---
+nodenv_ver: "1.4.1"
+nodenv_url: "https://github.com/nodenv/nodenv/archive/refs/tags/v{{ nodenv_ver }}.tar.gz"
+
+node_build_ver: "4.9.129"
+node_build_url: "https://github.com/nodenv/node-build/archive/refs/tags/v{{ node_build_ver }}.tar.gz"
+
+node_ver: "20.9.0"
+

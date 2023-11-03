@@ -1,52 +1,69 @@
 ---
+- name: download nodenv
+  ansible.builtin.get_url:
+    url: "{{ nodenv_url }}"
+    dest: "/tmp/nodenv-{{ nodenv_ver }}.tar.gz"
+
 - name: remove nodenv directory
   ansible.builtin.file:
     path: /usr/local/nodenv
     state: absent
-  become: true
   
 - name: extract nodenv source into /tmp/
   ansible.builtin.unarchive:
-    src: v1.4.1.tar.gz
+    src: "/tmp/nodenv-{{ nodenv_ver }}.tar.gz"
     dest: /tmp/
-  
-- name: extract node-build source into /tmp/
-  ansible.builtin.unarchive:
-    src: v4.9.129.tar.gz
-    dest: /tmp/
+    remote_src: true
 
 - name: rename directory
   ansible.builtin.copy:
-    src: /tmp/nodenv-1.4.1/
+    src: "/tmp/nodenv-{{ nodenv_ver }}/"
     dest: /usr/local/nodenv
     remote_src: true
-  become: true
-  
+
 - name: create plugins directory
   ansible.builtin.file:
     path: /usr/local/nodenv/plugins
     state: directory
-  become: true
+
+
+
+- name: download node-build
+  ansible.builtin.get_url:
+    url: "{{ node_build_url }}"
+    dest: "/tmp/node-build-{{ node_build_ver }}.tar.gz"
   
+- name: extract node-build source into /tmp/
+  ansible.builtin.unarchive:
+    src: "/tmp/node-build-{{ node_build_ver }}.tar.gz"
+    dest: /tmp/
+    remote_src: true
+
+- name: rename directory
+  ansible.builtin.copy:
+    src:  "/tmp/node-build-{{ node_build_ver }}/"
+    dest: /usr/local/nodenv/plugins/node-build
+    remote_src: true
+
 - name: send nodenv.bashrc
   ansible.builtin.copy:
     src: nodenv.bashrc
     dest: /usr/local/
-  become: true
-
-- name: rename directory
-  ansible.builtin.copy:
-    src:  /tmp/node-build-4.9.129/
-    dest: /usr/local/nodenv/plugins/node-build
-    remote_src: true
-  become: true
 
 - name: build node
   ansible.builtin.shell: |
     . /usr/local/nodenv.bashrc
     cd /usr/local/nodenv
-    nodenv install 20.9.0 -v
+    nodenv install {{ node_ver }} -v
     nodenv rehash
-    nodenv global 20.9.0
-  become: true
+
+- name: select node version
+  ansible.builtin.shell: |
+    . /usr/local/nodenv.bashrc
+    nodenv global {{ node_ver }}
+
+- name: upgrade npm
+  ansible.builtin.shell: |
+    . /usr/local/nodenv.bashrc
+    npm install --global npm
 
