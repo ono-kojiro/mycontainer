@@ -1,0 +1,66 @@
+- name: setup vega
+  hosts: server
+
+  tasks:
+  - name: test
+    ansible.builtin.shell: |
+      echo test
+
+#  - name: fetch nodenv
+#    ansible.builtin.get_url:
+#      url: https://github.com/nodenv/nodenv/archive/refs/tags/v1.4.1.tar.gz
+#      dest: /tmp/
+#      mode: '644'
+
+  - name: extract source into /tmp/
+    ansible.builtin.unarchive:
+      src: v1.4.1.tar.gz
+      dest: /tmp/
+
+#  - name: remove nodenv
+#    ansible.builtin.file:
+#      path: ~/.nodenv
+#      state: absent
+
+  - name: rename directory
+    ansible.builtin.copy:
+      src: /tmp/nodenv-1.4.1/
+      dest: ~/.nodenv
+      remote_src: true
+  
+  - name: create plugins directory
+    ansible.builtin.file:
+      path: ~/.nodenv/plugins
+      state: directory
+  
+  - name: send nodenv.bashrc
+    ansible.builtin.copy:
+      src: nodenv.bashrc
+      dest: ~/
+
+  - name: send node-build
+    ansible.builtin.copy:
+      src: v4.9.129.tar.gz
+      dest: /tmp/
+
+  - name: extract node-build
+    ansible.builtin.unarchive:
+      src: /tmp/v4.9.129.tar.gz
+      dest: /tmp/
+      remote_src: true
+  
+  - name: rename directory
+    ansible.builtin.copy:
+      src:  /tmp/node-build-4.9.129/
+      dest: ~/.nodenv/plugins/node-build
+      remote_src: true
+
+  - name: build node
+    ansible.builtin.shell:
+      . ~/nodenv.bashrc; nodenv install 20.9.0 -v
+
+#  - name: install yarn
+#    ansible.builtin.shell: |
+#      npm install yarn
+  
+      

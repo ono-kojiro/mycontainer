@@ -1,0 +1,15 @@
+version: "3"
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+
+services:
+  packetbeat:
+    image: jammy
+    container_name: nodenv
+    hostname: nodenv
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "${SSH_PORT}:22"
