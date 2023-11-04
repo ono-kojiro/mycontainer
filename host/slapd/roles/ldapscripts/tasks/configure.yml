@@ -1,0 +1,27 @@
+---
+- name: copy ldapscripts.conf
+  ansible.builtin.template:
+    src: ldapscripts.conf
+    dest: /etc/ldapscripts/ldapscripts.conf
+
+- name: copy ldapadduser.template
+  ansible.builtin.template:
+    src: ldapadduser.template
+    dest: /etc/ldapscripts/ldapadduser.template
+    mode: 0644
+
+- name: copy ldapaddgroup.template
+  ansible.builtin.template:
+    src: ldapaddgroup.template
+    dest: /etc/ldapscripts/ldapaddgroup.template
+    mode: 0644
+
+- name: create ldapscripts.passwd
+  ansible.builtin.shell: |
+    echo -n 'secret' > /etc/ldapscripts/ldapscripts.passwd
+    chmod 600 /etc/ldapscripts/ldapscripts.passwd
+
+- name: initialize LDAP tree
+  ansible.builtin.shell: |
+    /usr/sbin/ldapinit
+

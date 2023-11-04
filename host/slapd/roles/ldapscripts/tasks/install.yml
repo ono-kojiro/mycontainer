@@ -1,0 +1,16 @@
+- name: uninstall ldapscripts
+  ansible.builtin.apt:
+    name:
+      - ldapscripts
+      - schema2ldif
+      #- fusiondirectory-schema
+    state: absent
+    purge: true
+
+- name: install ldapscripts
+  apt:
+    name:
+      - ldapscripts
+      - schema2ldif
+      #- fusiondirectory-schema
+

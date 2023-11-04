@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+
+spawn ldapsetpasswd $username
+expect_after eof { exit 1 }
+
+set timeout 10
+
+expect {
+  "New Password:" {
+    stty -echo
+    send "$password\r"
+    stty echo
+    exp_continue
+  }
+
+  "Retype New Password:" {
+    stty -echo
+    send "$password\r"
+    stty echo
+    exp_continue
+  }
+
+  "Successfully set password for user" {
+    exit 0
+  }
+
+  default {
+    send_user "\nsetldappasswd failed.\n"
+    exit 1
+  }
+}
+

@@ -1,0 +1,25 @@
+---
+- name: download fusiondirectory
+  ansible.builtin.get_url:
+    url: https://github.com/makinacorpus/fusiondirectory/archive/refs/tags/fusiondirectory-1.0.9.tar.gz
+    dest: /tmp/fusiondirectory-1.0.9.tar.gz
+
+- name: extract fusiondirectory
+  ansible.builtin.unarchive:
+    src: /tmp/fusiondirectory-1.0.9.tar.gz
+    dest: /tmp/
+
+- name: copy rfc2307bis.schema
+  ansible.builtin.copy:
+    src:  /tmp/fusiondirectory-fusiondirectory-1.0.9/contrib/openldap/rfc2307bis.schema
+    dest: /etc/ldap/schema/rfc2307bis.schema
+    remote_src: yes
+
+- name: disable nis.schema
+  ansible.builtin.shell: |
+    ldap-schema-manager -e nis.schema --yes
+
+- name: enable rfc2307bis.schema
+  ansible.builtin.shell: |
+    ldap-schema-manager -i rfc2307bis.schema --yes
+

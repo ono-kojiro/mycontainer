@@ -1,0 +1,16 @@
+---
+- name: copy samba.schema
+  shell:
+    cmd: cp /usr/share/doc/samba/examples/LDAP/samba.schema /etc/ldap/
+
+#- name: unzip samba.schema.gz
+#  shell:
+#    chdir: /etc/ldap
+#    cmd: gunzip samba.schema.gz
+
+
+- name: move samba.schema
+  shell:
+    chdir: /etc/ldap
+    cmd: mv /etc/ldap/samba.schema /etc/ldap/schema/
+

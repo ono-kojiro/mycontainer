@@ -1,0 +1,8 @@
+---
+ldap_groups:
+    - name: ldapusers
+    - name: ldapwheel
+
+default_group: ldapusers
+admin_group:   ldapwheel
+

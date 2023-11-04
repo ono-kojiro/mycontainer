@@ -1,0 +1,8 @@
+---
+ldap_users:
+- name:     gihren
+  password: secret
+  gecos:    Gihren ZABI
+  groups:   ldapusers,ldapwheel
+  mail:     gihren@example.com
+

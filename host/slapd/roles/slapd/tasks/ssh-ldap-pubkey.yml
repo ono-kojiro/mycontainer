@@ -1,0 +1,4 @@
+- name: enable ssh-ldap-pubkey
+  ansible.builtin.template:
+    src: openssh-lpk.schema
+    dest: /etc/ldap/schema/
