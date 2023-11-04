@@ -24,7 +24,7 @@
     cat << EOS | ldapmodifyuser "{{ item.name }}"
     changetype: modify
     replace: gecos
-    gecos: "{{ item.gecos }}"
+    gecos: {{ item.gecos }}
     EOS
   loop: "{{ ldap_users }}"
   register: result
@@ -42,7 +42,7 @@
     cat << EOS | ldapmodifyuser "{{ item.name }}"
     changetype: modify
     add: mail
-    mail: "{{ item.mail }}"
+    mail: {{ item.mail }}
     EOS
   loop: "{{ ldap_users }}"
   register: result
