@@ -1,0 +1,36 @@
+*** maudio_bebob.py.orig	2023-11-04 20:57:31.502259282 +0900
+--- maudio_bebob.py	2023-11-04 20:58:34.859017507 +0900
+*************** class MAudio_BeBoB(QWidget):
+*** 587,593 ****
+              idx = params[1]
+              curr = self.hw.getContignuous(path, idx)
+              state = -(curr / 0x7FFE) * 50 + 50
+!             ctl.setValue(state)
+              ctl.valueChanged.connect(self.updatePanning)
+  
+          for ctl, params in list(self.Volumes.items()):
+--- 587,593 ----
+              idx = params[1]
+              curr = self.hw.getContignuous(path, idx)
+              state = -(curr / 0x7FFE) * 50 + 50
+!             ctl.setValue(int(state))
+              ctl.valueChanged.connect(self.updatePanning)
+  
+          for ctl, params in list(self.Volumes.items()):
+*************** class MAudio_BeBoB(QWidget):
+*** 598,604 ****
+  
+              db = self.hw.getContignuous(path, idx)
+              vol = self.db2vol(db)
+!             ctl.setValue(vol)
+              ctl.valueChanged.connect(self.updateVolume)
+  
+              # to activate link button, a pair is checked twice, sign...
+--- 598,604 ----
+  
+              db = self.hw.getContignuous(path, idx)
+              vol = self.db2vol(db)
+!             ctl.setValue(int(vol))
+              ctl.valueChanged.connect(self.updateVolume)
+  
+              # to activate link button, a pair is checked twice, sign...
