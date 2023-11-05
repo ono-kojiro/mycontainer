@@ -14,7 +14,6 @@ sudo nmcli con add type ethernet con-name eth1 ifname $device master br1
 sudo nmcli con mod br1 \
   ipv4.method manual \
   ipv4.addresses $cidr \
-  ipv4.gateway $gw \
   ipv4.dns     $dns
 
 conns="br1"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-conns="br0 eth0"
+conns="br0 eth0 br1 eth1"
 
 for conn in $conns; do
   nmcli con | awk '{ print $1 }' | grep -e "^$conn$" > /dev/null 2>&1
