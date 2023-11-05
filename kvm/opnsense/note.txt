@@ -1,0 +1,83 @@
+INSTALL
+
+Do you want to configure LAGGs now? [y/N]: n
+Do you want to configure VLANs now? [y/N]: n
+
+Enter the WAN interface name or 'a' for auto-detection: vtnet0
+Enter the LAN interface name or 'a' for auto-detection: vtnet1
+Enter the Optional interface 1 name or 'a' for auto-detection: (nothing)
+
+WAN  -> vtnet0
+LAN  -> vtnet1
+
+Do you want to proceed? [y/N]: y
+
+
+
+login as
+  username: installer
+  password: opnsense
+
+Wizard:
+  Domain: example.com
+  Time server hostname: ntp.nict.jp
+  Timezone: Asia/Tokyo
+  
+  Configure WAN Interface:
+    IPv4 Configuration Type: DHCP
+
+  Configure LAN Interface:
+    LAN IP Address: 192.168.10.1
+    Subnet Mask: 24
+
+System:
+  Settings:
+    Administration:
+      Secure Shell:
+        Enable Secure Shell: on
+        Root Login:
+          Permit root user login: on
+        Authentication Method:
+          Permit password login: on
+
+
+System: Trust: Authorities
+  "+" button
+  Descriptive name: mylocalca
+  Method: Import an existing Certificate Authority
+  Certificate data: (paste here)
+
+System: Access: Servers
+  "+" button
+  Descriptive name: LDAP
+  Type: LDAP
+  Hostname or IP address: 192.168.0.98
+  Port value: 389
+  Transport: StartTLS
+  Protocol version: 3
+  Search scope: Entire Subtree
+  Base DN: dc=example,dc=com
+  Authentication containers: ou=Users,dc=example,dc=com
+  Extended Query: memberOf=cn=ldapwheel,ou=Groups,dc=example,dc=com
+  Initial Template: OpenLDAP
+  User naming attribute: cn
+
+System: Access: Tester
+  Authentication Server: LDAP
+  Username: (enter your account)
+  Password: (enter your password)
+  push "Test" button
+
+System: Access: Groups:
+  "+" button
+  Group name:  ldapwheel
+  Description: ldapwheel
+  Group Memberships:
+    Member Of:
+      root
+
+   # opnsense-code tools ports
+   # cd /usr/ports/security/sssd
+   # make install
+
+
