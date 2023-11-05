@@ -1,0 +1,38 @@
+- name: setup kvm
+  hosts: myserver
+
+  tasks:
+  - name: install kvm
+    ansible.builtin.apt:
+      name:
+      - qemu-kvm
+      - libvirt-daemon-system
+      - libvirt-clients
+      - qemu-utils
+      - virtinst
+      - bridge-utils
+      state: present
+
+  - name: create /etc/qemu/ directory
+    ansible.builtin.file:
+      path: /etc/qemu
+      state: directory
+     
+  - name: copy bridge.conf
+    ansible.builtin.template:
+      src:  bridge.conf
+      dest: /etc/qemu/bridge.conf
+
+  - name: enable libvirtd
+    ansible.builtin.systemd:
+      name: libvirtd
+      state: restarted
+      enabled: true
+  
+  - name: add user to group libvirt and kvm
+    ansible.builtin.shell: |
+      gpasswd -a {{ ansible_user }} {{ item }}
+    loop:
+      - libvirt
+      - kvm
+
