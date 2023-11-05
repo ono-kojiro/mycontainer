@@ -6,7 +6,7 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 name=pfsense
 disk=`pwd`/${name}.qcow2
-iso="$HOME/Downloads/pfSense-CE-2.7.0-RELEASE-amd64.iso"
+iso="$HOME/Downloads/OS/pfSense-CE-2.7.0-RELEASE-amd64.iso"
 
 addr="192.168.10.112"
 
@@ -19,6 +19,11 @@ playbook="site.yml"
 ansible_opts=""
 
 ansible_opts="$ansible_opts -i ${inventory}"
+
+all()
+{
+  usage
+}
 
 usage()
 {
@@ -45,6 +50,27 @@ target
 EOF
 }
 
+disk()
+{
+  qemu-img create -f qcow2 $disk 16G
+}
+
+install()
+{
+  virt-install \
+    --name ${name} \
+    --ram 2048 \
+    --disk=$disk,bus=virtio \
+    --vcpus 2 \
+    --os-variant freebsd13.0 \
+    --network bridge=br0 \
+    --network bridge=br1 \
+    --console pty,target_type=serial \
+    --cdrom=$iso \
+    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
+    --serial pty
+}
+
 help()
 {
   usage
@@ -53,11 +79,6 @@ help()
 prepare()
 {
   ansible-galaxy collection install community.general
-}
-
-disk()
-{
-  qemu-img create -f qcow2 $disk 16G
 }
 
 key()
@@ -113,29 +134,6 @@ destroy()
 {
   virsh destroy  $name
   virsh undefine $name
-}
-
-
-
-install()
-{
-  virt-install \
-    --name ${name} \
-    --ram 2048 \
-    --disk=$disk,bus=virtio \
-    --vcpus 2 \
-    --os-variant freebsd13.0 \
-    --network network=default \
-    --network bridge=br0 \
-    --console pty,target_type=serial \
-    --cdrom=$iso \
-    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
-    --serial pty
-}
-
-all()
-{
-  usage
 }
 
 list()

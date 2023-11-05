@@ -1,3 +1,17 @@
+System / Certificates / Authorities
+  Authorities
+  
+    Create / Edit CA
+      Import an existing Certificate Authority
+      Descriptive name: MyCA
+
+System / Advanced / Admin Access
+  WebConfigurator:
+    Protocol: HTTPS(SSL/TLS)
+  Secure Shell:
+    Secure Shell Server:
+      Enable Secure Shell: ON
+
 System / User Manager / Authentication Servers
 
   Authentication Servers
@@ -20,7 +34,7 @@ System / User Manager / Authentication Servers
     Authentication containers: ou=Users,dc=example,dc=com
     Extended query:
       Enable extended query: ON
-      Query: memberOf=cn=ldapwheel,ou=Groups,dc=example,dc=com
+      Query: memberOf=cn=ldapusers,ou=Groups,dc=example,dc=com
 
     Bind anonymous:
       Use anonymous binds to resolve distinguished names: ON
@@ -33,7 +47,7 @@ System / User Manager / Authentication Servers
       LDAP Server uses RFC 2307 style group membership: OFF (IMPORTANT!)
 
     Group Object Class: posixGroup
-    Shell Authentication Group DN: cn=ldapwheel,ou=Groups,dc=example,dc=com
+    Shell Authentication Group DN: cn=ldapusers,ou=Groups,dc=example,dc=com
 
     UTF8 Encode:
       UTF8 encode LDAP parameters before sending them to the server: ON
@@ -46,11 +60,13 @@ System / User Manager / Authentication Servers
 System / User Manager / Settings
   Settings:
     Authentication Server: LDAP
+    Shell Authentication:
+      Use Authentication Server for Shell Authentication: ON
 
 System / User Manager / Groups
   Groups:
     Group Properties:
-      Group name: ldapwheel
+      Group name: ldapusers
       Scope: Remote (IMPORTANT!)
       Group membership:
         Members: admin
@@ -66,4 +82,10 @@ Diagnostics / Authentication
    Confirm that your group is shown.)
 
 
+# pkg update
+# pkg install bash
+# mkdir /home/$USER
+# chown $USER:ldapusers /home/$USER
+
+# ln -s /usr/local/bin/bash /bin/bash
 
