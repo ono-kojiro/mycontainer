@@ -128,10 +128,10 @@ password: xxxxxxx
 8) Shell
 
 # pkg update
-# pkg install bash
+# pkg install bash sudo tmux
 # mkdir /home/$USER
 # chown $USER:ldapusers /home/$USER
-
+# echo '%ldapusers  ALL=(ALL:ALL) ALL' > /usr/local/etc/sudoers.d/80-ldapusers
 # ln -s /usr/local/bin/bash /bin/bash
 
 # exit

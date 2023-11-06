@@ -100,8 +100,6 @@ ssh()
   command ssh root@${addr} -i $seckey \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null
-
-
 }
 
 sftp()
@@ -183,6 +181,10 @@ default()
   ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}
 }
 
+vnc()
+{
+  virt-viewer
+}
 
 hosts
 
