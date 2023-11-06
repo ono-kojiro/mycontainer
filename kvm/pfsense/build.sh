@@ -52,11 +52,15 @@ EOF
 
 disk()
 {
-  qemu-img create -f qcow2 $disk 16G
+  if [ ! -e "$disk" ]; then
+    qemu-img create -f qcow2 $disk 16G
+  fi
 }
 
 install()
 {
+  disk
+
   virt-install \
     --name ${name} \
     --ram 2048 \

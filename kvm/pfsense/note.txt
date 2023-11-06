@@ -1,3 +1,33 @@
+
+Do VLANs need to be set up first? n
+Sould VLANs be set up now [y|n]?  n
+
+Enter the WAN interface name or 'a' for auto-detection: vtnet0
+Enter the LAN interface name or 'a' for auto-detection: vtnet1
+
+  WAN  -> vtnet0
+  LAN  -> vtnet1
+
+Do you want to proceed [y|n]? y
+
+---
+
+Enter an option: 14 ( Enable Secure Shell sshd)
+SSHD is currently disabled.  Would you like to enable? [y/n]? y
+
+Enter an option: 2 (Set interfaces IP address)
+Enter the number of the interface you wish to configure: 2 (2 - LAN (vtnet1 - static)
+
+> 192.168.10.1
+> 24
+
+Do you want to revert to HTTP as the webConfigurator protocol? (y/n) n
+
+default username/password
+  username: admin
+  password: pfsense
+
+
 System / Certificates / Authorities
   Authorities
   
@@ -8,9 +38,17 @@ System / Certificates / Authorities
 System / Advanced / Admin Access
   WebConfigurator:
     Protocol: HTTPS(SSL/TLS)
+    SSL/TLS Certificate: (select imported cert)
   Secure Shell:
     Secure Shell Server:
       Enable Secure Shell: ON
+  Console Options:
+    Console menu:
+      Password protect the console menu: ON
+
+System / Advanced / Firewall & NAT
+  Network Address Translation:
+    NAT Reflection mode for port forwards: Pure NAT
 
 System / User Manager / Authentication Servers
 
@@ -82,10 +120,23 @@ Diagnostics / Authentication
    Confirm that your group is shown.)
 
 
+Login as admin
+
+login: admin
+password: xxxxxxx
+
+8) Shell
+
 # pkg update
 # pkg install bash
 # mkdir /home/$USER
 # chown $USER:ldapusers /home/$USER
 
 # ln -s /usr/local/bin/bash /bin/bash
+
+# exit
+
+Login as normal user
+
+$ ssh 192.168.xx.yy
 
