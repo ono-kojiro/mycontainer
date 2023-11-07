@@ -134,6 +134,9 @@ password: xxxxxxx
 # echo '%ldapusers  ALL=(ALL:ALL) ALL' > /usr/local/etc/sudoers.d/80-ldapusers
 # ln -s /usr/local/bin/bash /bin/bash
 
+change permission to show username/groupname
+# chmod 755 /var/etc/pam_ldap.conf
+
 # exit
 
 Login as normal user
