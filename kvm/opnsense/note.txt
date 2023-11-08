@@ -12,13 +12,24 @@ LAN  -> vtnet1
 
 Do you want to proceed? [y/N]: y
 
+<<<<<<<<<<<<<<<<<<<<<<<<
+If you could not assign interfaces correctly,
+choose "1) Assign interfaces" after reboot.
 
+2) Set interface IP address
+>>>>>>>>>>>>>>>>>>>>>>>
 
 login as
   username: installer
   password: opnsense
 
+
+Web GUI
+
 Wizard:
+  General Information
+    Primary DNS Server: 192.168.0.1
+  
   Domain: example.com
   Time server hostname: ntp.nict.jp
   Timezone: Asia/Tokyo
@@ -30,23 +41,21 @@ Wizard:
     LAN IP Address: 192.168.10.1
     Subnet Mask: 24
 
-System:
-  Settings:
-    Administration:
-      Secure Shell:
-        Enable Secure Shell: on
-        Root Login:
-          Permit root user login: on
-        Authentication Method:
-          Permit password login: on
-
-
 System: Trust: Authorities
   "+" button
   Descriptive name: mylocalca
   Method: Import an existing Certificate Authority
-  Certificate data: (paste here)
+  Certificate data: (paste here!)
 
+System: Trust: Certificates
+  "+" button
+  Descriptive name: opnsense
+  Method: Import an existing Certificate
+
+System: Settings: Administration
+  Web GUI
+    SSL Certificate: opnsense
+ 
 System: Access: Servers
   "+" button
   Descriptive name: LDAP
@@ -61,6 +70,24 @@ System: Access: Servers
   Extended Query: memberOf=cn=ldapwheel,ou=Groups,dc=example,dc=com
   Initial Template: OpenLDAP
   User naming attribute: cn
+  Read properties: ON
+  Synchronize groups: ON
+  Automatic user creation: ON
+
+
+System:
+  Settings:
+    Administration:
+      Secure Shell:
+        Enable Secure Shell: on
+        Root Login:
+          Permit root user login: on
+        Authentication Method:
+          Permit password login: on
+      Authentication:
+        Server: LDAP, Local Database
+        Sudo: Ask password
+          wheel, ldapwheel
 
 System: Access: Tester
   Authentication Server: LDAP
@@ -76,8 +103,19 @@ System: Access: Groups:
     Member Of:
       root
 
-   # opnsense-code tools ports
-   # cd /usr/ports/security/sssd
-   # make install
+System: Access: Users
+  "import" button
+  
+  Edit User:
+    Login shell: /bin/bash
+    Member Of: admins, ldapusers
+
+Firewall: Settings: Advanced
+  Network Address Translation:
+    Reflection for port forwards: ON 
+
+Console:
+  "8) Shell"
+  # id $USER
 
 

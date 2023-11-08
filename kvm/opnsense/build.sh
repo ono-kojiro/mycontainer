@@ -100,8 +100,6 @@ ssh()
   command ssh root@${addr} -i $seckey \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null
-
-
 }
 
 sftp()
