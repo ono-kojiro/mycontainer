@@ -103,6 +103,9 @@ System: Access: Groups:
     Member Of:
       root
 
+  Assigned Privileges:
+    ALL
+
 System: Access: Users
   "import" button
   
