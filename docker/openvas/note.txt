@@ -1,0 +1,20 @@
+
+
+Administration: LDAP: LDAP per-User Authentication
+=============================================
+
+  enabled        : Yes
+  LDAP Host      : xxx.xxx.xxx.xxx
+  Auth. DN       : uid=%s,ou=Users,dc=example,dc=com
+  Issued by      : CN=MyCA
+  Use LDAPS only : Yes
+
+Administration: Users:
+  Login Name : $(USERNAME)
+  Comment    : (any)
+  Authentication: LDAP Authentication Only
+  Roles: Admin
+  Groups: (can not select)
+  Host Access: Allow all and deny
+
+
