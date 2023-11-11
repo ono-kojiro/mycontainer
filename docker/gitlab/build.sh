@@ -33,8 +33,8 @@ all()
   init
 
   sudo mkdir -p $GITLAB_HOME/config/ssl/
-  sudo cp -f $HOME/.local/share/gitlab/gitlab.crt $GITLAB_HOME/config/ssl/
-  sudo cp -f $HOME/.local/share/gitlab/gitlab.key $GITLAB_HOME/config/ssl/
+  sudo cp -f ./gitlab.crt $GITLAB_HOME/config/ssl/
+  sudo cp -f ./gitlab.key $GITLAB_HOME/config/ssl/
 
   create
   start

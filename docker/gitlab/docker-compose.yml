@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   web:
-    image: 'gitlab/gitlab-ce:16.0.1-ce.0'
+    image: 'gitlab/gitlab-ce:16.3.6-ce.0'
     container_name: gitlab
     hostname: gitlab
     restart: always
@@ -10,6 +10,53 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://192.168.0.98:30443/gitlab'
         gitlab_rails['gitlab_shell_ssh_port'] = 30022
+        gitlab_sshd['enable'] = true
+        gitlab_sshd['listen_address'] = '[::]:30022'
+
+        # https://docs.gitlab.com/omnibus/settings/memory_constrained_envs.html
+        # Optimize Puma
+        puma['worker_process'] = 0
+
+        # Optimize Sidekiq
+        sidekiq['max_concurrency'] = 10
+
+        # Optimize Gitaly
+        gitaly['configuration'] = {
+          concurrency: [
+            {
+              'rpc' => "/gitaly.SmartHTTPService/PostReceivePack",
+              'max_per_repo' => 3,
+            }, {
+              'rpc' => "/gitaly.SSHService/SSHUploadPack",
+              'max_per_repo' => 3,
+            },
+          ],
+          cgroups: {
+            repositories: {
+              count: 2,
+            },
+            mountpoint: '/sys/fs/cgroup',
+            hierarchy_root: 'gitaly',
+            memory_bytes: 500000,
+            cpu_shares: 512,
+          },
+        }
+        
+        gitaly['env'] = {
+          'GITALY_COMMAND_SPAWN_MAX_PARALLEL' => '2'
+        }
+
+        # Disable monitoring
+        prometheus_monitoring['enable'] = false
+        
+        # Configure how GitLab handles memory
+        gitlab_rails['env'] = {
+          'MALLOC_CONF' => 'dirty_decay_ms:1000,muzzy_decay_ms:1000'
+        }
+        gitaly['env'] = {
+          'MALLOC_CONF' => 'dirty_decay_ms:1000,muzzy_decay_ms:1000'
+        }
+
         nginx['enable'] = true
         nginx['listen_port'] = 443
         nginx['redirect_http_to_https'] = true
