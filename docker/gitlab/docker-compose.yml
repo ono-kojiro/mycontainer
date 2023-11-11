@@ -73,7 +73,7 @@ services:
         gitlab_rails['ldap_servers']['main']['verify_certificates'] = false
         gitlab_rails['ldap_servers']['main']['active_directory'] = false
         gitlab_rails['ldap_servers']['main']['base'] = 'dc=example,dc=com'
-        gitlab_rails['ldap_servers']['main']['user_filter'] = '(memberOf=cn=gitlabusers,ou=Groups,dc=example,dc=com)'
+        gitlab_rails['ldap_servers']['main']['user_filter'] = '(memberOf=cn=ldapusers,ou=Groups,dc=example,dc=com)'
         # Add any other gitlab.rb configuration here, each on its own line
     ports:
       - '30022:22'
