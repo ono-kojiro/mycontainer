@@ -1,0 +1,22 @@
+# setup-alpine
+
+jp
+jp
+
+localhost
+
+Timezone:
+  Japan
+
+mirror number:
+  62 (ftp.udx.icscore.jp)
+
+Allow root ssh login? : yes
+Which disks(s) ... : vda
+lvmsys
+
+# reboot
+
+
+
+
