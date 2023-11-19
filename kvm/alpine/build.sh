@@ -6,6 +6,7 @@ cd $top_dir
 name=alpine
 disk=`pwd`/${name}.qcow2
 iso="$HOME/Downloads/OS/alpine-virt-3.18.4-x86_64.iso"
+#iso="$HOME/Downloads/OS/alpine-extended-3.18.4-x86_64.iso"
 
 all()
 {
@@ -57,8 +58,10 @@ install()
     --console pty,target_type=serial \
     --network bridge=br1 \
     --location=$iso \
-    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
+    --nographics \
     --serial pty
+
+#    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
 }
 
 help()
@@ -126,6 +129,11 @@ default()
 vnc()
 {
   virt-viewer
+}
+
+deploy()
+{
+  ansible-playbook -i hosts.yml site.yml
 }
 
 #hosts

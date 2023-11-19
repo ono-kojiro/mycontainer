@@ -1,4 +1,5 @@
 # setup-alpine
+hostname
 
 jp
 jp
@@ -13,10 +14,8 @@ mirror number:
 
 Allow root ssh login? : yes
 Which disks(s) ... : vda
-lvmsys
+enter "lvmsys" or "sys"
 
 # reboot
-
-
-
+# apk add python3
 
