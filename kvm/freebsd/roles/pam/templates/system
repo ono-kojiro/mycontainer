@@ -6,7 +6,7 @@
 # auth
 #auth		sufficient	pam_krb5.so		no_warn try_first_pass
 #auth		sufficient	pam_ssh.so		no_warn try_first_pass
-auth        sufficient  /usr/local/lib/pam_sss.so  use_first_pass
+auth        sufficient  /usr/local/lib/pam_sss.so
 auth		required	pam_unix.so		no_warn try_first_pass nullok
 
 # account
