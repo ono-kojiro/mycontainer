@@ -168,7 +168,7 @@ console()
 
 hosts()
 {
-  ansible-inventory -i groups.ini --list --yaml > hosts.yml
+  ansible-inventory -i groups.yml --list --yaml > hosts.yml
 }
 
 deploy()

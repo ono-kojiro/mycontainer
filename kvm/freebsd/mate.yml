@@ -8,3 +8,6 @@
     - role: mate
       tags: mate
 
+    - role: japanese
+      tags: japanese
+
