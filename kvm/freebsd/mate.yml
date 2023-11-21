@@ -1,0 +1,10 @@
+---
+- hosts: freebsd
+
+  roles:
+    - role: xorg
+      tags: xorg
+
+    - role: mate
+      tags: mate
+

@@ -26,9 +26,9 @@
     dest: /bin/bash
     state: link
 
-- name: create symbolic link for home
-  ansible.builtin.file:
-    src: /usr/home
-    dest: /home
-    state: link
+#- name: create symbolic link for home
+#  ansible.builtin.file:
+#    src: /usr/home
+#    dest: /home
+#    state: link
 

@@ -1,3 +1,4 @@
+---
 - name: install xorg
   community.general.pkgng:
     name: xorg

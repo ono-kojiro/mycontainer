@@ -1,21 +1,33 @@
 - name: install mate
   community.general.pkgng:
     name:
-    - mate
-    - ja-font-ipa
+    - xorg
+    - japanese/font-std
+    - ja-fcitx-mozc
+    - zh-fcitx-configtool
+    - lightdm
+    - lightdm-gtk-greeter
+    - x11/mate
     state: present
 
-- name: mount proc
-  ansible.posix.mount:
-    path: /proc
-    src: proc
-    fstype: procfs
-    opts: rw
-    state: present
+#- name: mount proc
+#  ansible.posix.mount:
+#    path: /proc
+#    src: proc
+#    fstype: procfs
+#    opts: rw
+#    state: present
 
 - name: enable dbus
   community.general.sysrc:
     name: dbus_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: enable lightdm
+  community.general.sysrc:
+    name: lightdm_enable
     state: present
     value: "YES"
     path: /etc/rc.conf
@@ -26,4 +38,14 @@
     dest: /usr/share/skel/
   loop:
     - dot.xprofile
+
+- name: start dbus
+  ansible.builtin.service:
+    name: dbus
+    state: started
+
+- name: start lightdm
+  ansible.builtin.service:
+    name: lightdm
+    state: started
 

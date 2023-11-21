@@ -179,7 +179,7 @@ deploy()
 default()
 {
   playbook=$1
-  ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}
+  ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}.yml
 }
 
 
