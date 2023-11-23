@@ -13,13 +13,15 @@ usage : $0 [options] target1 target2 ..."
     help
 
     create
-    enable_ssl
-    start
-    stop
 
+    enable_ssl
     fetch
     patch
     upload
+
+    start
+    stop
+
 
     debug
     ps
@@ -30,6 +32,16 @@ EOF
 help()
 {
   usage
+}
+
+full()
+{
+  create
+  enable_ssl
+  fetch
+  patch
+  upload
+  start
 }
 
 create()
@@ -62,6 +74,13 @@ attach()
 {
   docker exec -it ${CONTAINER_NAME} /bin/bash
 }
+
+attach_db()
+{
+  docker exec -it -u root redmine-db /bin/bash
+  #docker exec -it -u nobody redmine-db /bin/bash
+}
+
 
 enable_ssl()
 {
@@ -118,6 +137,65 @@ ps()
 all()
 {
   usage
+}
+
+scrum()
+{
+  docker cp scrum-v0.23.0.tar.gz ${CONTAINER_NAME}:/tmp/
+  docker compose --env-file env exec -T redmine bash -s << EOF
+  {
+    cd /usr/src/redmine/plugins/
+    tar xzvf /tmp/scrum-v0.23.0.tar.gz
+    cd /usr/src/redmine
+    bundle exec rake redmine:plugins:migrate
+  }
+EOF
+}
+
+backup()
+{
+  docker compose --env-file env exec -T redmine-5.0.5 bash -s << EOF
+  {
+    cd /usr/src/redmine
+    tar cjvf /tmp/files.tar.bz2 ./files
+  }
+EOF
+
+  mkdir -p backup
+  docker cp redmine-5.0.5:/tmp/files.tar.bz2 backup/
+
+  docker compose --env-file env exec -T postgres-15.2 bash -s << EOF
+  {
+    su - postgres -c 'pg_dump -Fc postgres > /tmp/postgres.dump'
+    su - postgres -c 'pg_dump -Fc template1> /tmp/template1.dump'
+  }
+EOF
+
+  docker cp postgres-15.2:/tmp/postgres.dump  backup/
+  docker cp postgres-15.2:/tmp/template1.dump backup/
+}
+
+restore()
+{
+  docker cp backup/files.tar.bz2 redmine:/tmp/
+  docker cp backup/postgres.dump redmine-db:/tmp/
+  docker cp backup/template1.dump redmine-db:/tmp/
+
+  docker compose --env-file env exec -T redmine bash -s << EOF
+  {
+    cd /usr/src/redmine
+    tar xjvf /tmp/files.tar.bz2
+  }
+EOF
+  
+  docker compose --env-file env exec -T db bash -s << EOF
+  {
+    su - postgres -c 'pg_restore -d postgres --clean --if-exists --no-owner /tmp/postgres.dump'
+    #su - postgres -c 'psql -d postgres -f /tmp/postgres.dump'
+    su - postgres -c 'pg_restore -d template1 --clean --if-exists --no-owner /tmp/template1.dump'
+    #su - postgres -c 'psql -d template1 -f /tmp/template1.dump'
+  }
+EOF
 }
 
 while [ $# -ne 0 ]; do

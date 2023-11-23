@@ -1,0 +1,7 @@
+environment.rb
+config.ru
+backup/
+redmine.conf
+redmine.crt
+redmine.key
+

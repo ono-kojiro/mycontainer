@@ -3,7 +3,7 @@ version: '3.1'
 
 services:
   redmine:
-    image: "redmine:5.0.5-bullseye"
+    image: ${CONTAINER_IMAGE}
     container_name: ${CONTAINER_NAME}
     hostname: ${HOSTNAME}
     restart: always
@@ -12,15 +12,16 @@ services:
     ports:
       - "${LOCAL_PORT}:3000"
     environment:
-      REDMINE_DB_POSTGRES: db
+      REDMINE_DB_POSTGRES: postgres
       REDMINE_DB_PASSWORD: secret
       TZ: Asia/Tokyo
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
 
-  db:
-    image: "postgres:15.2-bullseye"
+  postgres:
+    image: ${DB_CONTAINER_IMAGE}
     container_name: ${DB_CONTAINER_NAME}
+    hostname: postgres
     restart: always
     environment:
       POSTGRES_USER: postgres

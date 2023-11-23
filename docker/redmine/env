@@ -1,7 +1,9 @@
-CONTAINER_NAME=redmine
+CONTAINER_IMAGE=redmine:5.0.5-bullseye
+CONTAINER_NAME=redmine-5.0.5
 HOSTNAME=redmine
 
 LOCAL_PORT=60080
 
-DB_CONTAINER_NAME=redmine-db
+DB_CONTAINER_IMAGE=postgres:15.2-bullseye
+DB_CONTAINER_NAME=postgres-15.2
 
