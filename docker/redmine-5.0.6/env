@@ -1,0 +1,9 @@
+CONTAINER_IMAGE=redmine:5.0.6-bookworm
+CONTAINER_NAME=redmine-5.0.6
+HOSTNAME=redmine
+
+LOCAL_PORT=60081
+
+DB_CONTAINER_IMAGE=postgres:16.1-bookworm
+DB_CONTAINER_NAME=postgres-16.1
+

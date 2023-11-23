@@ -1,0 +1,30 @@
+diff -crp orig-config/config.ru mod-config/config.ru
+*** orig-config/config.ru	2023-10-01 10:14:50.844615173 +0900
+--- mod-config/config.ru	2023-10-01 10:26:19.395172799 +0900
+***************
+*** 1,4 ****
+  # This file is used by Rack-based servers to start the application.
+  
+  require ::File.expand_path('../config/environment',  __FILE__)
+! run Rails.application
+--- 1,8 ----
+  # This file is used by Rack-based servers to start the application.
+  
+  require ::File.expand_path('../config/environment',  __FILE__)
+! #run Rails.application
+! map ActionController::Base.relative_url_root || "/" do
+!   run RedmineApp::Application
+! end
+! 
+diff -crp orig-config/environment.rb mod-config/environment.rb
+*** orig-config/environment.rb	2023-10-01 10:15:52.133761491 +0900
+--- mod-config/environment.rb	2023-10-01 10:26:50.108565489 +0900
+*************** end
+*** 14,16 ****
+--- 14,19 ----
+  
+  # Initialize the Rails application
+  Rails.application.initialize!
++ 
++ ActionController::Base.relative_url_root = "/redmine"
++ 

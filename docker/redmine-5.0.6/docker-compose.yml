@@ -1,0 +1,31 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+  redmine:
+    image: ${CONTAINER_IMAGE}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
+    restart: always
+    # using SSL, enable following line
+    entrypoint: "/docker-entrypoint.sh rails server -p 3000 -b 'ssl://0.0.0.0:3000?cert=config/redmine.crt&key=config/redmine.key'"
+    ports:
+      - "${LOCAL_PORT}:3000"
+    environment:
+      REDMINE_DB_POSTGRES: postgres
+      REDMINE_DB_PASSWORD: secret
+      TZ: Asia/Tokyo
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+
+  postgres:
+    image: ${DB_CONTAINER_IMAGE}
+    container_name: ${DB_CONTAINER_NAME}
+    hostname: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+
