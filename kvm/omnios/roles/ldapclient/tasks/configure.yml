@@ -10,7 +10,7 @@
       -a defaultServerList={{ ldap_server }} \
       -a proxyDN={{ binddn }} \
       -a proxyPassword={{ bindpw }} \
-      -a attributeMap=group:memberUid=memberOf \
+      -a attributeMap=group:memberUid=member \
       -a attributeMap=group:gidnumber=gidNumber \
       -a attributeMap=passwd:gidnumber=gidNumber \
       -a attributeMap=passwd:uidnumber=uidNumber \

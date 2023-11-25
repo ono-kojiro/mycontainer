@@ -1,0 +1,26 @@
+#!/bin/sh
+
+username=$1
+
+ldaphost="192.168.0.98"
+searchbase="dc=example,dc=com"
+
+. /etc/os-release
+
+if [ -z "$ID" ]; then
+  exit 1
+fi
+
+if [ -z "$username" ]; then
+  exit 2
+fi
+
+if [ "$ID" = "omnios" ]; then
+  ldapsearch -h $ldaphost \
+    -b $searchbase \
+    -T \
+    -L \
+    cn=${username} \
+    sshPublicKey | grep -e '^sshPublicKey' | sed -e 's|^sshPublicKey: ||'
+fi
+

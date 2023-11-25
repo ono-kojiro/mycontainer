@@ -1,0 +1,41 @@
+- keyboard layout: Japanese
+
+- Find disks, create rpool, and install OmniOS
+
+- [*] c3t0d0 Virtio Block Device 16.00 GiB
+
+- ZFS Root Pool Configuration: Continue
+
+- Enter the system hostname: omnios
+
+- Please select a continent or ocean: Asia
+  - Please select a country or region: Japan
+    - Yes
+
+- Installation Complete
+
+- Configure the installed OmniOS system
+
+  - Configure Networking
+    - Configuration Mode: DHCP
+  - Set Root Password: *******
+  - SSH Server: Enabled
+  - Virtual Terminals: Disabled
+  - Serial Console
+    - Serial Console: ttya
+
+  - Return to main menu
+
+- Shell (for post-install ops on /mnt)
+  vi /mnt/etc/ssh/sshd_config
+   PermitRootLogin yes
+
+- Reboot
+
+---
+
+# (create .ssh/authorized_keys)
+# pkg update
+# pkg install python-311
+
+
