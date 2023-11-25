@@ -131,6 +131,13 @@ vnc()
   virt-viewer
 }
 
+install_python()
+{
+  addr=`cat hosts.yml | grep ansible_host | gawk '{ print $2 }'`
+  user=`cat hosts.yml | grep ansible_user | gawk '{ print $2 }'`
+  ssh -l $user $addr apk add python3
+}
+
 deploy()
 {
   ansible-playbook -i hosts.yml site.yml
