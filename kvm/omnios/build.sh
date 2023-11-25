@@ -3,6 +3,7 @@
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 name="omnios"
+iso=$HOME/Downloads/OS/omnios-r151046.iso
 
 disk=`pwd`/omnios.qcow2
 
@@ -11,23 +12,43 @@ all()
   :
 }
 
+help()
+{
+  cat - << EOF
+usage: sh build.sh <target>
+
+  target
+  - disk
+  - install
+EOF
+}
+
+disk()
+{
+  if [ ! -e "$disk" ]; then
+    qemu-img create -f qcow2 $disk 16G
+  fi
+}
+
 install()
 {
-  qemu-img create -f qcow2 $disk 16G
-  iso=$HOME/Downloads/omnios-r151046.iso
+  disk
 
   virt-install \
     --name $name \
-    --ram 4096 \
+    --ram 2048 \
     --disk=$disk,bus=virtio \
-    --vcpus 4 \
+    --vcpus 2 \
     --os-variant solaris11 \
     --console pty,target_type=serial \
     --cdrom=$iso \
     --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
     --serial pty \
-    --network bridge=br0
+    --network bridge=br1 \
+    --autostart \
+    --noreboot
 
+    #--graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
     #--extra-args 'console=ttyS0,115200n8 serial'
 }
 
@@ -62,6 +83,12 @@ stop()
   shutdown
 }
 
+down()
+{
+  destroy
+  undefine
+}
+
 destroy()
 {
   virsh destroy $name
@@ -69,12 +96,19 @@ destroy()
 
 undefine()
 {
-  virsh undefine $name
+  virsh undefine --nvram $name
 }
 
 deploy()
 {
-  ansible-playbook -i hosts.yml site.yml
+  ansible-playbook -i hosts.yml -t ldapclient site.yml
+  ansible-playbook -i hosts.yml -t sudo       site.yml
+}
+
+default()
+{
+  tag=$1
+  ansible-playbook -i hosts.yml -t "$tag" site.yml
 }
 
 while [ $# -ne 0 ]; do
@@ -104,7 +138,8 @@ for target in "$@"; do
   if [ $? -eq 0 ]; then
     $target
   else
-    echo "ERROR : $target is not a shell function"
+    #echo "ERROR : $target is not a shell function"
+    default $target
   fi
 done
 
