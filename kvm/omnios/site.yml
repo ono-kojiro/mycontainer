@@ -3,8 +3,10 @@
 
   roles:
     - name: ldapclient
-      tags: ldapclient
+      tags: [never, ldapclient]
 
     - name: sudo
-      tags: sudo
+      tags: [never, sudo]
 
+    - name: devel
+      tags: [never, devel]
