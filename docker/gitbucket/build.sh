@@ -22,6 +22,8 @@ usage : $0 [options] target1 target2 ...
     fetch
     prepare
     create
+    update
+
     enable_https
 
     start
@@ -63,22 +65,30 @@ create()
   $docker_compose up --no-start
 }
 
-enable_https()
+update()
 {
   docker cp startup.sh gitbucket:/
+}
+
+enable_https()
+{
+  docker exec gitbucket
   docker cp gitbucket.jks gitbucket:/var/lib/gitbucket/
 }
 
 enable_ldaps()
 {
-  docker cp mylocalca.pem gitbucket:/var/lib/gitbucket/
+  cacert="myca.pem"
+  caname="myca"
+
+  docker cp $cacert gitbucket:/var/lib/gitbucket/
   docker exec --user root ${name} \
     keytool -import -trustcacerts \
     -keystore /opt/java/openjdk/lib/security/cacerts \
     -storepass changeit \
     -noprompt \
-    -alias mylocalca \
-    -file /var/lib/gitbucket/mylocalca.pem
+    -alias $caname \
+    -file /var/lib/gitbucket/$cacert
 }
 
 status()

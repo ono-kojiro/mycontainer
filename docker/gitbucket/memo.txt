@@ -1,3 +1,5 @@
+default username/password: root/root
+
 "System settings" -> "Authentication" tab
 
 enable "LDAP"
@@ -11,4 +13,10 @@ enable "LDAP"
   Full name attribute : gecos
   Mail address attribute : mail
   Enable SSL : enable
+
+"System settings" -> "Integrations" tab
+
+Enable SSH access to git repository
+  SSH bind host : 192.168.0.98
+  SSH bind port : 29418
 
