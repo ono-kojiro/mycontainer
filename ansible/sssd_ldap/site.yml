@@ -1,0 +1,10 @@
+- name: setup sssd-ldap
+  hosts: cfrz4
+
+  roles:
+    - role: sssd
+      tags: sssd
+    
+    - role: sudo
+      tags: sudo
+    
