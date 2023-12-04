@@ -51,5 +51,5 @@
   ansible.builtin.shell: |
     authselect select sssd with-mkhomedir --force
     systemctl enable --now oddjobd.service
-  when: ansible_facts['os_family'] == "Redhat"
+  when: ansible_facts['os_family'] == "RedHat"
 
