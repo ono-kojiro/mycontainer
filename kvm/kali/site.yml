@@ -1,9 +1,12 @@
-- hosts: targets
+- name: setup sssd-ldap
+  #hosts: cfrz4
+  #hosts: centos
+  hosts: kali
 
   roles:
     - role: sssd
       tags: sssd
-
+    
     - role: sudo
       tags: sudo
-
+    

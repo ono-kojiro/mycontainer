@@ -3,21 +3,6 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-host="192.168.0.178"
-user="dummy"
-ldap_uri="ldap://192.168.0.98"
-ldap_suffix="dc=example,dc=com"
-
-mkdir -p group_vars
-
-cat - << EOF > group_vars/all.yml
----
-host: "$host"
-user: "$user"
-ldap_uri:     "$ldap_uri"
-ldap_suffix:  "$ldap_suffix"
-EOF
-
 help()
 {
   usage
@@ -25,38 +10,41 @@ help()
 
 usage()
 {
-  echo "usage : $0 [options] target1 target2 ..."
-cat - << EOS
-  target:
-    all
+  cat << EOS
+usage : $0 [options] target1 target2 ...
 EOS
+
 }
 
 all()
 {
-  ansible-playbook -i hosts site.yml
+  deploy
 }
 
-key()
+clean()
 {
-  ssh-keygen -t ed25519 -N '' -f id_ed25519 -C kali
+  ansible-playbook -i hosts.yml clean.yml
 }
 
-ssh()
+hosts()
 {
-  command ssh -i id_ed25519 ${user}@${host}
+  ansible-inventory -i groups.yml --list --yaml > hosts.yml
+}
+
+deploy()
+{
+  #ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook -K -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts --tag $tag site.yml
+  ansible-playbook -i hosts.yml -t $tag site.yml
 }
 
-debug()
-{
-  ansible-playbook -K -i hosts debug.yml
-}
+
+hosts
 
 args=""
 while [ $# -ne 0 ]; do
@@ -82,10 +70,12 @@ if [ -z "$args" ]; then
 fi
 
 for arg in $args; do
-  LANG=C type $arg | grep 'function' > /dev/null 2>&1
-  if [ $? -eq 0 ]; then
+  num=`LANG=C type $arg | grep 'function' | wc -l`
+  if [ $num -ne 0 ]; then
     $arg
   else
+    #echo "ERROR : $arg is not shell function"
+    #exit 1
     default $arg
   fi
 done

@@ -5,6 +5,18 @@
     dest: /etc/sssd/sssd.conf
     mode: 0600
 
+- name: enable sss_ssh_authorizedkeys
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommand '
+    line: AuthorizedKeysCommand {{ authorizedkeyscommand }}
+
+- name: enable AuthorizedKeysCommandUser
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AuthorizedKeysCommandUser '
+    line: AuthorizedKeysCommandUser nobody
+
 - name: restart sssd
   ansible.builtin.systemd:
     name: sssd
@@ -17,8 +29,27 @@
     enabled: yes
     masked: no
 
-- name: enable mkhomedir
+- name: restart oddjobd
+  ansible.builtin.systemd:
+    name: oddjobd
+    state: restarted
+    daemon_reload: yes
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: restart sshd
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: yes
+
+- name: enable mkhomedir for Debian
   shell: |
     pam-auth-update --enable mkhomedir --force
+  when: ansible_facts['os_family'] == "Debian"
 
+- name: enable mkhomedir for RedHat
+  ansible.builtin.shell: |
+    authselect select sssd with-mkhomedir --force
+    systemctl enable --now oddjobd.service
+  when: ansible_facts['os_family'] == "RedHat"
 

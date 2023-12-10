@@ -1,0 +1,14 @@
+---
+# sssd.conf
+server_addr: 192.168.0.98
+ldap_addr: "{{ server_addr }}"
+ldap_uri:    ldap://{{ ldap_addr }}
+ldap_suffix: dc=example,dc=com
+allow_groups: ldapusers
+
+# sshd_config
+authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
+
+# sudo
+admin_group: ldapwheel
+
