@@ -1,0 +1,7 @@
+---
+- name: install vnc server
+  ansible.builtin.apt:
+    name: tigervnc-standalone-server
+    state: present
+  become: true
+

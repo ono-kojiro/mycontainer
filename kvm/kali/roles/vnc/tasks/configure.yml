@@ -1,0 +1,53 @@
+---
+- name: copy vncserver.users
+  ansible.builtin.template:
+    src:  vncserver.users
+    dest: /etc/tigervnc/
+  become: true
+
+- name: copy vncserver.service
+  ansible.builtin.template:
+    src: vncserver@.service
+    dest: /etc/systemd/system/
+  become: true
+
+- name: create /etc/vnc directory
+  ansible.builtin.file:
+    path: /etc/vnc
+    state: directory
+  become: true
+
+- name: copy xstartup for system
+  ansible.builtin.template:
+    src: etc-vnc-xstartup
+    dest: /etc/vnc/xstartup
+    mode: '0775'
+  become: true
+
+- name: create .vnc directory
+  ansible.builtin.file:
+    path: /home/{{ ansible_user }}/.vnc
+    state: directory
+  become: false
+
+- name: copy xstartup for user
+  ansible.builtin.template:
+    src: home-vnc-xstartup
+    dest: /home/{{ ansible_user }}/.vnc/xstartup
+    mode: '0775'
+  become: false
+
+- name: copy config for user
+  ansible.builtin.template:
+    src: home-vnc-config
+    dest: /home/{{ ansible_user }}/.vnc/config
+    mode: '0664'
+  become: false
+
+- name: start vncserver
+  ansible.builtin.systemd_service:
+    name: "vncserver@1"
+    daemon_reload: true
+    state: started
+  become: true
+

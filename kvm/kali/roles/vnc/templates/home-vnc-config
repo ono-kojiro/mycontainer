@@ -1,0 +1,5 @@
+session=xfce4-session
+geometry=1920x1200
+alwaysshared
+SecurityTypes=vncauth,tlsvnc
+

@@ -9,4 +9,10 @@
     
     - role: sudo
       tags: sudo
+
+    - role: msf
+      tags: msf
+
+    - role: vnc
+      tags: vnc
     
