@@ -1,0 +1,39 @@
+- name: setup apt
+  hosts: debian8
+
+  tasks:
+  - name: comment out deb cdrom
+    ansible.builtin.lineinfile:
+      path: /etc/apt/sources.list
+      regexp: '^deb cdrom:(.*)$'
+      line: '# deb cdrom:\1'
+      backrefs: yes
+
+  - name: add archive.debian.org
+    ansible.builtin.lineinfile:
+      path: /etc/apt/sources.list
+      state: present
+      line: 'deb http://archive.debian.org/debian/ jessie main'
+  
+  - name: add archive.debian.org
+    ansible.builtin.lineinfile:
+      path: /etc/apt/sources.list
+      state: present
+      line: 'deb http://archive.debian.org/debian-security jessie/updates main'
+
+  - name: apt update
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: apt remove apt-listchanges
+    ansible.builtin.apt:
+      name:
+      - apt-listchanges
+      state: absent
+
+  - name: update all packages to their latest version
+    ansible.builtin.apt:
+      name: "*"
+      state: latest
+      force: true
+
