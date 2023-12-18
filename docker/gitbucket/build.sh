@@ -19,10 +19,7 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    fetch
-    prepare
-    create
-    update
+    fetch / prepare / create / update
 
     enable_https
 
@@ -72,8 +69,7 @@ update()
 
 enable_https()
 {
-  docker exec gitbucket
-  docker cp gitbucket.jks gitbucket:/var/lib/gitbucket/
+  docker cp gitbucket.jks gitbucket:/gitbucket/
 }
 
 enable_ldaps()
@@ -81,14 +77,14 @@ enable_ldaps()
   cacert="myca.pem"
   caname="myca"
 
-  docker cp $cacert gitbucket:/var/lib/gitbucket/
+  docker cp $cacert gitbucket:/gitbucket/
   docker exec --user root ${name} \
     keytool -import -trustcacerts \
     -keystore /opt/java/openjdk/lib/security/cacerts \
     -storepass changeit \
     -noprompt \
     -alias $caname \
-    -file /var/lib/gitbucket/$cacert
+    -file /gitbucket/$cacert
 }
 
 status()
@@ -139,6 +135,11 @@ ip()
   docker inspect \
     --format '{{.Name}} {{ .NetworkSettings.IPAddress }}' \
 	$(docker ps -q)
+}
+
+deploy()
+{
+  ansible-playbook -K -i hosts.yml site.yml
 }
 
 destroy()
