@@ -23,9 +23,8 @@ usage : $0 [options] target1 target2 ...
     update
     start
     (configure ldap auth...)
+    import_cacert
     stop
-
-    enable_ldaps
     start
 EOS
 }
@@ -64,12 +63,19 @@ update()
 {
   copy_startup
   copy_jks
+  copy_config
 }
 
 copy_startup()
 {
   echo "copy startup.sh to container"
   docker cp startup.sh gitbucket:/
+}
+
+copy_config()
+{
+  echo "copy gitbucket.conf to container"
+  docker cp gitbucket.conf gitbucket:/gitbucket/
 }
 
 
@@ -79,14 +85,14 @@ copy_jks()
   docker cp gitbucket.jks gitbucket:/gitbucket/
 }
 
-enable_ldaps()
+import_cacert()
 {
   cacert="myca.pem"
   caname="myca"
 
   docker cp $cacert gitbucket:/gitbucket/
   docker exec --user root ${name} \
-    keytool -import -trustcacerts \
+    keytool -importcert -trustcacerts \
     -keystore /opt/java/openjdk/lib/security/cacerts \
     -storepass changeit \
     -noprompt \

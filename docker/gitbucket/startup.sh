@@ -2,7 +2,7 @@
 
 #sh -c 'java -jar /opt/gitbucket.war > /var/log/gitbucket.log'
 
-java -jar /opt/gitbucket.war \
+/opt/java/openjdk/bin/java -jar /opt/gitbucket.war \
   -Dgitbucket.home=${GITBUCKET_HOME} \
   --connectors=${GITBUCKET_CONNECTORS} \
   --port=${GITBUCKET_PORT} \
