@@ -19,10 +19,8 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    fetch / prepare / create / update
-
-    enable_https
-
+    create
+    update
     start
     (configure ldap auth...)
     stop
@@ -64,11 +62,20 @@ create()
 
 update()
 {
+  copy_startup
+  copy_jks
+}
+
+copy_startup()
+{
+  echo "copy startup.sh to container"
   docker cp startup.sh gitbucket:/
 }
 
-enable_https()
+
+copy_jks()
 {
+  echo "copy gitbucket.jks to gitbucket:/gitbucket/"
   docker cp gitbucket.jks gitbucket:/gitbucket/
 }
 
