@@ -1,17 +1,40 @@
 - name:  setup openvswitch
-  hosts: myserver
+  #hosts: myserver
+  hosts: alma
   become: true
 
   tasks:
-    - name: install openvswitch
+    - name: install openvswitch (Debian)
       ansible.builtin.apt:
         name:
         - openvswitch-switch
         - python3-openvswitch
         state: present
+      when: ansible_facts['os_family'] == "Debian"
+   
+    - name: add repository for openvswitch (RedHat)
+      ansible.builtin.dnf:
+        name: centos-release-nfv-openvswitch
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+ 
+    - name: install openvswitch (RedHat)
+      ansible.builtin.dnf:
+        name:
+        - openvswitch3.2
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
 
-    - name: start service
+    - name: start service (Debian)
       ansible.builtin.systemd:
         name: openvswitch-switch
         state: restarted
+      when: ansible_facts['os_family'] == "Debian"
+    
+    - name: start service (RedHat)
+      ansible.builtin.systemd:
+        name: openvswitch
+        state: restarted
+        enabled: true
+      when: ansible_facts['os_family'] == "RedHat"
 
