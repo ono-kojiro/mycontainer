@@ -87,7 +87,7 @@ copy_jks()
 
 import_cacert()
 {
-  cacert="myca.pem"
+  cacert="myca.crt"
   caname="myca"
 
   docker cp $cacert gitbucket:/gitbucket/
