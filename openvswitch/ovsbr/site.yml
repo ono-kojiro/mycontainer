@@ -1,0 +1,72 @@
+- name:  create ovs network
+  hosts: alma
+  become: true
+  vars_files:
+    - common.yml
+
+  tasks:
+    - name: install KVM
+      ansible.builtin.dnf:
+        name:
+        - qemu-kvm
+        - libvirt
+        - virt-install
+        state: present
+    
+    - name: start libvirtd
+      ansible.builtin.systemd:
+        name: libvirtd
+        state: restarted
+        enabled: true
+
+    - name: create ovs bridge
+      ansible.builtin.shell: |
+        ovs-vsctl add-br {{ item.ovsbr }}
+      loop: "{{ bridges }}"
+      ignore_errors: true
+    
+    - name: set IP address
+      ansible.builtin.shell: |
+        ip addr add {{ item.addr }} dev {{ item.ovsbr }}
+      loop: "{{ bridges }}"
+      ignore_errors: true
+
+    - name: up bridge
+      ansible.builtin.shell: |
+        ip link set {{ item.ovsbr }} up
+      loop: "{{ bridges }}"
+
+    - name: define network
+      ansible.builtin.shell: |
+        cat - << EOF > /tmp/ovsnet.xml
+        <network>
+          <name>{{ item.ovsnet }}</name>
+          <forward mode="bridge"/>
+          <bridge name="{{ item.ovsbr }}"/>
+          <virtualport type="openvswitch"/>
+        </network>
+        EOF
+
+        virsh net-define /tmp/ovsnet.xml
+        virsh net-start {{ item.ovsnet }}
+        virsh net-autostart {{ item.ovsnet }} 
+      loop: "{{ bridges }}"
+
+    - name: ovs-vsctl show
+      ansible.builtin.shell: |
+        ovs-vsctl show
+      register: res
+
+    - name: show result of ovs-vsctl show
+      ansible.builtin.debug:
+        var: res.stdout_lines
+    
+    - name: virsh net-list
+      ansible.builtin.shell: |
+        virsh net-list --all
+      register: res
+
+    - name: show result of virsh net-list
+      ansible.builtin.debug:
+        var: res.stdout_lines
+
