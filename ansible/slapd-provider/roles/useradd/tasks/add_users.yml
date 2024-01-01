@@ -1,0 +1,50 @@
+---
+- name: add user
+  shell: |
+    num=$(ldapfinger "{{ item.name }}" | wc -l)
+    if test "$num" -eq 0 ; then
+      ldapadduser "{{ item.name }}" "{{ default_group }}"
+    fi
+  loop: "{{ ldap_users }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add user to group
+  shell: |
+    groups="$(echo {{ item.groups }} | tr ',' ' ')"
+    for group in $groups; do
+      ldapaddusertogroup "{{ item.name }}" "$group"
+    done
+  loop: "{{ ldap_users }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add gecos
+  shell: |
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    replace: gecos
+    gecos: {{ item.gecos }}
+    EOS
+  loop: "{{ ldap_users }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: set ldap user password
+  shell: |
+    ldapsetpasswd "{{ item.name }}" `slappasswd -s "{{ item.password }}"`
+  loop: "{{ ldap_users }}"
+  register: result
+  failed_when: result.rc != 0
+
+- name: add mail
+  shell: |
+    cat << EOS | ldapmodifyuser "{{ item.name }}"
+    changetype: modify
+    add: mail
+    mail: {{ item.mail }}
+    EOS
+  loop: "{{ ldap_users }}"
+  register: result
+  failed_when: result.rc != 0
+

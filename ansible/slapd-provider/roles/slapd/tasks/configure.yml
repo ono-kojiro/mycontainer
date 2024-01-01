@@ -1,0 +1,282 @@
+---
+- name: remove directory /etc/ldap/certs
+  ansible.builtin.file:
+    path: /etc/ldap/certs
+    state: absent
+
+- name: create directory /etc/ldap/certs
+  ansible.builtin.file:
+    path: /etc/ldap/certs
+    state: directory
+    mode: '0755'
+    owner: openldap
+    group: openldap
+
+- name: copy server crt
+  ansible.builtin.copy:
+    src:  "{{ server_crt }}"
+    dest: /etc/ldap/certs/
+    #remote_src: true
+
+- name: copy server key
+  ansible.builtin.copy:
+    src:  "{{ server_key }}"
+    dest: /etc/ldap/certs/
+    #remote_src: true
+  
+- name: change ownership of server crt
+  ansible.builtin.file:
+    path:  "/etc/ldap/certs/{{ server_crt }}"
+    owner: openldap
+    group: openldap
+
+- name: change ownership of server key
+  ansible.builtin.file:
+    path:  "/etc/ldap/certs/{{ server_key }}"
+    owner: openldap
+    group: openldap
+
+
+
+
+
+- name: change ldap loglevel
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcLogLevel
+    olcLogLevel: acl sync
+    EOF
+
+- name: check ldap loglevel
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "cn=config" olcLogLevel
+  register: result
+  failed_when: result.rc != 0
+
+
+
+- name: change ldap suffix
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcSuffix
+    olcSuffix: {{ ldap_suffix }}
+    EOF
+
+- name: check ldap suffix
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix | grep olcSuffix
+  register: result
+  failed_when: result.rc != 0
+
+
+
+
+- name: change ldap rootdn
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcRootDN
+    olcRootDN: {{ masterdn }}
+    EOF
+
+- name: check ldap rootdn
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={1}mdb,cn=config" olcRootDN | grep olcRootDN
+  register: result
+  failed_when: result.rc != 0
+
+
+
+- name: change ldap tls
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    add: olcTLSCertificateFile
+    olcTLSCertificateFile: /etc/ldap/certs/{{ server_crt }}
+    -
+    add: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: /etc/ldap/certs/{{ server_key }}
+    EOF
+
+- name: check ldap tls certificate file
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "cn=config" olcTLSCertificateFile | grep TLS
+  register: result
+  failed_when: result.rc != 0
+
+- name: check ldap tls certificate keyfile
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "cn=config" olcTLSCertificateKeyFile | grep TLS
+  register: result
+  failed_when: result.rc != 0
+
+
+
+
+- name: change ldap access
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={-1}frontend,cn=config
+    changetype: modify
+    add: olcAccess
+    olcAccess: {0}to attrs=userPassword,givenName,sn,photo
+      by self write  by anonymous auth  by dn.base={{ masterdn }} write  by * none
+    -
+    add: olcAccess
+    olcAccess: {1}to *  by self read  by dn.base={{ masterdn }} write  by * read
+    EOF
+
+- name: check ldap access
+  ansible.builtin.shell: |
+    ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
+      -LLL -b "olcDatabase={-1}frontend,cn=config" olcAccess | grep olcAccess
+  register: result
+  failed_when: result.rc != 0
+
+
+
+#
+# disabled now (using echo)
+#
+- name: disable anonymous access
+  ansible.builtin.shell: |
+    cat - << EOF | echo ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    add: olcDisallows
+    olcDisallows: bind_anon
+    
+    dn: cn=config
+    changetype: modify
+    add: olcRequires
+    olcRequires: authc
+    
+    dn: olcDatabase={-1}frontend,cn=config
+    changetype: modify
+    add: olcRequires
+    olcRequires: authc
+    EOF
+
+
+
+- name: change ldap rootpw
+  ansible.builtin.shell: |
+    echo "dn: olcDatabase={1}mdb,cn=config" > /tmp/newpasswd.ldif
+    echo "changetype: modify" >> /tmp/newpasswd.ldif
+    echo "replace: olcRootPW" >> /tmp/newpasswd.ldif
+    rootpw=`/usr/sbin/slappasswd -h {SSHA} -s {{ masterpw }}`
+    echo "olcRootPW: $rootpw" >> /tmp/newpasswd.ldif
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /tmp/newpasswd.ldif
+    rm -f /tmp/newpasswd.ldif
+
+
+- name: copy rfc2307bis.schema
+  tags: rfc2307bis
+  ansible.builtin.copy:
+    src:  /etc/ldap/schema/fusiondirectory/rfc2307bis.schema
+    dest: /etc/ldap/schema/rfc2307bis.schema
+    remote_src: yes
+
+- name: disable nis.schema
+  tags: rfc2307bis
+  ansible.builtin.shell: |
+    ldap-schema-manager -e nis.schema --yes
+
+- name: enable rfc2307bis.schema
+  tags: rfc2307bis
+  ansible.builtin.shell: |
+    ldap-schema-manager -i rfc2307bis.schema --yes
+
+
+- name: copy openssh-lpk.schema
+  tags: publickey
+  ansible.builtin.template:
+    src: openssh-lpk.schema
+    dest: /etc/ldap/schema/
+
+- name: import openssh-lpk.schema
+  tags: publickey
+  ansible.builtin.shell:
+    ldap-schema-manager -i /etc/ldap/schema/openssh-lpk.schema
+
+
+
+- name: load memberof module
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: memberof
+    EOF
+
+- name: load refint module
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: refint
+    EOF
+
+- name: add memberof overlay
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay=memberof,olcDatabase={1}mdb,cn=config
+    changetype: add
+    objectClass: olcConfig
+    objectClass: olcMemberOf
+    objectClass: olcOverlayConfig
+    objectClass: top
+    olcOverlay: memberof
+    olcMemberOfRefInt: TRUE
+    olcMemberOfDangling: ignore
+    olcMemberOfGroupOC: groupOfNames
+    olcMemberOfMemberAD: member
+    olcMemberOfMemberOfAD: memberOf
+    EOF
+     
+- name: enable refint overlay
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay=refint,olcDatabase={1}mdb,cn=config
+    changetype: add
+    objectClass: olcConfig
+    objectClass: olcOverlayConfig
+    objectClass: olcRefintConfig
+    objectClass: top
+    olcOverlay: refint
+    olcRefintAttribute: memberof member manager owner
+    EOF
+
+
+- name: stop slapd.service
+  ansible.builtin.systemd:
+    name: slapd
+    state: stopped
+
+- name: start slapd.service
+  ansible.builtin.systemd:
+    name: slapd
+    state: started
+
+- name: enable slapd.service
+  ansible.builtin.systemd:
+    name: slapd
+    enabled: true
+

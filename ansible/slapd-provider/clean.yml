@@ -1,0 +1,25 @@
+- name: remove slapd
+  hosts: provider
+  become: true
+
+  tasks:
+  - name: remove slapd
+    ansible.builtin.apt:
+      pkg: "{{ item }}"
+      state: absent
+      purge: true
+      autoremove: true
+    loop:
+      - sssd
+      - slapd
+      - sssd-common
+      - sssd-ldap
+      - sssd-tools
+      - sssd-ad-common
+      - ldapscripts
+
+  - name: remove /var/lib/sss
+    ansible.builtin.file:
+      path: /var/lib/sss
+      state: absent
+
