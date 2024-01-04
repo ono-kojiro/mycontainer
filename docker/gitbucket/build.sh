@@ -22,8 +22,6 @@ usage : $0 [options] target1 target2 ...
     create
     update
     start
-    (configure ldap auth...)
-    import_cacert
     stop
     start
 EOS
