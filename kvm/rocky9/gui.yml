@@ -1,0 +1,10 @@
+- name: install 'Server with GUI'
+  hosts: myserver
+  become: true
+
+  tasks:
+  - name: install 'Server with GUI' group
+    ansible.builtin.dnf :
+      name: "@Server with GUI"
+      state: present
+
