@@ -24,22 +24,30 @@ login as
   password: opnsense
 
 
-Web GUI
 
-Wizard:
-  General Information
-    Primary DNS Server: 192.168.0.1
+########################################
+Web GUI Configuration
+########################################
+
+System: Wizard: General Setup
+
+System: Wizard: General Information
+  Primary DNS Server: 192.168.0.1
   
   Domain: example.com
   Time server hostname: ntp.nict.jp
   Timezone: Asia/Tokyo
-  
+ 
   Configure WAN Interface:
     IPv4 Configuration Type: DHCP
 
   Configure LAN Interface:
     LAN IP Address: 192.168.10.1
     Subnet Mask: 24
+
+##############################
+Enable SSL
+##############################
 
 System: Trust: Authorities
   "+" button
@@ -49,13 +57,20 @@ System: Trust: Authorities
 
 System: Trust: Certificates
   "+" button
-  Descriptive name: opnsense
+  Descriptive name: myserver
   Method: Import an existing Certificate
+  Certificate data: (paste here!)
+  Private key data: (paste here!)
+
 
 System: Settings: Administration
   Web GUI
-    SSL Certificate: opnsense
- 
+    SSL Certificate: myserver
+
+#####################################
+LDAP Authentication
+#####################################
+
 System: Access: Servers
   "+" button
   Descriptive name: LDAP
@@ -70,30 +85,22 @@ System: Access: Servers
   Extended Query: memberOf=cn=ldapwheel,ou=Groups,dc=example,dc=com
   Initial Template: OpenLDAP
   User naming attribute: cn
-  Read properties: ON
   Synchronize groups: ON
-  Automatic user creation: ON
-
-
-System:
-  Settings:
-    Administration:
-      Secure Shell:
-        Enable Secure Shell: on
-        Root Login:
-          Permit root user login: on
-        Authentication Method:
-          Permit password login: on
-      Authentication:
-        Server: LDAP, Local Database
-        Sudo: Ask password
-          wheel, ldapwheel
+  Automatic user creation: Off
 
 System: Access: Tester
   Authentication Server: LDAP
   Username: (enter your account)
   Password: (enter your password)
   push "Test" button
+
+System: Access: Groups:
+  "+" button
+  Group name:  ldapusers
+  Description: ldapusers
+  Group Memberships:
+    Member Of:
+      (None)
 
 System: Access: Groups:
   "+" button
@@ -106,12 +113,29 @@ System: Access: Groups:
   Assigned Privileges:
     ALL
 
+System:
+  Settings:
+    Administration:
+      Secure Shell:
+        Enable Secure Shell: on
+        Login Group: wheel,ldapusers
+        Root Login:
+          Permit root user login: on
+        Authentication Method:
+          Permit password login: on
+      Authentication:
+        Server: LDAP, Local Database
+        Sudo: Ask password
+          wheel, ldapwheel
+
+
 System: Access: Users
   "import" button
   
   Edit User:
     Login shell: /bin/bash
     Member Of: admins, ldapusers
+
 
 Firewall: Settings: Advanced
   Network Address Translation:
@@ -121,4 +145,27 @@ Console:
   "8) Shell"
   # id $USER
 
+
+
+"This account is currently not available."
+========================================================
+change login shell
+
+
+os-net-snmp plugin
+=========================================================
+
+System: Firmware: Plugins
+  search os-net-snmp and install it
+
+Services: Net-SNMP: General:
+  Enable SNMP Service: ON
+  SNMP Community: public
+  SNMP Location: mydesk
+
+$ sudo apt -y install snmp
+$ which snmpwalk
+/usr/bin/snmpwalk
+
+$ snmpwalk -v 2c -c public -OX 192.168.60.1
 
