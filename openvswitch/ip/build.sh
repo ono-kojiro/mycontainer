@@ -3,14 +3,29 @@
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 cd $top_dir
 
+items="60 70 80"
+
 devname="ovsbr60"
 addr_mask="192.168.60.254/24"
 
 all()
 {
-  sudo ip addr add $addr_mask dev $devname
-  sudo ip link set $devname down
-  sudo ip link set $devname up
+  for item in $items; do
+    devname="ovsbr$item"
+    addr_mask="192.168.$item.254/24"
+    got=`ip addr show $devname | grep 'inet ' | awk '{ print $2 }'`
+    if [ "x$got" = "x$addr_mask" ]; then
+      echo "SKIP: $devname, $addr_mask"
+      continue
+    fi
+    echo "set addr: $devname, $addr_mask"
+
+    sudo -- sh -c " \
+      ip addr add $addr_mask dev $devname; \
+      ip link set $devname down; \
+      ip link set $devname up; \
+    "
+  done
 }
 
 usage()
