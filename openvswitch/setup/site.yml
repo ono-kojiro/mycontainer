@@ -1,9 +1,14 @@
 - name:  setup openvswitch
-  #hosts: myserver
-  hosts: alma
+  hosts: cfsz5
   become: true
 
   tasks:
+    #- name: add RDO OpenStack repository (RedHat)
+    #  ansible.builtin.dnf:
+    #    name: 'https://repos.fedorapeople.org/repos/openstack/openstack-yoga/rdo-release-yoga-1.el8.noarch.rpm'
+    #    state: present
+    #  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
+
     - name: install openvswitch (Debian)
       ansible.builtin.apt:
         name:
@@ -16,14 +21,14 @@
       ansible.builtin.dnf:
         name: centos-release-nfv-openvswitch
         state: present
-      when: ansible_facts['os_family'] == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
  
     - name: install openvswitch (RedHat)
       ansible.builtin.dnf:
         name:
         - openvswitch3.2
         state: present
-      when: ansible_facts['os_family'] == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
 
     - name: start service (Debian)
       ansible.builtin.systemd:
@@ -36,5 +41,5 @@
         name: openvswitch
         state: restarted
         enabled: true
-      when: ansible_facts['os_family'] == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
 
