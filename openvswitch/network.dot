@@ -1,0 +1,147 @@
+graph mygraph {
+  rankdir="TB";
+  //node [shape=none, margin=0];
+  splines=curved;
+
+  subgraph hostpc {
+    label="Host PC";
+    cluster=True;
+    bgcolor="white";
+
+    eth0 [ shape="none" margin="0" label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+        <tr><td port="name" bgcolor="lightblue">eth0</td></tr>
+        <tr><td port="method" >method: static</td></tr>
+        <tr><td port="addr" >ip: 192.168.0.98</td></tr>
+      </table>
+    >];
+    
+    virbr0 [ shape="none" margin="0" label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+        <tr><td port="name" bgcolor="lightblue">virbr0</td></tr>
+        <tr><td port="method" >method: static</td></tr>
+        <tr><td port="addr" >ip: 192.168.122.1</td></tr>
+      </table>
+    >];
+    
+    subgraph opnsense {
+      label="OPNsense";
+      cluster=True;
+      graph[style=bold];
+      bgcolor="white";
+   
+      vtnet0 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="name"   bgcolor="lightblue">vtnet0</td></tr>
+          <tr><td port="method" bgcolor="white">method: dhcp</td></tr>
+          <tr><td port="addr"   bgcolor="white">192.168.122.7</td></tr>
+        </table>
+      >];
+      vtnet1 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="name" bgcolor="lightblue">vtnet1</td></tr>
+          <tr><td port="method" >method: static</td></tr>
+          <tr><td port="addr">IP: 192.168.60.1</td></tr>
+        </table>
+      >];
+      vtnet2 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="name" bgcolor="lightblue">vtnet2</td></tr>
+          <tr><td port="method" >method: static</td></tr>
+          <tr><td port="addr">IP: 192.168.70.1</td></tr>
+        </table>
+      >];
+      vtnet3 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="name" bgcolor="lightblue">vtnet3</td></tr>
+          <tr><td port="method" >method: static</td></tr>
+          <tr><td port="addr">IP: 192.168.80.1</td></tr>
+        </table>
+      >];
+    }
+
+    ovsbr60 [ shape="none" margin="0" label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+        <tr><td port="name" bgcolor="lightblue">ovsbr60</td></tr>
+        <tr><td port="method" >method: static</td></tr>
+        <tr><td port="addr" >IP: 192.168.60.254</td></tr>
+      </table>
+    >];
+    
+    ovsbr70 [ shape="none" margin="0" label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+        <tr><td port="name" bgcolor="lightblue">ovsbr70</td></tr>
+        <tr><td port="method" >method: static</td></tr>
+        <tr><td port="addr">IP: 192.168.70.254</td></tr>
+      </table>
+    >];
+    
+    ovsbr80 [ shape="none" margin="0" label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+        <tr><td port="name"   bgcolor="lightblue">ovsbr80</td></tr>
+        <tr><td port="method" bgcolor="white">method: static</td></tr>
+        <tr><td port="addr"   bgcolor="white">IP: 192.168.80.254</td></tr>
+      </table>
+    >];
+  
+    subgraph alpine60 {
+      label="alpine60";
+      cluster=True;
+      bgcolor="white";
+      graph[style=bold];
+   
+      alpine60 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="eth0"   bgcolor="lightblue">eth0</td></tr>
+          <tr><td port="method" bgcolor="white">method: dhcp</td></tr>
+          <tr><td port="addr"   bgcolor="white">192.168.60.100</td></tr>
+        </table>
+      >];
+    }
+    
+    subgraph alpine70 {
+      label="alpine70";
+      cluster=True;
+      bgcolor="white";
+      graph[style=bold];
+   
+      alpine70 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="eth0"   bgcolor="lightblue">eth0</td></tr>
+          <tr><td port="method" bgcolor="white">method: dhcp</td></tr>
+          <tr><td port="addr"   bgcolor="white">192.168.70.100</td></tr>
+        </table>
+      >];
+    }
+    
+    subgraph alpine80 {
+      label="alpine80";
+      cluster=True;
+      bgcolor="white";
+      graph[style=bold];
+   
+      alpine80 [ shape="none" margin="0" label=<
+        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+          <tr><td port="eth0"   bgcolor="lightblue">eth0</td></tr>
+          <tr><td port="method" bgcolor="white">method: dhcp</td></tr>
+          <tr><td port="addr"   bgcolor="white">192.168.80.100</td></tr>
+        </table>
+      >];
+    }
+
+
+    eth0:addr -- virbr0:name;
+    virbr0:addr -- vtnet0:name;
+    vtnet0:addr -- vtnet1:name;
+    vtnet0:addr -- vtnet2:name;
+    vtnet0:addr -- vtnet3:name;
+    vtnet1:addr -- ovsbr60:name;
+    vtnet2:addr -- ovsbr70:name;
+    vtnet3:addr -- ovsbr80:name;
+
+    ovsbr60:addr -- alpine60:eth0;
+    ovsbr70:addr -- alpine70:eth0;
+    ovsbr80:addr -- alpine80:eth0;
+  }
+}
+
