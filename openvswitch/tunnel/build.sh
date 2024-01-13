@@ -3,7 +3,16 @@
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 cd $top_dir
 
+segments="60 70 80"
+
+remote_ip="192.168.0.98"
+
 all()
+{
+  :
+}
+
+list()
 {
   brs=`sudo ovs-vsctl list-br`
   for br in $brs; do
@@ -14,6 +23,26 @@ all()
     done
   done
 }
+
+add()
+{
+  for segment in $segments; do
+    br="ovsbr${segment}"
+    gre="gre${segment}"
+
+    cmd="sudo ovs-vsctl add-port $br $gre"
+    cmd="$cmd -- set interface $gre type=gre option:remote_ip=$remote_ip"
+    echo $cmd
+    $cmd
+  done
+}
+
+del()
+{
+  sudo ovs-vsctl del-port ovsbr60 gre0
+}
+
+
 
 usage()
 {
