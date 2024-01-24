@@ -12,14 +12,17 @@
 - name: install sssd-ldap for centos
   ansible.builtin.dnf:
     name:
+      - openldap-clients
       - sssd
       - sssd-ldap
       - sssd-tools
       - oddjob-mkhomedir
-  when: ansible_facts['os_family'] == "RedHat"
+  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
 
 - name: check sssd is running
   ansible.builtin.systemd:
     state: started
     name:  sssd
+  ignore_errors: true
+
 
