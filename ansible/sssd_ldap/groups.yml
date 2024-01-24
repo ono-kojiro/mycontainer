@@ -4,4 +4,9 @@ all:
       hosts:
         cfrz4:
         centos:
+        kali:
+        rocky:
+        alma:
+        cfsz5:
+        debian11:
 
