@@ -26,6 +26,6 @@
     - role: provider
       tags: provider
 
-#    - role: sudo
-#      tags: sudo
+    - role: sudo
+      tags: sudo
 
