@@ -24,4 +24,5 @@
 - name: initialize LDAP tree
   shell: |
     /usr/sbin/ldapinit
+  ignore_errors: true
 

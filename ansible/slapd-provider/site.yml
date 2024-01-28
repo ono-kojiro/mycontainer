@@ -11,15 +11,14 @@
     - role: ldap
       tags: ldap
 
-#    - role: ldapscripts
-#      tags: ldapscripts
+    - role: ldapscripts
+      tags: ldapscripts
 
-#    - role: useradd
-#      tags: useradd
+    - role: useradd
+      tags: useradd
 
-
-#    - role: sssd
-#      tags: sssd
+    - role: sssd
+      tags: sssd
 
 #    - role: keys
 #      tags: keys
