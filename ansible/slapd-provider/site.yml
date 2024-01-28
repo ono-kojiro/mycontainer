@@ -23,8 +23,8 @@
 #    - role: keys
 #      tags: keys
 
-#    - role: replication
-#      tags: replication
+    - role: provider
+      tags: provider
 
 #    - role: sudo
 #      tags: sudo
