@@ -18,6 +18,12 @@ ldap_users:
   groups:   ldapusers,ldapwheel,oldtype
   mail:     gihren@example.com
 
+- name:     degwin
+  password: degwin
+  gecos:    Degwin Sodo Zabi
+  groups:   ldapusers,oldtype
+  mail:     degwin@example.com
+
 - name:     dozle
   password: dozle
   gecos:    Dozle Zabi
@@ -36,6 +42,12 @@ ldap_users:
   groups:   ldapusers,oldtype
   mail:     kycilia@example.com
 
+- name:     mineva
+  password: mineva
+  gecos:    Mineva Lao Zabi
+  groups:   ldapusers,newtype
+  mail:     mineva@example.com
+
 - name:     challia
   password: challia
   gecos:    Challia Bull
@@ -47,4 +59,5 @@ ldap_users:
   gecos:    Char Aznable
   groups:   ldapusers,newtype
   mail:     char@example.com
+
 

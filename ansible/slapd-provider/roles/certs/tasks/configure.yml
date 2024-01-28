@@ -1,0 +1,39 @@
+---
+#
+# self-signed CA
+#
+- name: copy cacert directory
+  ansible.builtin.file:
+    path: /etc/share/ca-certificates/mylocalca
+    state: directory
+    mode: '0755'
+
+- name: copy ca cert
+  ansible.builtin.copy:
+    src: mylocalca.pem
+    dest: /etc/share/ca-certificates/mylocalca/
+
+- name: add relative directory path
+  ansible.builtin.lineinfile:
+    path: /etc/ca-certificates.conf
+    line: mylocalca/mylocalca.pem
+
+- name: update ca certificates
+  ansible.builtin.shell: |
+    update-ca-certificates
+
+#
+# Server crt and key
+#
+
+- name: copy server crt
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/ssl/certs/
+
+- name: copy server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/ssl/private/
+
+

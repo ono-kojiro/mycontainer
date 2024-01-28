@@ -2,17 +2,11 @@
 # CA
 ca_nickname : MyCA
 ca_dir   : /etc/ssl/myca
-ca_crt   : myca.crt
-ca_passwd: secret
+cacert   : myca.crt
 
-ldap_addr: 192.168.0.98
+ldap_addr: 127.0.0.1
 
 # Server
-server_nickname: ldapserver
-server_csr: "{{ server_nickname }}.csr"
 server_crt: "{{ server_nickname }}.crt"
-server_pem: "{{ server_nickname }}.pem"
-server_p12: "{{ server_nickname }}.p12"
 server_key: "{{ server_nickname }}.key"
-server_passwd: secret
 
