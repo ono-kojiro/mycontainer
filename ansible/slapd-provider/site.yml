@@ -5,8 +5,8 @@
     - role: certs
       tags: certs
 
-#    - role: slapd
-#      tags: slapd
+    - role: slapd
+      tags: slapd
 
 #    - role: ldapscripts
 #      tags: ldapscripts
