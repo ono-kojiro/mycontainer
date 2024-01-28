@@ -1,18 +1,18 @@
 ---
-- name: remove /var/log/slapd.log
-  ansible.builtin.file:
-    path: /var/log/slapd.log
-    state: absent
+#- name: remove /var/log/slapd.log
+#  ansible.builtin.file:
+#    path: /var/log/slapd.log
+#    state: absent
 
-- name: uninstall slapd packages
-  apt:
-    name:
-      - slapd
-      - ldap-utils
-      - schema2ldif
-      - fusiondirectory-schema
-    state: absent
-    purge: true
+#- name: uninstall slapd packages
+#  apt:
+#    name:
+#      - slapd
+#      - ldap-utils
+#      - schema2ldif
+#      - fusiondirectory-schema
+#    state: absent
+#    purge: true
 
 - name: install slapd packages
   apt:
@@ -27,6 +27,17 @@
     path: /etc/rsyslog.d/60-slapd.conf
     line: 'local4.*   /var/log/slapd.log'
     create: yes
+
+- name: add openldap user to ssl-cert group
+  ansible.builtin.user:
+    name: openldap
+    groups: ssl-cert
+    append: true
+
+- name: restart slapd service
+  ansible.builtin.systemd:
+    name: slapd
+    state: restarted
 
 - name: restart rsyslog
   ansible.builtin.systemd:

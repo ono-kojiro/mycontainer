@@ -1,45 +1,17 @@
 ---
-- name: remove directory /etc/ldap/certs
-  ansible.builtin.file:
-    path: /etc/ldap/certs
-    state: absent
-
-- name: create directory /etc/ldap/certs
-  ansible.builtin.file:
-    path: /etc/ldap/certs
-    state: directory
-    mode: '0755'
-    owner: openldap
-    group: openldap
-
 - name: copy server crt
   ansible.builtin.copy:
-    src:  "{{ server_crt }}"
-    dest: /etc/ldap/certs/
-    #remote_src: true
+    src:  "{{ provider_crt }}"
+    dest: /etc/ssl/certs/
 
 - name: copy server key
   ansible.builtin.copy:
-    src:  "{{ server_key }}"
-    dest: /etc/ldap/certs/
-    #remote_src: true
+    src:  "{{ provider_key }}"
+    dest: /etc/ssl/private/
+    owner: root
+    group: ssl-cert
+    mode: '0740'
   
-- name: change ownership of server crt
-  ansible.builtin.file:
-    path:  "/etc/ldap/certs/{{ server_crt }}"
-    owner: openldap
-    group: openldap
-
-- name: change ownership of server key
-  ansible.builtin.file:
-    path:  "/etc/ldap/certs/{{ server_key }}"
-    owner: openldap
-    group: openldap
-
-
-
-
-
 - name: change ldap loglevel
   ansible.builtin.shell: |
     cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
@@ -75,8 +47,6 @@
   failed_when: result.rc != 0
 
 
-
-
 - name: change ldap rootdn
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
@@ -101,10 +71,10 @@
     dn: cn=config
     changetype: modify
     add: olcTLSCertificateFile
-    olcTLSCertificateFile: /etc/ldap/certs/{{ server_crt }}
+    olcTLSCertificateFile: /etc/ssl/certs/{{ provider_crt }}
     -
     add: olcTLSCertificateKeyFile
-    olcTLSCertificateKeyFile: /etc/ldap/certs/{{ server_key }}
+    olcTLSCertificateKeyFile: /etc/ssl/private/{{ provider_key }}
     EOF
 
 - name: check ldap tls certificate file
@@ -120,8 +90,6 @@
       -LLL -b "cn=config" olcTLSCertificateKeyFile | grep TLS
   register: result
   failed_when: result.rc != 0
-
-
 
 
 - name: change ldap access

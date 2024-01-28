@@ -5,8 +5,3 @@ ca_dir   : /etc/ssl/myca
 cacert   : myca.crt
 
 ldap_addr: 127.0.0.1
-
-# Server
-server_crt: "{{ server_nickname }}.crt"
-server_key: "{{ server_nickname }}.key"
-
