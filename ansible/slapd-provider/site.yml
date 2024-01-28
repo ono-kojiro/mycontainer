@@ -8,14 +8,15 @@
     - role: slapd
       tags: slapd
 
+    - role: ldap
+      tags: ldap
+
 #    - role: ldapscripts
 #      tags: ldapscripts
 
 #    - role: useradd
 #      tags: useradd
 
-#    - role: ldap
-#      tags: ldap
 
 #    - role: sssd
 #      tags: sssd
