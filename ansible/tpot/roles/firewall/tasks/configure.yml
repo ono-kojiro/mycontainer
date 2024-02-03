@@ -1,0 +1,44 @@
+---
+- name: install ufw (Uncomplicated Firewall)
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: show app list
+  ansible.builtin.shell: |
+    ufw app list
+  register: res
+
+- name: show app list
+  debug:
+    var: res
+
+- name: disable ufw
+  ansible.builtin.shell: |
+    ufw disable
+
+- name: reset ufw
+  ansible.builtin.shell: |
+    echo "y" | ufw reset
+
+- name: check ufw status
+  ansible.builtin.shell: |
+    ufw status verbose
+  register: res
+
+- name: show ufw status
+  debug:
+    var: res
+
+- name: set default deny
+  ansible.builtin.shell: |
+    ufw default deny
+
+- name: allow ssh port {{ ansible_port }}
+  ansible.builtin.shell: |
+    ufw allow {{ ansible_port }}/tcp
+
+- name: enable ufw
+  ansible.builtin.shell: |
+    echo "y" | ufw enable
+

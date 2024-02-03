@@ -1,0 +1,6 @@
+- name: setup tpot
+  hosts: tpot
+
+  roles:
+    - role: firewall
+      tags: firewall
