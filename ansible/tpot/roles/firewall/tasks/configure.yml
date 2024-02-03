@@ -4,6 +4,12 @@
     name: ufw
     state: present
 
+- name: disable ipv6
+  ansible.builtin.lineinfile:
+    path: /etc/default/ufw
+    regexp: '^IPV6='
+    line: 'IPV6=no'
+
 - name: show app list
   ansible.builtin.shell: |
     ufw app list
@@ -37,6 +43,29 @@
 - name: allow ssh port {{ ansible_port }}
   ansible.builtin.shell: |
     ufw allow {{ ansible_port }}/tcp
+
+- name: allow qHoneypots
+  ansible.builtin.shell: |
+    ufw allow 21/tcp
+    ufw allow 22/tcp
+    ufw allow 23/tcp
+    ufw allow 25/tcp
+    ufw allow 80/tcp
+    ufw allow 110/tcp
+    ufw allow 143/tcp
+    ufw allow 389/tcp
+    ufw allow 443/tcp
+    ufw allow 445/tcp
+    ufw allow 1080/tcp
+    ufw allow 1433/tcp
+    ufw allow 1521/tcp
+    ufw allow 3306/tcp
+    ufw allow 5432/tcp
+    ufw allow 5900/tcp
+    ufw allow 6379/tcp
+    ufw allow 8080/tcp
+    ufw allow 9200/tcp
+    ufw allow 11211/tcp
 
 - name: enable ufw
   ansible.builtin.shell: |
