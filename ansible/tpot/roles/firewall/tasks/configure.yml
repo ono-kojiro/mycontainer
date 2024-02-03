@@ -44,28 +44,106 @@
   ansible.builtin.shell: |
     ufw allow {{ ansible_port }}/tcp
 
-- name: allow qHoneypots
+- name: allow tanner:2204 (TCP)
   ansible.builtin.shell: |
-    ufw allow 21/tcp
-    ufw allow 22/tcp
-    ufw allow 23/tcp
-    ufw allow 25/tcp
     ufw allow 80/tcp
+
+- name: allow medpot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 2575/tcp
+
+- name: allow elasticpot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 9200/tcp
+
+- name: allow ciscoasa:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 5000/udp
+    ufw allow 8443/tcp
+
+- name: allow ipphoney:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 631/tcp
+
+- name: allow dicompot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 11112/tcp
+
+- name: allow citrixhoneypot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 443/tcp
+
+- name: allow heralding:2204 (TCP)
+  ansible.builtin.shell: |
     ufw allow 110/tcp
     ufw allow 143/tcp
-    ufw allow 389/tcp
-    ufw allow 443/tcp
-    ufw allow 445/tcp
+    ufw allow 465/tcp
+    ufw allow 993/tcp
+    ufw allow 995/tcp
     ufw allow 1080/tcp
-    ufw allow 1433/tcp
-    ufw allow 1521/tcp
-    ufw allow 3306/tcp
     ufw allow 5432/tcp
     ufw allow 5900/tcp
+
+- name: allow dionaea:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 20/tcp
+    ufw allow 22/tcp
+    ufw allow 42/tcp
+    ufw allow 81/tcp
+    ufw allow 135/tcp
+    ufw allow 445/tcp
+    ufw allow 1433/tcp
+    ufw allow 1723/tcp
+    ufw allow 1883/tcp
+    ufw allow 3306/tcp
+    ufw allow 27017/tcp
+    ufw allow 69/udp
+
+- name: allow sentrypeer:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 5060/tcp
+
+- name: allow ddospot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 19/udp
+    ufw allow 53/udp
+    ufw allow 123/udp
+    ufw allow 1900/udp
+
+- name: allow adbhoney:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 5555/tcp
+
+- name: allow conpot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 623/udp
+
+- name: allow mailoney:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 25/tcp
+
+- name: allow compot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 10001/tcp
+
+- name: allow cowrie:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 22/tcp
+    ufw allow 23/tcp
+
+- name: allow compot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 1025/tcp
+    ufw allow 50100/tcp
+
+- name: allow redishoneypot:2204 (TCP)
+  ansible.builtin.shell: |
     ufw allow 6379/tcp
-    ufw allow 8080/tcp
-    ufw allow 9200/tcp
-    ufw allow 11211/tcp
+
+- name: allow compot:2204 (TCP)
+  ansible.builtin.shell: |
+    ufw allow 161/tcp
+    ufw allow 2404/tcp
 
 - name: enable ufw
   ansible.builtin.shell: |
