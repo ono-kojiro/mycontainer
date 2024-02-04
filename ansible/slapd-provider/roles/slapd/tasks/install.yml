@@ -21,6 +21,7 @@
       - ldap-utils
       - schema2ldif
       - fusiondirectory-schema
+      - ssl-cert
 
 - name: create /etc/rsyslog.d/60-slapd.conf for logfile
   ansible.builtin.lineinfile:
