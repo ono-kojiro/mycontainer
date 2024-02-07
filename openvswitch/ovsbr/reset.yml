@@ -1,0 +1,21 @@
+- name:  reset ip address
+  hosts: ubuntu
+  become: true
+
+  tasks:
+    - name: set IP address
+      ansible.builtin.shell: |
+        ip addr add {{ item.addr }} dev {{ item.name }}
+      loop: "{{ bridges }}"
+      ignore_errors: true
+    
+    - name: down bridge
+      ansible.builtin.shell: |
+        ip link set {{ item.name }} down
+      loop: "{{ bridges }}"
+
+    - name: up bridge
+      ansible.builtin.shell: |
+        ip link set {{ item.name }} up
+      loop: "{{ bridges }}"
+    
