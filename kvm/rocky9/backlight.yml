@@ -1,0 +1,9 @@
+- name: enable backlight
+  hosts: myserver
+  become: true
+
+  tasks:
+  - name: enable graphical
+    ansible.builtin.shell: |
+      grubby --update-kernel=0 --args=acpi_backlight=video
+
