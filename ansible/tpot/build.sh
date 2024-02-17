@@ -305,6 +305,16 @@ default()
   ansible-playbook -K -i hosts.yml -t $tag site.yml
 }
 
+check_port()
+{
+  echo check port
+  #command ssh tpot \
+  #  docker ps -a --format "'table {{.ID}}\t{{.Names}}\t{{.Ports}}'" \
+  #  > ports.log
+
+  python3 parse_port.py ports.log
+}
+
 #hosts
 
 args=""
