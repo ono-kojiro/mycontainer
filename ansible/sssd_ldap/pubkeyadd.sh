@@ -3,15 +3,24 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-uri=`cat /etc/ldap/ldap.conf | grep URI | awk '{ print $2 }'`
-if [ -z "$uri" ]; then
-  echo "ERROR: no URI in /etc/ldap/ldap.conf"
-  exit 1
-fi
+ldap_confs="/etc/ldap/ldap.conf /etc/openldap/ldap.conf"
 
-basedn=`cat /etc/ldap/ldap.conf | grep BASE | awk '{ print $2 }'`
+for ldap_conf in $ldap_confs; do
+  if [ ! -e $ldap_conf ]; then
+    continue
+  fi
+  uri=`cat $ldap_conf | sed -e 's/#.*//g' | grep URI | awk '{ print $2 }'`
+  if [ -z "$uri" ]; then
+    echo "ERROR: no URI in $ldap_conf"
+    exit 1
+  else
+	break
+  fi
+done
+
+basedn=`cat $ldap_conf | sed -e 's/#.*//g' | grep BASE | awk '{ print $2 }'`
 if [ -z "$uri" ]; then
-  echo "ERROR: no BASE in /etc/ldap/ldap.conf"
+  echo "ERROR: no BASE in $ldap_conf"
   exit 1
 fi
 
