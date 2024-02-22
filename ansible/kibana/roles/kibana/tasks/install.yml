@@ -1,0 +1,27 @@
+---
+- name: remove old keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/elasticsearch-keyring.gpg
+    state: absent
+
+- name: add elasticsearch keyrings
+  ansible.builtin.shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \
+    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+- name: install apt-transport-https
+  ansible.builtin.apt :
+    name: apt-transport-https
+    state: present
+
+- name: add source list
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" \
+      | tee /etc/apt/sources.list.d/elastic-8.x.list
+
+- name: install kibana
+  ansible.builtin.apt :
+    name: kibana
+    state: present
+    update_cache: true
+

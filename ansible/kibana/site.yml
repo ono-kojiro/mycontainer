@@ -1,0 +1,7 @@
+- name: setup kibana
+  hosts: ubuntu
+
+  roles:
+    - role: kibana
+      tags: kibana
+    
