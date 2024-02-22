@@ -1,0 +1,47 @@
+- name: copy elasticsearch.yml
+  ansible.builtin.template:
+    src:  elasticsearch.yml
+    dest: /etc/elasticsearch/
+ 
+- name: copy heap1gb.options
+  ansible.builtin.copy:
+    src:  heap1gb.options
+    dest: /etc/elasticsearch/jvm.options.d/
+    owner: root
+    group: elasticsearch
+    mode: '0664'
+ 
+- name: copy /etc/default/elasticsearch
+  ansible.builtin.copy:
+    src:  etc-default-elasticsearch
+    dest: /etc/default/elasticsearch
+    owner: root
+    group: elasticsearch
+    mode: '0664'
+
+- name: create /etc/elasticsearch/certs
+  ansible.builtin.file:
+    path:  /etc/elasticsearch/certs
+    state: directory
+
+- name: copy elasticsearch.key
+  ansible.builtin.copy:
+    src:  elasticsearch.key
+    dest: /etc/elasticsearch/certs/
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0600'
+
+- name: copy elasticsearch.crt
+  ansible.builtin.copy:
+    src:  elasticsearch.crt
+    dest: /etc/elasticsearch/certs/
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0755'
+
+- name: restart elasticsearch
+  ansible.builtin.systemd_service:
+    name: elasticsearch
+    state: restarted
+    enabled: true
