@@ -147,8 +147,8 @@ api.http.port: 9600
 # the path to a password-protected keystore in p12 or jks format, along with credentials.
 #
 api.ssl.enabled: true
-api.ssl.keystore.path: /etc/logstash/certs/logstash.jks
-api.ssl.keystore.password: secret
+api.ssl.keystore.path: /etc/logstash/certs/{{ keystore_jks }}
+api.ssl.keystore.password: {{ keystore_pass }}
 #
 # The HTTP API can be configured to require authentication. Acceptable values are
 #  - `none`:  no auth is required (default)

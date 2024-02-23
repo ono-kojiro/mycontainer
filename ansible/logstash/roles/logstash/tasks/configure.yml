@@ -19,9 +19,9 @@
     path:  /etc/logstash/certs
     state: directory
 
-- name: copy logstash.jks
+- name: copy keystore
   ansible.builtin.copy:
-    src:  logstash.jks
+    src:  {{ keystore_jks }}
     dest: /etc/logstash/certs/
     owner: logstash
     group: logstash
@@ -29,23 +29,23 @@
   
 - name: copy ca cert
   ansible.builtin.copy:
-    src:  myca.crt
+    src:  {{ cacert }}
     dest: /etc/logstash/certs/
     owner: logstash
     group: logstash
     mode: '0644'
   
-- name: copy client cert
+- name: copy server cert
   ansible.builtin.copy:
-    src:  logstash.crt
+    src:  {{ server_crt }}
     dest: /etc/logstash/certs/
     owner: logstash
     group: logstash
     mode: '0644'
 
-- name: copy client key
+- name: copy server key
   ansible.builtin.copy:
-    src:  logstash.key
+    src:  {{ server_key }}
     dest: /etc/logstash/certs/
     owner: logstash
     group: logstash
@@ -88,13 +88,13 @@
     group: logstash
     recurse: yes
   loop:
-  - /home/logstash/cpu_load
-  - /home/logstash/nw_load
+  - {{ data_dir }}/cpu_load
+  - {{ data_dir }}/nw_load
   
 - name: copy cpu_load.py
   ansible.builtin.copy:
     src:  cpu_load.py
-    dest: /home/logstash/cpu_load/
+    dest: {{ data_dir }}/cpu_load/
     owner: logstash
     group: logstash
     mode: '0755'
