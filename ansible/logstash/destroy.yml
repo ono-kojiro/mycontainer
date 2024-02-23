@@ -1,0 +1,24 @@
+- name: remove logstash
+  hosts: ubuntu
+
+  tasks:
+  - name: stop logstash
+    ansible.builtin.systemd_service:
+      name: logstash
+      state: stopped
+
+  - name: remove logstash package
+    ansible.builtin.apt:
+      name: logstash
+      state: absent
+
+  - name: remove directories
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - /var/lib/logstash/
+    - /var/log/logstash/
+    - /etc/logstash/
+    - "{{ data_dir }}"
+  

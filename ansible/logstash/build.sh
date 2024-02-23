@@ -69,7 +69,7 @@ if [ -z "$args" ]; then
 fi
 
 for arg in $args; do
-  num=`LANG=C type $arg | grep 'function' | wc -l`
+  num=`LANG=C type $arg 2>&1 | grep 'function' | wc -l`
   if [ $num -ne 0 ]; then
     $arg
   else
