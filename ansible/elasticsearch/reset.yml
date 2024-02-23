@@ -1,5 +1,5 @@
 - name: reset elasticsearch password
-  hosts: ubuntu
+  hosts: elasticsearch
 
   tasks:
   - name: reset elastic password

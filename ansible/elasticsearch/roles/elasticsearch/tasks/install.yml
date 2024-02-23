@@ -1,13 +1,14 @@
 ---
-- name: remove old keyring
-  ansible.builtin.file:
-    path: /usr/share/keyrings/elasticsearch-keyring.gpg
-    state: absent
+#- name: remove old keyring
+#  ansible.builtin.file:
+#    path: /usr/share/keyrings/elasticsearch-keyring.gpg
+#    state: absent
 
 - name: add elasticsearch keyrings
   ansible.builtin.shell: |
     wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \
-    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg \
+        --batch --yes
 
 - name: install apt-transport-https
   ansible.builtin.apt :
