@@ -1,0 +1,12 @@
+- name: reset logstash password
+  hosts: elasticsearch
+
+  tasks:
+  - name: reset logstash password
+    ansible.builtin.shell:
+      /usr/share/elasticsearch/bin/elasticsearch-reset-password \
+        -u logstash --silent --batch
+    register: res
+
+  - debug: msg="{{ res.stdout }}"
+

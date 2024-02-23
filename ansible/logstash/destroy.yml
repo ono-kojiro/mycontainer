@@ -1,5 +1,5 @@
 - name: remove logstash
-  hosts: ubuntu
+  hosts: logstash
 
   tasks:
   - name: stop logstash
