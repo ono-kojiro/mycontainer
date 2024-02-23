@@ -1,5 +1,5 @@
 - name: reset kibana_system password
-  hosts: ubuntu
+  hosts: elasticsearch
 
   tasks:
   - name: reset kibana_system password

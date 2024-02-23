@@ -1,0 +1,23 @@
+- name: remove kibana
+  hosts: kibana
+
+  tasks:
+  - name: stop kibana
+    ansible.builtin.systemd_service:
+      name: kibana
+      state: stopped
+
+  - name: remove kibana package
+    ansible.builtin.apt:
+      name: kibana
+      state: absent
+
+  - name: remove directories
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - /var/lib/kibana/
+    - /var/log/kibana/
+    - /etc/kibana/
+  

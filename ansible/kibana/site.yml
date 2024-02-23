@@ -1,5 +1,5 @@
 - name: setup kibana
-  hosts: ubuntu
+  hosts: kibana
 
   roles:
     - role: kibana
