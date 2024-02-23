@@ -1,0 +1,7 @@
+- name: setup logstash
+  hosts: ubuntu
+
+  roles:
+    - role: logstash
+      tags: logstash
+    
