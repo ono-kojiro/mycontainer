@@ -1,0 +1,28 @@
+- name: remove elasticsearch
+  hosts: elasticsearch
+
+  tasks:
+  - name: stop elasticsearch
+    ansible.builtin.systemd_service:
+      name: elasticsearch
+      state: stopped
+
+  - name: remove elasticsearch package
+    ansible.builtin.apt:
+      name: elasticsearch
+      state: absent
+
+  - name: remove directories
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - /var/lib/elasticsearch/
+    - /var/log/elasitcsearch/
+    - /etc/elasticsearch/
+ 
+  - name: remove elastic-8.x.list
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/elastic-8.x.list
+      state: absent
+

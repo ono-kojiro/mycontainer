@@ -1,5 +1,5 @@
-- name: setup elk
-  hosts: ubuntu
+- name: setup elasticsearch
+  hosts: elasticsearch
 
   roles:
     - role: elasticsearch
