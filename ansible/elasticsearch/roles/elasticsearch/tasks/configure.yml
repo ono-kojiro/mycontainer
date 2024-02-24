@@ -22,19 +22,21 @@
 - name: create /etc/elasticsearch/certs
   ansible.builtin.file:
     path:  /etc/elasticsearch/certs
+    owner: elasticsearch
+    group: elasticsearch
     state: directory
 
-- name: copy elasticsearch.key
+- name: copy server key
   ansible.builtin.copy:
-    src:  elasticsearch.key
+    src:  "{{ server_key }}"
     dest: /etc/elasticsearch/certs/
     owner: elasticsearch
     group: elasticsearch
     mode: '0600'
 
-- name: copy elasticsearch.crt
+- name: copy server cert
   ansible.builtin.copy:
-    src:  elasticsearch.crt
+    src:  "{{ server_crt }}"
     dest: /etc/elasticsearch/certs/
     owner: elasticsearch
     group: elasticsearch

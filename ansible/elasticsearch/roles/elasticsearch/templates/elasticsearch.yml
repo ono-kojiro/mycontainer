@@ -13,16 +13,16 @@ xpack:
     http:
       ssl:
         enabled: true
-        key:         certs/elasticsearch.key
-        certificate: certs/elasticsearch.crt
-        certificate_authorities: certs/myca.pem
+        key:         certs/{{ server_key }}
+        certificate: certs/{{ server_crt }}
+        certificate_authorities: certs/{{ cacert }}
         verification_mode: none
     transport:
       ssl:
         enabled: true
-        key:         certs/elasticsearch.key
-        certificate: certs/elasticsearch.crt
-        certificate_authorities: certs/myca.pem
+        key:         certs/{{ server_key }}
+        certificate: certs/{{ server_crt }}
+        certificate_authorities: certs/{{ cacert }}
         verification_mode: none
   license:
     self_generated:
