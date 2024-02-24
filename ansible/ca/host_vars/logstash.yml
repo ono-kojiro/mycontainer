@@ -1,0 +1,6 @@
+---
+ansible_host: logstash
+ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
+ansible_become: true
+
+

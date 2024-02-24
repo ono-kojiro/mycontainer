@@ -1,0 +1,29 @@
+- name: install local CA
+  hosts: elasticsearch kibana logstash
+
+  tasks:
+  - name: create directory for cacert
+    ansible.builtin.file:
+      path: /usr/share/ca-certificates/myca
+      state: directory
+      owner: root
+      group: root
+      mode: '0664'
+
+  - name: copy cacert
+    ansible.builtin.copy:
+      src: "{{ cacert }}"
+      dest: /usr/share/ca-certificates/myca/
+      owner: root
+      group: root
+      mode: '0664'
+
+  - name: add directory path to /etc/ca-certificates.conf
+    ansible.builtin.lineinfile:
+      path: /etc/ca-certificates.conf
+      line: "myca/{{ cacert }}"
+      create: yes
+
+  - name: update ca certificates
+    ansible.builtin.shell: |
+      update-ca-certificates
