@@ -7,6 +7,8 @@ es_host="https://192.168.0.98:9200"
 
 netrc="${top_dir}/.netrc"
 
+default_roles="superuser kibana_admin"
+
 ret=0
 
 help() {
@@ -51,11 +53,39 @@ create()
     echo -n "enter user password: "
     stty_orig=$(stty -g)
     stty -echo
-    read password
+    read password1
     stty $stty_orig
+  
+    # newline
+    tty -s && echo
+
+    echo -n "enter user password again: "
+    stty_orig=$(stty -g)
+    stty -echo
+    read password2
+    stty $stty_orig
+	
+    # newline
+	tty -s && echo
+
+	if [ "x$password1" = "x$password2" ]; then
+		password="$password1"
+	else
+		echo "ERROR: password mismatch!"
+		exit 1
+	fi
   fi
 
   tty -s && echo
+
+  roles=""
+  for default_role in $default_roles; do
+    roles="$roles, \"$default_role\""
+  done
+  roles=`echo $roles | sed -e 's/^,//'`
+
+  # expected roles string
+  # "superuser", "kibana_admin"
 
   curl -k --netrc-file $netrc \
     -H 'Content-Type: application/json' \
@@ -63,7 +93,7 @@ create()
 {
   "password" : "$password",
   "enabled" : true,
-  "roles" : [ "superuser", "kibana_admin" ],
+  "roles" : [ $roles ],
   "full_name" : "$fullname",
   "email" : "$email",
   "metadata" : {
