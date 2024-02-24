@@ -1,12 +1,20 @@
 - name: reset kibana_system password
-  hosts: elasticsearch
+  hosts: kibana
 
   tasks:
   - name: reset kibana_system password
     ansible.builtin.shell:
-      /usr/share/elasticsearch/bin/elasticsearch-reset-password \
-        -u kibana_system --silent --batch
+      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system --silent --batch);
+      echo "kibana_password{{':'}} $pass" > /tmp/password.yml;
     register: res
 
-  - debug: msg="{{ res.stdout }}"
+  - name: fetch password.yml
+    ansible.builtin.fetch:
+      src: /tmp/password.yml
+      dest: "{{ workdir }}/group_vars/all/password.yml"
+      flat: yes
 
+  - name: remove password.yml on remote
+    ansible.builtin.file:
+      path: /tmp/password.yml
+      state: absent

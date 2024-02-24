@@ -12,6 +12,9 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
+
+  reset       reset kibana_system password
+  deploy      deploy kibana
 EOS
 
 }

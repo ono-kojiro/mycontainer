@@ -18,7 +18,7 @@ server:
     key:         /etc/kibana/certs/kibana.key
     
 elasticsearch.username: kibana_system
-elasticsearch.password: XXXXXXXXXXXXXXXXXXXX
+elasticsearch.password: {{ kibana_password }}
 
 logging:
   root:
