@@ -4,8 +4,22 @@
   tasks:
   - name: reset elastic password
     ansible.builtin.shell:
-      /usr/share/elasticsearch/bin/elasticsearch-reset-password \
-        -u elastic --silent --batch 
+      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic --silent --batch);
+      addr={{ ansible_facts.default_ipv4.address }};
+      echo "machine $addr" > /tmp/netrc;
+      echo "login   elastic" >> /tmp/netrc;
+      echo "password $pass" >> /tmp/netrc;
     register: res
 
-  - debug: msg="{{ res.stdout }}"
+  - name: fetch netrc
+    ansible.builtin.fetch:
+      src: /tmp/netrc
+      dest: "{{ workdir }}/.netrc"
+      flat: yes
+
+  - name: remove netrc on remote
+    ansible.builtin.file:
+      path: /tmp/netrc
+      state: absent
+
+#  - debug: msg="{{ res.stdout }}"
