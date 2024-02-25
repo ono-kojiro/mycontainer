@@ -116,13 +116,13 @@ logstash()
   "cluster": [ "manage_index_templates", "monitor", "manage_ilm" ],
   "indices": [
     {
-      "names": [ "logstash-*" ],
-      "privileges": [ "write", "create", "create_index", "manage", "manage_ilm" ]
+      "names": [ "*" ],
+      "privileges": [ "auto_configure", "create_index", "manage", "all" ]
     }
   ]
 }
 EOS
-
+  
   curl -k --netrc-file $netrc \
     -H 'Content-Type: application/json' \
     -XPOST "$es_host/_security/user/$username?pretty" --data @- << EOS
