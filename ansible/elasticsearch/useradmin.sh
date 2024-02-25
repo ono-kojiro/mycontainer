@@ -18,6 +18,7 @@ usage :
   $0 passwd -u <username> [-p <password>]
   $0 check  -u <username> [-p <password>]
   $0 delete -u <username>
+  $0 logstash
   $0 list
 EOS
 }
@@ -104,9 +105,23 @@ EOS
 
 }
 
-create_logstash()
+logstash()
 {
   username="logstash_internal"
+  
+  curl -k --netrc-file $netrc \
+    -H 'Content-Type: application/json' \
+    -XPOST "$es_host/_security/role/logstash_writer" --data @- << EOS
+{
+  "cluster": [ "manage_index_templates", "monitor", "manage_ilm" ],
+  "indices": [
+    {
+      "names": [ "logstash-*" ],
+      "privileges": [ "write", "create", "create_index", "manage", "manage_ilm" ]
+    }
+  ]
+}
+EOS
 
   curl -k --netrc-file $netrc \
     -H 'Content-Type: application/json' \
@@ -238,7 +253,9 @@ version() {
 list()
 {
   curl --silent -k --netrc-file $netrc "$es_host/_security/user?pretty"
+  curl --silent -k --netrc-file $netrc "$es_host/_security/role?pretty"
 }
+
 
 
 indices() {
