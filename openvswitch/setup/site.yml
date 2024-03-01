@@ -1,5 +1,5 @@
 - name:  setup openvswitch
-  hosts: cfsz5
+  hosts:  myserver
   become: true
 
   tasks:
