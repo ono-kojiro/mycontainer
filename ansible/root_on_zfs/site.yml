@@ -1,0 +1,145 @@
+---
+- name: setup zfs on root
+  hosts: ubuntu
+
+# Ubuntu 22.04 Root on ZFS
+# https://openzfs.github.io/openzfs-docs/Getting%20Started/Ubuntu/Ubuntu%2022.04%20Root%20on%20ZFS.html
+
+
+  tasks:
+  - name: no task now
+    ansible.builtin.shell: |
+      echo no task now
+
+  - name: apt update
+    ansible.builtin.apt:
+      update_cache: yes
+  
+  - name: install zfs
+    ansible.builtin.apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+    - debootstrap
+    - gdisk
+    - zfsutils-linux
+  
+  - name: stop zed
+    ansible.builtin.systemd_service:
+      name: zfs-zed
+      state: stopped
+    ignore_errors: true
+
+  - name: disable automounting
+    ansible.builtin.shell: |
+      gsettings set org.gnome.desktop.media-handling automount false
+    ignore_errors: true
+
+  - name: disable swap
+    ansible.builtin.shell: |
+      swapoff --all
+  
+  - name: install mdadm
+    ansible.builtin.apt:
+      name: mdadm
+      state: present
+
+  - name: clear partition table
+    ansible.builtin.shell: |
+      sgdisk --zap-all {{ disk }}
+
+  - name: create bootloader partition
+    ansible.builtin.shell: |
+      sgdisk -n1:1M:+512M -t1:EF00 {{ disk }}
+  
+  - name: create swap partition
+    ansible.builtin.shell: |
+      sgdisk -n2:0:+32G -t2:8200 {{ disk }}
+
+  - name: create boot pool partition
+    ansible.builtin.shell: |
+      sgdisk -n3:0:+2G -t3:BE00 {{ disk }}
+ 
+  - name: create root pool partition
+    ansible.builtin.shell: |
+      sgdisk -n4:0:0   -t4:BF00 {{ disk }}
+
+  - name: create boot pool (unencrypted)
+    ansible.builtin.shell: |
+      zpool create \
+        -o ashift=12 \
+        -o autotrim=on \
+        -o cachefile=/etc/zfs/zpool.cache \
+        -o compatibility=grub2 \
+        -o feature@livelist=enabled \
+        -o feature@zpool_checkpoint=enabled \
+        -O devices=off \
+        -O acltype=posixacl -O xattr=sa \
+        -O compression=lz4 \
+        -O normalization=formD \
+        -O relatime=on \
+        -O canmount=off -O mountpoint=/boot -R /mnt \
+        bpool {{ disk }}-part3
+    ignore_errors: true
+  
+  - name: create root pool (unencrypted)
+    ansible.builtin.shell: |
+      zpool create \
+        -o ashift=12 \
+        -o autotrim=on \
+        -O acltype=posixacl -O xattr=sa -O dnodesize=auto \
+        -O compression=lz4 \
+        -O normalization=formD \
+        -O relatime=on \
+        -O canmount=off -O mountpoint=/ -R /mnt \
+        rpool {{ disk }}-part4
+    ignore_errors: true
+
+# Step 3: System Installation
+  - name: create filesystem datasets
+    ansible.builtin.shell: |
+      UUID={{ uuid }}
+      
+      zfs create -o canmount=off -o mountpoint=none rpool/ROOT
+      zfs create -o canmount=off -o mountpoint=none bpool/BOOT
+    
+      zfs create -o mountpoint=/ \
+        -o com.ubuntu.zsys:bootfs=yes \
+        -o com.ubuntu.zsys:last-used=$(date +%s) rpool/ROOT/ubuntu_$UUID
+
+      zfs create -o mountpoint=/boot bpool/BOOT/ubuntu_$UUID
+  
+  - name: create datasets
+    ansible.builtin.shell: |
+      UUID={{ uuid }}
+      
+      zfs create -o com.ubuntu.zsys:bootfs=no -o canmount=off \
+        rpool/ROOT/ubuntu_$UUID/usr
+      zfs create -o com.ubuntu.zsys:bootfs=no -o canmount=off \
+        rpool/ROOT/ubuntu_$UUID/var
+      zfs create rpool/ROOT/ubuntu_$UUID/var/lib
+      zfs create rpool/ROOT/ubuntu_$UUID/var/log
+      zfs create rpool/ROOT/ubuntu_$UUID/var/spool
+
+      zfs create -o canmount=off -o mountpoint=/ \
+        rpool/USERDATA
+      zfs create -o com.ubuntu.zsys:bootfs-datasets=rpool/ROOT/ubuntu_$UUID \
+        -o canmount=on -o mountpoint=/root \
+        rpool/USERDATA/root_$UUID
+      chmod 700 /mnt/root
+
+  - name: mount tmpfs at /run
+    ansible.builtin.shell: |
+      mkdir -p /mnt/run
+      mount -t tmpfs tmpfs /mnt/run
+      mkdir -p /mnt/run/lock
+
+  - name: install minimal system
+    ansible.builtin.shell: |
+      debootstrap jammy /mnt
+ 
+  - name: copy zpool.cache
+    ansible.builtin.shell: |
+      mkdir -p /mnt/etc/zfs
+      cp -f /etc/zfs/zpool.cache /mnt/etc/zfs/
+

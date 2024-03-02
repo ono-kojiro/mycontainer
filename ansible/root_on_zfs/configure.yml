@@ -1,0 +1,179 @@
+---
+- name: system configuration
+  hosts: ubuntu
+
+  tasks:
+  - name: set hostname
+    ansible.builtin.shell: |
+      hostname {{ hostname }}
+      hostname > /mnt/etc/hostname
+      echo "127.0.1.1 {{ hostname }}" >> /mnt/etc/hostname
+
+  - name: configure network interface
+    ansible.builtin.template:
+      src: 01-netcfg.yml
+      dest: /mnt/etc/netplan/
+
+  - name: configure package sources
+    ansible.builtin.template:
+      src: sources.list
+      dest: /mnt/etc/apt/
+
+  - name: bind virtual filesystem for chroot
+    ansible.builtin.shell: |
+      mount --make-private --rbind /dev  /mnt/dev
+      mount --make-private --rbind /proc /mnt/proc
+      mount --make-private --rbind /sys  /mnt/sys
+
+  - name: apt update in chroot
+    ansible.builtin.shell: |
+      mount --make-private --rbind /dev  /mnt/dev
+      mount --make-private --rbind /proc /mnt/proc
+      mount --make-private --rbind /sys  /mnt/sys
+      
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        echo hoge
+      '
+  
+  - name: (chroot) install dosfstools
+    ansible.builtin.shell: |
+      mount --make-private --rbind /dev  /mnt/dev
+      mount --make-private --rbind /proc /mnt/proc
+      mount --make-private --rbind /sys  /mnt/sys
+      
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        apt -y install dosfstools
+      '
+  
+  - name: create efi filesystem
+    ansible.builtin.shell: |
+      mount --make-private --rbind /dev  /mnt/dev
+      mount --make-private --rbind /proc /mnt/proc
+      mount --make-private --rbind /sys  /mnt/sys
+      
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        mkdosfs -F 32 -s 1 -n EFI {{ disk }}-part1;
+        mkdir -p /boot/efi;
+        echo /dev/disk/by-uuid/$(blkid -s UUID -o value {{ disk }}-part1) \
+          /boot/efi vfat defaults 0 0 >> /etc/fstab;
+        mount /boot/efi || true;
+      '
+  - name: (chroot) put /boot/grub
+    ansible.builtin.shell: |
+      mount --make-private --rbind /dev  /mnt/dev
+      mount --make-private --rbind /proc /mnt/proc
+      mount --make-private --rbind /sys  /mnt/sys
+      
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        mkdir /boot/efi/grub /boot/grub;
+        echo /boot/efi/grub /boot/grub none defaults,bind 0 0 >> /etc/fstab;
+        mount /boot/grub;
+      '
+
+  - name: (chroot) install GRUB/Linux/ZFS for UEFI booting
+    ansible.builtin.shell: |
+      mount --make-private --rbind /dev  /mnt/dev
+      mount --make-private --rbind /proc /mnt/proc
+      mount --make-private --rbind /sys  /mnt/sys
+      
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        apt install --yes \
+          grub-efi-amd64 grub-efi-amd64-signed linux-image-generic \
+          shim-signed zfs-initramfs zsys
+      '
+  
+  - name: (chroot) remove os-prober
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        apt -y remove --purge os-prober
+      '
+
+  - name: (chroot) set root password
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        echo "root:secret" | chpasswd
+      '
+
+  - name: (chroot) configure swap
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        mkswap -f {{ disk }}-part2; \
+        echo /dev/disk/by-uuid/$(blkid -s UUID -o value {{ disk }}-part2) \
+          none swap discard 0 0 >> /etc/fstab; \
+        swapon -a; \
+      '
+    ignore_errors: true
+
+  - name: (chroot) mount tmpfs to /tmp
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        cp -f /usr/share/systemd/tmp.mount /etc/systemd/system/ ; \
+        systemctl enable tmp.mount; \
+      '
+  
+  - name: (chroot) setup system groups
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        addgroup --system lpadmin; \
+        addgroup --system lxd; \
+        addgroup --system sambashare; \
+      '
+  
+  - name: (chroot) install openssh-server
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        apt -y install openssh-server; \
+      '
+
+# Step5: GRUB Installation
+
+  - name: (chroot) verify zfs boot filesystem is recognized
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        grub-probe /boot
+      '
+  
+  - name: (chroot) refresh initrd files
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        update-initramfs -c -k all
+      '
+    ignore_errors: true
+  
+  - name: disable memory zeroing
+    ansible.builtin.template:
+      src: grub
+      dest: /mnt/etc/default/grub
+
+  - name: (chroot) update grub
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        update-grub
+      '
+  
+  - name: (chroot) install boot loader
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi \
+          --bootloader-id=ubuntu --recheck --no-floppy
+      '
+
+  - name: (chroot) fix filesystem mount ordering
+    ansible.builtin.shell: |
+      chroot /mnt /usr/bin/env DISK={{ disk }} UUID={{ uuid }} bash -c '
+        mkdir -p /etc/zfs/zfs-list.cache; \
+        touch    /etc/zfs/zfs-list.cache/bpool; \
+        touch    /etc/zfs/zfs-list.cache/rpool; \
+        sleep 3; \
+        zfs set canmount=on bpool/BOOT/ubuntu_{{ uuid }}; \
+        zfs set canmount=on rpool/BOOT/ubuntu_{{ uuid }}; \
+        sleep 3; \
+        sed -Ei "s|/mnt/?|/|" /etc/zfs/zfs-list.cache/*; \
+        '
+
+  - name: unmount all filesystems
+    ansible.builtin.shell: |
+      bash -c "mount | grep -v zfs | tac | awk '/\/mnt/ {print $3}' | \
+        xargs -i{} umount -lf {}"
+      zpool export -a
+
