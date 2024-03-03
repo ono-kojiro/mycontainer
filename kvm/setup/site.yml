@@ -1,0 +1,11 @@
+- name: enable kvm
+  hosts: myserver
+
+  tasks:
+    - name: install qemu-kvm
+      ansible.builtin.apt:
+        name:
+        - qemu-kvm
+        - virt-manager
+        state: present
+
