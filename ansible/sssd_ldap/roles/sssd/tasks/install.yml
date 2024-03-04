@@ -1,4 +1,10 @@
 ---
+- name: enable epel-release (OracleLinux)
+  ansible.builtin.dnf:
+    name:
+      - oracle-epel-release-el9
+    state: present
+  when: ansible_facts['distribution'] == "OracleLinux"
 
 - name: install sssd-ldap for debian
   ansible.builtin.apt:
