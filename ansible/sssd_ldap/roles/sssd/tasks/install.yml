@@ -22,6 +22,7 @@
       - sssd
       - sssd-ldap
       - sssd-tools
+      - authselect
       - oddjob-mkhomedir
   when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
 
