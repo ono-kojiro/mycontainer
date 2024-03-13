@@ -1,0 +1,21 @@
+- name:  create ovs network
+  hosts: ubuntu
+  become: true
+
+  tasks:
+    - name: remove ovs bridges
+      ansible.builtin.shell: |
+        num=`ovs-vsctl list-br | grep {{ item.name }} | wc -l`
+        if [ "$num" -ne 0 ]; then
+          ovs-vsctl del-br {{ item.name }}
+        fi
+      loop: "{{ bridges }}"
+    
+    - name: remove gre0, gretap0, erspan0 from kernel
+      ansible.builtin.modprobe:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - ip_gre
+        - gre
+
