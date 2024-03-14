@@ -46,6 +46,16 @@ list()
   virsh net-list --all
 }
 
+dhcp()
+{
+  nets=`virsh net-list --name`
+  for net in $nets; do
+    virsh net-dhcp-leases $net
+  done
+}
+
+hosts
+
 args=""
 while [ $# -ne 0 ]; do
   case $1 in
