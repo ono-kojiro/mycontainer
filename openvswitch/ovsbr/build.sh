@@ -59,6 +59,75 @@ dhcp()
   done
 }
 
+add_br()
+{
+  sudo nmcli con add type ovs-bridge \
+    ifname ovsbr60 \
+    con-name ovsbr60
+}
+
+add_pt()
+{
+  sudo nmcli con add type ovs-port \
+    ifname ovspt60 master ovsbr60 conn.id ovspt60
+}
+
+add_if()
+{
+  sudo nmcli con add type ovs-interface \
+    slave-type ovs-port \
+    conn.interface ovsbr60 \
+    master ovspt60 \
+    con-name ovsif60
+}
+
+add()
+{
+  add_br
+  add_pt
+  add_if
+
+  mod_if
+}
+
+mod_if()
+{
+  sudo nmcli con mod ovsif60 \
+    ipv4.method manual \
+    ipv4.addresses 192.168.60.253/24 \
+    ipv6.method disable
+
+  sudo nmcli con down ovsif60
+  sudo nmcli con up   ovsif60
+}
+
+mod()
+{
+  mod_if
+}
+
+del_if()
+{
+  sudo nmcli con del ovsif60
+}
+
+del_pt()
+{
+  sudo nmcli con del ovspt60
+}
+
+del_br()
+{
+  sudo nmcli con del ovsbr60
+}
+
+del()
+{
+  del_if
+  del_pt
+  del_br
+}
+
 hosts
 
 args=""
