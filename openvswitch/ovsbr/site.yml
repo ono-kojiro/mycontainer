@@ -8,89 +8,38 @@
         name: NetworkManager-ovs
         state: present
 
-#    - name: remove ovs bridges
-#      ansible.builtin.shell: |
-#        ovs-vsctl --if-exists del-br {{ item.name }}
-#      loop: "{{ bridges }}"
-
-#    - name: create ovs bridge
-#      ansible.builtin.shell: |
-#        ovs-vsctl add-br {{ item.name }} \
-#          -- set bridge {{ item.name }} type=ovs-bridge
-#      loop: "{{ bridges }}"
-
-#    - name: set IP address
-#      ansible.builtin.shell: |
-#        ip addr add {{ item.addr }} dev {{ item.name }}
-#      loop: "{{ bridges }}"
-#      ignore_errors: true
-
-#    - name: up bridge
-#      ansible.builtin.shell: |
-#        ip link set {{ item.name }} up
-#      loop: "{{ bridges }}"
-
-#    - name: create GRE tunnel
-#      ansible.builtin.shell: |
-#        ovs-vsctl add-port {{ item.name }} {{ item.gre }} \
-#          -- set interface {{ item.gre }} type=gre \
-#             options:remote_ip={{ item.remote_ip }}
-#      loop: "{{ bridges }}"
-
-#    - name: define network
-#      ansible.builtin.shell: |
-#        cat - << EOF > /tmp/ovsnet.xml
-#        <network>
-#          <name>{{ item.ovsnet }}</name>
-#          <forward mode="bridge"/>
-#          <bridge name="{{ item.name }}"/>
-#          <virtualport type="openvswitch"/>
-#        </network>
-#        EOF
-
-#        virsh net-define /tmp/ovsnet.xml
-#        virsh net-start {{ item.ovsnet }}
-#        virsh net-autostart {{ item.ovsnet }} 
-#      loop: "{{ bridges }}"
-
-#    - name: ovs-vsctl show
-#      ansible.builtin.shell: |
-#        ovs-vsctl show
-#      register: res
-
-#    - name: show result of ovs-vsctl show
-#      ansible.builtin.debug:
-#        var: res.stdout_lines
-    
-#    - name: virsh net-list
-#      ansible.builtin.shell: |
-#        virsh net-list --all
-#      register: res
-
-#    - name: show result of virsh net-list
-#      ansible.builtin.debug:
-#        var: res.stdout_lines
- 
-#
-#    ERROR: no interface found with 'ip addr' command
-#   
-    - name: create ovs bridges
+    - name: add ovs bridges
       ansible.builtin.shell: |
         nmcli con add type ovs-bridge \
           ifname   {{ item.name }} \
-          con-name {{ item.name }} \
+          con-name {{ item.name }}
+      loop: "{{ bridges }}"
+    
+    - name: add ovs ports
+      ansible.builtin.shell: |
+        nmcli con add type ovs-port \
+          ifname {{ item.port }} \
+          master {{ item.name }} \
+          con-name {{ item.port }}
+      loop: "{{ bridges }}"
+    
+    - name: add ovs interfaces
+      ansible.builtin.shell: |
+        nmcli con add type ovs-interface \
+          slave-type ovs-port \
+          ifname {{ item.iface }} \
+          master {{ item.port }} \
+          con-name {{ item.iface }}
+      loop: "{{ bridges }}"
+    
+    - name: set IP addresses
+      ansible.builtin.shell: |
+        nmcli con mod {{ item.iface }} \
           ipv4.method manual \
           ipv4.addresses {{ item.addr }} \
           ipv6.method disable
+        
+        nmcli con down {{ item.iface }}
+        nmcli con up   {{ item.iface }}
       loop: "{{ bridges }}"
-    
-    - name: manage ovsbr by NetworkManager
-      ansible.builtin.shell: |
-        nmcli dev set {{ item.name }} managed yes
-      loop: "{{ bridges }}"
-    
-#    - name: con up ovs bridges
-#      ansible.builtin.shell: |
-#        nmcli con up {{ item.name }}
-#      loop: "{{ bridges }}"
 

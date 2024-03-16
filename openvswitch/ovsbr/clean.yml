@@ -3,33 +3,24 @@
   become: true
 
   tasks:
-    - name: remove ovs bridges
+    - name: remove ovs interfaces
       ansible.builtin.shell: |
-        ovs-vsctl --if-exists del-br {{ item.name }}
-        
-#        num=`virsh net-list | grep {{ item.ovsnet}} | wc -l`
-#        if [ "$num" -ne 0 ]; then
-#          virsh net-destroy {{ item.ovsnet }}
-#        fi
+        name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.iface }}$'`
+        if [ ! -z "$name" ]; then
+          nmcli con del {{ item.iface }}
+        fi
+      loop: "{{ bridges }}"
+      #ignore_errors: true
+    
+    - name: remove ovs ports
+      ansible.builtin.shell: |
+        name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.port }}$'`
+        if [ ! -z "$name" ]; then
+          nmcli con del {{ item.port }}
+        fi
       loop: "{{ bridges }}"
     
-#    - name: remove gre0, gretap0, erspan0 from kernel
-#      ansible.builtin.modprobe:
-#        name: "{{ item }}"
-#        state: absent
-#      loop:
-#        - ip_gre
-#        - gre
-    
-    - name: remove gre0, gretap0, erspan0 from kernel
-      ansible.builtin.shell: |
-        rmmod "{{ item }}"
-      loop:
-      - ip_gre
-      - gre
-      ignore_errors: true
-
-    - name: remove ovs bridge connections
+    - name: remove ovs bridges
       ansible.builtin.shell: |
         name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
         if [ ! -z "$name" ]; then
@@ -37,11 +28,4 @@
         fi
       loop: "{{ bridges }}"
     
-    - name: remove ovs bridge devices
-      ansible.builtin.shell: |
-        name=`nmcli dev | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
-        if [ ! -z "$name" ]; then
-          nmcli dev del {{ item.name }}
-        fi
-      loop: "{{ bridges }}"
-
+    
