@@ -3,100 +3,21 @@
   become: true
 
   tasks:
-    - name: add RDO OpenStack repository (RedHat)
+    - name: enable openvswitch repository
       ansible.builtin.dnf:
-        name: 'https://www.rdoproject.org/repos/rdo-release.el9.rpm'
+        name: centos-release-nfv-openvswitch
         state: present
-        disable_gpg_check: true
       when: >-
         ansible_facts['os_family'] == "RedHat" or
         ansible_facts['os_family'] == "Rocky"
 
-#    - name: add RDO OpenStack repository (RedHat)
-#      ansible.builtin.dnf:
-#        name: 'https://repos.fedorapeople.org/repos/openstack/openstack-yoga/rdo-release-yoga-1.el8.noarch.rpm'
-#        state: present
-#      when: >-
-#        ansible_facts['os_family'] == "RedHat" or
-#        ansible_facts['os_family'] == "Rocky"
-
-#    - name: add openstack-yoga repo
-#      ansible.builtin.dnf:
-#        name: centos-release-openstack-yoga
-#        state: present
-#      when: >-
-#        ansible_facts['os_family'] == "RedHat" or
-#        ansible_facts['os_family'] == "Rocky"
-
-    - name: install openvswitch (Debian)
-      ansible.builtin.apt:
-        name:
-        - openvswitch-switch
-        - python3-openvswitch
-        state: present
-      when: ansible_facts['os_family'] == "Debian"
-   
-#    - name: add repository for openvswitch (RedHat)
-#      ansible.builtin.dnf:
-#        name: centos-release-nfv-openvswitch
-#        state: present
-#      when: >-
-#        ansible_facts['os_family'] == "RedHat" or
-#        ansible_facts['os_family'] == "Rocky"
- 
-#    - name: install openvswitch (RedHat)
-#      ansible.builtin.dnf:
-#        name:
-#        - openvswitch3.2
-#        state: present
-#      when: >-
-#        ansible_facts['os_family'] == "RedHat" or
-#        ansible_facts['os_family'] == "Rocky"
-    
-#    - name: enable powertools (crb) on RedHat
-#      ansible.builtin.shell: |
-#        dnf config-manager --enable crb
-#      when: >-
-#        ansible_facts['os_family'] == "RedHat" or
-#        ansible_facts['os_family'] == "Rocky"
-    
-    - name: dnf update (RedHat)
+    - name: install openvswitch 2.17
       ansible.builtin.dnf:
-        update_only: true
-        enablerepo:
-        - openstack-bobcat
-        - centos-nfv-openvswitch
-        - epel
-        - powertools
-      when: >-
-        ansible_facts['os_family'] == "RedHat" or
-        ansible_facts['os_family'] == "Rocky"
-
-    - name: install openvswitch from openstack-yoga (RedHat)
-      ansible.builtin.dnf:
-        name:
-        - rdo-openvswitch
+        name: "{{ item }}"
         state: present
-        enablerepo:
-        - openstack-bobcat
-        - centos-nfv-openvswitch
-        - epel
-        - powertools
-      when: >-
-        ansible_facts['os_family'] == "RedHat" or
-        ansible_facts['os_family'] == "Rocky"
-
-    - name: start service (Debian)
-      ansible.builtin.systemd:
-        name: openvswitch-switch
-        state: restarted
-      when: ansible_facts['os_family'] == "Debian"
-    
-    - name: start service (RedHat)
-      ansible.builtin.systemd:
-        name: openvswitch
-        state: restarted
-        enabled: true
+      loop:
+      - openvswitch2.17
+      - NetworkManager-ovs
       when: >-
         ansible_facts['os_family'] == "RedHat" or
         ansible_facts['os_family'] == "Rocky"
