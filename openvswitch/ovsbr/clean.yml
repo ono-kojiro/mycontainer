@@ -5,15 +5,12 @@
   tasks:
     - name: remove ovs bridges
       ansible.builtin.shell: |
-        num=`ovs-vsctl list-br | grep {{ item.name }} | wc -l`
-        if [ "$num" -ne 0 ]; then
-          ovs-vsctl del-br {{ item.name }}
-        fi
+        ovs-vsctl --if-exists del-br {{ item.name }}
         
-        num=`virsh net-list | grep {{ item.ovsnet}} | wc -l`
-        if [ "$num" -ne 0 ]; then
-          virsh net-destroy {{ item.ovsnet }}
-        fi
+#        num=`virsh net-list | grep {{ item.ovsnet}} | wc -l`
+#        if [ "$num" -ne 0 ]; then
+#          virsh net-destroy {{ item.ovsnet }}
+#        fi
       loop: "{{ bridges }}"
     
 #    - name: remove gre0, gretap0, erspan0 from kernel
@@ -30,4 +27,21 @@
       loop:
       - ip_gre
       - gre
+      ignore_errors: true
+
+    - name: remove ovs bridge connections
+      ansible.builtin.shell: |
+        name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
+        if [ ! -z "$name" ]; then
+          nmcli con del {{ item.name }}
+        fi
+      loop: "{{ bridges }}"
+    
+    - name: remove ovs bridge devices
+      ansible.builtin.shell: |
+        name=`nmcli dev | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
+        if [ ! -z "$name" ]; then
+          nmcli dev del {{ item.name }}
+        fi
+      loop: "{{ bridges }}"
 
