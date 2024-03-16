@@ -1,6 +1,5 @@
 - name: setup sssd-ldap
-  #hosts: cfrz4
-  hosts: centos
+  hosts: myserver
 
   roles:
     - role: sssd
