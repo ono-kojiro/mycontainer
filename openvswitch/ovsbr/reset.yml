@@ -1,5 +1,5 @@
 - name:  reset ip address
-  hosts: ubuntu
+  hosts: myserver
   become: true
 
   tasks:

@@ -1,37 +1,8 @@
 - name:  create ovs network
-  hosts: rocky ubuntu
+  hosts: myserver
   become: true
 
   tasks:
-    - name: install KVM for RedHat
-      ansible.builtin.dnf:
-        name:
-        - qemu-kvm
-        - libvirt
-        - virt-install
-        state: present
-      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
-    
-    - name: install KVM for Debian
-      ansible.builtin.apt:
-        name:
-        - qemu-kvm
-        - virt-manager
-        state: present
-      when: ansible_facts['os_family'] == "Debian"
-  
-    #- name: set uri_default
-    #  ansible.builtin.lineinfile:
-    #    path: /etc/libvirt/libvirt.conf
-    #    regexp: '#?uri_default = '
-    #    line: 'uri_default = "qemu:///system"'
-  
-    - name: start libvirtd
-      ansible.builtin.systemd:
-        name: libvirtd
-        state: restarted
-        enabled: true
-    
     - name: remove ovs bridges
       ansible.builtin.shell: |
         num=`ovs-vsctl list-br | grep "{{ item.name }}" | wc -l`
@@ -59,24 +30,25 @@
     - name: create GRE tunnel
       ansible.builtin.shell: |
         ovs-vsctl add-port {{ item.name }} {{ item.gre }} \
-          -- set interface {{ item.gre }} type=gre options:remote_ip={{ item.remote_ip }}
+          -- set interface {{ item.gre }} type=gre \
+             options:remote_ip={{ item.remote_ip }}
       loop: "{{ bridges }}"
 
-    - name: define network
-      ansible.builtin.shell: |
-        cat - << EOF > /tmp/ovsnet.xml
-        <network>
-          <name>{{ item.ovsnet }}</name>
-          <forward mode="bridge"/>
-          <bridge name="{{ item.name }}"/>
-          <virtualport type="openvswitch"/>
-        </network>
-        EOF
+#    - name: define network
+#      ansible.builtin.shell: |
+#        cat - << EOF > /tmp/ovsnet.xml
+#        <network>
+#          <name>{{ item.ovsnet }}</name>
+#          <forward mode="bridge"/>
+#          <bridge name="{{ item.name }}"/>
+#          <virtualport type="openvswitch"/>
+#        </network>
+#        EOF
 
-        virsh net-define /tmp/ovsnet.xml
-        virsh net-start {{ item.ovsnet }}
-        virsh net-autostart {{ item.ovsnet }} 
-      loop: "{{ bridges }}"
+#        virsh net-define /tmp/ovsnet.xml
+#        virsh net-start {{ item.ovsnet }}
+#        virsh net-autostart {{ item.ovsnet }} 
+#      loop: "{{ bridges }}"
 
     - name: ovs-vsctl show
       ansible.builtin.shell: |
@@ -87,12 +59,12 @@
       ansible.builtin.debug:
         var: res.stdout_lines
     
-    - name: virsh net-list
-      ansible.builtin.shell: |
-        virsh net-list --all
-      register: res
+#    - name: virsh net-list
+#      ansible.builtin.shell: |
+#        virsh net-list --all
+#      register: res
 
-    - name: show result of virsh net-list
-      ansible.builtin.debug:
-        var: res.stdout_lines
+#    - name: show result of virsh net-list
+#      ansible.builtin.debug:
+#        var: res.stdout_lines
 

@@ -6,6 +6,11 @@ cd $top_dir
 inventory="hosts.yml"
 playbook="site.yml"
 
+prepare()
+{
+  :
+}
+
 hosts()
 {
   ansible-inventory -i groups.yml --list --yaml > hosts.yml

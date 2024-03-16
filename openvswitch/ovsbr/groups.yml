@@ -2,6 +2,5 @@ all:
   children:
     servers:
       hosts:
-        ubuntu:
-        rocky:
+        myserver:
 

@@ -1,5 +1,5 @@
 - name:  create ovs network
-  hosts: ubuntu
+  hosts: myserver
   become: true
 
   tasks:
@@ -16,11 +16,18 @@
         fi
       loop: "{{ bridges }}"
     
+#    - name: remove gre0, gretap0, erspan0 from kernel
+#      ansible.builtin.modprobe:
+#        name: "{{ item }}"
+#        state: absent
+#      loop:
+#        - ip_gre
+#        - gre
+    
     - name: remove gre0, gretap0, erspan0 from kernel
-      ansible.builtin.modprobe:
-        name: "{{ item }}"
-        state: absent
+      ansible.builtin.shell: |
+        rmmod "{{ item }}"
       loop:
-        - ip_gre
-        - gre
+      - ip_gre
+      - gre
 
