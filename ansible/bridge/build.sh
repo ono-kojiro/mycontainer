@@ -21,6 +21,11 @@ all()
   deploy
 }
 
+prepare()
+{
+  sudo dnf -y install ansible-core
+}
+
 clean()
 {
   ansible-playbook -i hosts.yml clean.yml
