@@ -1,0 +1,161 @@
+- name: setup nslcd and nscd
+  hosts: alpine60
+
+  tasks:
+#  - name: install openssh-server-pam
+#    community.general.apk:
+#      name: openssh-server-pam
+#      state: present
+  
+  - name: install openssh-server-pam
+    ansible.builtin.shell: |
+      apk add openssh-server-pam
+  
+  - name: install authkeyscmd
+    ansible.builtin.copy:
+      src:  authkeyscmd
+      dest: /usr/local/bin/
+      mode: '0755'
+  
+  - name: enable pam
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#UsePAM(\s+)(\S+)$'
+      line: 'UsePAM\1yes'
+      backrefs: yes
+  
+  - name: change AuthorizedKeysCommand
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?AuthorizedKeysCommand(\s+)(\S+)$'
+      line: 'AuthorizedKeysCommand\1/usr/local/bin/authkeyscmd'
+      backrefs: yes
+  
+  - name: change AuthorizedKeysCommandUser
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#AuthorizedKeysCommandUser(\s+)(\S+)$'
+      line: 'AuthorizedKeysCommandUser\1nobody'
+      backrefs: yes
+
+  - name: restart sshd
+    ansible.builtin.service:
+      name: sshd
+      state: restarted
+
+  - name: install nss-pam-ldapd
+    ansible.builtin.shell: |
+      apk add \
+        openldap-clients \
+        nss-pam-ldapd \
+        musl-nscd \
+        bash
+
+  - name: update BASE in ldap.conf
+    ansible.builtin.lineinfile:
+      path: /etc/openldap/ldap.conf
+      regexp: '^#?BASE(\s+)(.+)'
+      line: 'BASE\1dc=example,dc=com'
+      backrefs: yes
+      state: present
+  
+  - name: update URI in ldap.conf
+    ansible.builtin.lineinfile:
+      path: /etc/openldap/ldap.conf
+      regexp: '^#?URI(\s+)(.+)'
+      line: 'URI\1ldap://192.168.0.98'
+      backrefs: yes
+      state: present
+
+  - name: install sgerrand.rsa.pub
+    ansible.builtin.get_url:
+      url:  https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+      dest: /etc/apk/keys/sgerrand.rsa.pub
+      mode: '0660'
+  
+  - name: fetch alpine-pkg-glibc
+    ansible.builtin.get_url:
+      url: https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk
+      dest: /tmp/
+      mode: '0660'
+  
+  - name: install alpine-pkg-glibc
+    ansible.builtin.shell: |
+      apk add \
+        /tmp/glibc-2.35-r1.apk
+
+  - name: create symbolic link of libnss_files.so.2
+    ansible.builtin.file:
+      src:  /usr/glibc-compat/lib/libnss_files.so.2
+      dest: /usr/lib/libnss_files.so.2
+      state: link
+  
+  - name: configure uri in nslcd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/nslcd.conf
+      regexp: 'uri(\s+)(.+)$'
+      line: 'uri\1ldap://192.168.0.98'
+      backrefs: yes
+      state: present
+  
+  - name: configure base in nslcd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/nslcd.conf
+      regexp: '^base(\s+)(\S+)$'
+      line: 'base\1dc=example,dc=com'
+      backrefs: yes
+      state: present
+  
+  - name: configure base group in nslcd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/nslcd.conf
+      regexp: '^#base   group(\s+)(\S+)$'
+      line: 'base   group  ou=Groups,dc=example,dc=com'
+      backrefs: yes
+      state: present
+  
+  - name: configure base passwd in nslcd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/nslcd.conf
+      regexp: '^#base   passwd(\s+)(\S+)$'
+      line: 'base   passwd ou=Users,dc=example,dc=com'
+      backrefs: yes
+      state: present
+
+  - name: configure base shadow in nslcd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/nslcd.conf
+      regexp: '^#base   shadow(\s+)(\S+)$'
+      line: 'base   shadow ou=Users,dc=example,dc=com'
+      backrefs: yes
+      state: present
+  
+  - name: configure nsswitch.conf
+    ansible.builtin.blockinfile:
+      path: /etc/nsswitch.conf
+      block: |
+        passwd: files ldap
+        group:  files ldap
+        shadow: files ldap
+
+  - name: copy pam config
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: /etc/pam.d/
+    loop:
+    - base-account
+    - base-auth
+    - base-password
+    - base-session
+    - base-session-noninteractive
+  
+  - name: start nscd
+    ansible.builtin.service:
+      name: nscd
+      state: started
+
+  - name: start nslcd
+    ansible.builtin.service:
+      name: nslcd
+      state: started
+  

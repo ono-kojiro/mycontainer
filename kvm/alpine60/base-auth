@@ -1,0 +1,21 @@
+# basic PAM configuration for Alpine.
+
+auth required pam_env.so
+auth sufficient pam_ldap.so
+auth required pam_unix.so nullok_secure
+auth required pam_nologin.so successok
+
+auth sufficient pam_unix.so nullok try_first_pass
+
+account required pam_nologin.so
+account sufficient pam_ldap.so
+account sufficient pam_unix.so
+
+password sufficient pam_ldap.so
+password sufficient pam_unix.so nullok sha512 shadow use_authtok
+password required pam_unix.so nullok sha512 shadow
+
+session required pam_limits.so
+session include base-session
+session optional pam_ldap.so
+session sufficient pam_unix.so

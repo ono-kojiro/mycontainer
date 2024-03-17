@@ -1,0 +1,15 @@
+---
+- name: install doas
+  hosts: alpine60
+
+  tasks:
+  - name: install doas
+    ansible.builtin.shell: |
+      apk add doas-sudo-shim
+      apk add doas
+
+  - name: allow ldapwheel group
+    ansible.builtin.template:
+      src: ldapwheel.conf
+      dest: /etc/doas.d/
+

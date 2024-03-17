@@ -1,0 +1,43 @@
+username: root
+password: (empty)
+
+# setup-alpine
+
+jp
+jp
+
+localhost
+
+eth0
+dhcp
+manual network configuration? (y/N9 [n] n
+
+root password:
+
+HTTP/FTP proxy URL: [none]
+
+Timezone:
+  Japan
+
+mirror number:
+  62 (ftp.udx.icscore.jp)
+
+Setup a user? [no]
+Which ssh server? [openssh]
+
+Allow root ssh login? : yes
+Enter ssh key or URL for root (or 'none') [none]
+
+Which disks(s) ... : vda
+enter "lvmsys" or "sys"
+
+WARNING: Erase the above disk(s) and continue? (y/n) [n]: y
+
+# reboot
+
+
+
+After rebooting...
+
+# apk add python3
+

@@ -114,7 +114,7 @@ install_python()
 
 shutdown()
 {
-  virsh shutdown $name
+  sudo virsh shutdown $name
 }
 
 dumpxml()
@@ -140,7 +140,7 @@ destroy()
 
 list()
 {
-  virsh list --all
+  sudo virsh list --all
 }
 
 status()
