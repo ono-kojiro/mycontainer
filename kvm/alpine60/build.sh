@@ -123,7 +123,7 @@ console()
 default()
 {
   playbook=$1
-  ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}
+  ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}.yml
 }
 
 vnc()
@@ -172,7 +172,7 @@ if [ $# -eq 0 ]; then
 fi
 
 for target in "$@"; do
-  LANG=C type "$target" | grep 'function' > /dev/null 2>&1
+  LANG=C type "$target" 2>&1 | grep 'function' > /dev/null 2>&1
   if [ $? -eq 0 ]; then
     $target
   else
