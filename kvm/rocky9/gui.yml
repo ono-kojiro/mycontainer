@@ -7,4 +7,13 @@
     ansible.builtin.dnf :
       name: "@Server with GUI"
       state: present
+  
+  - name: enable GUI mode
+    ansible.builtin.shell : |
+      systemctl set-default graphical.target
+
+  - name: remove gnome-initial-setup
+    ansible.builtin.dnf :
+      name: gnome-initial-setup
+      state: absent
 
