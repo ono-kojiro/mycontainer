@@ -3,7 +3,7 @@
   become: true
 
   tasks:
-  - name: enable graphical
+  - name: enable backlight control using Fn + F1/F2 keys
     ansible.builtin.shell: |
-      grubby --update-kernel=0 --args=acpi_backlight=video
+      grubby --update-kernel ALL --args=acpi_backlight=video
 
