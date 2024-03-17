@@ -1,0 +1,9 @@
+- name: install japanese package
+  hosts: myserver
+  become: true
+
+  tasks:
+  - name: install langpacks-ja
+    ansible.builtin.dnf :
+      name: langpacks-ja
+      state: present
