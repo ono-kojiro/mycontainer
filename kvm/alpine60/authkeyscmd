@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ "x$1" = "x" ]; then
+  exit 1
+fi
+
+username="$1"
+
+ldapsearch \
+  -x \
+  -o ldif-wrap=no \
+  -LLL "uid=$username" \
+  sshPublicKey \
+  | grep '^sshPublicKey' | sed -e 's/^sshPublicKey: //'
+

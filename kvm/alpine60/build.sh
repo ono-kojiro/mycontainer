@@ -112,12 +112,12 @@ osinfo()
 
 start()
 {
-  virsh start $name
+  sudo virsh start $name
 }
 
 console()
 {
-  virsh console $name
+  sudo virsh console $name
 }
 
 default()
