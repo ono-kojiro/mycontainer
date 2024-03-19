@@ -6,6 +6,8 @@ name=rocky9
 disk=${top_dir}/${name}.qcow2
 iso="$HOME/Downloads/OS/Rocky-9.2-x86_64-minimal.iso"
 
+ansible_opts="-K -i hosts.yml"
+
 usage()
 {
   cat - << EOF
@@ -120,8 +122,8 @@ console()
 
 default()
 {
-  tag=$1
-  ansible-playbook ${ansible_opts} -t ${tag} site.yml
+  target=$1
+  ansible-playbook ${ansible_opts} ${target}.yml
 }
 
 while [ $# -ne 0 ]; do
