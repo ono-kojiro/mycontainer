@@ -6,7 +6,7 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 name=opnsense
 img="$HOME/Downloads/OS/OPNsense-24.1-serial-amd64.img"
-boot="boot.qcow2"
+boot="/var/lib/libvirt/images/${name}-boot.qcow2"
 disk="/var/lib/libvirt/images/${name}.qcow2"
 
 addr="192.168.10.113"
@@ -20,6 +20,10 @@ playbook="site.yml"
 ansible_opts=""
 
 ansible_opts="$ansible_opts -i ${inventory}"
+
+if [ "x$LIBVIRT_DEFAULT_URI" = "x" ]; then
+  export LIBVIRT_DEFAULT_URI=qemu:///system
+fi
 
 all()
 {
@@ -54,14 +58,14 @@ EOF
 disk()
 {
   # create boot disk from img
-  qemu-img convert -f raw -O qcow2 $img $boot
+  sudo qemu-img convert -f raw -O qcow2 $img $boot
   #qemu-img resize $boot +8G
   
   if [ ! -e "$disk" ]; then
     sudo -- \
       sh -c " \
         qemu-img create -f qcow2 $disk 16G; \
-        chown libvirt-qemu:kvm $disk \
+        #chown libvirt-qemu:kvm $disk \
       "
   fi
         
@@ -93,7 +97,7 @@ install()
 
 detach()
 {
-  virsh detach-disk --domain $name `pwd`/boot.qcow2 --persistent --config
+  virsh detach-disk --domain $name $boot --persistent --config
 }
 
 help()
