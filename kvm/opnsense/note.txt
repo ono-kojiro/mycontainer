@@ -146,6 +146,36 @@ Console:
   # id $USER
 
 
+Allow access from WAN interface
+========================================================
+Interfaces:
+  WAN:
+    Block private networks: false
+
+Firewall:
+  Rules:
+    WAN:
+    - Action: Pass
+      Quick: On (Apply the action immediately on match.)
+      Interface: WAN
+      Direction: in
+      TCP/IP Version: IPv4
+      Protocol: ICMP
+      ICMP type: Echo Request
+      Source: any
+      Destination: WAN address
+
+    - Action: Pass
+      Quick: On (Apply the action immediately on match.)
+      Interface: WAN
+      Direction: in
+      TCP/IP Version: IPv4
+      Protocol: TCP
+      Source: any
+      Destination: WAN address
+      Destination port range:
+        from: SSH
+        to:   SSH
 
 "This account is currently not available."
 ========================================================

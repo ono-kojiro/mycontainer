@@ -4,22 +4,8 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 # https://wiki.freebsd.org/KubilayKocak/SystemSecurityServicesDaemon
 
-name=opnsense-base
-img="$HOME/Downloads/OS/OPNsense-24.1-serial-amd64.img"
-boot="/var/lib/libvirt/images/${name}-boot.qcow2"
+name=opnsense50
 disk="/var/lib/libvirt/images/${name}.qcow2"
-
-addr="192.168.10.113"
-
-seckey="id_ed25519"
-
-inventory="hosts"
-playbook="site.yml"
-
-#ansible_opts="-K"
-ansible_opts=""
-
-ansible_opts="$ansible_opts -i ${inventory}"
 
 if [ "x$LIBVIRT_DEFAULT_URI" = "x" ]; then
   export LIBVIRT_DEFAULT_URI=qemu:///system
@@ -55,46 +41,14 @@ target
 EOF
 }
 
-disk()
+dump()
 {
-  # create boot disk from img
-  sudo qemu-img convert -f raw -O qcow2 $img $boot
-  #qemu-img resize $boot +8G
-  
-  if [ ! -e "$disk" ]; then
-    sudo -- \
-      sh -c " \
-        qemu-img create -f qcow2 $disk 16G; \
-        #chown libvirt-qemu:kvm $disk \
-      "
-  fi
-        
+  virsh dumpxml $name > ${name}.xml
 }
 
-create()
+clone()
 {
-  disk
-
-  virt-install \
-    --print-xml \
-    --name ${name} \
-    --ram 2048 \
-    --disk path=$boot,bus=virtio \
-    --disk path=$disk,bus=virtio \
-    --vcpus 2 \
-    --os-variant freebsd13.0 \
-    --network bridge=ovsbr60,virtualport_type=openvswitch \
-    --network bridge=virbr0 \
-    --console pty,target_type=serial \
-    --nographics \
-    --serial pty \
-    --autostart \
-    --noreboot \
-    --boot hd \
-    > ${name}.xml
-    
-    #--graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
-    #--cdrom $iso \
+  virt-clone --original opnsense-base --auto-clone --name $name
 }
 
 define()
