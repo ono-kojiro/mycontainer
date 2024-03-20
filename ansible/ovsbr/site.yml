@@ -1,0 +1,36 @@
+- name:  create ovs network
+  hosts: myserver
+  become: true
+
+  tasks:
+    - name: install NetworkManager-ovs
+      ansible.builtin.package :
+        name: NetworkManager-ovs
+        state: present
+    
+    - name: restart NetworkManager
+      ansible.builtin.systemd :
+        name: NetworkManager
+        state: restarted
+
+    - name: add bridges/ports/interfaces
+      ansible.builtin.shell: |
+        nmcli con add type ovs-bridge \
+          ifname   {{ item.name }} \
+          con-name {{ item.name }}
+        
+        nmcli con add type ovs-port \
+          ifname   {{ item.name }} \
+          con-name {{ item.port }} \
+          master   {{ item.name }}
+
+        nmcli con add type ovs-interface \
+          ifname   {{ item.name }} \
+          con-name {{ item.iface }} \
+          slave-type ovs-port \
+          master     {{ item.port }} \
+          ipv4.method manual \
+          ipv4.addresses {{ item.addr }} \
+          ipv6.method disable
+      loop: "{{ bridges }}"
+

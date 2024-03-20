@@ -1,0 +1,39 @@
+- name:  setup openvswitch
+  hosts:  myserver
+  become: true
+
+  tasks:
+    - name: install openvswitch repository
+      ansible.builtin.dnf:
+        name: centos-release-nfv-openvswitch
+        state: present
+      when: >-
+        ansible_facts['os_family'] == "RedHat" or
+        ansible_facts['os_family'] == "Rocky"
+
+
+    - name: install openvswitch 2.17
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+        enablerepo:
+        - centos-nfv-openvswitch
+      loop:
+      - openvswitch2.17
+      when: >-
+        ansible_facts['os_family'] == "RedHat" or
+        ansible_facts['os_family'] == "Rocky"
+    
+    - name: disable openvswitch repository
+      ansible.builtin.shell: |
+        dnf config-manager --disable centos-nfv-openvswitch
+
+    - name: start service (RedHat)
+      ansible.builtin.systemd:
+        name: openvswitch
+        state: restarted
+        enabled: true
+      when: >-
+        ansible_facts['os_family'] == "RedHat" or
+        ansible_facts['os_family'] == "Rocky"
+
