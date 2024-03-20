@@ -1,0 +1,5 @@
+---
+ansible_become: true
+ansible_host: myserver
+ansible_user: '{{ lookup(''ansible.builtin.env'', ''USER'') }}'
+
