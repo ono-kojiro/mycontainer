@@ -3,21 +3,21 @@ bridges:
 - name:  ovsbr40
   port:  ovspt40
   iface: ovsif40
-  addr:  192.168.40.254/24
+  addr:  192.168.40.99/24
   gre:   gre40
   remote_ip: 192.168.0.98
 
 - name: ovsbr50
   port: ovspt50
   iface: ovsif50
-  addr: 192.168.50.254/24
+  addr: 192.168.50.99/24
   gre:  gre50
   remote_ip: 192.168.0.98
 
 - name:  ovsbr60
   port:  ovspt60
   iface: ovsif60
-  addr:  192.168.60.254/24
+  addr:  192.168.60.99/24
   gre:  gre60
   remote_ip: 192.168.0.98
 
