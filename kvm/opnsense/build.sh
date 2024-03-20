@@ -4,9 +4,10 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 # https://wiki.freebsd.org/KubilayKocak/SystemSecurityServicesDaemon
 
-name=opnsense
-disk=`pwd`/${name}.qcow2
-iso="$HOME/Downloads/OS/OPNsense-23.7-dvd-amd64.iso"
+name=opnsense-base
+img="$HOME/Downloads/OS/OPNsense-24.1-serial-amd64.img"
+boot="/var/lib/libvirt/images/${name}-boot.qcow2"
+disk="/var/lib/libvirt/images/${name}.qcow2"
 
 addr="192.168.10.113"
 
@@ -19,6 +20,10 @@ playbook="site.yml"
 ansible_opts=""
 
 ansible_opts="$ansible_opts -i ${inventory}"
+
+if [ "x$LIBVIRT_DEFAULT_URI" = "x" ]; then
+  export LIBVIRT_DEFAULT_URI=qemu:///system
+fi
 
 all()
 {
@@ -52,27 +57,54 @@ EOF
 
 disk()
 {
+  # create boot disk from img
+  sudo qemu-img convert -f raw -O qcow2 $img $boot
+  #qemu-img resize $boot +8G
+  
   if [ ! -e "$disk" ]; then
-    qemu-img create -f qcow2 $disk 16G
+    sudo -- \
+      sh -c " \
+        qemu-img create -f qcow2 $disk 16G; \
+        #chown libvirt-qemu:kvm $disk \
+      "
   fi
+        
 }
 
-install()
+create()
 {
   disk
 
   virt-install \
+    --print-xml \
     --name ${name} \
     --ram 2048 \
-    --disk=$disk,bus=virtio \
+    --disk path=$boot,bus=virtio \
+    --disk path=$disk,bus=virtio \
     --vcpus 2 \
     --os-variant freebsd13.0 \
-    --network bridge=br0 \
-    --network bridge=br1 \
+    --network bridge=ovsbr60,virtualport_type=openvswitch \
+    --network bridge=virbr0 \
     --console pty,target_type=serial \
-    --cdrom=$iso \
-    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
-    --serial pty
+    --nographics \
+    --serial pty \
+    --autostart \
+    --noreboot \
+    --boot hd \
+    > ${name}.xml
+    
+    #--graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
+    #--cdrom $iso \
+}
+
+define()
+{
+  virsh define ${name}.xml
+}
+
+detach()
+{
+  virsh detach-disk --domain $name $boot --persistent --config
 }
 
 help()
@@ -114,7 +146,7 @@ install_python()
 
 shutdown()
 {
-  sudo virsh shutdown $name
+  virsh shutdown $name
 }
 
 dumpxml()
@@ -132,15 +164,24 @@ stop()
   shutdown
 }
 
+undefine()
+{
+  virsh undefine $name
+}
+
 destroy()
 {
   virsh destroy  $name
-  virsh undefine $name
 }
 
 list()
 {
-  sudo virsh list --all
+  virsh list --all
+}
+
+netlist()
+{
+  virsh net-list --all
 }
 
 status()
@@ -179,6 +220,11 @@ default()
 {
   playbook=$1
   ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}
+}
+
+vnc()
+{
+  virt-viewer
 }
 
 
