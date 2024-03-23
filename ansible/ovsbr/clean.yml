@@ -28,4 +28,13 @@
         fi
       loop: "{{ bridges }}"
     
+    - name: remove ovs bridges by ovs-vsctl
+      ansible.builtin.shell: |
+        name=`nmcli dev | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
+        if [ ! -z "$name" ]; then
+          ovs-vsctl del-br {{ item.name }}
+        fi
+      loop: "{{ bridges }}"
+    
+    
     

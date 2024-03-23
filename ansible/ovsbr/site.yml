@@ -33,6 +33,7 @@
           ipv4.addresses {{ item.addr }} \
           ipv6.method disable
 
+        nmcli con up {{ item.name }}
         nmcli dev set {{ item.name }} managed yes
       loop: "{{ bridges }}"
 
