@@ -1,0 +1,41 @@
+---
+- name: uninstall openvswitch repository
+  ansible.builtin.dnf:
+    name: centos-release-nfv-openvswitch
+    state: absent
+
+- name: uninstall openvswitch 2.17
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: absent
+    enablerepo:
+    - centos-nfv-openvswitch
+  loop:
+  - openvswitch2.17
+    
+- name: uninstall qemu-kvm (RedHat)
+  ansible.builtin.dnf:
+    name:
+    - qemu-kvm
+    - virt-manager
+    - libvirt-daemon
+    - libvirt-daemon-kvm
+    - libvirt-client
+    state: absent
+
+- name: uninstall virt-install
+  ansible.builtin.package:
+    name:
+    - virt-install
+    state: absent
+
+- name: uninstall NetworkManager-ovs
+  ansible.builtin.package :
+    name: NetworkManager-ovs
+    state: absent
+    
+- name: restart NetworkManager
+  ansible.builtin.systemd :
+    name: NetworkManager
+    state: restarted
+
