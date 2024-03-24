@@ -52,6 +52,13 @@ clean()
   ansible-playbook -K -i ${inventory} -t ${tag}                  ${playbook}
 }
 
+destroy()
+{
+  tag="destroy"
+  ansible-playbook -K -i ${inventory} -t ${tag}                  ${playbook}
+}
+
+
 list()
 {
   virsh net-list --all

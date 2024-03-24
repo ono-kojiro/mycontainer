@@ -13,5 +13,8 @@
       tags: ovsbr
     
     - name: clean
-      tags: [clean, skip]
+      tags: [clean, skip, destroy]
+    
+    - name: destroy
+      tags: [destroy, skip]
 

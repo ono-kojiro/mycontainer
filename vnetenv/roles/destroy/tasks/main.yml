@@ -33,7 +33,11 @@
   ansible.builtin.package :
     name: NetworkManager-ovs
     state: absent
-    
+
+- name: dnf autoremove
+  ansible.builtin.dnf:
+    autoremove: yes
+  
 - name: restart NetworkManager
   ansible.builtin.systemd :
     name: NetworkManager
