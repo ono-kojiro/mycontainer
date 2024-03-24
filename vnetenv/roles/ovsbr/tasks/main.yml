@@ -1,0 +1,34 @@
+- name: add bridges
+  ansible.builtin.shell: |
+    nmcli con add type ovs-bridge \
+      ifname   {{ item.name }} \
+      con-name {{ item.name }}
+  loop: "{{ bridges }}"
+
+- name: add ports
+  ansible.builtin.shell: |
+    nmcli con add type ovs-port \
+      ifname   {{ item.name }} \
+      con-name {{ item.port }} \
+      master   {{ item.name }}
+  loop: "{{ bridges }}"
+
+- name: add interfaces
+  ansible.builtin.shell: |
+    nmcli con add type ovs-interface \
+      ifname   {{ item.name }} \
+      con-name {{ item.iface }} \
+      slave-type ovs-port \
+      master     {{ item.port }} \
+      ipv4.method manual \
+      ipv4.addresses {{ item.addr }} \
+      ipv6.method disable
+  loop: "{{ bridges }}"
+
+- name: enable bridges
+  ansible.builtin.shell: |
+    nmcli con up {{ item.name }}
+    nmcli dev set {{ item.name }} managed yes
+  loop: "{{ bridges }}"
+
+
