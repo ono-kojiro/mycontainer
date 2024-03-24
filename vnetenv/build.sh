@@ -37,13 +37,19 @@ all()
 
 deploy()
 {
-  ansible-playbook -K -i ${inventory} ${playbook}
+  ansible-playbook -K -i ${inventory}           --skip-tags skip ${playbook}
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i ${inventory} -t ${tag} ${playbook}
+  ansible-playbook -K -i ${inventory} -t ${tag} --skip-tags skip ${playbook}
+}
+
+clean()
+{
+  tag="clean"
+  ansible-playbook -K -i ${inventory} -t ${tag}                  ${playbook}
 }
 
 list()
@@ -53,11 +59,11 @@ list()
 
 hosts
 
-if [ -z "$args" ]; then
+if [ "$#" -eq 0 ]; then
   all
 fi
 
-for arg in $args; do
+for arg in "$@"; do
   LANG=C type $arg 2>&1 | grep 'function' > /dev/null 2>&1
   if [ $? -eq 0 ]; then
     $arg
