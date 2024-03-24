@@ -1,0 +1,8 @@
+- name:  virtual network environment
+  hosts:  myserver
+  become: true
+
+  roles:
+    - name: openvswitch
+      tags: openvswitch
+
