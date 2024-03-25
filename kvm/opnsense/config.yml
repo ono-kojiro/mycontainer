@@ -1,0 +1,9 @@
+---
+lan_interface: vtnet0
+wan_interface: vtnet1
+lan_addr   : 192.168.40.1
+dhcp_start : 192.168.40.100
+dhcp_end   : 192.168.40.199
+wan_addr   : 192.168.122.254
+wan_gateway    : 192.168.122.1
+
