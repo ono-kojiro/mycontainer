@@ -227,13 +227,13 @@ def main():
 
     child.sendline('')
     child.expect('login: ')
-    child.sendline('root')
+    child.sendline(config['username'])
     child.expect('Password:')
-    child.sendline('opnsense')
+    child.sendline(config['password'])
     child.expect('Enter an option:')
 
-    assign_interfaces(child, config)
-    set_interface_ip_address(child, config)
+    #assign_interfaces(child, config)
+    #set_interface_ip_address(child, config)
 
     # logoff
     child.sendline('0')

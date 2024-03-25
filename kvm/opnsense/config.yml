@@ -1,4 +1,6 @@
 ---
+username: root
+password: opnsense
 lan_interface: vtnet0
 wan_interface: vtnet1
 lan_addr   : 192.168.40.1
