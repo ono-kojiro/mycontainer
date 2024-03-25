@@ -97,6 +97,11 @@ create()
     #--cdrom $iso \
 }
 
+config()
+{
+  python3 automate.py --name opnsense-base --config config.yml
+}
+
 define()
 {
   virsh define ${name}.xml
