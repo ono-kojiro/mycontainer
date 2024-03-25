@@ -18,3 +18,5 @@
     - name: destroy
       tags: [destroy, skip]
 
+    - name: opnsense
+      tags: opnsense

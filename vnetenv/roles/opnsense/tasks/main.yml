@@ -1,0 +1,88 @@
+---
+- name: install python3-pexpect
+  ansible.builtin.dnf:
+    name: python3-pexpect
+    state: present
+
+- name: download opnsense searial
+  ansible.builtin.shell: |
+    url={{ opnsense_img_url }}
+    bz2file=`basename $url`
+
+    cd /var/lib/libvirt/images/
+    if [ ! -e "$bz2file" ]; then
+      curl -O ${url}
+    fi
+
+- name: decompress image
+  ansible.builtin.shell: |
+    url={{ opnsense_img_url }}
+    bz2file=`basename $url`
+
+    cd /var/lib/libvirt/images/
+    imgfile=`basename -s .bz2 ${bz2file}`
+    if [ ! -e "$imgfile" ]; then
+      bzip2 --decompress --keep ${bz2file}
+    fi
+
+- name: create opnsense-base-boot.qcow2 from opnsense installer image
+  ansible.builtin.shell: |
+    url={{ opnsense_img_url }}
+    img=`basename -s .bz2 $url`
+    
+    boot={{ boot_qcow2 }}
+    if [ ! -e "$boot" ]; then
+      qemu-img convert -f raw -O qcow2 $img $boot
+    fi
+
+- name: create opnsense-base.qcow2
+  ansible.builtin.shell: |
+    disk={{ disk_qcow2 }}
+    if [ ! -e "$disk" ]; then
+      qemu-img create -f qcow2 $disk 16G
+    fi
+
+- name: shutdown domain
+  ansible.builtin.shell: |
+    virsh shutdown {{ domain_name }}
+  ignore_errors: true
+
+- name: undefine domain
+  ansible.builtin.shell: |
+    name={{ domain_name }}
+    virsh list --all --name | grep -e "^${name}$"
+    if [ $? -eq 0 ]; then
+      virsh undefine ${name}
+    fi
+
+- name: create config xml
+  ansible.builtin.shell: |
+    name={{ domain_name }}
+
+    virt-install --print-xml \
+      --name $name \
+      --ram 2048 \
+      --disk path={{ boot_qcow2 }},bus=virtio \
+      --disk path={{ disk_qcow2 }},bus=virtio \
+      --vcpus 2 \
+      --os-variant freebsd13.0 \
+      --network bridge=ovsbr60,virtualport_type=openvswitch \
+      --network bridge=virbr0 \
+      --console pty,target_type=serial \
+      --nographics \
+      --serial pty \
+      --autostart \
+      --noreboot \
+      --boot hd \
+      > /tmp/${name}.xml
+
+- name: define domain
+  ansible.builtin.shell: |
+    name={{ domain_name }}
+    virsh define /tmp/${name}.xml
+
+- name: start domain
+  ansible.builtin.shell: |
+    name={{ domain_name }}
+    virsh start ${name}
+
