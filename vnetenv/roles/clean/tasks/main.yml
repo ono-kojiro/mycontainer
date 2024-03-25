@@ -1,0 +1,34 @@
+---
+- name: remove ovs interfaces
+  ansible.builtin.shell: |
+    name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.iface }}$'`
+    if [ ! -z "$name" ]; then
+      nmcli con del {{ item.iface }}
+    fi
+  loop: "{{ bridges }}"
+  #ignore_errors: true
+
+- name: remove ovs ports
+  ansible.builtin.shell: |
+    name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.port }}$'`
+    if [ ! -z "$name" ]; then
+      nmcli con del {{ item.port }}
+    fi
+  loop: "{{ bridges }}"
+
+- name: remove ovs bridges
+  ansible.builtin.shell: |
+    name=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
+    if [ ! -z "$name" ]; then
+      nmcli con del {{ item.name }}
+    fi
+  loop: "{{ bridges }}"
+
+- name: remove ovs bridges by ovs-vsctl
+  ansible.builtin.shell: |
+    name=`nmcli dev | awk '{ print $1 }' | grep -e '^{{ item.name }}$'`
+    if [ ! -z "$name" ]; then
+      ovs-vsctl del-br {{ item.name }}
+    fi
+  loop: "{{ bridges }}"
+

@@ -1,0 +1,17 @@
+- name:  virtual network environment
+  hosts:  myserver
+  become: true
+
+  roles:
+    - name: kvm
+      tags: kvm
+
+    - name: openvswitch
+      tags: openvswitch
+    
+    - name: ovsbr
+      tags: ovsbr
+    
+    - name: clean
+      tags: [clean, skip]
+
