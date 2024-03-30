@@ -1,0 +1,20 @@
+---
+- name: start opnsense-base
+  ansible.builtin.shell: |
+    virsh start opnsense-base
+    sleep 3
+
+- name: copy config.yml
+  ansible.builtin.copy:
+    src: config.yml
+    dest: /tmp/
+
+- name: copy automate.py
+  ansible.builtin.copy:
+    src: automate.py
+    dest: /tmp/
+
+- name: run automate.py
+  ansible.builtin.shell: |
+    python3 /tmp/automate.py --name opnsense-base --config /tmp/config.yml
+
