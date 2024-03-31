@@ -7,6 +7,8 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 name=opnsense50
 disk="/var/lib/libvirt/images/${name}.qcow2"
 
+original=opnsense
+
 if [ "x$LIBVIRT_DEFAULT_URI" = "x" ]; then
   export LIBVIRT_DEFAULT_URI=qemu:///system
 fi
@@ -41,14 +43,14 @@ target
 EOF
 }
 
-dump()
-{
-  virsh dumpxml $name > ${name}.xml
-}
-
 clone()
 {
-  virt-clone --original opnsense-base --auto-clone --name $name
+  virt-clone --original ${original} --auto-clone --name $name
+}
+
+dumpxml()
+{
+  virsh dumpxml $name > ${name}.xml
 }
 
 define()
@@ -101,11 +103,6 @@ install_python()
 shutdown()
 {
   virsh shutdown $name
-}
-
-dumpxml()
-{
-  virsh dumpxml $name
 }
 
 dominfo()
