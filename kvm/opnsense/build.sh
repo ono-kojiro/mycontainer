@@ -4,12 +4,10 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 # https://wiki.freebsd.org/KubilayKocak/SystemSecurityServicesDaemon
 
-name=opnsense-base
-img="$HOME/Downloads/OS/OPNsense-24.1-serial-amd64.img"
+name=opnsense
+img="/var/lib/libvirt/images/OPNsense-24.1-serial-amd64.img"
 boot="/var/lib/libvirt/images/${name}-boot.qcow2"
 disk="/var/lib/libvirt/images/${name}.qcow2"
-
-addr="192.168.10.113"
 
 seckey="id_ed25519"
 
@@ -27,22 +25,24 @@ fi
 
 all()
 {
-  usage
+  help
 }
 
-usage()
+help()
 {
   cat - << EOF
 usage : $0 target1 target2 ...
 
 target
   all
-  usage
+  help
 
   disk
-  install
+  xml
 
   status
+  define
+  undefine
 
   (after enabling pubkey auth...)
   install_python
@@ -65,13 +65,12 @@ disk()
     sudo -- \
       sh -c " \
         qemu-img create -f qcow2 $disk 16G; \
-        #chown libvirt-qemu:kvm $disk \
       "
   fi
         
 }
 
-create()
+xml()
 {
   disk
 
@@ -81,9 +80,9 @@ create()
     --ram 2048 \
     --disk path=$boot,bus=virtio \
     --disk path=$disk,bus=virtio \
-    --vcpus 2 \
+    --vcpus 4 \
     --os-variant freebsd13.0 \
-    --network bridge=ovsbr60,virtualport_type=openvswitch \
+    --network bridge=ovsbr40,virtualport_type=openvswitch \
     --network bridge=virbr0 \
     --console pty,target_type=serial \
     --nographics \
@@ -112,11 +111,6 @@ detach()
   virsh detach-disk --domain $name $boot --persistent --config
 }
 
-help()
-{
-  usage
-}
-
 prepare()
 {
   ansible-galaxy collection install community.general
@@ -125,28 +119,6 @@ prepare()
 key()
 {
   ssh-keygen -t ed25519 -N '' -f $seckey -C freebsd
-}
-
-connect()
-{
-  command ssh root@${addr}
-}
-
-ssh()
-{
-  command ssh root@${addr} -i $seckey \
-    -o StrictHostKeyChecking=no \
-    -o UserKnownHostsFile=/dev/null
-}
-
-sftp()
-{
-  command sftp -i $seckey root@${addr}
-}
-
-install_python()
-{
-  command ssh root@${addr} -i $seckey -- pkg install -y python
 }
 
 shutdown()
@@ -238,7 +210,7 @@ hosts
 while [ $# -ne 0 ]; do
   case "$1" in
     -h | --help)
-      usage
+      help
       exit 1
       ;;
     -o | --output)
