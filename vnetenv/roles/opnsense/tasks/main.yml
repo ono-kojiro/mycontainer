@@ -4,42 +4,47 @@
     name: python3-pexpect
     state: present
 
-- name: download opnsense searial
+#- name: download opnsense image
+#  ansible.builtin.shell: |
+#    url={{ opnsense_img_url }}
+#    bz2file=`basename $url`
+#
+#    cd /var/lib/libvirt/images/
+#    if [ ! -e "$bz2file" ]; then
+#      curl -O ${url}
+#    fi
+
+- name: copy opnsense installer image
+  ansible.builtin.copy:
+    src: "{{ opnsense_img_bz2 }}"
+    dest: /var/lib/libvirt/images/
+
+- name: decompress installer image
   ansible.builtin.shell: |
-    url={{ opnsense_img_url }}
-    bz2file=`basename $url`
-
     cd /var/lib/libvirt/images/
-    if [ ! -e "$bz2file" ]; then
-      curl -O ${url}
-    fi
-
-- name: decompress image
-  ansible.builtin.shell: |
-    url={{ opnsense_img_url }}
-    bz2file=`basename $url`
-
-    cd /var/lib/libvirt/images/
-    imgfile=`basename -s .bz2 ${bz2file}`
+    imgfile={{ opnsense_img }}
     if [ ! -e "$imgfile" ]; then
-      bzip2 --decompress --keep ${bz2file}
+      bzip2 --decompress --keep {{ opnsense_img_bz2 }}
     fi
 
-- name: create opnsense-base-boot.qcow2 from opnsense installer image
-  ansible.builtin.shell: |
-    url={{ opnsense_img_url }}
-    img=`basename -s .bz2 $url`
-    
-    boot={{ boot_qcow2 }}
-    if [ ! -e "$boot" ]; then
-      qemu-img convert -f raw -O qcow2 $img $boot
-    fi
+#- name: create opnsense-base-boot.qcow2 from opnsense installer image
+#  ansible.builtin.shell: |
+#    url={{ opnsense_img_url }}
+#    img=`basename -s .bz2 $url`
+#    
+#    boot={{ boot_qcow2 }}
+#    if [ ! -e "$boot" ]; then
+#      qemu-img convert -f raw -O qcow2 $img $boot
+#    fi
 
 - name: create opnsense-base.qcow2
   ansible.builtin.shell: |
+    url={{ opnsense_img_url }}
+    img=`basename -s .bz2 ${url}`
     disk={{ disk_qcow2 }}
     if [ ! -e "$disk" ]; then
-      qemu-img create -f qcow2 $disk 16G
+      #qemu-img create -f qcow2 $disk 16G
+      qemu-img convert -f raw -O qcow2 /var/lib/libvirt/images/$img $disk
     fi
 
 - name: shutdown domain
@@ -62,11 +67,10 @@
     virt-install --print-xml \
       --name $name \
       --ram 2048 \
-      --disk path={{ boot_qcow2 }},bus=virtio \
       --disk path={{ disk_qcow2 }},bus=virtio \
       --vcpus 2 \
       --os-variant freebsd13.0 \
-      --network bridge=ovsbr60,virtualport_type=openvswitch \
+      --network bridge=ovsbr40,virtualport_type=openvswitch \
       --network bridge=virbr0 \
       --console pty,target_type=serial \
       --nographics \

@@ -20,3 +20,10 @@
 
     - name: opnsense
       tags: opnsense
+
+    - name: debug
+      tags: [debug, skip]
+
+    - name: network
+      tags: [network, skip]
+
