@@ -1,6 +1,6 @@
 ---
 #ansible_host: 192.168.10.157
-ansible_host: 192.168.0.15
+ansible_host: 192.168.0.54
 ansible_user: root
 #ansible_password: secret
 ansible_ssh_private_key_file: ~/.ssh/id_ed25519

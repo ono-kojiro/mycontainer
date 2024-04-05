@@ -1,0 +1,17 @@
+
+# vi /etc/ssh/sshd_config
+
+- PermitRootLogin no
++ PermitRootLogin yes
+
+# service sshd restart
+
+connect with ssh and create .ssh/authorized_keys and paste your pubkey.
+
+update package management tool.
+# pkg update
+
+install python 3
+# pkg install python3
+
+
