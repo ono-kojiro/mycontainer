@@ -1,0 +1,7 @@
+---
+- hosts: freebsd
+
+  roles:
+  - name: bridge
+    tags: bridge
+

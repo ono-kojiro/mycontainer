@@ -1,0 +1,37 @@
+---
+#- name: enable if_ure_load="YES"
+#  ansible.builtin.lineinfile:
+#    path: /boot/loader.conf
+#    line: if_ure_load="YES"
+  
+- name: enable if_ure_load
+  community.general.sysrc:
+    name:  if_ure_load
+    state: present
+    value: "YES"
+    path: /boot/loader.conf
+
+- name: enable bridge
+  community.general.sysrc:
+    name: cloned_interfaces
+    state: present
+    value: "bridge0"
+  
+- name: em0 up
+  community.general.sysrc:
+    name:  ifconfig_em0
+    state: present
+    value: "up"
+
+- name: ue0 up
+  community.general.sysrc:
+    name:  ifconfig_ue0
+    state: present
+    value: "up"
+
+- name: configure bridge0
+  community.general.sysrc:
+    name:  ifconfig_bridge0
+    state: present
+    value: "inet 192.168.0.84 netmask 255.255.255.0 addm em0 addm ue0 up"
+
