@@ -1,2 +1,7 @@
 ---
+ldap_suffix: dc=example,dc=com
+binddn: cn=Manager,{{ ldap_suffix }}
+bindpw: secret
+ldap_server: 192.168.0.98
+ldap_uri: ldap://{{ ldap_server }}
 

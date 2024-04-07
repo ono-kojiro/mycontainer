@@ -98,7 +98,7 @@ install_python()
 
 hosts()
 {
-  ansible-inventory -i groups.ini --list --yaml > hosts.yml
+  ansible-inventory -i template.yml --list --yaml > hosts.yml
 }
 
 deploy()
