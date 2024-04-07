@@ -35,3 +35,9 @@
     state: present
     value: "inet 192.168.0.84 netmask 255.255.255.0 addm em0 addm ue0 up"
 
+- name: set default router
+  community.general.sysrc:
+    name:  defaultrouter
+    state: present
+    value: "192.168.0.1"
+
