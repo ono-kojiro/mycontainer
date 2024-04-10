@@ -26,10 +26,21 @@
       - oddjob-mkhomedir
   when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
 
+- name: install openldap (FreeBSD)
+  community.general.pkgng:
+    name:
+    - oopenldap26-client
+    state: present
+  when: ansible_facts['os_family'] == "FreeBSD"
+  
 - name: check sssd is running
   ansible.builtin.systemd:
     state: started
     name:  sssd
   ignore_errors: true
+  when: >-
+    ansible_facts['os_family'] == "RedHat" or \
+    ansible_facts['os_family'] == "Rocky" or \
+    ansible_facts['os_family'] == "Debian"
 
 
