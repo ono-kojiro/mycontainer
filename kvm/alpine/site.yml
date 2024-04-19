@@ -150,9 +150,17 @@
     ansible.builtin.service:
       name: nscd
       state: started
+  
+  - name: start nscd at boot time
+    ansible.builtin.shell: |
+      rc-update add nscd
 
   - name: start nslcd
     ansible.builtin.service:
       name: nslcd
       state: started
+  
+  - name: start nslcd at boot time
+    ansible.builtin.shell: |
+      rc-update add nslcd
   
