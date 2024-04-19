@@ -3,14 +3,32 @@
   hosts: alpine
 
   tasks:
-  - name: install pam-enabled doas
-    ansible.builtin.copy:
-      src: doas-6.8.2-r6.apk
-      dest: /tmp/
+  - name: download aports
+    ansible.builtin.get_url:
+      url: https://gitlab.alpinelinux.org/alpine/aports/-/archive/master/aports-master.tar.bz2
+      dest: /root/
 
-  - name: install doas
+  - name: extract aports
+    ansible.builtin.unarchive:
+      src: /root/aports-master.tar.bz2
+      dest: /root/
+      remote_src: yes
+
+  - name: enable pam
+    ansible.builtin.lineinfile:
+      path: /root/aport-master/main/doas/APKBUILD
+      regexp: '--without-pam'
+      state: absent
+
+  - name: build doas-pam
     ansible.builtin.shell: |
-      apk add /tmp/doas-6.8.2-r6.apk
+      abuild-keygen -a -n
+      cd /root/aport-master/main/doas
+      abuild -r -F || true
+
+  - name: install doas-pam
+    ansible.builtin.shell: |
+      apk add /root/packages/main/x86_64/doas-*.apk
       apk add doas-sudo-shim
 
   - name: allow ldapwheel group
