@@ -1,0 +1,48 @@
+---
+- name: install sdk
+  ansible.builtin.package:
+    name: alpine-sdk
+    state: present
+
+- name: download aports
+  ansible.builtin.get_url:
+    url: https://gitlab.alpinelinux.org/alpine/aports/-/archive/master/aports-master.tar.bz2
+    dest: /root/
+
+#- name: extract aports
+#  ansible.builtin.unarchive:
+#    src: /root/aports-master.tar.bz2
+#    dest: /root/
+#    remote_src: yes
+
+- name: extract aports
+  ansible.builtin.shell: |
+    cd /root/
+    tar xjvf aports-master.tar.bz2
+
+- name: enable pam
+  ansible.builtin.lineinfile:
+    path: /root/aports-master/main/doas/APKBUILD
+    regexp: '--without-pam'
+    state: absent
+
+- name: build doas-pam
+  ansible.builtin.shell: |
+    abuild-keygen -a -n
+    cd /root/aports-master/main/doas
+    abuild -r -F || true
+
+- name: remove doas
+  ansible.builtin.shell: |
+    apk del doas
+
+- name: install doas-pam
+  ansible.builtin.shell: |
+    apk add --allow-untrusted /root/packages/main/x86_64/doas-*.apk
+    apk add doas-sudo-shim
+
+- name: allow ldapwheel group
+  ansible.builtin.template:
+    src: ldapwheel.conf
+    dest: /etc/doas.d/
+

@@ -120,6 +120,16 @@ console()
   virsh console $name
 }
 
+prepare()
+{
+  ssh alpine apk add python3
+}
+
+hosts()
+{
+  ansible-inventory -i template.yml --yaml --list --output hosts.yml
+}
+
 default()
 {
   playbook=$1
