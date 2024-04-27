@@ -4,19 +4,19 @@
 #
 - name: copy cacert directory
   ansible.builtin.file:
-    path: /etc/share/ca-certificates/mylocalca
+    path: "/etc/share/ca-certificates/{{ cacert_dir }}"
     state: directory
     mode: '0755'
 
 - name: copy ca cert
   ansible.builtin.copy:
-    src: mylocalca.pem
-    dest: /etc/share/ca-certificates/mylocalca/
+    src: "{{ cacert }}"
+    dest: "/etc/share/ca-certificates/{{ cacert_dir }}"
 
 - name: add relative directory path
   ansible.builtin.lineinfile:
     path: /etc/ca-certificates.conf
-    line: mylocalca/mylocalca.pem
+    line: "{{ cacert_dir }}/{{ cacert }}"
 
 - name: update ca certificates
   ansible.builtin.shell: |
