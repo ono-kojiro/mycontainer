@@ -3,7 +3,7 @@
     name:
       - ldapscripts
       - schema2ldif
-      - fusiondirectory-schema
+      - gosa-schema
     state: absent
     purge: true
 
@@ -12,5 +12,5 @@
     name:
       - ldapscripts
       - schema2ldif
-      - fusiondirectory-schema
+      - gosa-schema
 
