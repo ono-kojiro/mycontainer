@@ -120,6 +120,16 @@ console()
   virsh console $name
 }
 
+prepare()
+{
+  ssh alpine apk add python3
+}
+
+hosts()
+{
+  ansible-inventory -i template.yml --yaml --list --output hosts.yml
+}
+
 default()
 {
   playbook=$1
@@ -172,7 +182,7 @@ if [ $# -eq 0 ]; then
 fi
 
 for target in "$@"; do
-  LANG=C type "$target" | grep 'function' > /dev/null 2>&1
+  LANG=C type "$target" 2>&1 | grep 'function' > /dev/null 2>&1
   if [ $? -eq 0 ]; then
     $target
   else

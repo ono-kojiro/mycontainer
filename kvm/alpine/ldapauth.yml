@@ -1,0 +1,7 @@
+- name: setup ldap auth (nslcd and nscd)
+  hosts: alpine
+
+  roles:
+  - name: ldapauth
+    tags: ldapauth
+

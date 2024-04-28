@@ -1,20 +1,7 @@
----
-- name: install doas
+- name: setup doas with pam
   hosts: alpine
 
-  tasks:
-  - name: install pam-enabled doas
-    ansible.builtin.copy:
-      src: doas-6.8.2-r6.apk
-      dest: /tmp/
-
-  - name: install doas
-    ansible.builtin.shell: |
-      apk add /tmp/doas-6.8.2-r6.apk
-      apk add doas-sudo-shim
-
-  - name: allow ldapwheel group
-    ansible.builtin.template:
-      src: ldapwheel.conf
-      dest: /etc/doas.d/
+  roles:
+  - name: doas
+    tags: doas
 
