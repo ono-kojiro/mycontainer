@@ -1,0 +1,13 @@
+version: '3'
+services:
+  noble:
+    image: noble:latest
+    container_name: noble
+    hostname: noble
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "24040:22"
