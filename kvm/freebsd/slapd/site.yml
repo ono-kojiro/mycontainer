@@ -1,0 +1,5 @@
+- hosts: freebsd
+
+  roles:
+    - role: slapd
+      tags: slapd

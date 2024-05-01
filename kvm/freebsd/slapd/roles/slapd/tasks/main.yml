@@ -1,0 +1,47 @@
+---
+- name: install openldap server
+  ansible.builtin.package:
+    name: openldap26-server
+    state: present
+
+- name: enable slapd
+  community.general.sysrc:
+    name: slapd_enable
+    value: "YES"
+
+- name: enable slapd_cn_config
+  community.general.sysrc:
+    name: slapd_cn_config
+    value: "YES"
+
+#- name: add slapd_flags
+#  community.general.sysrc:
+#    name: slapd_flags
+#    value: '-u ldap -g ldap -h "ldap:/// ldaps:///"'
+#    state: present
+
+- name: add slapd_flags
+  ansible.builtin.lineinfile:
+    path: /etc/rc.conf
+    line: "slapd_flags=\"-h 'ldap:/// ldaps:///'\""
+
+- name: remove slapd.d directory
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/slapd.d
+    state: absent
+
+- name: create slapd.d directory
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/slapd.d
+    state: directory
+
+- name: convert slapd.conf to slapd.d
+  ansible.builtin.shell:
+    slaptest -f /usr/local/etc/openldap/slapd.conf -F /usr/local/etc/openldap/slapd.d
+
+- name: start slapd
+  ansible.builtin.service:
+    name: slapd
+    state: restarted
+
+
