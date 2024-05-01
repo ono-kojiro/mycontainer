@@ -3,7 +3,7 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-ldap_confs="/etc/ldap/ldap.conf /etc/openldap/ldap.conf"
+ldap_confs="/etc/ldap/ldap.conf /etc/openldap/ldap.conf /usr/local/etc/openldap/ldap.conf"
 
 for ldap_conf in $ldap_confs; do
   if [ ! -e $ldap_conf ]; then
