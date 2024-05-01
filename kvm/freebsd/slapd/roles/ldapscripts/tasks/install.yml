@@ -1,0 +1,5 @@
+---
+- name: install ldapscripts
+  ansible.builtin.package:
+    name:
+      - ldapscripts
