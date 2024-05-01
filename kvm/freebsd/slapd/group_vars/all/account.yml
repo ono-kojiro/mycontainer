@@ -1,0 +1,63 @@
+---
+ldap_groups:
+    - name: ldapusers
+    - name: ldapwheel
+    - name: newtype
+    - name: oldtype
+
+default_group: ldapusers
+admin_group: ldapwheel
+
+# sssd.conf
+allow_groups: ldapusers
+
+ldap_users:
+- name:     gihren
+  password: gihren
+  gecos:    Gihren Zabi
+  groups:   ldapusers,ldapwheel,oldtype
+  mail:     gihren@example.com
+
+- name:     degwin
+  password: degwin
+  gecos:    Degwin Sodo Zabi
+  groups:   ldapusers,oldtype
+  mail:     degwin@example.com
+
+- name:     dozle
+  password: dozle
+  gecos:    Dozle Zabi
+  groups:   ldapusers,ldapwheel,oldtype
+  mail:     dozle@example.com
+
+- name:     garma
+  password: garma
+  gecos:    Garma Zabi
+  groups:   ldapusers,oldtype
+  mail:     garma@example.com
+
+- name:     kycilia
+  password: kycilia
+  gecos:    Kycilia Zabi
+  groups:   ldapusers,oldtype
+  mail:     kycilia@example.com
+
+- name:     mineva
+  password: mineva
+  gecos:    Mineva Lao Zabi
+  groups:   ldapusers,newtype
+  mail:     mineva@example.com
+
+- name:     challia
+  password: challia
+  gecos:    Challia Bull
+  groups:   ldapusers,newtype
+  mail:     challia@example.com
+
+- name:     char
+  password: char
+  gecos:    Char Aznable
+  groups:   ldapusers,newtype
+  mail:     char@example.com
+
+

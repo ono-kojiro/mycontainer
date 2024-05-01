@@ -2,17 +2,20 @@
 
   roles:
     - role: slapd
-      tags: slapd
+      tags: slapd, main
+    
+    - role: tls
+      tags: tls, main
     
     - role: config
-      tags: config
+      tags: config, main
 
     - role: ldapscripts
-      tags: ldapscripts
-
-    - role: tls
-      tags: tls
+      tags: ldapscripts, main
     
+    - role: account
+      tags: account, main
+
     - role: destroy
       tags: destroy
 

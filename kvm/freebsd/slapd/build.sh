@@ -24,14 +24,14 @@ help()
   usage
 }
 
-all()
-{
-  usage
-}
-
 hosts()
 {
   ansible-inventory -i template.yml --list --yaml > hosts.yml
+}
+
+all()
+{
+  ansible-playbook ${ansible_opts} -i hosts.yml -t main site.yml
 }
 
 default()
