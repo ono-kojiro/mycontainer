@@ -1,14 +1,29 @@
 ---
-- name: stop slapd
-  ansible.builtin.service:
-    name: slapd
-    state: stopped
-  ignore_errors: true
+#- name: stop slapd
+#  ansible.builtin.service:
+#    name: slapd
+#    state: stopped
+#  ignore_errors: true
 
 - name: install openldap server
   ansible.builtin.package:
-    name: openldap26-server
+    name: "{{ item }}"
     state: present
+  loop:
+  - openldap26-server
+  - openldap26-client
+
+- name: download openssh-lpk.schema
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/jirutka/ssh-ldap-pubkey/master/etc/openssh-lpk.schema
+    dest: /usr/local/etc/openldap/schema/
+    mode: '0644'
+
+- name: download rfc2307bis.schema
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/jtyr/rfc2307bis/master/rfc2307bis.schema
+    dest: /usr/local/etc/openldap/schema/
+    mode: '0644'
 
 - name: enable slapd
   community.general.sysrc:
@@ -31,28 +46,27 @@
     path: /etc/rc.conf
     line: "slapd_flags=\"-h 'ldap:/// ldaps:/// ldapi:///'\""
 
+- name: copy slapd.conf to remote host
+  ansible.builtin.template:
+    src: slapd.conf
+    dest: /usr/local/etc/openldap/
+
 - name: remove slapd.d directory
-  ansible.builtin.file:
-    path: /usr/local/etc/openldap/slapd.d
-    state: absent
+  ansible.builtin.shell:
+    rm -rf /usr/local/etc/openldap/slapd.d
 
 - name: create slapd.d directory
   ansible.builtin.file:
     path: /usr/local/etc/openldap/slapd.d
     state: directory
 
-- name: copy slapd.conf to remote host
-  ansible.builtin.template:
-    src: slapd.conf
-    dest: /usr/local/etc/openldap/
-
 - name: convert slapd.conf to slapd.d
   ansible.builtin.shell:
     slaptest -f /usr/local/etc/openldap/slapd.conf -F /usr/local/etc/openldap/slapd.d
-
+  ignore_errors: true
+  
 - name: start slapd
   ansible.builtin.service:
     name: slapd
     state: restarted
-
 

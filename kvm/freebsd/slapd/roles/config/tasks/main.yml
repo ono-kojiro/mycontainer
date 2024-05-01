@@ -1,0 +1,109 @@
+---
+- name: change ldap suffix
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcSuffix
+    olcSuffix: {{ olc_suffix }}
+    EOF
+
+- name: change rootdn
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcRootDN
+    olcRootDN: {{ olc_rootdn }}
+    EOF
+
+- name: set tls certs
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcTLSCertificateFile
+    olcTLSCertificateFile: {{ olc_server_crt_path }}
+    -
+    replace: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: {{ olc_server_key_path }}
+    EOF
+
+- name: add access to frontend
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={-1}frontend,cn=config
+    changetype: modify
+    replace: olcAccess
+    olcAccess: {0}to attrs=userPassword,givenName,sn
+      by self write  by anonymous auth  by dn.base={{ olc_rootdn }} write  by * none
+    -
+    replace: olcAccess
+    olcAccess: {1}to *  by self read  by dn.base={{ olc_rootdn }} write  by * read
+    EOF
+
+- name: change ldap rootpw
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcRootPW
+    olcRootPW: secret
+    EOF
+
+- name: load memberof module
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: memberof
+    EOF
+  ignore_errors: true
+
+- name: load refint module
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    all: olcModuleLoad
+    olcModuleLoad: refint
+    EOF
+  ignore_errors: true
+
+- name: add memberof overlay
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay=memberof,olcDatabase={1}mdb,cn=config
+    changetype: add
+    objectClass: olcConfig
+    objectClass: olcMemberOf
+    objectClass: olcOverlayConfig
+    objectClass: top
+    olcOverlay: memberof
+    olcMemberOfRefInt: TRUE
+    olcMemberOfDangling: ignore
+    olcMemberOfGroupOC: groupOfNames
+    olcMemberOfMemberAD: member
+    olcMemberOfMemberOfAD: memberOf
+    EOF
+  ignore_errors: true
+
+- name: enable refint overlay
+  tags: memberof
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay=refint,olcDatabase={1}mdb,cn=config
+    changetype: add
+    objectClass: olcConfig
+    objectClass: olcOverlayConfig
+    objectClass: olcRefintConfig
+    objectClass: top
+    olcOverlay: refint
+    olcRefintAttribute: memberof member manager owner
+    EOF
+  ignore_errors: true
+

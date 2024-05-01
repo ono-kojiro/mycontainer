@@ -3,6 +3,12 @@
   roles:
     - role: slapd
       tags: slapd
+    
+    - role: config
+      tags: config
+
+    - role: ldapscripts
+      tags: ldapscripts
 
     - role: tls
       tags: tls
