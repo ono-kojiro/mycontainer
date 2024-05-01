@@ -1,5 +1,5 @@
 ---
-ldap_addr: "{{ server_addr }}"
+ldap_addr: 192.168.0.98
 ldap_suffix: dc=example,dc=com
 masterdn: cn=Manager,{{ ldap_suffix }}
 masterpw: secret

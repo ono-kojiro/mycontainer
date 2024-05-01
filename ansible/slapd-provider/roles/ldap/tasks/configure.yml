@@ -15,4 +15,5 @@
     ldapsearch -x
 #  register: result
 #  failed_when: result.rc != 32
+  ignore_errors: true
 

@@ -1,0 +1,4 @@
+---
+cacert_dir: myca
+cacert: myca.pem
+
