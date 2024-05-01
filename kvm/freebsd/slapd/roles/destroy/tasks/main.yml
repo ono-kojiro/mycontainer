@@ -1,0 +1,38 @@
+---
+- name: stop slapd
+  ansible.builtin.service:
+    name: slapd
+    state: stopped
+  ignore_errors: true
+
+- name: uninstall openldap server
+  ansible.builtin.package:
+    name: openldap26-server
+    state: absent
+
+- name: disable slapd
+  community.general.sysrc:
+    name: slapd_enable
+    state: absent
+
+- name: disable slapd_cn_config
+  community.general.sysrc:
+    name: slapd_cn_config
+    state: absent
+
+- name: remove slapd_flags
+  ansible.builtin.lineinfile:
+    path: /etc/rc.conf
+    line: "slapd_flags=\"-h 'ldap:/// ldaps:/// ldapi:///'\""
+    state: absent
+
+- name: remove slapd.d directory
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/slapd.d
+    state: absent
+
+- name: remove database directory
+  ansible.builtin.file:
+    path:  /var/db/openldap-data/
+    state: absent
+

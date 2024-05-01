@@ -3,3 +3,11 @@
   roles:
     - role: slapd
       tags: slapd
+
+    - role: tls
+      tags: tls
+    
+    - role: destroy
+      tags: destroy
+
+

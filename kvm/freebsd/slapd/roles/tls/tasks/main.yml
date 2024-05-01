@@ -1,0 +1,35 @@
+---
+- name: copy private CA
+  ansible.builtin.copy:
+    src: myca.pem
+    dest: /usr/share/certs/trusted/
+
+- name: create sym-link in /etc/ssl/certs/
+  ansible.builtin.shell:
+    certctl rehash
+
+- name: create server cert directory
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/certs
+    state: directory
+
+- name: copy server certs
+  ansible.builtin.copy:
+    src:  "{{ item }}"
+    dest: /usr/local/etc/openldap/certs
+    mode: '0700'
+    group: ldap
+    owner: ldap
+  loop:
+  - freebsd1.crt
+  - freebsd1.key
+
+- name: change ldap loglevel
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcLogLevel
+    olcLogLevel: acl sync
+    EOF
+

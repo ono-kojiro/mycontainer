@@ -1,4 +1,10 @@
 ---
+- name: stop slapd
+  ansible.builtin.service:
+    name: slapd
+    state: stopped
+  ignore_errors: true
+
 - name: install openldap server
   ansible.builtin.package:
     name: openldap26-server
@@ -23,7 +29,7 @@
 - name: add slapd_flags
   ansible.builtin.lineinfile:
     path: /etc/rc.conf
-    line: "slapd_flags=\"-h 'ldap:/// ldaps:///'\""
+    line: "slapd_flags=\"-h 'ldap:/// ldaps:/// ldapi:///'\""
 
 - name: remove slapd.d directory
   ansible.builtin.file:
@@ -34,6 +40,11 @@
   ansible.builtin.file:
     path: /usr/local/etc/openldap/slapd.d
     state: directory
+
+- name: copy slapd.conf to remote host
+  ansible.builtin.template:
+    src: slapd.conf
+    dest: /usr/local/etc/openldap/
 
 - name: convert slapd.conf to slapd.d
   ansible.builtin.shell:
