@@ -1,0 +1,38 @@
+- name: install kde5
+  community.general.pkgng:
+    name:
+    - kde5
+    - lightdm
+    state: present
+
+- name: enable dbus
+  community.general.sysrc:
+    name: dbus_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: enable lightdm
+  community.general.sysrc:
+    name: lightdm_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: copy xprofile
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /usr/share/skel/
+  loop:
+    - dot.xprofile
+
+- name: start dbus
+  ansible.builtin.service:
+    name: dbus
+    state: started
+
+- name: start lightdm
+  ansible.builtin.service:
+    name: lightdm
+    state: started
+

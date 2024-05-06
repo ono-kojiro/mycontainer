@@ -1,0 +1,16 @@
+#!/bin/sh
+# set locale
+export LC_ALL=ja_JP.UTF-8
+export LANGUAGE=ja_JP.UTF-8
+export LANG=ja_JP.UTF-8
+#
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=xim
+export XMODIFIERS=@im=fcitx
+/usr/local/bin/mozc start
+fcitx -r -d
+#
+setxkbmap -layout jp
+#
+exec $1
+
