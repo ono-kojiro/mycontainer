@@ -1,0 +1,13 @@
+- name: install sddm
+  community.general.pkgng:
+    name:
+    - sddm
+    state: present
+
+- name: enable sddm
+  community.general.sysrc:
+    name: sddm_enable
+    value: "YES"
+    state: present
+    path: /etc/rc.conf
+

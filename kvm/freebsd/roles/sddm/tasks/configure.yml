@@ -1,0 +1,6 @@
+- name: enable japanese
+  community.general.sysrc:
+    name: sddm_lang
+    value: "ja_JP"
+    state: present
+
