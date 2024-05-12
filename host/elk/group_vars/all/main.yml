@@ -1,6 +1,5 @@
 ---
 es_ver: 8.13.4
-
 kibana_username: kibana_system
-kibana_password: xxxxxxxxxxxxxxxxxxxxxx
+logstash_username: logstash
 

@@ -1,0 +1,10 @@
+---
+- name: copy deb package
+  ansible.builtin.copy:
+    src: logstash-{{ es_ver }}-amd64.deb
+    dest: /tmp/
+
+- name: install logstash
+  ansible.builtin.apt:
+    deb: /tmp/logstash-{{ es_ver }}-amd64.deb
+

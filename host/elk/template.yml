@@ -2,4 +2,4 @@ all:
   children:
     servers:
       hosts:
-        elasticsearch:
+        myserver:

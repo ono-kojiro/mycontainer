@@ -1,5 +1,5 @@
-- name: install elasticsearch, kibana
-  hosts: elasticsearch
+- name: install elasticsearch, kibana, logstash
+  hosts: myserver
 
   roles:
   - name: elasticsearch
@@ -10,4 +10,7 @@
   
   - name: kibana
     tags: kibana, main
+  
+  - name: logstash
+    tags: logstash, main
 

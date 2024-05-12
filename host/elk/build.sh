@@ -10,6 +10,7 @@ url=https://artifacts.elastic.co/downloads/$pkgname/$pkgname-$pkgver-amd64.deb
 url_dl="https://artifacts.elastic.co/downloads"
 es_url="$url_dl/elasticsearch/elasticsearch-$pkgver-amd64.deb"
 kibana_url="$url_dl/kibana/kibana-$pkgver-amd64.deb"
+ls_url="$url_dl/logstash/logstash-$pkgver-amd64.deb"
     
 help()
 {
@@ -54,6 +55,15 @@ fetch()
   filename=`basename $kibana_url`
   if [ ! -e "$filename" ]; then
     wget $kibana_url
+  else
+    echo "skip: $filename"
+  fi
+  cd $top_dir
+  
+  cd roles/logstash/files
+  filename=`basename $ls_url`
+  if [ ! -e "$filename" ]; then
+    wget $ls_url
   else
     echo "skip: $filename"
   fi
@@ -144,6 +154,31 @@ user()
 EOS
 
 }
+
+create_logstash_user()
+{
+  es_host="192.168.0.98:9200"
+
+  username="logstash"
+  fullname="$username"
+  password="logstash"
+
+  curl -k --netrc-file ./netrc \
+    -H 'Content-Type: application/json' \
+    -XPOST "https://$es_host/_security/user/$username?pretty" --data @- << EOS
+{
+  "password" : "$password",
+  "enabled" : true,
+  "roles" : [ "superuser" ],
+  "full_name" : "$fullname",
+  "metadata" : {
+    "intelligence" : 7
+  }
+}
+EOS
+
+}
+
 
 reset()
 {
