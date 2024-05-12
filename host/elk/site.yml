@@ -1,4 +1,4 @@
-- name: install elasticsearch
+- name: install elasticsearch, kibana
   hosts: elasticsearch
 
   roles:
@@ -7,4 +7,7 @@
   
   - name: reset
     tags: reset
+  
+  - name: kibana
+    tags: kibana, main
 

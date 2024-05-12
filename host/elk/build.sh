@@ -6,7 +6,11 @@ cd $top_dir
 pkgname="elasticsearch"
 pkgver="8.13.4"
 url=https://artifacts.elastic.co/downloads/$pkgname/$pkgname-$pkgver-amd64.deb
-     
+
+url_dl="https://artifacts.elastic.co/downloads"
+es_url="$url_dl/elasticsearch/elasticsearch-$pkgver-amd64.deb"
+kibana_url="$url_dl/kibana/kibana-$pkgver-amd64.deb"
+    
 help()
 {
   usage
@@ -18,12 +22,11 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    prepare
-    create
-    start
+    elasticsearch
+    reset
 
-    chpasswd
-    restart
+    update
+    kibana
 
     test_simple, test_http, test_https
     down
@@ -38,10 +41,19 @@ all()
 
 fetch()
 {
-  cd roles/$pkgname/files
-  filename=`basename $url`
+  cd roles/elasticsearch/files
+  filename=`basename $es_url`
   if [ ! -e "$filename" ]; then
-    wget $url
+    wget $es_url
+  else
+    echo "skip: $filename"
+  fi
+  cd $top_dir
+
+  cd roles/kibana/files
+  filename=`basename $kibana_url`
+  if [ ! -e "$filename" ]; then
+    wget $kibana_url
   else
     echo "skip: $filename"
   fi
@@ -100,7 +112,7 @@ test_kibana()
      https://192.168.0.98:9200/ 
 }
 
-create_user()
+user()
 {
   es_host="192.168.0.98:9200"
 
@@ -116,7 +128,7 @@ create_user()
 
   password=$PASSWORD
 
-  curl -k --netrc-file ./.netrc \
+  curl -k --netrc-file ./netrc \
     -H 'Content-Type: application/json' \
     -XPOST "https://$es_host/_security/user/$username?pretty" --data @- << EOS
 {
@@ -132,6 +144,18 @@ create_user()
 EOS
 
 }
+
+reset()
+{
+  ansible-playbook -K -i hosts.yml -t reset site.yml
+}
+
+update()
+{
+  pass=`cat kibana-netrc | grep -e '^password' | awk '{ print $2 }'`
+  sed -i -e "s/^\(kibana_password\): .*/\1: $pass/" group_vars/all.yml
+}
+
 
 default()
 {

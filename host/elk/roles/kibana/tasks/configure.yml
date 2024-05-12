@@ -1,0 +1,50 @@
+---
+- name: copy kibana.yml
+  ansible.builtin.template:
+    src:  kibana.yml
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: kibana
+    mode: '0660'
+
+- name: create config directory
+  ansible.builtin.file:
+    path:  /usr/share/kibana/config
+    state: directory
+    mode: '0755'
+
+- name: create symbolic link
+  ansible.builtin.file:
+    src:  /etc/kibana/kibana.yml
+    dest: /usr/share/kibana/config/kibana.yml
+    owner: root
+    group: kibana
+    state: link
+
+- name: create /etc/kibana/certs
+  ansible.builtin.file:
+    path:  /etc/kibana/certs
+    state: directory
+
+- name: copy kibana.key
+  ansible.builtin.copy:
+    src:  kibana.key
+    dest: /etc/kibana/certs/
+    owner: kibana
+    group: kibana
+    mode: '0600'
+
+- name: copy kibana.crt
+  ansible.builtin.copy:
+    src:  kibana.crt
+    dest: /etc/kibana/certs/
+    owner: kibana
+    group: kibana
+    mode: '0755'
+
+- name: start kibana
+  ansible.builtin.systemd:
+    name: kibana
+    state: restarted
+    enabled: yes
+
