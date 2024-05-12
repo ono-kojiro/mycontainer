@@ -1,0 +1,10 @@
+- name: install elasticsearch
+  hosts: elasticsearch
+
+  roles:
+  - name: elasticsearch
+    tags: elasticsearch, main
+  
+  - name: reset
+    tags: reset
+

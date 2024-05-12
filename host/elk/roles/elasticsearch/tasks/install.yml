@@ -1,0 +1,10 @@
+---
+- name: copy deb package
+  ansible.builtin.copy:
+    src: elasticsearch-{{ es_ver }}-amd64.deb
+    dest: /tmp/
+
+- name: install elasticsearch
+  ansible.builtin.apt:
+    deb: /tmp/elasticsearch-{{ es_ver }}-amd64.deb
+
