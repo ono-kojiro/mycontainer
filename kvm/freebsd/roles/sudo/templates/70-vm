@@ -1,0 +1,2 @@
+# allow NOPASSWD of vm-bhyve command
+%ldapwheel ALL=(ALL:ALL) NOPASSWD: /usr/local/sbin/vm
