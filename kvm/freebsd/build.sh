@@ -178,8 +178,11 @@ deploy()
 
 default()
 {
-  playbook=$1
-  ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}.yml
+  #playbook=$1
+  #ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}.yml
+
+  tag=$1
+  ansible-playbook ${ansible_opts} -i hosts.yml -t ${tag} site.yml
 }
 
 

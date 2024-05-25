@@ -2,17 +2,30 @@
 
   roles:
     - role: ldap
-      tags: ldap
+      tags: ldap, ldapauth
 
     - role: sssd
-      tags: sssd
+      tags: sssd, ldapauth
 
     - role: nsswitch
-      tags: nsswitch
+      tags: nsswitch, ldapauth
 
     - role: pam
-      tags: pam
+      tags: pam, ldapauth
 
     - role: sudo
-      tags: sudo
+      tags: sudo ldapauth
+    
+    # KDE
+    - role: xorg
+      tags: xorg, gui
+
+    - role: japanese
+      tags: japanese, gui
+
+    - role: kde
+      tags: kde, gui
+    
+    - role: sddm
+      tags: sddm, gui
 
