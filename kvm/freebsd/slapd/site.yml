@@ -1,6 +1,9 @@
 - hosts: freebsd
 
   roles:
+    - role: cert
+      tags: cert, main
+
     - role: slapd
       tags: slapd, main
     
@@ -19,4 +22,6 @@
     - role: destroy
       tags: destroy
 
+    - role: debug
+      tags: debug
 

@@ -60,4 +60,3 @@ ldap_users:
   groups:   ldapusers,newtype
   mail:     char@example.com
 
-
