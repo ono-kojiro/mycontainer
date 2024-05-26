@@ -65,10 +65,25 @@
     path: /usr/local/etc/openldap/slapd.d
     state: directory
 
-- name: convert slapd.conf to slapd.d
+- name: test converting slapd.conf to slapd.d
   ansible.builtin.shell:
-    slaptest -f /usr/local/etc/openldap/slapd.conf -F /usr/local/etc/openldap/slapd.d
-  ignore_errors: true
+    slaptest \
+      -u \
+      -f /usr/local/etc/openldap/slapd.conf \
+      -F /usr/local/etc/openldap/slapd.d
+
+- name: converting slapd.conf to slapd.d
+  ansible.builtin.shell:
+    slaptest \
+      -f /usr/local/etc/openldap/slapd.conf \
+      -F /usr/local/etc/openldap/slapd.d || true
+
+- name: change mode of slapd.d
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/slapd.d
+    owner: ldap
+    group: ldap
+    mode: '0750'
   
 - name: start slapd
   ansible.builtin.service:

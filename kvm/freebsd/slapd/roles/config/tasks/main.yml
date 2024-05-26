@@ -17,17 +17,17 @@
     olcRootDN: {{ olc_rootdn }}
     EOF
 
-- name: set tls certs
-  ansible.builtin.shell: |
-    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: cn=config
-    changetype: modify
-    replace: olcTLSCertificateFile
-    olcTLSCertificateFile: {{ olc_server_crt_path }}
-    -
-    replace: olcTLSCertificateKeyFile
-    olcTLSCertificateKeyFile: {{ olc_server_key_path }}
-    EOF
+#- name: set tls certs
+#  ansible.builtin.shell: |
+#    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+#    dn: olcDatabase={1}mdb,cn=config
+#    changetype: modify
+#    replace: olcTLSCertificateFile
+#    olcTLSCertificateFile: {{ olc_server_crt_path }}
+#    -
+#    replace: olcTLSCertificateKeyFile
+#    olcTLSCertificateKeyFile: {{ olc_server_key_path }}
+#    EOF
 
 - name: add access to frontend
   ansible.builtin.shell: |
@@ -51,6 +51,13 @@
     olcRootPW: secret
     EOF
 
+- name: check if memberof module is loaded
+  tags: memberof
+  ansible.builtin.shell: | 
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b 'cn=module{0},cn=config' \
+      | grep -e '^olcModuleLoad: {.}memberof' || true
+  register: res
+
 - name: load memberof module
   tags: memberof
   ansible.builtin.shell: |
@@ -60,7 +67,14 @@
     add: olcModuleLoad
     olcModuleLoad: memberof
     EOF
-  ignore_errors: true
+  when: res.stdout | length == 0
+
+- name: check if refint module is loaded
+  tags: memberof
+  ansible.builtin.shell: | 
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b 'cn=module{0},cn=config' \
+      | grep -e '^olcModuleLoad: {.}refint' || true
+  register: res
 
 - name: load refint module
   tags: memberof
@@ -68,10 +82,10 @@
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=module{0},cn=config
     changetype: modify
-    all: olcModuleLoad
+    add: olcModuleLoad
     olcModuleLoad: refint
     EOF
-  ignore_errors: true
+  when: res.stdout | length == 0
 
 - name: add memberof overlay
   tags: memberof
@@ -103,7 +117,10 @@
     objectClass: olcRefintConfig
     objectClass: top
     olcOverlay: refint
-    olcRefintAttribute: memberof member manager owner
+    olcRefintAttribute: memberof
+    olcRefintAttribute: member
+    olcRefintAttribute: manager
+    olcRefintAttribute: owner
     EOF
   ignore_errors: true
 
