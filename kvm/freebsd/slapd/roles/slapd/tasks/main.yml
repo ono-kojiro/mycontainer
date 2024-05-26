@@ -84,9 +84,20 @@
     owner: ldap
     group: ldap
     mode: '0750'
+    recurse: true
   
 - name: start slapd
   ansible.builtin.service:
     name: slapd
+    state: restarted
+
+- name: add local4 in syslog.conf
+  ansible.builtin.lineinfile:
+    path: /etc/syslog.conf
+    line: "local4.*   /var/log/slapd.log"
+
+- name: start syslogd
+  ansible.builtin.service:
+    name: syslogd
     state: restarted
 

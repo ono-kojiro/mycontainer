@@ -10,15 +10,21 @@
     - role: config
       tags: config, main
 
-    - role: ldapscripts
-      tags: ldapscripts, main
+    - role: sync
+      tags: sync, main
+
+#    - role: ldapscripts
+#      tags: ldapscripts
     
-    - role: account
-      tags: account, main
+#    - role: account
+#      tags: account
 
     - role: destroy
       tags: destroy
 
-    - role: debug
-      tags: debug
+#    - role: debug
+#      tags: debug
+
+    - role: rsyslog
+      tags: syslog, rsyslog
 

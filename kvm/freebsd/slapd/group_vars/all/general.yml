@@ -7,3 +7,4 @@ olc_server_key_path: /usr/local/etc/openldap/certs/{{ server_key }}
 # refer passwd.yml
 # olc_rootpw: xxxxxxxx
 
+ldap_provider_uri: ldaps://192.168.0.98
