@@ -1,0 +1,43 @@
+---
+- name: git clone msf
+  ansible.builtin.git:
+    repo: 'https://github.com/rapid7/metasploit-framework.git'
+    dest: $HOME/metasploit-framework
+
+- name: install postgresql15 client package
+  ansible.builtin.package:
+    name:
+    - postgresql15-client
+    state: present
+  become: yes
+  become_method: sudo
+  when: >-
+    ansible_facts['os_family'] == 'FreeBSD'
+
+- name: install sqlite3 package
+  ansible.builtin.package:
+    name:
+    - sqlite3
+    state: present
+  become: yes
+  become_method: sudo
+  when: >-
+    ansible_facts['os_family'] == 'FreeBSD'
+
+- name: install pkg-config
+  ansible.builtin.package:
+    name:
+    - pkgconf
+    state: present
+  become: yes
+  become_method: sudo
+  when: >-
+    ansible_facts['os_family'] == 'FreeBSD'
+
+- name: bundle install
+  ansible.builtin.shell: |
+    . $HOME/rbenv.bashrc
+    cd metasploit-framework
+    bundle update --bundler
+    bundle install
+

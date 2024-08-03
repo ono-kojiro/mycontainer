@@ -1,0 +1,27 @@
+---
+- name: git clone rbenv
+  ansible.builtin.git:
+    repo: 'https://github.com/rbenv/rbenv.git'
+    dest: $HOME/.rbenv
+
+- name: git clone ruby-build
+  ansible.builtin.git:
+    repo: 'https://github.com/rbenv/ruby-build.git'
+    dest: $HOME/.rbenv/plugins/ruby-build
+
+- name: upload rbenv.bashrc
+  ansible.builtin.copy:
+    src: rbenv.bashrc
+    dest: $HOME/
+
+- name: upload patch file
+  ansible.builtin.copy:
+    src: fix_util.c.patch
+    dest: /tmp/
+
+
+- name: apply patch and nstall ruby 3.1.5
+  ansible.builtin.shell: |
+    . $HOME/rbenv.bashrc
+    cat /tmp/fix_util.c.patch | rbenv install -p 3.1.5 --verbose
+
