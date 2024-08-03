@@ -1,0 +1,9 @@
+- name: setup msf
+  hosts: myserver
+
+  roles:
+    - role: rbenv
+      tags: rbenv
+
+    - role: msf
+      tags: msf

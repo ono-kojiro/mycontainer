@@ -1,0 +1,41 @@
+--- util-orig.c	2024-06-28 20:51:10.378317000 +0900
++++ util.c	2024-06-28 20:56:39.019019000 +0900
+@@ -203,19 +203,13 @@ ruby_strtoul(const char *str, char **endptr, int base)
+     }
+ }
+ 
++#if !defined HAVE_GNU_QSORT_R
+ #include <sys/types.h>
+-#include <sys/stat.h>
++#include <stdint.h>
+ #ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+ #endif
+-#if defined(HAVE_FCNTL_H)
+-#include <fcntl.h>
+-#endif
+ 
+-#ifndef S_ISDIR
+-#   define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+-#endif
+-
+ typedef int (cmpfunc_t)(const void*, const void*, void*);
+ 
+ #if defined HAVE_QSORT_S && defined RUBY_MSVCRT_VERSION
+@@ -263,7 +257,7 @@ ruby_qsort(void* base, const size_t nel, const size_t 
+     qsort_s(base, nel, size, cmp, d);
+ }
+ # define HAVE_GNU_QSORT_R 1
+-#elif !defined HAVE_GNU_QSORT_R
++#else
+ /* mm.c */
+ 
+ #define mmtype long
+@@ -530,6 +524,7 @@ ruby_qsort(void* base, const size_t nel, const size_t 
+     else goto nxt;                         /* need not to sort both sides */
+   }
+ }
++#endif
+ #endif /* HAVE_GNU_QSORT_R */
+ 
+ char *
