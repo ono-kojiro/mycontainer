@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>OpenID Connect</title>
+</head>
+<body>
+<h1>OpenID Connect</h1>
+<p>
+<img src="<!--#echo var="OIDC_CLAIM_picture" -->" alt="" height="24" width="24"/>
+<!--#echo var="OIDC_CLAIM_name" -->
+(REMOTE_USER=<!--#echo var="REMOTE_USER" -->)
+</p>
+<p><a href="/secure/redirect_uri?session=logout">Logout</a></p>
+</body>
+</html>
+

@@ -1,0 +1,19 @@
+---
+cacert: mylocalca.crt
+
+# OpenID connect
+oidc_client_id: apache2
+oidc_client_secret: xxxxxx
+
+oidc_redirect_uri: https://192.168.0.98/secure/redirect_uri
+oidc_crypto_passphrase: xxxxxx
+oidc_provider_metadata_url: https://192.168.0.249:5556/dex/.well-known/openid-configuration
+
+
+oidc_provider_issuer: https://192.168.0.249:5556/dex
+oidc_scope: "openid email groups profile offline_access"
+
+oidc_ssl_validate_server: "Off"
+
+oidc_validate_issuer: "Off"
+

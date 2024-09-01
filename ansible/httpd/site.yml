@@ -1,0 +1,191 @@
+#
+# https://eiwg.openid.or.jp/phase3/samples/implementation/mod_auth_openidc
+#
+
+- name: setup httpd
+  hosts: myserver
+
+  tasks:
+  - name: install httpd
+    ansible.builtin.package:
+      name: "{{ item }}"
+      state: present
+    loop:
+    - apache2
+    - libapache2-mod-auth-openidc
+  
+  - name: upload redirect configuration
+    ansible.builtin.copy:
+      src:  redirect.conf
+      dest: /etc/apache2/conf-available/
+
+  - name: enable rewrite module
+    ansible.builtin.shell: |
+      a2enmod rewrite
+  
+  - name: upload server cert
+    ansible.builtin.copy:
+      src:  "{{ server_crt }}"
+      dest: /etc/ssl/certs/
+      owner: root
+      group: root
+      mode: '0644'
+  
+  - name: upload server key
+    ansible.builtin.copy:
+      src:  "{{ server_key }}"
+      dest: /etc/ssl/private/
+      owner: root
+      group: ssl-cert
+      mode: '0640'
+
+  - name: upload ca cert
+    ansible.builtin.copy:
+      src:  "{{ cacert }}"
+      dest: /etc/ssl/certs/
+      owner: root
+      group: root
+      mode: '0640'
+  
+  - name: enable ssl
+    community.general.apache2_module:
+      name:  "{{ item.module }}"
+      state: "{{ item.state }}"
+    loop:
+    - module: ssl
+      state:  present
+  
+  - name: enable default-ssl site
+    ansible.builtin.shell: |
+      a2ensite default-ssl
+
+  - name: set server cert
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/sites-available/default-ssl.conf
+      regexp: '(\s+)(SSLCertificateFile)(\s+)(.+)'
+      line:   '\1\2\3/etc/ssl/certs/{{ server_crt }}'
+      backrefs: yes
+  
+  - name: set server key
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/sites-available/default-ssl.conf
+      regexp: '(\s+)(SSLCertificateKeyFile)(\s+)(.+)'
+      line:   '\1\2\3/etc/ssl/private/{{ server_key }}'
+      backrefs: yes
+
+  - name: set CA cert
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/sites-available/default-ssl.conf
+      regexp: '(\s+)(#?)(SSLCACertificateFile)(\s+)(.+)'
+      line:   '\1\3\4/etc/ssl/certs/{{ cacert }}'
+      backrefs: yes
+  
+  - name: enable client authentication
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/sites-available/default-ssl.conf
+      regexp: '(\s+)(#?)(SSLVerifyClient)(\s+)(.+)'
+      line:   '\1\3\4require'
+      backrefs: yes
+  
+  - name: set verify depth
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/sites-available/default-ssl.conf
+      regexp: '(\s+)(#?)(SSLVerifyDepth)(\s+)(.+)'
+      line:   '\1\3\4 10'
+      backrefs: yes
+
+  - name: enable redirect
+    ansible.builtin.shell: |
+      a2enconf redirect
+  
+  - name: set OIDCRedirectURI
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCRedirectURI)(\s+)(.+)$'
+      line:   '\2\3 {{ oidc_redirect_uri }}'
+      backrefs: yes
+  
+  - name: set OIDCCryptoPassphrase
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCCryptoPassphrase)(\s+)(.+)$'
+      line:   '\2\3 {{ oidc_crypto_passphrase }}'
+      backrefs: yes
+  
+  - name: set OIDCProviderMetadataURL
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCProviderMetadataURL)(\s+)(.+)$'
+      line:   '\2\3 {{ oidc_provider_metadata_url }}'
+      backrefs: yes
+  
+  - name: set OIDCProviderIssuer
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCProviderIssuer)(\s+)(.+)'
+      line:   '\2\3 {{ oidc_provider_issuer }}'
+      backrefs: yes
+  
+  - name: set OIDCScope
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCScope)(\s+)(.+)'
+      line:   '\2\3 "{{ oidc_scope }}"'
+      backrefs: yes
+  
+  - name: set OIDCClientID
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCClientID)(\s+)(.+)'
+      line:   '\2\3 {{ oidc_client_id }}'
+      backrefs: yes
+  
+  - name: set OIDCClientSecret
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCClientSecret)(\s+)(.+)'
+      line:   '\2\3 {{ oidc_client_secret }}'
+      backrefs: yes
+  
+  - name: set OIDCSSLValidateServer
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '^(#?)(OIDCSSLValidateServer)(\s+)(.+)'
+      line:   '\2\3 {{ oidc_ssl_validate_server }}'
+      backrefs: yes
+  
+  - name: set OIDCValidateIssuer
+    ansible.builtin.lineinfile:
+      path:   /etc/apache2/conf-available/auth_openidc.conf
+      regexp: '(\s*)(#?)(OIDCValidateIssuer)(\s+)(.+)'
+      line:   '\1\3\4 {{ oidc_validate_issuer }}'
+      backrefs: yes
+  
+  - name: enable auth_openidc
+    ansible.builtin.shell: |
+      a2enconf auth_openidc
+  
+  - name: upload secure zone configuration
+    ansible.builtin.copy:
+      src:  secure_zone.conf
+      dest: /etc/apache2/conf-available/
+  
+  - name: enable secure zone
+    ansible.builtin.shell: |
+      a2enconf secure_zone
+ 
+  - name: create /var/www/html/secure directory
+    ansible.builtin.file:
+      path: /var/www/html/secure
+      state: directory
+ 
+  - name: upload index.shtml
+    ansible.builtin.copy:
+      src:  index.shtml
+      dest: /var/www/html/secure/
+
+  - name: restart httpd
+    ansible.builtin.systemd:
+      name:  apache2
+      state: restarted
+
