@@ -1,0 +1,6 @@
+---
+ansible_host: localhost
+ansible_become: true
+
+server_crt: myserver.crt
+server_key: myserver.key

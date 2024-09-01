@@ -13,16 +13,32 @@
     path: /usr/local/etc/openldap/certs
     state: directory
 
-- name: copy server certs
+- name: copy server key
   ansible.builtin.copy:
-    src:  "{{ item }}"
+    src:  "{{ server_key }}"
     dest: /usr/local/etc/openldap/certs
     mode: '0700'
     group: ldap
     owner: ldap
-  loop:
-  - freebsd1.crt
-  - freebsd1.key
+
+- name: copy server crt
+  ansible.builtin.copy:
+    src:  "{{ server_crt }}"
+    dest: /usr/local/etc/openldap/certs
+    mode: '0750'
+    group: ldap
+    owner: ldap
+
+- name: enable TLS
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: {{ olc_server_key_path }}
+    -
+    replace: olcTLSCertificateFile
+    olcTLSCertificateFile: {{ olc_server_crt_path }}
 
 - name: change ldap loglevel
   ansible.builtin.shell: |

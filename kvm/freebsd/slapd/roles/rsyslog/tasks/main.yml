@@ -1,0 +1,21 @@
+---
+- name: install rsyslog
+  ansible.builtin.package:
+    name:  rsyslog
+    state: present
+
+- name: enable rsyslog
+  community.general.sysrc:
+    name: rsyslogd_enable
+    value: "YES"
+
+- name: add local4 facility
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/rsyslog.d/slapd.conf
+    line: 'local4.*    /var/log/slapd.log'
+
+- name: start rsyslog
+  ansible.builtin.service :
+    name:  rsyslogd
+    state: started
+

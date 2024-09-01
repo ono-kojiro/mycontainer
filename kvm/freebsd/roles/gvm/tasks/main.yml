@@ -1,0 +1,206 @@
+---
+- name: install gvm package
+  ansible.builtin.shell: |
+    sudo pkg install -y gvm
+
+- name: install pg-gvm package
+  ansible.builtin.shell: |
+    sudo pkg install -y pg-gvm
+
+- name: install postgresql15-server package
+  ansible.builtin.shell: |
+    sudo pkg install -y postgresql15-server
+
+- name: install postgresql15-contrib package
+  ansible.builtin.shell: |
+    sudo pkg install -y postgresql15-contrib
+
+- name: initialize postgres
+  ansible.builtin.shell: |
+    sysrc postgresql_enable="YES"
+    if [ ! -d "/var/db/postgres/data15" ]; then
+      /usr/local/etc/rc.d/postgresql initdb
+    fi
+
+    num=`service postgresql status | grep 'no server running' | wc -l`
+    if [ "$num" -eq 1 ]; then
+      service postgresql start
+    else
+      service postgresql restart
+    fi
+
+- name: 1. configure redis-server
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/openvas/openvas.conf
+    line: 'db_address = /var/run/redis/redis.sock'
+    state: present
+    create: true
+
+- name: 2. configure mosquitto service
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/openvas/openvas.conf
+    line: mqtt_server_uri = localhost:1883'
+    state: present
+
+- name: 3. configure notus-scanner
+  ansible.builtin.template:
+    src:  notus-scanner.toml
+    dest: /usr/local/etc/gvm/
+
+- name: 4. add user gvm to redis group
+  ansible.builtin.shell: |
+    num=`id gvm | grep redis | wc -l`
+    if [ "$num" -eq 0 ]; then
+      pw groupmod redis -M gvm
+    fi
+
+- name: 5.1 createuser gvm
+  ansible.builtin.shell: |
+    num=`sudo -u postgres psql -t -c "select usename from pg_catalog.pg_user;" | grep gvm | wc -l`
+    if [ "$num" -eq 0 ]; then
+      sudo -u postgres createuser -DRS gvm
+    fi
+
+- name: 5.2 drop gvmd database if exists
+  ansible.builtin.shell: |
+    num=`sudo -u postgres psql -t -c "select datname FROM pg_database;" | grep gvmd | wc -l`
+
+    if [ "$num" -ne 0 ]; then
+      sudo -u postgres dropdb gvmd
+    fi
+
+- name: 5.3 createdb gvmd
+  ansible.builtin.shell: |
+    sudo -u postgres createdb -O gvm gvmd
+
+- name: 5.4 add role dba
+  ansible.builtin.shell: |
+    sudo -u postgres psql -c "drop role if exists dba;"
+    sudo -u postgres psql -c "create role dba with superuser noinherit;"
+    sudo -u postgres psql -c "grant dba to gvm;"
+
+- name: 5.5 create extension uuid-ossp
+  ansible.builtin.shell: |
+    sudo -u postgres psql -c 'drop   extension if exists "uuid-ossp";'
+    sudo -u postgres psql -c 'create extension "uuid-ossp";'
+
+- name: 5.6 create extension pgcrypto
+  ansible.builtin.shell: |
+    sudo -u postgres psql -c 'drop   extension if exists "pgcrypto";'
+    sudo -u postgres psql -c 'create extension "pgcrypto";'
+
+- name: 5.7 create extension pg-gvm
+  ansible.builtin.shell: |
+    sudo -u postgres psql -c 'drop   extension if exists "pg-gvm";'
+    sudo -u postgres psql -c 'create extension "pg-gvm";'
+
+- name: 5.7 create extension pg-gvm
+  ansible.builtin.shell: |
+    sudo -u postgres psql -c 'drop   extension if exists "pg-gvm";'
+    sudo -u postgres psql -c 'create extension "pg-gvm";'
+
+- name: 6.1 enable redis
+  community.general.sysrc:
+    name: redis_enable
+    value: "YES"
+
+- name: 6.2 enable gvmd
+  community.general.sysrc:
+    name: gvmd_enable
+    value: "YES"
+
+- name: 6.3 enable ospd_openvas
+  tags: debug
+  community.general.sysrc:
+    name: ospd_openvas_enable
+    value: "YES"
+
+- name: 6.4 enable notus_scanner
+  tags: debug
+  community.general.sysrc:
+    name: notus_scanner_enable
+    value: "YES"
+
+- name: 6.5 enable gsad
+  tags: debug
+  community.general.sysrc:
+    name: gsad_enable
+    value: "YES"
+
+- name: 7. start redis
+  ansible.builtin.service:
+    name: redis
+    state: restarted
+
+- name: 8.1 run redis as root (not the best configuration)
+  community.general.sysrc:
+    name: redis_user
+    value: "root"
+
+- name: 8.2 run ospd_openvas as root (not the best configuration)
+  community.general.sysrc:
+    name: ospd_openvas_user
+    value: "root"
+
+- name: 8.3 avoid some scan issues with openvas
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/openvas/openvas.conf
+    line: "test_alive_hosts_only = no"
+    state: present
+
+- name: 9.1.1 gvm-manage-certs
+  ansible.builtin.shell: |
+    su -m gvm -c "gvm-manage-certs -a -f"
+
+- name: 9.1.2 greenbone-nvt-sync
+  ansible.builtin.shell: |
+    su -m gvm -c "greenbone-nvt-sync"
+
+- name: 9.1.3 GVMD_DATA
+  ansible.builtin.shell: |
+    su -m gvm -c "greenbone-feed-sync --type GVMD_DATA"
+
+- name: 9.1.4 SCAP
+  ansible.builtin.shell: |
+    su -m gvm -c "greenbone-feed-sync --type SCAP"
+
+- name: 9.1.5 CERT
+  ansible.builtin.shell: |
+    su -m gvm -c "greenbone-feed-sync --type CERT"
+
+- name: 9.2 start gvmd
+  ansible.builtin.service:
+    name: gvmd
+    state: restarted
+
+- name: 9.3 create admin user
+  ansible.builtin.shell: |
+    su -m gvm -c "gvmd --create-user=myuser"
+
+- name: 9.4 set the Feed Import Owner
+  ansible.builtin.shell: |
+    name_and_uuid=`sudo -u gvm gvmd --get-users --verbose`
+    name=`echo $name_and_uuid | awk '{ print $1 }'`
+    uuid=`echo $name_and_uuid | awk '{ print $2 }'`
+    sudo -u gvm gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $uuid
+
+- name: 10. start ospd_openvas
+  tags: debug
+  ansible.builtin.service:
+    name: ospd_openvas
+    state: started
+
+- name: 10.1 check if ospd_openvas is connection with openvas scanner
+  tags: debug
+  ansible.builtin.shell: |
+    uuid=`sudo -u gvm -- gvmd --get-scanners | grep OpenVAS | awk '{ print $1 }'`
+    sudo -u gvm -- gvmd --verify-scanner=$uuid
+  register: res
+  ignore_errors: true
+
+- name: 10.2 show scanner version
+  tags: debug
+  ansible.builtin.debug:
+    var: res.stdout_lines
+   
+

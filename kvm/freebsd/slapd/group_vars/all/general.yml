@@ -1,7 +1,10 @@
 ---
 olc_suffix: dc=example,dc=com
 olc_rootdn: cn=Manager,{{ olc_suffix }}
-olc_server_crt_path: /usr/local/etc/openldap/certs/freebsd1.crt
-olc_server_key_path: /usr/local/etc/openldap/certs/freebsd1.key
-olc_rootpw: secret
+olc_server_crt_path: /usr/local/etc/openldap/certs/{{ server_crt }}
+olc_server_key_path: /usr/local/etc/openldap/certs/{{ server_key }}
 
+# refer passwd.yml
+# olc_rootpw: xxxxxxxx
+
+ldap_provider_uri: ldaps://192.168.0.98

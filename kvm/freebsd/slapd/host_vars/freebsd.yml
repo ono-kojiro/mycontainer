@@ -1,4 +1,7 @@
 ---
-ansible_host: 192.168.1.78
+ansible_host: 192.168.0.53
 ansible_user: root
+ansible_ssh_common_args: -o StrictHostKeyChecking=no
+server_crt: cfrz4.crt
+server_key: cfrz4.key
 

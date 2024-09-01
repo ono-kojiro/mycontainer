@@ -5,7 +5,7 @@
     state: stopped
   ignore_errors: true
 
-- name: uninstall openldap server
+- name: uninstall openldap server/client
   ansible.builtin.package:
     name:
     - openldap26-server
