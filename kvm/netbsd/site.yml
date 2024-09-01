@@ -3,16 +3,16 @@
 
   roles:
     - role: ldap
-      tags: ldap
+      tags: ldap, ldapauth
 
     - role: pam
-      tags: pam
+      tags: pam, ldapauth
 
     - role: nsswitch
-      tags: nsswitch
+      tags: nsswitch, ldapauth
 
     - role: doas
-      tags: doas
+      tags: doas, ldapauth
 
     - role: authkeyscmd
-      tags: authkeyscmd
+      tags: authkeyscmd, ldapauth

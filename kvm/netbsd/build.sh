@@ -6,13 +6,7 @@ name=netbsd
 disk=`pwd`/${name}.qcow2
 iso="$HOME/Downloads/NetBSD-9.3-amd64.iso"
 
-addr="192.168.10.105"
-
-inventory="hosts"
-playbook="site.yml"
-
-ansible_opts=""
-ansible_opts="$ansible_opts -i ${inventory}"
+addr="192.168.0.215"
 
 usage()
 {
@@ -103,7 +97,7 @@ hosts()
 
 deploy()
 {
-  ansible-playbook -i hosts.yml site.yml
+  ansible-playbook -i ${inventory} site.yml
 }
 
 shutdown()
@@ -170,7 +164,7 @@ console()
 default()
 {
   tag=$1
-  ansible-playbook ${ansible_opts} -t ${tag} site.yml
+  ansible-playbook -i hosts.yml -t ${tag} site.yml
 }
 
 while [ $# -ne 0 ]; do
