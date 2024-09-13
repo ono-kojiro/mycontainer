@@ -1,4 +1,4 @@
 ---
-cacert_dir: myca
-cacert: myca.pem
+cacert_dir: mylocalca
+cacert: mylocalca.crt
 

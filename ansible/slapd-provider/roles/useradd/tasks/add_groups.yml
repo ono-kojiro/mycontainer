@@ -8,7 +8,7 @@
 
 - name: add groups
   ansible.builtin.shell: |
-    num=$(ldapfinger "{{ item.name }}" | wc -l)
+    num=$(ldapfinger -g "{{ item.name }}" 2>&1 | grep "{{ item.name }}" | wc -l)
     if test $num -eq 0 ; then
       ldapaddgroup "{{ item.name }}"
     fi

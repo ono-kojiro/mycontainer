@@ -17,7 +17,8 @@
     done
   loop: "{{ ldap_users }}"
   register: result
-  failed_when: result.rc != 0
+  #failed_when: result.rc != 0
+  ignore_errors: true
 
 - name: add gecos
   shell: |

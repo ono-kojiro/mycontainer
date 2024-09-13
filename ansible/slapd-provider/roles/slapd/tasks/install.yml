@@ -22,6 +22,7 @@
       - schema2ldif
       - gosa-schema
       - ssl-cert
+      - rsyslog
 
 - name: create /etc/rsyslog.d/60-slapd.conf for logfile
   ansible.builtin.lineinfile:

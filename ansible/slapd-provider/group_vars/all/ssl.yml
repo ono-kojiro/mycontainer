@@ -1,7 +1,7 @@
 ---
 # CA
-ca_nickname : MyCA
-ca_dir   : /etc/ssl/myca
-cacert   : myca.crt
+ca_nickname : MyLocalCA
+ca_dir   : /etc/ssl/mylocalca
+cacert   : mylocalca.crt
 
 ldap_addr: 127.0.0.1
