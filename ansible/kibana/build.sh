@@ -31,7 +31,7 @@ clean()
 
 hosts()
 {
-  ansible-inventory -i groups.yml --list --yaml > hosts.yml
+  ansible-inventory -i template.yml --list --yaml > hosts.yml
 }
 
 deploy()
@@ -43,6 +43,11 @@ default()
 {
   tag=$1
   ansible-playbook -K -i hosts.yml ${tag}.yml
+}
+
+test()
+{
+  curl -k --netrc-file ./.netrc https://192.168.0.98:9200
 }
 
 

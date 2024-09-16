@@ -3,9 +3,20 @@
 
   tasks:
   - name: reset kibana_system password
-    ansible.builtin.shell:
-      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system --silent --batch);
-      echo "kibana_password{{':'}} $pass" > /tmp/password.yml;
+    ansible.builtin.shell: |
+      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system --silent --batch)
+
+      {
+        echo "kibana_password{{':'}} $pass"
+      }  > /tmp/password.yml
+
+      addr={{ ansible_facts.default_ipv4.address }}
+      {
+        echo "machine $addr"
+        echo "login   kibana_system"
+        echo "password $pass"
+      } > /tmp/netrc
+
     register: res
 
   - name: fetch password.yml
@@ -13,8 +24,20 @@
       src: /tmp/password.yml
       dest: "{{ workdir }}/group_vars/all/password.yml"
       flat: yes
+  
+  - name: fetch netrc
+    ansible.builtin.fetch:
+      src: /tmp/netrc
+      dest: "{{ workdir }}/.netrc"
+      flat: yes
 
   - name: remove password.yml on remote
     ansible.builtin.file:
       path: /tmp/password.yml
       state: absent
+
+  - name: remove netrc on remote
+    ansible.builtin.file:
+      path: /tmp/netrc
+      state: absent
+
