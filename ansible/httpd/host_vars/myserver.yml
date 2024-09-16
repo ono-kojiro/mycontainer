@@ -1,6 +1,13 @@
 ---
-ansible_host: localhost
+ansible_host: webserver
 ansible_become: true
 
-server_crt: myserver.crt
-server_key: myserver.key
+server_crt: webserver.crt
+server_key: webserver.key
+
+oidc_client_id: webserver
+oidc_client_secret: xxxxxx
+
+oidc_redirect_uri: https://webserver.example.com/secure/redirect_uri
+oidc_crypto_passphrase: xxxxxx
+
