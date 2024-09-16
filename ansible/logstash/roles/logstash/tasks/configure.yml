@@ -35,21 +35,21 @@
     group: logstash
     mode: '0644'
   
-- name: copy server cert
-  ansible.builtin.copy:
-    src:  "{{ server_crt }}"
-    dest: /etc/logstash/certs/
-    owner: logstash
-    group: logstash
-    mode: '0644'
+#- name: copy server cert
+#  ansible.builtin.copy:
+#    src:  "{{ server_crt }}"
+#    dest: /etc/logstash/certs/
+#    owner: logstash
+#    group: logstash
+#    mode: '0644'
 
-- name: copy server key
-  ansible.builtin.copy:
-    src:  "{{ server_key }}"
-    dest: /etc/logstash/certs/
-    owner: logstash
-    group: logstash
-    mode: '0600'
+#- name: copy server key
+#  ansible.builtin.copy:
+#    src:  "{{ server_key }}"
+#    dest: /etc/logstash/certs/
+#    owner: logstash
+#    group: logstash
+#    mode: '0600'
   
 - name: copy config files
   ansible.builtin.template:

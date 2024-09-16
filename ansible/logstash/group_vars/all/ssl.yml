@@ -1,7 +1,7 @@
 ---
 keystore_jks: logstash.jks
 keystore_pass: secret
-cacert: myca.crt
+cacert: mylocalca.crt
 server_crt: logstash.crt
 server_key: logstash.key
 data_dir: /home/logstash
