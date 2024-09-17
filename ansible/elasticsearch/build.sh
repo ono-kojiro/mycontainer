@@ -44,7 +44,8 @@ default()
 
 test()
 {
-  curl -k --netrc-file ./.netrc https://192.168.0.98:9200
+  addr=`cat ./.netrc | grep -e '^machine' | awk '{ print $2 }'`
+  curl -k --netrc-file ./.netrc https://${addr}:9200
 }
 
 hosts

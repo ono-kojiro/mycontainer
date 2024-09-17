@@ -3,13 +3,13 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-es_host="https://192.168.0.98:9200"
+ret=0
 
 netrc="${top_dir}/.netrc"
-
 default_roles="superuser kibana_admin"
 
-ret=0
+machine=`cat $netrc | grep -e '^machine' | awk '{ print $2 }'`
+es_host="https://${machine}:9200"
 
 help() {
   cat - << EOS

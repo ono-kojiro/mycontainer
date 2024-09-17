@@ -1,5 +1,5 @@
 ---
-server_crt: elasticsearch.crt
-server_key: elasticsearch.key
+server_crt: elastic.crt
+server_key: elastic.key
 cacert:     myca.crt
 
