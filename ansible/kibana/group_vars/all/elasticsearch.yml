@@ -1,3 +1,4 @@
 ---
-elasticsearch_url: https://192.168.0.98:9200
+elasticsearch_url: https://192.168.0.35:9200
+kibana_url: https://192.168.0.36:5601
 

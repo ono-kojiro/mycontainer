@@ -1,8 +1,9 @@
 - name: reset kibana_system password
-  hosts: kibana
+  hosts: elastic
+  become: true
 
   tasks:
-  - name: reset kibana_system password
+  - name: reset kibana_system password on elasticsearch
     ansible.builtin.shell: |
       pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system --silent --batch)
 

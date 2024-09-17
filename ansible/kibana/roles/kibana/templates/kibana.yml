@@ -7,11 +7,11 @@ server.host: "0.0.0.0"
 server.shutdownTimeout: "5s"
 monitoring.ui.container.elasticsearch.enabled: true
 
-elasticsearch.hosts: https://192.168.0.98:9200
+elasticsearch.hosts: {{ elasticsearch_url }}
 
 server:
   name: kibana
-  publicBaseUrl: https://192.168.0.98:5601
+  publicBaseUrl: {{ kibana_url }}
   ssl:
     enabled: true
     certificate: /etc/kibana/certs/kibana.crt
