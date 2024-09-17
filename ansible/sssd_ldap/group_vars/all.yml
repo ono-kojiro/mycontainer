@@ -12,3 +12,5 @@ authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 # sudo
 admin_group: ldapwheel
 
+sysconfdir: /etc
+

@@ -1,5 +1,5 @@
 - name: setup sssd-ldap
-  hosts: debian11
+  hosts: kibana
 
   roles:
     - role: sssd

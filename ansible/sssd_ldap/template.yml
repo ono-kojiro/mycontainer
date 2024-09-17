@@ -5,4 +5,5 @@ all:
         myserver:
         freebsd:
         debian11:
+        kibana:
 
