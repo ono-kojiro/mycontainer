@@ -12,6 +12,9 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
+
+  reset: reset password of logstash_internal
+  deploy: setup logstash
 EOS
 
 }
