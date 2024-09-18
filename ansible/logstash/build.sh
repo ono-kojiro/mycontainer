@@ -42,6 +42,12 @@ default()
   ansible-playbook -K -i hosts.yml ${tag}.yml
 }
 
+test()
+{
+  machine=`cat .netrc | grep -e '^machine' | awk '{ print $2 }'`
+  curl -k --netrc-file ./.netrc https://${machine}:9200
+}
+
 
 hosts
 

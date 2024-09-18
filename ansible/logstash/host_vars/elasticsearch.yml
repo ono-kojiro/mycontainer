@@ -1,5 +1,5 @@
 ---
-ansible_host: elasticsearch
+ansible_host: elastic
 ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
 ansible_become: true
 
