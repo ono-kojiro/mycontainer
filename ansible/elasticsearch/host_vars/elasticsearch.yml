@@ -1,5 +1,5 @@
 ---
-ansible_host: elastic
+ansible_host: elasticsearch
 ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
 ansible_ssh_private_key_file: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/id_ed25519"
 ansible_become: true
