@@ -10,7 +10,7 @@
       {
         echo "logstash_username: logstash_internal"
         echo "logstash_password{{':'}} $pass"
-      }  > /tmp/password.yml
+      }  > /tmp/logstash_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}
       {
@@ -21,10 +21,10 @@
 
     register: res
 
-  - name: fetch password.yml
+  - name: fetch logstash_password.yml
     ansible.builtin.fetch:
-      src: /tmp/password.yml
-      dest: "{{ workdir }}/group_vars/all/password.yml"
+      src: /tmp/logstash_password.yml
+      dest: "{{ workdir }}/host_vars/logstash/logstash_password.yml"
       flat: yes
   
   - name: fetch netrc
@@ -38,6 +38,6 @@
       path: "{{ item }}"
       state: absent
     loop:
-    - /tmp/password.yml
+    - /tmp/logstash_password.yml
     - /tmp/netrc
 
