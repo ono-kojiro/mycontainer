@@ -19,6 +19,7 @@ usage :
   $0 check  -u <username> [-p <password>]
   $0 delete -u <username>
   $0 logstash
+  $0 packetbeat
   $0 list
 EOS
 }
@@ -134,6 +135,23 @@ EOS
 EOS
 
 }
+
+packetbeat()
+{
+  username="packetbeat_internal"
+  
+  curl -k --netrc-file $netrc \
+    -H 'Content-Type: application/json' \
+    -XPOST "$es_host/_security/user/$username?pretty" --data @- << EOS
+{
+  "password" : "packetbeat",
+  "roles" : [ "beats_admin"],
+  "full_name" : "Internal Packetbeat User"
+}
+EOS
+
+}
+
 
 delete()
 {
