@@ -144,7 +144,7 @@ packetbeat()
     -H 'Content-Type: application/json' \
     -XPOST "$es_host/_security/role/packetbeat_writer" --data @- << EOS
 {
-  "cluster": [ "manage" ],
+  "cluster": [ "monitor", "manage_index_templates", "manage_ilm", "manage_ingest_pipelines" ],
   "indices": [
     {
       "names": [ "packetbeat-*" ],
