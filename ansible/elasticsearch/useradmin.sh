@@ -142,10 +142,24 @@ packetbeat()
   
   curl -k --netrc-file $netrc \
     -H 'Content-Type: application/json' \
+    -XPOST "$es_host/_security/role/packetbeat_writer" --data @- << EOS
+{
+  "cluster": [ "manage" ],
+  "indices": [
+    {
+      "names": [ "packetbeat-*" ],
+      "privileges": [ "create_index", "create", "write", "auto_configure" ]
+    }
+  ]
+}
+EOS
+  
+  curl -k --netrc-file $netrc \
+    -H 'Content-Type: application/json' \
     -XPOST "$es_host/_security/user/$username?pretty" --data @- << EOS
 {
   "password" : "packetbeat",
-  "roles" : [ "beats_admin"],
+  "roles" : [ "kibana_admin", "packetbeat_writer"],
   "full_name" : "Internal Packetbeat User"
 }
 EOS
