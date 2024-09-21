@@ -2,6 +2,9 @@
   hosts: kibana
 
   roles:
-    - role: kibana
-      tags: kibana
+    - role: install
+      tags: install
+    
+    - role: deploy
+      tags: deploy
     

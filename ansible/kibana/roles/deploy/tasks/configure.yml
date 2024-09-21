@@ -42,6 +42,12 @@
     group: kibana
     mode: '0755'
 
+- name: disable OpenSSL 3 legacy provider
+  ansible.builtin.lineinfile:
+    path: /etc/kibana/node.options
+    regexp: '^--openssl-legacy-provider'
+    line: '#--openssl-legacy-provider'
+
 - name: restart kibana
   ansible.builtin.systemd_service:
     name: kibana

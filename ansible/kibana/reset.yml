@@ -8,8 +8,8 @@
       pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system --silent --batch)
 
       {
-        echo "kibana_username{{':'}} kibana_system"
-        echo "kibana_password{{':'}} $pass"
+        echo "kibana_username: kibana_system"
+        echo "kibana_password: $pass"
       }  > /tmp/kibana_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}
