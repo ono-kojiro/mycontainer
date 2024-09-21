@@ -1,7 +1,3 @@
 ---
-server_crt: elastic.crt
-server_key: elastic.key
-cacert:     myca.crt
-
 workdir: "{{ lookup('ansible.builtin.env', 'PWD') }}"
 

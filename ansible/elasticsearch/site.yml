@@ -2,6 +2,9 @@
   hosts: elasticsearch
 
   roles:
-    - role: elasticsearch
-      tags: elasticsearch
+    - role: install
+      tags: install
+
+    - role: deploy
+      tags: deploy 
     

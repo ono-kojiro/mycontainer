@@ -31,9 +31,15 @@ hosts()
   ansible-inventory -i template.yml --list --yaml > hosts.yml
 }
 
+install()
+{
+  ansible-playbook -K -i hosts.yml -t install site.yml
+}
+
+
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook -K -i hosts.yml -t deploy site.yml
 }
 
 default()

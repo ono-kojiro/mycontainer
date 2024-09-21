@@ -6,8 +6,8 @@
     ansible.builtin.shell: |
       pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic --silent --batch)
       {
-        echo "elastic_username{{':'}} elastic"
-        echo "elastic_password{{':'}} $pass"
+        echo "elastic_username: elastic"
+        echo "elastic_password: $pass"
       } > /tmp/elastic_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}
@@ -21,7 +21,7 @@
   - name: fetch elastic_password.yml
     ansible.builtin.fetch:
      src: /tmp/elastic_password.yml
-     dest: "{{ workdir }}/group_vars/all/"
+     dest: "{{ workdir }}/host_vars/elasticsearch/"
      flat: yes
 
   - name: fetch netrc
