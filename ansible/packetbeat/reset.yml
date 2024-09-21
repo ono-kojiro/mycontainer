@@ -1,0 +1,42 @@
+- name: reset password of packetbeat
+  hosts: elasticsearch
+
+  tasks:
+  - name: reset password of packetbeat_internal
+    ansible.builtin.shell: |
+      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u packetbeat_internal --silent --batch)
+
+      {
+        echo "packetbeat_username: packetbeat_internal"
+        echo "packetbeat_password{{':'}} $pass"
+      }  > /tmp/beats_password.yml
+
+      addr={{ ansible_facts.default_ipv4.address }}
+      {
+        echo "machine $addr"
+        echo "login   packetbeat_internal"
+        echo "password $pass"
+      } > /tmp/netrc
+
+    register: res
+
+  - name: fetch beats_password.yml
+    ansible.builtin.fetch:
+      src: /tmp/beats_password.yml
+      dest: "{{ workdir }}/host_vars/packetbeat/packetbeat_password.yml"
+      flat: yes
+  
+  - name: fetch netrc
+    ansible.builtin.fetch:
+      src: /tmp/netrc
+      dest: "{{ workdir }}/.netrc"
+      flat: yes
+
+  - name: remove temporary files on remote
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - /tmp/packetbeat_password.yml
+    - /tmp/netrc
+

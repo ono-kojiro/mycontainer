@@ -1,0 +1,54 @@
+---
+- name: copy packetbeat.yml
+  ansible.builtin.template:
+    src:  packetbeat.yml
+    dest: /etc/packetbeat/packetbeat.yml
+    owner: root
+    group: root
+    mode: '0640'
+ 
+- name: create config directory
+  ansible.builtin.file:
+    path:  /usr/share/packetbeat/config
+    state: directory
+    mode: '0755'
+ 
+- name: create symbolic link
+  ansible.builtin.file:
+    src:  /etc/packetbeat/packetbeat.yml
+    dest: /usr/share/packetbeat/config/packetbeat.yml
+    owner: root
+    group: root 
+    state: link
+  
+#- name: create /etc/packetbeat/certs
+#  ansible.builtin.file:
+#    path:  /etc/packetbeat/certs
+#    state: directory
+
+#- name: copy packetbeat.key
+#  ansible.builtin.copy:
+#    src:  packetbeat.key
+#    dest: /etc/packetbeat/certs/
+#    owner: packetbeat
+#    group: packetbeat 
+#    mode: '0600'
+
+#- name: copy packetbeat.crt
+#  ansible.builtin.copy:
+#    src:  packetbeat.crt
+#    dest: /etc/packetbeat/certs/
+#    owner: packetbeat
+#    group: packetbeat
+#    mode: '0755'
+
+- name: load dashboards
+  ansible.builtin.shell: |
+    packetbeat setup --dashboards
+
+- name: restart packetbeat
+  ansible.builtin.systemd_service:
+    name:  packetbeat
+    state: restarted
+    enabled: true
+
