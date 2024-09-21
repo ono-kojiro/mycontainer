@@ -9,7 +9,7 @@
 
       {
         echo "logstash_username: logstash_internal"
-        echo "logstash_password{{':'}} $pass"
+        echo "logstash_password: $pass"
       }  > /tmp/logstash_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}

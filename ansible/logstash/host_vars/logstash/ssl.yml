@@ -6,4 +6,3 @@ server_crt: logstash.crt
 server_key: logstash.key
 data_dir: /home/logstash
 
-elastic_url: https://192.168.0.35:9200

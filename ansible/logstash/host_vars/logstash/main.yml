@@ -3,5 +3,5 @@ ansible_host: logstash
 #ansible_user: ubuntu
 ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
 ansible_become: true
-
+elastic_url: https://192.168.0.35:9200
 
