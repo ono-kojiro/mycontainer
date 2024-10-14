@@ -14,7 +14,7 @@
       tags: pam, ldapauth
 
     - role: sudo
-      tags: sudo ldapauth
+      tags: sudo, ldapauth
     
     # KDE
     - role: xorg
@@ -29,3 +29,11 @@
     - role: sddm
       tags: sddm, gui
 
+    - role: mosquitto
+      tags: mosquitto
+
+    - role: gvm
+      tags: gvm
+
+    - role: vuls
+      tags: vuls
