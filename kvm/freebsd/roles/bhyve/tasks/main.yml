@@ -1,0 +1,43 @@
+---
+- name: install vm-bhyve
+  community.general.pkgng:
+    name:
+    - vm-bhyve
+    state: present
+
+- name: create zroot/vm
+  ansible.builtin.shell: |
+    num=`zfs list | grep -e '^zroot/vm ' | wc -l`
+    if [ "$num" -eq 0 ]; then
+      zfs create zroot/vm
+    fi
+
+- name: change mountpoint
+  ansible.builtin.shell: |
+    zfs set mountpoint=/vm zroot/vm
+
+- name: enable bhyve
+  community.general.sysrc:
+    name: vm_enable
+    value: "YES"
+    state: present
+
+- name: set vm_dir
+  community.general.sysrc:
+    name: vm_dir
+    value: "zfs:zroot/vm"
+    state: present
+
+- name: vm init
+  ansible.builtin.shell: |
+    vm init
+
+- name: create public switch
+  ansible.builtin.shell: |
+    vm switch create public
+
+- name: connect em0 to public switch
+  ansible.builtin.shell: |
+    vm switch add public em0
+
+

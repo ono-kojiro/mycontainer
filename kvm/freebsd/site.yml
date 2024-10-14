@@ -29,6 +29,14 @@
     - role: sddm
       tags: sddm, gui
 
+    # Utilities
+    - role: utils
+      tags: utils
+    
+    # vm-bhyve
+    - role: bhyve
+      tags: bhyve
+
     - role: mosquitto
       tags: mosquitto
 

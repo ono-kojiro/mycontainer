@@ -1,0 +1,9 @@
+---
+- name: install utilities
+  community.general.pkgng:
+    name:
+    - git
+    - vim
+    - htop
+    state: present
+
