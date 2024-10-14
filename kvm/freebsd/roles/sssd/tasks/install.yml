@@ -2,7 +2,7 @@
   community.general.pkgng:
     name:
     - bash
-    - sssd
+    - sssd2
     - pam_mkhomedir
     state: present
 
