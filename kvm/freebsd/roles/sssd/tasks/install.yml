@@ -1,8 +1,9 @@
-- name: install sssd
+- name: install sssd2
   community.general.pkgng:
     name:
     - bash
     - sssd2
+    - tevent
     - pam_mkhomedir
     state: present
 
