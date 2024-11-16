@@ -1,0 +1,37 @@
+- name: remove /var/log/slapd.log
+  ansible.builtin.file:
+    path: /var/log/slapd.log
+    state: absent
+
+- name: uninstall slapd packages
+  apt:
+    name:
+      - slapd
+      - ldap-utils
+      - schema2ldif
+#      - fusiondirectory-schema
+      - gosa-schema
+    state: absent
+    purge: true
+
+- name: install slapd packages
+  apt:
+    name:
+      - slapd
+      - ldap-utils
+      - schema2ldif
+#      - fusiondirectory-schema
+      - gosa-schema
+
+- name: create /etc/rsyslog.d/60-slapd.conf for logfile
+  ansible.builtin.lineinfile:
+    path: /etc/rsyslog.d/60-slapd.conf
+    line: 'local4.*   /var/log/slapd.log'
+    create: yes
+
+- name: restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+    daemon_reload: true
+

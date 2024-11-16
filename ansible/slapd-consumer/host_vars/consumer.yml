@@ -1,0 +1,4 @@
+---
+ansible_host: solomon
+ansible_become: true
+

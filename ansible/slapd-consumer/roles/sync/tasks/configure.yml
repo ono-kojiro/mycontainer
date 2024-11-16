@@ -1,0 +1,35 @@
+---
+- name: delete olcSyncrepl
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    delete: olcSyncrepl
+  ignore_errors: true
+
+- name: enable sync
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    add: olcSyncrepl
+    olcSyncRepl: rid=123
+      provider={{ ldap_provider_uri }}
+      tls_cert="/etc/share/ca-certificates/mylocalca/mylocalca.crt"
+      tls_reqcert="try"
+      bindmethod=simple
+      binddn={{ masterdn }}
+      credentials={{ masterpw }}
+      searchbase={{ ldap_suffix }}
+      scope=sub
+      schemachecking=on
+      type=refreshAndPersist
+      retry="30 5 300 3"
+      interval=00:00:05:00
+    EOF
+
+- name: restart slapd
+  ansible.builtin.systemd_service:
+    name: slapd
+    state: restarted
+

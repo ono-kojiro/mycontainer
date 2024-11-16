@@ -1,0 +1,12 @@
+---
+# CA
+ca_nickname : MyLocalCA
+ca_name     : mylocalca
+ca_dir   : /etc/ssl/mylocalca
+ca_cert  : mylocalca.crt
+
+# Server
+server_nickname: solomon
+server_crt: "{{ server_nickname }}.crt"
+server_key: "{{ server_nickname }}.key"
+
