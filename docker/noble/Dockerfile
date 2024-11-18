@@ -39,6 +39,7 @@ RUN apt-get -qq update \
       sudo \
       openssh-server \
       iproute2 \
+      cron \
       sssd-ldap \
       oddjob-mkhomedir \
     && apt-get -qq clean \
@@ -59,6 +60,7 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 # Configure SSSD.
 ADD sssd.conf /etc/sssd/
 RUN chmod 600 /etc/sssd/sssd.conf \
+    && chown root:root /etc/sssd/sssd.conf \
     && pam-auth-update --enable mkhomedir \
     && sed 's|-D -f|-D|' -i /etc/default/sssd \
     && sed -i -e 's|^#\(AuthorizedKeysCommand\)\s\+.\+|\1 /usr/bin/sss_ssh_authorizedkeys|' /etc/ssh/sshd_config \

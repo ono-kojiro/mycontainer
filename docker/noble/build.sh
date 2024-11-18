@@ -94,7 +94,7 @@ attach()
 
 ssh()
 {
-  command ssh -p 22040 localhost
+  command ssh -p 24040 localhost
 }
 
 stop()
