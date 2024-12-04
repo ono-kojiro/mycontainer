@@ -20,7 +20,7 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target
-    prepare
+    build
     create
     start
 
@@ -36,13 +36,6 @@ EOS
 all()
 {
   help
-}
-
-fetch()
-{
-  ES_VER=8.6.2
-  ES_ARCH=amd64
-  wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VER-$ES_ARCH.deb
 }
 
 build()

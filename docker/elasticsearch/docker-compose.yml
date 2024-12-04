@@ -1,10 +1,8 @@
-version: "3"
-
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
 
 services:
   elasticsearch:
-    image: jammy
+    image: elasticsearch:latest
     container_name: elasticsearch
     hostname: elasticsearch
     stdin_open: true   # docker run -i
