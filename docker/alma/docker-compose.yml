@@ -1,0 +1,13 @@
+---
+services:
+  alma:
+    image: alma:latest
+    container_name: alma
+    hostname: alma
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "9030:22"
