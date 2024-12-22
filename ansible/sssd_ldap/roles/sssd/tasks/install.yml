@@ -9,7 +9,6 @@
 - name: install sssd-ldap for debian
   ansible.builtin.apt:
     name:
-      - sssd
       - sssd-ldap
       - sssd-tools
       - oddjob-mkhomedir

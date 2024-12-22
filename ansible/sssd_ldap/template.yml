@@ -7,3 +7,4 @@ all:
         debian11:
         kibana:
         rocky:
+        parrot:
