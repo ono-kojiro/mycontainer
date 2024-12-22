@@ -87,7 +87,7 @@
 
 - name: restart sshd (FreeBSD)
   ansible.builtin.service:
-    name: sssd
+    name: sshd
     state: restarted
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
