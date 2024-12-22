@@ -1,5 +1,5 @@
 - name: setup sssd-ldap
-  hosts: kibana
+  hosts: freebsd
 
   roles:
     - role: sssd

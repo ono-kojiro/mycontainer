@@ -1,7 +1,7 @@
 ---
 - name: add ldapwheel to sudoer
   ansible.builtin.lineinfile:
-    path: /etc/sudoers.d/80-ldapusers
+    path: "{{ sysconfdir }}/sudoers.d/80-ldapusers"
     line: "%{{ admin_group }}  ALL=(ALL:ALL) ALL"
     create: yes
 

@@ -43,6 +43,10 @@ default()
   ansible-playbook -i hosts.yml -t $tag site.yml
 }
 
+debug()
+{
+  ansible-playbook -i hosts.yml debug.yml
+}
 
 hosts
 
