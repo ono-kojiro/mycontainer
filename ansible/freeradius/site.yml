@@ -1,0 +1,7 @@
+- name: setup freeradius
+  hosts: myserver
+
+  roles:
+    - role: freeradius
+      tags: freeradius
+    

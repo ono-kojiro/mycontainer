@@ -1,0 +1,150 @@
+---
+- name: install freeradius
+  ansible.builtin.apt:
+    name: freeradius-ldap
+    state: present
+
+- name: enable auth
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/radiusd.conf
+    regexp: "^([ \t]+)auth = .*"
+    line: "\\1auth = yes"
+    backrefs: yes
+
+- name: enable auth_badpass
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/radiusd.conf
+    regexp: "^([ \t]+)auth_badpass = .*"
+    line: "\\1auth_badpass = yes"
+    backrefs: yes
+
+- name: enable auth_goodpass
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/radiusd.conf
+    regexp: "^([ \t]+)auth_goodpass = .*"
+    line: "\\1auth_goodpass = yes"
+    backrefs: yes
+
+#
+#  sites-available/default
+#
+- name: enable auth_log
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regexp: "^([ \t]*)#?([ \t]*)auth_log"
+    line: "    auth_log"
+    backrefs: yes
+  loop:
+  - /etc/freeradius/3.0/sites-available/default
+  - /etc/freeradius/3.0/sites-available/inner-tunnel
+
+- name: enable Auth-Type LDAP
+  ansible.builtin.blockinfile:
+    path: "{{ item }}"
+    marker: "\t# {mark} ANSIBLE MANAGED BLOCK 1"
+    insertbefore: "^#\tAuth-Type LDAP {"
+    block: |
+      {% filter indent(width=4, first=true) %}
+      Auth-Type LDAP {
+          ldap
+      }
+      {% endfilter %}
+  loop:
+  - /etc/freeradius/3.0/sites-available/default
+  - /etc/freeradius/3.0/sites-available/inner-tunnel
+
+- name: enable ldap
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regexp: "^([ \t]*)#?([ \t]*)-ldap([ \t]*)"
+    line: "    ldap"
+  loop:
+  - /etc/freeradius/3.0/sites-available/default
+  - /etc/freeradius/3.0/sites-available/inner-tunnel
+
+- name: enable Auth-Type LDAP
+  ansible.builtin.blockinfile:
+    path: "{{ item }}"
+    marker: "\t# {mark} ANSIBLE MANAGED BLOCK 2"
+    insertbefore: '&& User-Password &&'
+    block: |
+      {% filter indent(width=4, first=true) %}
+      if ((ok || updated) && User-Password && !control:Auth-Type) {
+           update control {
+               &Auth-Type := ldap
+           }
+      }
+      {% endfilter %}
+  loop:
+  - /etc/freeradius/3.0/sites-available/default
+
+
+
+#
+# mods-available/ldap
+#
+
+- name: configure ldap
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/mods-available/ldap
+    regexp: "^([ \t]+)server = '.*'"
+    line: "\\1server = '{{ server_addr }}'"
+    backrefs: yes
+
+- name: change base_dn
+  ansible.builtin.replace:
+    path: /etc/freeradius/3.0/mods-available/ldap
+    regexp: "^([ \t]+)base_dn = (.+)"
+    replace: "\\1base_dn = \"ou=Users,{{ ldap_suffix }}\""
+
+- name: change scope
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/mods-available/ldap
+    regexp: "^#([ \t]+)scope = '.*'"
+    line: "\\1scope = 'sub'"
+    backrefs: yes
+
+- name: commnt out user_dn
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/mods-available/ldap
+    regexp: '^([ \t]+)user_dn = "(.*)"'
+    line: "\\1#user_dn = \"\\2\""
+    backrefs: yes
+
+
+- name: enable ldap
+  ansible.builtin.file:
+    src:  /etc/freeradius/3.0/mods-available/ldap
+    dest: /etc/freeradius/3.0/mods-enabled/ldap
+    owner: freerad
+    group: freerad
+    state: link
+
+- name: enable require_message_authenticator
+  ansible.builtin.lineinfile:
+    path: /etc/freeradius/3.0/clients.conf
+    regexp: "([ \t]*)#?([ \t]*)require_message_authenticator = (.*)"
+    line: "    require_message_authenticator = yes"
+    backrefs: yes
+
+#
+# users
+#
+- name: enable Auth-Type LDAP in users
+  ansible.builtin.blockinfile:
+    path: /etc/freeradius/3.0/users
+    marker: "\t# {mark} ANSIBLE MANAGED BLOCK in users"
+    insertbefore: '# On no match, the user is denied access.'
+    block: |
+      {% filter indent(width=0, first=true) %}
+      DEFAULT Auth-Type = LDAP
+              Fall-Through = Yes
+
+      {% endfilter %}
+
+
+- name: restart freeradus
+  ansible.builtin.systemd:
+    name: freeradius
+    state: restarted
+
