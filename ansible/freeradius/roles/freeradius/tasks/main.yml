@@ -142,6 +142,21 @@
 
       {% endfilter %}
 
+#
+# tls
+#
+
+- name: enable start_tls
+  ansible.builtin.replace:
+    path: /etc/freeradius/3.0/mods-available/ldap
+    regexp: "^#([ \t]*)start_tls = (.+)"
+    replace: "\t\tstart_tls = yes"
+
+- name: change require_cert
+  ansible.builtin.replace:
+    path: /etc/freeradius/3.0/mods-available/ldap
+    regexp: "^#([ \t]*)require_cert([ \t]*)=([ \t]*)'(.+)'"
+    replace: "\t\trequire_cert = 'never'"
 
 - name: restart freeradus
   ansible.builtin.systemd:
