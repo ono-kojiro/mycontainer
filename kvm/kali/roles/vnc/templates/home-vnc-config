@@ -1,4 +1,6 @@
-session=xfce4-session
+# see https://wiki.archlinux.org/title/TigerVNC#Initial_setup
+#session=xfce4-session
+session=plasma
 geometry=1920x1200
 alwaysshared
 SecurityTypes=vncauth,tlsvnc

@@ -1,0 +1,4 @@
+---
+ansible_host: myserver
+ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
+vnc_user: "{{ lookup('ansible.builtin.env', 'USER') }}"

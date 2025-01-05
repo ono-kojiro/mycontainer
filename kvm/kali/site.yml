@@ -1,7 +1,5 @@
 - name: setup sssd-ldap
-  #hosts: cfrz4
-  #hosts: centos
-  hosts: kali
+  hosts: myserver
 
   roles:
     - role: sssd
@@ -10,8 +8,8 @@
     - role: sudo
       tags: sudo
 
-    - role: msf
-      tags: msf
+    #- role: msf
+    #  tags: msf
 
     - role: vnc
       tags: vnc

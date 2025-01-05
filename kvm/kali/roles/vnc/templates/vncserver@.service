@@ -5,10 +5,10 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User={{ vnc_user }}
-PIDFile=/home/{{ vnc_user }}/.vnc/%H:%i.pid
-ExecStartPre=-/usr/bin/vncserver -kill :%i
-ExecStart=/usr/bin/vncserver -fg -depth 24 -geometry 1280x800 -localhost :%i
-ExecStop=/usr/bin/vncserver -kill :%i
+PIDFile=/home/{{ vnc_user }}/.vnc/%H%i.pid
+ExecStartPre=-/usr/bin/vncserver -kill %i
+ExecStart=/usr/bin/vncserver -fg -depth 24 -geometry 1280x800 -localhost %i
+ExecStop=/usr/bin/vncserver -kill %i
 
 [Install]
 WantedBy=multi-user.target
