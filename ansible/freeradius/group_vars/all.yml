@@ -8,3 +8,6 @@ allow_groups: ldapusers
 
 sysconfdir: /etc
 
+# freeradius config
+secret: testing123
+

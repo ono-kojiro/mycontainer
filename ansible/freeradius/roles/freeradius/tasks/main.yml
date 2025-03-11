@@ -127,6 +127,15 @@
     line: "    require_message_authenticator = yes"
     backrefs: yes
 
+- name: enable access from private network
+  ansible.builtin.blockinfile:
+    path: /etc/freeradius/3.0/clients.conf
+    block: |
+      client private-network {
+        ipaddr       = 192.168.0.0/24
+        secret       = {{ secret }}
+      }
+
 #
 # users
 #
