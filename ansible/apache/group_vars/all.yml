@@ -1,0 +1,4 @@
+---
+server_crt: myserver.crt
+server_key: myserver.key
+
