@@ -1,0 +1,4 @@
+---
+server_crt: ubuntu.crt
+server_key: ubuntu.key
+

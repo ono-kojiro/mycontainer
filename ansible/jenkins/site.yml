@@ -1,0 +1,10 @@
+- name: setup apache and jenkins
+  hosts: ubuntu
+
+  roles:
+  - name: apache
+    tags: apache
+
+  - name: jenkins
+    tags: jenkins
+
