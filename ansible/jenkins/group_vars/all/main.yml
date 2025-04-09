@@ -5,3 +5,7 @@ server_key: ubuntu.key
 cacert_dir: mylocalca
 cacert_crt: mylocalca.crt
 
+keystore: jenkins.jks
+
+http_port:  8081
+https_port: 8082

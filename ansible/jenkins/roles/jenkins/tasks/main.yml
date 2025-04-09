@@ -1,0 +1,92 @@
+---
+- name: fetch jenkins-keyring
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+    mode: '0440'
+  
+- name: convert asc to gpg
+  ansible.builtin.shell: |
+    rm -f /usr/share/keyrings/jenkins-keyring.gpg
+    /usr/bin/gpg \
+      -o /usr/share/keyrings/jenkins-keyring.gpg \
+      --dearmor /usr/share/keyrings/jenkins-keyring.asc
+  
+- name: upload jenkins.list
+  ansible.builtin.copy:
+    src: jenkins.list
+    dest: /etc/apt/sources.list.d/
+
+- name: install java and jenkins
+  ansible.builtin.apt:
+    name:
+    - openjdk-21-jre
+    - openjdk-21-jre-headless
+    - jenkins
+    update_cache: true
+
+- name: stop jenkins
+  ansible.builtin.systemd_service:
+    name: jenkins
+    state: stopped
+
+- name: configure jenkins
+  ansible.builtin.template:
+    src: override.conf
+    dest: /etc/systemd/system/jenkins.service.d/
+
+- name: enable apache2 modules
+  ansible.builtin.shell: |
+    a2enmod proxy
+    a2enmod proxy_http
+    a2enmod headers
+    a2enmod proxy_wstunnel
+    a2enmod rewrite
+  
+- name: upload jenkins-http.conf
+  ansible.builtin.template:
+    src: jenkins-http.conf
+    dest: /etc/apache2/conf-available/
+
+- name: upload jenkins-https.conf
+  ansible.builtin.template:
+    src: jenkins-https.conf
+    dest: /etc/apache2/conf-available/
+  
+- name: insert jenkins-http.conf
+  ansible.builtin.blockinfile:
+    path: /etc/apache2/sites-available/000-default.conf
+    insertbefore: "</VirtualHost>"
+    block: |
+      {% filter indent(width=8, first=true) %}
+      Include conf-available/jenkins-http.conf
+      {% endfilter %}
+
+- name: insert jenkins-https.conf
+  ansible.builtin.blockinfile:
+    path: /etc/apache2/sites-available/default-ssl.conf
+    insertbefore: "</VirtualHost>"
+    block: |
+      {% filter indent(width=8, first=true) %}
+      Include conf-available/jenkins-https.conf
+      {% endfilter %}
+  
+- name: upload keystore
+  ansible.builtin.copy:
+    src: '{{ keystore }}'
+    dest: /var/lib/jenkins/
+    owner: jenkins
+    group: jenkins
+    mode: '0700'
+
+- name: restart jenkins
+  ansible.builtin.systemd_service:
+    name: jenkins
+    state: restarted
+    daemon_reload: true
+  
+- name: restart apache2
+  ansible.builtin.systemd_service:
+    name: apache2
+    state: restarted
+
