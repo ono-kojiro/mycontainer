@@ -4,6 +4,9 @@
   roles:
   - name: apache
     tags: apache
+  
+  - name: sslrequire
+    tags: sslrequire
 
   - name: jenkins
     tags: jenkins

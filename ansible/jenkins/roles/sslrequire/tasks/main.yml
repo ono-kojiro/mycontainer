@@ -1,0 +1,45 @@
+---
+- name: create CA directory
+  ansible.builtin.file:
+    path: /usr/share/ca-certificates/{{ cacert_dir }}
+    state: directory
+    mode: '0755'
+
+- name: upload CA cert
+  ansible.builtin.copy:
+    src: '{{ cacert_crt }}'
+    dest: /usr/share/ca-certificates/{{ cacert_dir }}
+
+- name: edit /etc/ca-certificates.conf
+  ansible.builtin.lineinfile:
+    path: /etc/ca-certificates.conf
+    line: '{{ cacert_dir }}/{{ cacert_crt }}'
+
+- name: update CA cert
+  ansible.builtin.shell: |
+    update-ca-certificates
+
+- name: enable client cert
+  ansible.builtin.replace:
+    path: /etc/apache2/sites-available/default-ssl.conf
+    regexp: '^(\s+)(#)?(SSLVerifyClient)(\s+).+'
+    replace: '\1\3\4require'
+  
+- name: insert SSLRequire
+  ansible.builtin.blockinfile:
+    path: /etc/apache2/sites-available/default-ssl.conf
+    insertbefore: "</VirtualHost>"
+    block: |
+      {% filter indent(width=4, first=true) %}
+      <Location "/">
+          SSLRequire ( \
+              %{SSL_CLIENT_I_DN_CN} eq "MyLocalCA" \
+          )
+      </Location>
+      {% endfilter %}
+
+- name: restart apache2
+  ansible.builtin.systemd_service:
+    name: apache2
+    state: restarted
+

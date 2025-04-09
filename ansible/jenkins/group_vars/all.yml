@@ -2,3 +2,6 @@
 server_crt: ubuntu.crt
 server_key: ubuntu.key
 
+cacert_dir: mylocalca
+cacert_crt: mylocalca.crt
+
