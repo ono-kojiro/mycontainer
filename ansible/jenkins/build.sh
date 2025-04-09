@@ -13,8 +13,10 @@ usage()
   cat << EOS
 usage : $0 [options] target1 target2 ...
 
-target:
-  deploy
+  target:
+    apache
+    sslrequire
+    jenkins
 EOS
 
 }
