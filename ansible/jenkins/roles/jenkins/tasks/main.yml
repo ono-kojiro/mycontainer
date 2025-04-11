@@ -82,11 +82,12 @@
 - name: restart jenkins
   ansible.builtin.systemd_service:
     name: jenkins
-    state: restarted
+    state: started
     daemon_reload: true
   
 - name: restart apache2
   ansible.builtin.systemd_service:
     name: apache2
     state: restarted
+    daemon_reload: true
 
