@@ -1,0 +1,33 @@
+---
+- name: remove /usr/local/bin/ollama
+  ansible.builtin.file:
+    path: /usr/local/bin/ollama
+    state: absent
+
+- name: stop/disable ollama service
+  ansible.builtin.systemd_service:
+    name: ollama
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: remove /etc/systemd/system/ollama.service
+  ansible.builtin.file:
+    path: /etc/systemd/system/ollama.service
+    state: absent
+
+- name: systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: remove the user 'ollama'
+  ansible.builtin.user:
+    name: ollama
+    state: absent
+    remove: yes
+
+- name: remove the group 'ollama'
+  ansible.builtin.group:
+    name: ollama
+    state: absent
+

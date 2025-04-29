@@ -1,0 +1,10 @@
+- name: deploy ollama
+  hosts: myserver
+
+  roles:
+  - name: install
+    tags: install
+
+  - name: uninstall
+    tags: uninstall, never
+
