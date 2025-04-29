@@ -1,0 +1,56 @@
+- name: deploy pyenv
+  hosts: myserver
+
+  tasks:
+  - name: install build dependencies
+    ansible.builtin.apt:
+      name:
+      - build-essential
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - curl
+      - git
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - libffi-dev
+      - liblzma-dev
+      state: present
+      update_cache: true
+
+  - name: git clone pyenv
+    ansible.builtin.shell: |
+      if [ ! -e "{{ pyenv_root }}" ]; then
+        git clone {{ pyenv_repo }} {{ pyenv_root }}
+      fi
+
+  - name: git clone pyenv-virtualenv
+    ansible.builtin.shell: |
+      if [ ! -e "{{ virtualenv_root }}" ]; then
+        git clone {{ virtualenv_repo }} {{ virtualenv_root }} 
+      else
+        git -C {{ virtualenv_root }} pull
+      fi
+  
+  - name: create symbolik link to pyenv
+    ansible.builtin.file:
+      src: "{{ pyenv_root }}"
+      dest: /opt/pyenv
+      state: link
+
+  - name: upload pyenv.shrc
+    ansible.builtin.copy:
+      src: pyenv.shrc
+      dest: /opt/pyenv/
+
+  - name: build python
+    ansible.builtin.shell: |
+      . /opt/pyenv/pyenv.shrc;
+      pyenv install {{ item }} --verbose
+    loop: "{{ python_versions }}"
+

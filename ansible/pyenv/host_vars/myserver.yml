@@ -1,0 +1,6 @@
+---
+ansible_host: myserver
+ansible_become: true
+
+pyenv_root: /home/pyenv
+
