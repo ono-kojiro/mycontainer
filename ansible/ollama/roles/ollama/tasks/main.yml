@@ -1,10 +1,16 @@
 ---
+- name: check if ollama is installed
+  ansible.builtin.shell: |
+    which ollama
+  register: res
+
 - name: install ollama
   ansible.builtin.shell: |
     curl -fsSL https://ollama.com/install.sh | sh
+  when: res.rc != 0
 
 - name: change bind address
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: override.conf
     dest: /etc/systemd/system/ollama.service.d/
 

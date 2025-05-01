@@ -2,9 +2,9 @@
   hosts: myserver
 
   roles:
-  - name: install
-    tags: install
+  - name: ollama
+    tags: ollama
 
-  - name: uninstall
-    tags: uninstall, never
+  - name: destroy
+    tags: destroy, never
 
