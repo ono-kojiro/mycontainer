@@ -11,3 +11,6 @@
   - name: client
     tags: client
 
+  - name: gitbucket
+    tags: gitbucket, never
+

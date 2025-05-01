@@ -1,0 +1,23 @@
+---
+- name: upload gitbucket.conf
+  ansible.builtin.template:
+    src: gitbucket.conf
+    dest: /etc/apache2/conf-available/
+
+- name: enable proxy
+  ansible.builtin.shell: |
+    a2enmod proxy
+
+- name: enable proxy_http
+  ansible.builtin.shell: |
+    a2enmod proxy_http
+
+- name: enable gitbucket
+  ansible.builtin.shell: |
+    a2enconf gitbucket
+
+- name: restart apache2
+  ansible.builtin.systemd_service:
+    name: apache2
+    state: restarted
+
