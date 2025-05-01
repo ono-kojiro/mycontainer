@@ -1,0 +1,11 @@
+---
+- name: install apache
+  ansible.builtin.package:
+    name: apache2
+    state: present
+  
+- name: restart apache2
+  ansible.builtin.systemd_service:
+    name: apache2
+    state: restarted
+

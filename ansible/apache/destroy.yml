@@ -1,0 +1,11 @@
+- name: remove apache
+  hosts: myserver
+
+  tasks:
+  - name: remove apache2
+    ansible.builtin.apt:
+      name: apache2
+      state: absent
+      purge: true
+
+

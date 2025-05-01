@@ -40,6 +40,11 @@ default()
   ansible-playbook -K -i hosts.yml -t $tag site.yml
 }
 
+destroy()
+{
+  ansible-playbook -K -i hosts.yml destroy.yml
+}
+
 hosts
 
 args=""
