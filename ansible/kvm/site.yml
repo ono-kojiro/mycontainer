@@ -7,6 +7,8 @@
         name:
         - qemu-kvm
         - virt-manager
+        - cockpit
+        - cockpit-machines
         state: present
       when: ansible_facts['os_family'] == "Debian"
 
@@ -22,11 +24,11 @@
         ansible_facts['os_family'] == "RedHat"
         or ansible_facts['os_family'] == "Rocky"
     
-    - name: install virt-install
-      ansible.builtin.package:
-        name:
-        - virt-install
-        state: present
+#    - name: install virt-install
+#      ansible.builtin.package:
+#        name:
+#        - virt-install
+#        state: present
 
     - name: restart libvirtd
       ansible.builtin.systemd:
