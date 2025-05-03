@@ -1,0 +1,7 @@
+- name: setup nvidia driver and cuda
+  hosts: myserver
+
+  roles:
+  - name: driver
+    tags: driver
+

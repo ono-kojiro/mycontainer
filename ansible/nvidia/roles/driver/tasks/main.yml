@@ -1,0 +1,51 @@
+---
+- name: disable nouveau
+  ansible.builtin.copy:
+    src: blacklist-nouveau.conf
+    dest: /etc/modprobe.d/
+
+- name: update initramfs
+  ansible.builtin.shell: |
+    update-initramfs -u
+
+- name: check recommended drivers
+  ansible.builtin.shell: |
+    ubuntu-drivers devices 2>&1
+  register: res
+  ignore_errors: true
+
+- name: show recommended drivers
+  ansible.builtin.debug:
+    var: res.stdout_lines
+
+
+- name: check nvidia devices by lspci
+  ansible.builtin.shell: |
+    lspci | grep -i nvidia 2>&1
+  register: res
+  ignore_errors: true
+
+- name: show nvidia devices
+  ansible.builtin.debug:
+    var: res.stdout_lines
+  
+- name: check current installed drivers
+  ansible.builtin.shell: |
+    dpkg -l | grep -e 'nvidia|cuda' 2>&1
+  register: res
+  ignore_errors: true
+
+- name: show current installed drivers
+  ansible.builtin.debug:
+    var: res.stdout_lines
+
+- name: add repository, ppa:graphics-drivers/ppa 
+  ansible.builtin.shell: |
+    add-apt-repository --yes ppa:graphics-drivers/ppa
+
+- name: install nvidia driver
+  ansible.builtin.apt :
+    name: "{{ nvidia_driver }}"
+    state: present
+    update_cache: true
+
