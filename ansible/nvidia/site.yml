@@ -5,3 +5,6 @@
   - name: driver
     tags: driver
 
+  - name: cuda
+    tags: cuda
+
