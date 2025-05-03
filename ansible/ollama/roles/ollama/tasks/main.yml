@@ -3,6 +3,7 @@
   ansible.builtin.shell: |
     which ollama
   register: res
+  ignore_errors: true
 
 - name: install ollama
   ansible.builtin.shell: |
