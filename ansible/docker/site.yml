@@ -1,0 +1,53 @@
+# Install Docker Engine on Ubuntu
+# https://docs.docker.com/engine/install/ubuntu/
+
+- name: deploy docker
+  hosts: myserver
+
+  tasks:
+  - name: uninstall old versions
+    ansible.builtin.apt:
+      name:
+      - docker.io
+      - docker-compose
+      - docker-compose-v2
+      - docker-doc
+      - podman-docker
+      state: absent
+  
+  - name: install ca-certificates and curl
+    ansible.builtin.apt:
+      name:
+      - ca-certificates
+      - curl
+      state: present
+      update_cache: true
+
+  - name: download GPG key
+    ansible.builtin.shell: |
+      install -m 0755 -d /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        -o /etc/apt/keyrings/docker.asc
+      chmod a+r /etc/apt/keyrings/docker.asc
+
+  - name: download GPG key
+    ansible.builtin.shell: |
+      arch=$(dpkg --print-architecture)
+      docker_asc=/etc/apt/keyrings/docker.asc
+      url=https://download.docker.com/linux/ubuntu
+      code=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+      echo \
+        "deb [arch=$arch signed-by=$docker_asc] $url $code stable" | \
+      tee /etc/apt/sources.list.d/docker.list > /dev/null
+ 
+  - name: install docker packages
+    ansible.builtin.apt:
+      name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+      state: present
+      update_cache: true
+
