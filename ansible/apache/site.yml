@@ -9,7 +9,7 @@
     tags: ssl
 
   - name: client
-    tags: client
+    tags: client, never
 
   - name: gitbucket
     tags: gitbucket, never
