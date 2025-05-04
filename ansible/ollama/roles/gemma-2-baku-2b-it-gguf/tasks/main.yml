@@ -1,0 +1,5 @@
+---
+- name: setup hf.co/alfredplpl/gemma-2-baku-2b-it-gguf
+  ansible.builtin.shell: |
+    ollama pull hf.co/alfredplpl/gemma-2-baku-2b-it-gguf
+

@@ -8,3 +8,6 @@
   - name: destroy
     tags: destroy, never
 
+  - name: gemma-2-baku-2b-it-gguf
+    tags: gemma2, never
+
