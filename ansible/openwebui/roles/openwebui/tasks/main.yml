@@ -1,0 +1,19 @@
+---
+- name: upload openwebui.service
+  ansible.builtin.template:
+    src: openwebui.service
+    dest: /usr/lib/systemd/system/
+
+- name: upload openwebui.sh
+  ansible.builtin.template:
+    src: openwebui.sh
+    dest: /usr/bin/openwebui
+    mode: '0755'
+
+- name: start openwebui
+  ansible.builtin.systemd_service:
+    name: openwebui
+    state: restarted
+    enabled: true
+    daemon_reload: true
+

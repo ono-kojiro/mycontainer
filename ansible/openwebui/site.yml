@@ -8,3 +8,6 @@
   - name: uv
     tags: uv
 
+  - name: openwebui
+    tags: openwebui
+

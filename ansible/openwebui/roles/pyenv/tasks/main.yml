@@ -81,6 +81,12 @@
     pyenv global {{ python_version }}
     pip install --upgrade pip
 
+- name: install hf_xet
+  ansible.builtin.shell: |
+    . /opt/pyenv/pyenv.shrc;
+    pyenv global {{ python_version }}
+    pip install hf_xet
+
 - name: change owner of pyenv directory
   ansible.builtin.file:
     path: "{{ pyenv_root }}"

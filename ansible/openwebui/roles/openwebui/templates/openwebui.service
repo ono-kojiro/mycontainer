@@ -1,0 +1,16 @@
+[Unit]
+Description=openwebui
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/openwebui
+Restart=on-failure
+
+User=openwebui
+Group=openwebui
+
+[Install]
+WantedBy=multi-user.target
+
