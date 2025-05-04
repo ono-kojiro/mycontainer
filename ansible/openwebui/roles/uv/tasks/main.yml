@@ -1,0 +1,15 @@
+---
+- name: install uv
+  ansible.builtin.shell: |
+    . /opt/pyenv/pyenv.shrc
+    pyenv global {{ python_version }}
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  become: yes
+  become_user: openwebui
+    
+  register: res
+
+- name: show result
+  ansible.builtin.debug:
+    var: res.stdout_lines
+

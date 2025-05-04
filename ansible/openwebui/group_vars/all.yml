@@ -1,0 +1,18 @@
+---
+service_user:  openwebui
+service_group: openwebui
+
+pyenv_repo: https://github.com/pyenv/pyenv.git
+virtualenv_repo: https://github.com/pyenv/pyenv-virtualenv.git
+
+pyenv_root: /var/lib/openwebui/pyenv
+virtualenv_root: "{{ pyenv_root }}/plugins/pyenv-virtualenv"
+
+python_versions:
+- 3.11.12
+
+python_version: 3.11.12
+
+#- 3.12.8
+#- 3.13.2
+

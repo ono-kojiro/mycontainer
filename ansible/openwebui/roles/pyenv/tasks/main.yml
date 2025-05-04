@@ -1,0 +1,90 @@
+---
+- name: create group, openwebui
+  ansible.builtin.group:
+    name: openwebui
+    state: present
+    system: true
+
+- name: create user, openwebui
+  ansible.builtin.user:
+    name: openwebui
+    group: openwebui
+    state: present
+    shell: /bin/false
+    home: /var/lib/openwebui
+    system: true
+
+- name: create /var/lib/openwebui
+  ansible.builtin.file:
+    path: /var/lib/openwebui
+    state: directory
+    owner: openwebui
+    group: openwebui
+    mode: '0755'
+
+- name: install pyenv dependencies
+  ansible.builtin.apt:
+    name:
+    - build-essential
+    - libssl-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libreadline-dev
+    - libsqlite3-dev
+    - curl
+    - git
+    - libncursesw5-dev
+    - xz-utils
+    - tk-dev
+    - libxml2-dev
+    - libxmlsec1-dev
+    - libffi-dev
+    - liblzma-dev
+    state: present
+    update_cache: true
+
+- name: git clone pyenv
+  ansible.builtin.shell: |
+    if [ ! -e "{{ pyenv_root }}" ]; then
+      git clone {{ pyenv_repo }} {{ pyenv_root }}
+    fi
+
+- name: git clone pyenv-virtualenv
+  ansible.builtin.shell: |
+    if [ ! -e "{{ virtualenv_root }}" ]; then
+      git clone {{ virtualenv_repo }} {{ virtualenv_root }}
+    else
+      git config --global --add safe.directory {{ virtualenv_root }}
+      git -C {{ virtualenv_root }} pull
+    fi
+
+- name: create symbolik link to pyenv
+  ansible.builtin.file:
+    src: "{{ pyenv_root }}"
+    dest: /opt/pyenv
+    state: link
+
+- name: upload pyenv.shrc
+  ansible.builtin.copy:
+    src: pyenv.shrc
+    dest: /opt/pyenv/
+
+- name: build python
+  ansible.builtin.shell: |
+    . /opt/pyenv/pyenv.shrc;
+    pyenv install {{ item }} --verbose --skip-existing
+  loop: "{{ python_versions }}"
+
+- name: update pip
+  ansible.builtin.shell: |
+    . /opt/pyenv/pyenv.shrc;
+    pyenv global {{ python_version }}
+    pip install --upgrade pip
+
+- name: change owner of pyenv directory
+  ansible.builtin.file:
+    path: "{{ pyenv_root }}"
+    owner: openwebui
+    group: openwebui
+    recurse: true
+

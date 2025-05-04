@@ -1,0 +1,6 @@
+---
+ansible_host: myserver
+ansible_become: true
+
+ollama_host: "0.0.0.0:11434"
+
