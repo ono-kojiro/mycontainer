@@ -47,7 +47,7 @@ default()
 
 destroy()
 {
-  ansible-playbook -K -i hosts.yml -t destroy site.yml
+  ansible-playbook -K -i hosts.yml destroy.yml
 }
 
 hosts

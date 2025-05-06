@@ -1,0 +1,10 @@
+---
+- name: destroy pyenv
+  hosts: myserver
+
+  tasks:
+  - name: remove {{ pyenv_root }}
+    ansible.builtin.file:
+      path: "{{ pyenv_root }}"
+      state: absent
+  
