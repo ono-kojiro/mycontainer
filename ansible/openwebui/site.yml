@@ -2,9 +2,6 @@
   hosts: myserver
 
   roles:
-  - name: pyenv
-    tags: pyenv
-
   - name: uv
     tags: uv
 
