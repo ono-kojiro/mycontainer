@@ -52,7 +52,9 @@ add: sshPublicKey
 sshPublicKey: $pubkey
 EOF
 
+  echo "<<<<<<<<<<<<<<<<<<<<"
   cat input.ldif
+  echo ">>>>>>>>>>>>>>>>>>>>"
 
   cmd="ldapadd -H $uri -D $binddn -f input.ldif -W"
   echo $cmd

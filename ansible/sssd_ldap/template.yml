@@ -3,8 +3,3 @@ all:
     servers:
       hosts:
         myserver:
-        freebsd:
-        debian11:
-        kibana:
-        rocky:
-        parrot:

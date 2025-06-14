@@ -1,5 +1,5 @@
 - name: setup sssd-ldap
-  hosts: parrot
+  hosts: myserver
 
   roles:
     - role: sssd
