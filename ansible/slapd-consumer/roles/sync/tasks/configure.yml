@@ -1,21 +1,37 @@
 ---
+- name: check if olcSyncrepl exists
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" \
+      "objectClass=olcMdbConfig" \
+      olcSyncrepl | wc -l
+  register: res
+
 - name: delete olcSyncrepl
   ansible.builtin.shell: |
+    # ex. dn: olcDatabase={2}mdb,cn=config
+    dn=`ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" "(objectClass=olcMdbConfig)" dn`
+
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: olcDatabase={1}mdb,cn=config
+    $dn
     changetype: modify
     delete: olcSyncrepl
-  ignore_errors: true
+    EOF
+  when: res.stdout == "1"
 
 - name: enable sync
   ansible.builtin.shell: |
+    dn=`ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" "(objectClass=olcMdbConfig)" dn`
+
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: olcDatabase={1}mdb,cn=config
+    $dn
     changetype: modify
     add: olcSyncrepl
     olcSyncRepl: rid=123
       provider={{ ldap_provider_uri }}
-      tls_cert="/etc/share/ca-certificates/mylocalca/mylocalca.crt"
+      tls_cert="{{ tls_cert_path }}"
       tls_reqcert="try"
       bindmethod=simple
       binddn={{ masterdn }}

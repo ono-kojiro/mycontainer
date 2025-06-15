@@ -33,13 +33,15 @@ hosts()
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  #ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts.yml -t $tag site.yml
+  #ansible-playbook -K -i hosts.yml -t $tag site.yml
+  ansible-playbook -i hosts.yml -t $tag site.yml
 }
 
 hosts

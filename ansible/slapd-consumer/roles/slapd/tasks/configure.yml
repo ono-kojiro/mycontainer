@@ -18,23 +18,24 @@
 - name: change ldap suffix
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: olcDatabase={1}mdb,cn=config
+    dn: {{ ldap_config_dn }}
     changetype: modify
     replace: olcSuffix
     olcSuffix: {{ ldap_suffix }}
     EOF
 
-- name: check ldap suffix
+- name: check ldap suffix 
   ansible.builtin.shell: |
     ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
-      -LLL -b "olcDatabase={1}mdb,cn=config" olcSuffix | grep olcSuffix
+      -LLL -b "{{ ldap_config_dn }}" olcSuffix | grep olcSuffix
   register: result
   failed_when: result.rc != 0
+
 
 - name: change ldap rootdn
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: olcDatabase={1}mdb,cn=config
+    dn: {{ ldap_config_dn }}
     changetype: modify
     replace: olcRootDN
     olcRootDN: {{ masterdn }}
@@ -43,32 +44,94 @@
 - name: check ldap rootdn
   ansible.builtin.shell: |
     ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
-      -LLL -b "olcDatabase={1}mdb,cn=config" olcRootDN | grep olcRootDN
+      -LLL -b "{{ ldap_config_dn }}" olcRootDN | grep olcRootDN
   register: result
   failed_when: result.rc != 0
 
-- name: add openldap user to ssl-cert group
+- name: add openldap user to ssl-cert group (Debian)
   ansible.builtin.user:
     name: openldap
     groups: ssl-cert
     append: yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
 - name: restart slapd
   ansible.builtin.systemd_service:
     name: slapd
     state: restarted
 
+- name: upload openssh-lpk.ldif (RedHat)
+  ansible.builtin.copy:
+    src: openssh-lpk.ldif
+    dest: /etc/openldap/schema/
+  tags: schema
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: upload rfc2307bis.ldif (RedHat)
+  ansible.builtin.copy:
+    src: rfc2307bis.ldif
+    dest: /etc/openldap/schema/
+  tags: schema
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+
+- name: add schema (RedHat)
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// \
+      -f /etc/openldap/schema/{{ item }}.ldif
+  loop:
+    - cosine
+    - inetorgperson
+    - openssh-lpk
+    - rfc2307bis
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+  tags: schema
+  ignore_errors: true
+
+- name: add ldap tls (RedHat)
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    
+    add: olcTLSCertificateFile
+    olcTLSCertificateFile: {{ cert_dir }}/certs/{{ server_crt }}
+    EOF
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+  tags: tls
+  ignore_errors: true
+
+- name: add ldap tls key (RedHat)
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    add: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: {{ cert_dir }}/private/{{ server_key }}
+    EOF
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+  tags: tls
+  ignore_errors: true
+
+
 - name: change ldap tls
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=config
     changetype: modify
-    add: olcTLSCertificateFile
-    olcTLSCertificateFile: /etc/ssl/certs/{{ server_crt }}
-    -
-    add: olcTLSCertificateKeyFile
-    olcTLSCertificateKeyFile: /etc/ssl/private/{{ server_key }}
+    replace: olcTLSCertificateFile
+    olcTLSCertificateFile: {{ cert_dir }}/certs/{{ server_crt }}
+    
+    replace: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: {{ cert_dir }}/private/{{ server_key }}
     EOF
+  tags: tls
 
 - name: check ldap tls certificate file
   ansible.builtin.shell: |
@@ -76,6 +139,7 @@
       -LLL -b "cn=config" olcTLSCertificateFile | grep TLS
   register: result
   failed_when: result.rc != 0
+  tags: tls
 
 - name: check ldap tls certificate keyfile
   ansible.builtin.shell: |
@@ -83,9 +147,7 @@
       -LLL -b "cn=config" olcTLSCertificateKeyFile | grep TLS
   register: result
   failed_when: result.rc != 0
-
-
-
+  tags: tls
 
 - name: change ldap access
   ansible.builtin.shell: |
@@ -151,16 +213,25 @@
     src:  /etc/ldap/schema/gosa/rfc2307bis.schema
     dest: /etc/ldap/schema/rfc2307bis.schema
     remote_src: yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
 
 - name: disable nis.schema
   tags: rfc2307bis
   ansible.builtin.shell: |
     ldap-schema-manager -e nis.schema --yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
 
 - name: enable rfc2307bis.schema
   tags: rfc2307bis
   ansible.builtin.shell: |
     ldap-schema-manager -i rfc2307bis.schema --yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
 
 
 - name: copy openssh-lpk.schema
@@ -168,16 +239,19 @@
   ansible.builtin.template:
     src: openssh-lpk.schema
     dest: /etc/ldap/schema/
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
 
 - name: import openssh-lpk.schema
   tags: publickey
   ansible.builtin.shell:
     ldap-schema-manager -i /etc/ldap/schema/openssh-lpk.schema
-
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
 
 - name: load memberof module
-  tags: memberof
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=module{0},cn=config
@@ -185,22 +259,48 @@
     add: olcModuleLoad
     olcModuleLoad: memberof
     EOF
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
-- name: load refint module
-  tags: memberof
+- name: create module config (RedHat)
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    objectClass: olcModuleList
+    cn: module{0}
+    olcModulePath: /usr/lib64/openldap/
+    EOF
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: load modules
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=module{0},cn=config
     changetype: modify
     add: olcModuleLoad
-    olcModuleLoad: refint
+    olcModuleLoad: {{ item }}
     EOF
+  loop:
+  - back_mdb
+  - memberof
+  - refint
+  ignore_errors: true
+
+- name: check if memberof overlay exists
+  tags: memberof
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" \
+      "(&(objectClass=olcOverlayConfig)(olcOverlay=memberof))" \
+      dn | wc -l
+  register: res
 
 - name: add memberof overlay
   tags: memberof
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: olcOverlay=memberof,olcDatabase={1}mdb,cn=config
+    dn: olcOverlay=memberof,{{ olc_database }}
     changetype: add
     objectClass: olcConfig
     objectClass: olcMemberOf
@@ -213,21 +313,35 @@
     olcMemberOfMemberAD: member
     olcMemberOfMemberOfAD: memberOf
     EOF
+  when: res.stdout == "0"
+  ignore_errors: true
+
+- name: check if refint overlay exists
+  tags: memberof
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" \
+      "(&(objectClass=olcOverlayConfig)(olcOverlay=refint))" \
+      dn | wc -l
+
+  register: res
+
      
 - name: enable refint overlay
   tags: memberof
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: olcOverlay=refint,olcDatabase={1}mdb,cn=config
+    dn: olcOverlay=refint,{{ olc_database }}
     changetype: add
     objectClass: olcConfig
-    objectClass: olcOverlayConfig
     objectClass: olcRefintConfig
+    objectClass: olcOverlayConfig
     objectClass: top
     olcOverlay: refint
-    olcRefintAttribute: memberof member manager owner
+    olcRefintAttribute: memberof
     EOF
-
+  when: res.stdout == "0"
+  ignore_errors: true
 
 - name: stop slapd.service
   ansible.builtin.systemd:

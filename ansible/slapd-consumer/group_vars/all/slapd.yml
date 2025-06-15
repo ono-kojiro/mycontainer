@@ -1,11 +1,11 @@
 ---
 #ldap_addr: localhost
-ldap_addr: 192.168.0.84
+#consumer_addr: 192.168.0.
 ldap_suffix: dc=example,dc=com
 masterdn: cn=Manager,{{ ldap_suffix }}
 masterpw: secret
 
-ldap_uri:    ldaps://{{ ldap_addr }}
+#ldap_uri:    ldaps://{{ consumer_addr }}
 ldap_tls_reqcert: try
 authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 
