@@ -4,7 +4,9 @@
 #
 - name: install ca-certificates
   ansible.builtin.package:
-    name: ca-certificates
+    name:
+    - ca-certificates
+    - ssl-cert
     state: present
 
 - name: copy cacert directory (Debian)
@@ -67,7 +69,7 @@
     src: "{{ server_key }}"
     dest: "{{ cert_dir }}/private/"
     owner: root
-    group: ssl-cert 
+    group: ssl-cert
     mode: '0640'
   when: |-
     ansible_facts['os_family'] == "Debian"

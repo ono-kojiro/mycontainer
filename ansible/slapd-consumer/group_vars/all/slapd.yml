@@ -6,7 +6,7 @@ masterdn: cn=Manager,{{ ldap_suffix }}
 masterpw: secret
 
 #ldap_uri:    ldaps://{{ consumer_addr }}
-ldap_tls_reqcert: try
+ldap_tls_reqcert: never
 authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 
 ldap_provider_uri: ldaps://192.168.0.98:636

@@ -17,6 +17,8 @@ cert_dir: /etc/pki/tls
 
 olc_database: "olcDatabase={2}mdb,cn=config"
 tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
+ldap_dir: /etc/openldap
+tls_cacert: /usr/share/pki/ca-trust-source/ca-bundle.trust.p11-kit
 
 # for Debian
 #ldap_user:  openldap
@@ -27,4 +29,6 @@ tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
 
 #olc_database: {1}mdb,cn=config
 #tls_cert_path: "/etc/share/ca-certificates/mylocalca/mylocalca.crt"
+#ldap_dir: /etc/ldap
+#tls_cacert: /etc/ssl/certs/ca-certificates.crt
 

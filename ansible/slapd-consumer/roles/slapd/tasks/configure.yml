@@ -1,7 +1,7 @@
 ---
 - name: change ldap loglevel
   ansible.builtin.shell: |
-    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=config
     changetype: modify
     replace: olcLogLevel
@@ -61,27 +61,23 @@
     name: slapd
     state: restarted
 
-- name: upload openssh-lpk.ldif (RedHat)
+- name: upload openssh-lpk.ldif
   ansible.builtin.copy:
     src: openssh-lpk.ldif
-    dest: /etc/openldap/schema/
+    dest: "{{ ldap_dir }}/schema/"
   tags: schema
-  when: |-
-    ansible_facts['os_family'] == "RedHat"
 
-- name: upload rfc2307bis.ldif (RedHat)
+- name: upload rfc2307bis.ldif
   ansible.builtin.copy:
     src: rfc2307bis.ldif
-    dest: /etc/openldap/schema/
+    dest: "{{ ldap_dir }}/schema/"
   tags: schema
-  when: |-
-    ansible_facts['os_family'] == "RedHat"
 
 
 - name: add schema (RedHat)
   ansible.builtin.shell: |
     ldapadd -Q -Y EXTERNAL -H ldapi:/// \
-      -f /etc/openldap/schema/{{ item }}.ldif
+      -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
   loop:
     - cosine
     - inetorgperson
@@ -92,7 +88,7 @@
   tags: schema
   ignore_errors: true
 
-- name: add ldap tls (RedHat)
+- name: add ldap tls
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=config
@@ -101,12 +97,37 @@
     add: olcTLSCertificateFile
     olcTLSCertificateFile: {{ cert_dir }}/certs/{{ server_crt }}
     EOF
-  when: |-
-    ansible_facts['os_family'] == "RedHat"
   tags: tls
-  ignore_errors: true
 
-- name: add ldap tls key (RedHat)
+- name: add ldap tls key
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    
+    add: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: {{ cert_dir }}/private/{{ server_key }}
+    EOF
+  tags: tls
+
+- name: change olcTLSCertificateFile
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcTLSCertificateFile
+    olcTLSCertificateFile: {{ cert_dir }}/certs/{{ server_crt }}
+    EOF
+  tags: tls
+
+- name: check if olcTLScertificateKeyFile exists
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" "objectClass=olcGlobal" | grep olcTLSCertificateKeyFile | wc -l
+  register: res
+  tags: tls
+
+- name: add olcTLSCertificateKeyFile
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=config
@@ -114,39 +135,23 @@
     add: olcTLSCertificateKeyFile
     olcTLSCertificateKeyFile: {{ cert_dir }}/private/{{ server_key }}
     EOF
-  when: |-
-    ansible_facts['os_family'] == "RedHat"
-  tags: tls
-  ignore_errors: true
-
-
-- name: change ldap tls
-  ansible.builtin.shell: |
-    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: cn=config
-    changetype: modify
-    replace: olcTLSCertificateFile
-    olcTLSCertificateFile: {{ cert_dir }}/certs/{{ server_crt }}
-    
-    replace: olcTLSCertificateKeyFile
-    olcTLSCertificateKeyFile: {{ cert_dir }}/private/{{ server_key }}
-    EOF
+  when: res.stdout == "0"
   tags: tls
 
 - name: check ldap tls certificate file
   ansible.builtin.shell: |
     ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
-      -LLL -b "cn=config" olcTLSCertificateFile | grep TLS
-  register: result
-  failed_when: result.rc != 0
+      -LLL -b "cn=config" olcTLSCertificateFile | wc -l
+  register: res
+  failed_when: res.rc != 0
   tags: tls
 
 - name: check ldap tls certificate keyfile
   ansible.builtin.shell: |
     ldapsearch -Q -Y EXTERNAL -H ldapi:/// \
-      -LLL -b "cn=config" olcTLSCertificateKeyFile | grep TLS
-  register: result
-  failed_when: result.rc != 0
+      -LLL -b "cn=config" olcTLSCertificateKeyFile | wc -l
+  register: res
+  failed_when: res.rc != 0
   tags: tls
 
 - name: change ldap access

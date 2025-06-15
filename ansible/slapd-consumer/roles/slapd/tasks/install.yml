@@ -24,6 +24,9 @@
       - schema2ldif
 #      - fusiondirectory-schema
       - gosa-schema
+      - rsyslog
+  environment:
+    DEBIAN_FRONTEND: nointeractive
   when: |-
     ansible_facts['os_family'] == "Debian"
 
@@ -51,14 +54,12 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
-- name: start slapd (RedHat)
+- name: start slapd
   ansible.builtin.systemd_service:
     name: slapd
     state: started
     enabled: true
     daemon_reload: true
-  when: |-
-    ansible_facts['os_family'] == "RedHat"
 
 
 - name: create /etc/rsyslog.d/60-slapd.conf for logfile

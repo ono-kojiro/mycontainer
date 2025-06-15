@@ -29,14 +29,32 @@
     enabled: yes
     masked: no
 
-- name: restart sshd
+- name: restart sshd (Debian)
   ansible.builtin.systemd:
     name: ssh
     state: restarted
     daemon_reload: yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
-- name: enable mkhomedir
-  shell: |
+- name: restart sshd (RedHat)
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    daemon_reload: yes
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+
+- name: enable mkhomedir (Debian)
+  ansible.builtin.shell: |
     pam-auth-update --enable mkhomedir --force
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
+- name: enable mkhomedir (RedHat)
+  ansible.builtin.shell: |
+    authselect select sssd with-sudo with-mkhomedir --force
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 

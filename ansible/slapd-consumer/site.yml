@@ -1,5 +1,5 @@
 - name: setup slapd consumer (slave)
-  hosts: consumer
+  hosts: plucky
 
   roles:
     - role: certs
@@ -7,9 +7,6 @@
 
     - role: slapd
       tags: slapd
-    
-    - role: sync
-      tags: sync
     
     - role: ldap
       tags: ldap
@@ -19,4 +16,8 @@
     
     - role: sudo
       tags: sudo
+    
+    - role: sync
+      tags: sync
+    
 

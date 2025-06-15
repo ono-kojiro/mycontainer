@@ -2,17 +2,24 @@
 - name: copy ldap.conf
   ansible.builtin.template:
     src: ldap.conf
-    dest: /etc/ldap/ldap.conf
+    dest: "{{ ldap_dir }}/ldap.conf"
 
 - name: create symbolic link of ldap.conf
   ansible.builtin.file:
     src: /etc/ldap/ldap.conf
     dest: /etc/ldap.conf
     state: link
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
 
 - name: check ldapsearch
   ansible.builtin.shell: |
     ldapsearch -x
-#  register: result
-#  failed_when: result.rc != 32
+  register: res
+  failed_when: res.rc != 32 
+
+- name: show result of ldapsearch
+  ansible.builtin.debug:
+    var: res.stdout_lines
 
