@@ -290,17 +290,23 @@
 
 - name: load modules
   ansible.builtin.shell: |
-    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    num=`ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b "cn=config" \
+      "objectClass=olcModuleList" olcModuleLoad \
+      | grep -e '^olcModuleLoad:.*{{ item }}' | wc -l`
+
+    if [ "$num" = "0" ]; then
+      cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=module{0},cn=config
     changetype: modify
     add: olcModuleLoad
     olcModuleLoad: {{ item }}
     EOF
+    
+    fi
   loop:
   - back_mdb
   - memberof
   - refint
-  ignore_errors: true
 
 - name: check if memberof overlay exists
   tags: memberof
