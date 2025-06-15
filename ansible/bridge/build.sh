@@ -39,7 +39,7 @@ deploy()
 default()
 {
   tag=$1
-  ansible-playbook -i hosts.yml -t $tag site.yml
+  ansible-playbook -K -i hosts.yml -t $tag site.yml
 }
 
 

@@ -1,16 +1,7 @@
 ---
-- name: copy slapd-init.conf
+- name: copy slapd-init.conf (Debian)
   template:
     src: slapd-init.conf
     dest: /etc/tmpfiles.d/slapd-init.conf
-
-- name: make slapd.service.d directory
-  file:
-    path: /etc/systemd/system/slapd.service.d
-    state: directory
-
-- name: copy override.conf
-  template:
-    src: override.conf
-    dest: /etc/systemd/system/slapd.service.d/override.conf
-
+  when: |-
+    ansible_facts['os_family'] == "Debian"

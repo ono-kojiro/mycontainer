@@ -2,37 +2,19 @@
   hosts: myserver
 
   tasks:
-  - name: delete connections, wan0/lan0/br0
+  - name: delete bridges
     ansible.builtin.shell: |
       num=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item }}$' | wc -l`
-      if [ "$num" = "1" ]; then
+      if [ "$num" -eq 1 ]; then
         sudo nmcli con del {{ item }}
       fi
-    loop:
-    - wan0
-    - lan0
-    - br0
-    - "{{ nic_wan }}"
-    - "{{ nic_lan }}"
+    loop: "{{ bridges }}"
       
-  - name: create br0
+  - name: create bridges
     ansible.builtin.shell: |
       sudo nmcli con add \
         type bridge \
-        ifname br0 \
-        conn.id br0 \
-        ipv4.method manual \
-        ipv4.addresses 192.168.0.84/24 \
-        ipv4.dns 192.168.0.1 \
-        ipv4.gateway 192.168.0.1 \
-        ipv6.method disabled
-  
-  - name: create wan0
-    ansible.builtin.shell: |
-      sudo nmcli con add type ethernet ifname {{ nic_wan }} conn.id wan0 master br0
-
-  - name: create lan0
-    ansible.builtin.shell: |
-      sudo nmcli con add type ethernet ifname {{ nic_lan }} conn.id lan0 master br0
-  
+        ifname {{ item }} \
+        conn.id {{ item }}
+    loop: "{{ bridges }}"
 

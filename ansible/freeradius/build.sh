@@ -50,7 +50,9 @@ status()
 
 radtest()
 {
-  command radtest USERNAME PASSWORD 127.0.0.1 1812 testing123
+  cmd="radtest USERNAME PASSWORD 127.0.0.1 1812 testing123"
+  echo $cmd
+  command $cmd
 }
 
 destroy()

@@ -154,6 +154,16 @@
   failed_when: res.rc != 0
   tags: tls
 
+- name: make slapd.service.d directory
+  file:
+    path: /etc/systemd/system/slapd.service.d
+    state: directory
+
+- name: copy override.conf
+  template:
+    src: override.conf
+    dest: /etc/systemd/system/slapd.service.d/override.conf
+
 - name: change ldap access
   ansible.builtin.shell: |
     cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
@@ -348,18 +358,10 @@
   when: res.stdout == "0"
   ignore_errors: true
 
-- name: stop slapd.service
+- name: restart slapd.service
   ansible.builtin.systemd:
     name: slapd
-    state: stopped
-
-- name: start slapd.service
-  ansible.builtin.systemd:
-    name: slapd
-    state: started
-
-- name: enable slapd.service
-  ansible.builtin.systemd:
-    name: slapd
+    state: restarted
     enabled: true
+    daemon_reload: true
 
