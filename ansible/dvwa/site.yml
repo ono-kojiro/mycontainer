@@ -1,0 +1,109 @@
+- name: setup dvwa
+  hosts: myserver
+
+  tasks:
+  - name: check os
+    ansible.builtin.shell: |
+      cat /etc/os-release
+  
+  - name: install packages
+    ansible.builtin.apt :
+      name:
+      - apache2
+      - mariadb-server
+      - mariadb-client
+      - php
+      - php-mysql
+      - php-gd
+      - libapache2-mod-php
+      - git
+      state : present
+
+  - name: remove /var/www/html/DVWA
+    ansible.builtin.file :
+      path: /var/www/html/DVWA
+      state: absent
+
+  - name: get DVWA source archive
+    ansible.builtin.get_url:
+      url: https://github.com/digininja/DVWA/archive/refs/tags/2.5.tar.gz
+      dest: /tmp/
+
+  - name: extract DVWA
+    ansible.builtin.unarchive:
+      src: /tmp/DVWA-2.5.tar.gz
+      dest: /var/www/html/
+      remote_src: yes
+
+  - name: rename DVWA directory
+    ansible.builtin.shell: |
+      if [ -e '/var/www/html/DVWA-2.5' ]; then
+        mv /var/www/html/DVWA-2.5 /var/www/html/DVWA
+      fi
+
+  - name: start and enable mariadb service
+    ansible.builtin.systemd_service:
+      name: mariadb
+      state: restarted
+      enabled: true
+
+  - name: upload sql script
+    ansible.builtin.template:
+      src:  create_database.sql
+      dest: /tmp/
+
+  - name: create database 'dvwa'
+    ansible.builtin.shell: |
+      mysql -uroot < /tmp/create_database.sql
+
+  - name: copy config.inc.php
+    ansible.builtin.copy :
+      src:  /var/www/html/DVWA/config/config.inc.php.dist
+      dest: /var/www/html/DVWA/config/config.inc.php
+      remote_src: true
+
+  - name: change permission of /var/www/html/DVWA
+    ansible.builtin.file:
+      path: /var/www/html/DVWA
+      owner: www-data
+      group: www-data
+      mode: '0755'
+
+  - name: update php config
+    ansible.builtin.shell: |
+      php_major=`php -r 'echo PHP_MAJOR_VERSION'`
+      php_minor=`php -r 'echo PHP_MINOR_VERSION'`
+      php_ver="${php_major}.${php_minoro}"
+      php_config_apache="/etc/php/${php_ver}/apache2/php.ini"
+      php_config_fpm="/etc/php/${php_ver}/fpm/php.ini"
+
+      if [ -e "$php_config_apache" ]; then
+        sed -i 's/^\(allow_url_include =\).*/\1 on/' $php_config_apache
+        sed -i 's/^\(allow_url_fopen =\).*/\1 on/' $php_config_apache
+        sed -i 's/^\(display_errors =\).*/\1 on/' $php_config_apache
+        sed -i 's/^\(display_startup_errors =\).*/\1 on/' $php_config_apache
+      fi
+
+      if [ -e "$php_config_fpm" ]; then
+        sed -i 's/^\(allow_url_include =\).*/\1 on/' $php_config_fpm
+        sed -i 's/^\(allow_url_fopen =\).*/\1 on/' $php_config_fpm
+        sed -i 's/^\(display_errors =\).*/\1 on/' $php_config_fpm
+        sed -i 's/^\(display_startup_errors =\).*/\1 on/' $php_config_fpm
+      fi
+
+  - name: change database password in config.inc.php
+    ansible.builtin.lineinfile:
+      path: /var/www/html/DVWA/config/config.inc.php
+      regexp: '$_DVWA[[ ''db_password'' ]] = getenv(''DB_PASSWORD'') ?: ''(.*)'';'
+
+      line:   '$_DVWA[ ''db_password'' ] = getenv(''DB_PASSWORD'') ?: ''{{ sql_pass }}'';'
+
+    tags: debug
+
+
+  - name: restart apache
+    ansible.builtin.systemd_service:
+      name:  apache2
+      state: restarted
+      enabled: true
+

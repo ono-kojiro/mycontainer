@@ -1,0 +1,5 @@
+---
+sql_user: dvwa
+sql_pass: 'Pa$$w0rd'
+database: dvwa
+
