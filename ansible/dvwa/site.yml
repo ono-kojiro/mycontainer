@@ -92,11 +92,10 @@
       fi
 
   - name: change database password in config.inc.php
-    ansible.builtin.lineinfile:
+    ansible.builtin.replace:
       path: /var/www/html/DVWA/config/config.inc.php
-      regexp: '$_DVWA[[ ''db_password'' ]] = getenv(''DB_PASSWORD'') ?: ''(.*)'';'
-
-      line:   '$_DVWA[ ''db_password'' ] = getenv(''DB_PASSWORD'') ?: ''{{ sql_pass }}'';'
+      regexp: '\$_DVWA\[ ''db_password'' \] = getenv\(''DB_PASSWORD''\) \?: ''(.*)'';'
+      replace: '$_DVWA[ ''db_password'' ] = getenv(''DB_PASSWORD'') ?: ''{{ sql_pass }}'';'
 
     tags: debug
 
