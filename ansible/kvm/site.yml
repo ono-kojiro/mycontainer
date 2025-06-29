@@ -2,40 +2,70 @@
   hosts: myserver
 
   tasks:
-    - name: install qemu-kvm (Debian)
-      ansible.builtin.apt:
-        name:
-        - qemu-kvm
-        - virt-manager
-        - cockpit
-        - cockpit-machines
-        state: present
-      when: ansible_facts['os_family'] == "Debian"
+  - name: install qemu-kvm (Debian)
+    ansible.builtin.apt:
+      name:
+      - qemu-kvm
+      - virt-manager
+      - cockpit
+      - cockpit-machines
+      state: present
+    when: ansible_facts['os_family'] == "Debian"
 
-    - name: install qemu-kvm (RedHat)
-      ansible.builtin.dnf:
-        name:
-        - qemu-kvm
-        - virt-manager
-        - libvirt-daemon
-        - libvirt-daemon-kvm
-        state: present
-      when: >-
-        ansible_facts['os_family'] == "RedHat"
-        or ansible_facts['os_family'] == "Rocky"
+  - name: install qemu-kvm (RedHat)
+    ansible.builtin.dnf:
+      name:
+      - qemu-kvm
+      - virt-manager
+      - libvirt-daemon
+      - libvirt-daemon-kvm
+      state: present
+    when: >-
+      ansible_facts['os_family'] == "RedHat"
+      or ansible_facts['os_family'] == "Rocky"
     
-#    - name: install virt-install
-#      ansible.builtin.package:
-#        name:
-#        - virt-install
-#        state: present
+#  - name: install virt-install
+#    ansible.builtin.package:
+#      name:
+#      - virt-install
+#      state: present
 
-    - name: restart libvirtd
-      ansible.builtin.systemd:
-        name: libvirtd
-        state: restarted
-        enabled: true
-      when: >-
-        ansible_facts['os_family'] == "RedHat"
-        or ansible_facts['os_family'] == "Rocky"
+  - name: restart libvirtd
+    ansible.builtin.systemd:
+      name: libvirtd
+      state: restarted
+      enabled: true
+    when: >-
+      ansible_facts['os_family'] == "RedHat"
+      or ansible_facts['os_family'] == "Rocky"
 
+  - name: check bridges
+    ansible.builtin.shell: |
+      nmcli --fields connection.id con show '{{ item.name }}' | \
+         awk '{ print $2 }' | grep -e '^{{ item.name }}$' | wc -l
+    register: res
+    loop: "{{ bridges }}"
+    tags: bridge
+  
+#  - name: show results
+#    ansible.builtin.debug:
+#      var: res
+#    tags: bridge
+  
+  - name: delete bridges
+    ansible.builtin.shell : |
+      nmcli con del "{{ item.item.name }}"
+    loop: "{{ res.results }}"
+    when: item.stdout != "0"
+    tags: bridge
+  
+  - name: create bridges
+    ansible.builtin.shell: |
+      nmcli con add type bridge \
+        conn.id "{{ item.name }}" \
+        ifname "{{ item.name }}" \
+        ipv4.method disabled \
+        ipv6.method disabled
+    loop: "{{ bridges }}"
+    tags: bridge
+ 

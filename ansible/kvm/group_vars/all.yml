@@ -1,0 +1,11 @@
+---
+bridges:
+- name: wan
+  addr: none
+- name: lan1
+  addr: none
+- name: lan2
+  addr: none
+- name: lan3
+  addr: none
+
