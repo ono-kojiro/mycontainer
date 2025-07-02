@@ -1,10 +1,11 @@
 - name: setup elasticsearch
   hosts: elasticsearch
 
-  roles:
-    - role: install
-      tags: install
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
 
-    - role: deploy
-      tags: deploy 
+  roles:
+  - role: elasticsearch
+    tags: elasticsearch
     

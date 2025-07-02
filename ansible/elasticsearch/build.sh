@@ -39,13 +39,13 @@ install()
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml -t deploy site.yml
+  ansible-playbook -K -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts.yml ${tag}.yml
+  ansible-playbook -K -i hosts.yml -t ${tag} site.yml
 }
 
 test()

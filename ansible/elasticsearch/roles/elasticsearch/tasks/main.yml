@@ -1,0 +1,67 @@
+---
+- name: add elasticsearch keyrings
+  ansible.builtin.shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \
+    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg \
+        --batch --yes
+
+- name: install apt-transport-https
+  ansible.builtin.apt :
+    name: apt-transport-https
+    state: present
+
+- name: add source list
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" \
+      | tee /etc/apt/sources.list.d/elastic-9.x.list
+
+- name: install elasticsearch
+  ansible.builtin.apt :
+    name: elasticsearch
+    state: present
+    update_cache: true
+
+- name: start elasticsearch
+  ansible.builtin.systemd_service:
+    name: elasticsearch
+    state: restarted
+    enabled: true
+  tags: reset
+
+- name: reset password of elastic
+  ansible.builtin.shell: |
+    user="elastic"
+    chpass="/usr/share/elasticsearch/bin/elasticsearch-reset-password"
+    pass=`$chpass -u $user --silent --batch`
+    addr={{ ansible_facts.default_ipv4.address }}
+    rm -f /tmp/.netrc
+    echo "machine  $addr" >> /tmp/.netrc
+    echo "login    $user" >> /tmp/.netrc
+    echo "password $pass" >> /tmp/.netrc
+  tags: reset
+
+- name: upload create_logstash_user.sh
+  ansible.builtin.template:
+    src: create_logstash_user.sh
+    dest: /tmp/
+  tags: reset
+
+- name: create logstash user
+  ansible.builtin.shell: |
+    sh /tmp/create_logstash_user.sh
+  tags: reset
+
+- name: remove create_logstash_user.sh
+  ansible.builtin.file:
+    path: /tmp/create_logstash_user.sh
+    state: absent
+  tags: reset
+
+- name: fetch netrc
+  ansible.builtin.fetch:
+    src: /tmp/.netrc
+    dest: "{{ playbook_dir }}/.netrc"
+    flat: yes
+  tags: reset
+
+
