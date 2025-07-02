@@ -1,0 +1,82 @@
+---
+- name: remove old keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/elasticsearch-keyring.gpg
+    state: absent
+
+- name: add elasticsearch keyrings
+  ansible.builtin.shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \
+    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+- name: install apt-transport-https
+  ansible.builtin.apt :
+    name: apt-transport-https
+    state: present
+
+- name: add source list
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" \
+      | tee /etc/apt/sources.list.d/elastic-9.x.list
+
+- name: install kibana
+  ansible.builtin.apt :
+    name: kibana
+    state: present
+    update_cache: true
+
+- name: copy kibana.yml
+  ansible.builtin.template:
+    src:  kibana.yml
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: kibana
+    mode: '0660'
+ 
+- name: create config directory
+  ansible.builtin.file:
+    path:  /usr/share/kibana/config
+    state: directory
+    mode: '0755'
+ 
+- name: create symbolic link
+  ansible.builtin.file:
+    src:  /etc/kibana/kibana.yml
+    dest: /usr/share/kibana/config/kibana.yml
+    owner: root
+    group: kibana
+    state: link
+  
+- name: copy kibana.key
+  ansible.builtin.copy:
+    src:  kibana.key
+    dest: /etc/ssl/private/
+    owner: root
+    group: ssl-cert
+    mode: '0640'
+
+- name: copy kibana.crt
+  ansible.builtin.copy:
+    src:  kibana.crt
+    dest: /etc/ssl/certs/
+    owner: kibana
+    group: kibana
+    mode: '0644'
+
+- name: add kibana to ssl-cert group
+  ansible.builtin.user:
+    name: kibana
+    append: true
+    groups: ssl-cert
+
+- name: disable OpenSSL 3 legacy provider
+  ansible.builtin.lineinfile:
+    path: /etc/kibana/node.options
+    regexp: '^--openssl-legacy-provider'
+    line: '#--openssl-legacy-provider'
+
+- name: restart kibana
+  ansible.builtin.systemd_service:
+    name: kibana
+    state: restarted
+    enabled: true

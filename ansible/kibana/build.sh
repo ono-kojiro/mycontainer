@@ -42,7 +42,7 @@ install()
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml -t deploy site.yml
+  ansible-playbook -K -i hosts.yml site.yml
 }
 
 default()

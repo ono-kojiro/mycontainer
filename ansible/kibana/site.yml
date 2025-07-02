@@ -1,10 +1,11 @@
 - name: setup kibana
   hosts: kibana
 
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
   roles:
-    - role: install
-      tags: install
-    
-    - role: deploy
-      tags: deploy
+  - role: kibana
+    tags: kibana
     
