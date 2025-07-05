@@ -1,0 +1,6 @@
+---
+ansible_host: freebsd
+ansible_bcome: false
+
+sysconfdir: /usr/local/etc
+

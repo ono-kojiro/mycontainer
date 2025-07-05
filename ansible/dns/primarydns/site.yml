@@ -1,0 +1,8 @@
+- name: setup primary dns
+  hosts: freebsd
+
+  roles:
+    - role: dns
+      tags: dns
+
+

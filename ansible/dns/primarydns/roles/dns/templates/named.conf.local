@@ -1,0 +1,39 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+zone "example.com" {
+        type master; 
+        file "{{ sysconfdir }}/namedb/db.example.com";
+};
+
+zone "0.168.192.in-addr.arpa" {
+	type master;
+	file "{{ sysconfdir }}/namedb/db.192.168.0";
+};
+
+zone "0.16.172.in-addr.arpa" {
+	type master;
+	file "{{ sysconfdir }}/namedb/db.172.16.0";
+};
+
+zone "1.16.172.in-addr.arpa" {
+	type master;
+	file "{{ sysconfdir }}/namedb/db.172.16.1";
+};
+
+zone "2.16.172.in-addr.arpa" {
+	type master;
+	file "{{ sysconfdir }}/namedb/db.172.16.2";
+};
+
+zone "3.16.172.in-addr.arpa" {
+	type master;
+	file "{{ sysconfdir }}/namedb/db.172.16.3";
+};
+
+

@@ -1,0 +1,81 @@
+---
+- name: install bind9
+  ansible.builtin.package:
+    name:
+    - bind920
+#    - bind9-utils
+#    - dnsutils
+    state: present
+  tags: debug
+
+- name: copy local file
+  ansible.builtin.template:
+    src:  named.conf.local
+    dest: "{{ sysconfdir }}/namedb/"
+
+- name: copy options file
+  ansible.builtin.template:
+    src:  named.conf.options
+    dest: "{{ sysconfdir }}/namedb/"
+
+- name: copy zone file
+  ansible.builtin.template:
+    src:  db.example.com
+    dest: "{{ sysconfdir }}/namedb/"
+
+- name: copy reverse data files
+  ansible.builtin.template:
+    src:  "{{ item }}"
+    dest: "{{ sysconfdir }}/namedb/"
+  loop:
+  - db.192.168.0
+  - db.172.16.0
+  - db.172.16.1
+  - db.172.16.2
+  - db.172.16.3
+
+- name: update listen-on
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/namedb/named.conf
+    regexp: '(\s+)listen-on(\s+){.*};'
+    line:   '\1listen-on\2{ 127.0.0.1; 172.16.0.0/24; 172.16.1.0/24; 172.16.2.0/24; 172.16.3.0/24; };'
+    backrefs: true
+
+- name: include named.conf.local
+  ansible.builtin.lineinfile:
+    path: /usr/local/etc/namedb/named.conf
+    line:   'include "/usr/local/etc/namedb/named.conf.local";'
+  tags: debug
+
+
+- name: enable named
+  community.general.sysrc:
+    name: named_enable
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: restart named
+  ansible.builtin.service:
+    name: named
+    state: restarted
+
+- name: check lookup
+  ansible.builtin.shell: |
+    exp="192.168.0.98"
+    got=`dig +short abaoaqu.example.com`
+    if [ "$exp" = "$got" ]; then
+      echo "ok : forward lookup passed"
+    else
+      echo "not ok : forward lookup failed"
+    fi
+
+- name: check reverse lookup
+  ansible.builtin.shell: |
+    exp="abaoaqu.example.com."
+    got=`dig +short -x 192.168.0.98`
+    if [ "$exp" = "$got" ]; then
+      echo "ok : reverse lookup passed"
+    else
+      echo "not ok : reverse lookup failed"
+    fi
+
