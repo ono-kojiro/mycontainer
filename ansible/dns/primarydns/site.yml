@@ -1,5 +1,5 @@
 - name: setup primary dns
-  hosts: freebsd
+  hosts: rocky
 
   roles:
     - role: dns

@@ -25,7 +25,7 @@ all()
 
 clean()
 {
-  ansible-playbook -i hosts.yml clean.yml
+  ansible-playbook $flags -i hosts.yml clean.yml
 }
 
 hosts()

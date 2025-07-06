@@ -1,12 +1,21 @@
 ---
-- name: install bind9
+- name: install bind9 (FreeBSD)
   ansible.builtin.package:
     name:
     - bind920
 #    - bind9-utils
 #    - dnsutils
     state: present
-  tags: debug
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: install bind9 (RedHat)
+  ansible.builtin.package:
+    name:
+    - bind
+    state: present
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 
 - name: copy local file
   ansible.builtin.template:
@@ -36,46 +45,70 @@
 
 - name: update listen-on
   ansible.builtin.lineinfile:
-    path: /usr/local/etc/namedb/named.conf
+    path: "{{ named_conf }}"
     regexp: '(\s+)listen-on(\s+){.*};'
     line:   '\1listen-on\2{ 127.0.0.1; 172.16.0.0/24; 172.16.1.0/24; 172.16.2.0/24; 172.16.3.0/24; };'
     backrefs: true
 
 - name: include named.conf.local
   ansible.builtin.lineinfile:
-    path: /usr/local/etc/namedb/named.conf
-    line:   'include "/usr/local/etc/namedb/named.conf.local";'
-  tags: debug
+    path: "{{ named_conf }}"
+    line:   'include "{{ sysconfdir }}/namedb/named.conf.local";'
 
-
-- name: enable named
+- name: enable named (FreeBSD)
   community.general.sysrc:
     name: named_enable
     value: "YES"
     path: /etc/rc.conf
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
 
-- name: restart named
+- name: restart named (FreeBSD)
   ansible.builtin.service:
     name: named
     state: restarted
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: restart named (RedHat)
+  ansible.builtin.systemd_service:
+    name: named
+    state: restarted
+    enabled: true
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 
 - name: check lookup
   ansible.builtin.shell: |
-    exp="192.168.0.98"
-    got=`dig +short abaoaqu.example.com`
+    exp="172.16.1.69"
+    got=`dig @localhost +short rocky.example.com`
     if [ "$exp" = "$got" ]; then
       echo "ok : forward lookup passed"
     else
       echo "not ok : forward lookup failed"
     fi
+  register: res
+  tags: debug
+
+- name: show result of lookup
+  ansible.builtin.debug:
+    var: res
+  tags: debug
 
 - name: check reverse lookup
   ansible.builtin.shell: |
-    exp="abaoaqu.example.com."
-    got=`dig +short -x 192.168.0.98`
+    exp="rocky.example.com."
+    got=`dig @localhost +short -x 172.16.1.69`
     if [ "$exp" = "$got" ]; then
       echo "ok : reverse lookup passed"
     else
       echo "not ok : reverse lookup failed"
     fi
+  register: res
+  tags: debug
+
+- name: show result of lookup
+  ansible.builtin.debug:
+    var: res
+  tags: debug
 
