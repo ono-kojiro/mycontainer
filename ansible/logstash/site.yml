@@ -2,9 +2,9 @@
   hosts: logstash
 
   roles:
-    - role: install
-      tags: install
+  - role: logstash
+    tags: logstash
 
-    - role: deploy
-      tags: deploy
+  - role: example
+    tags: example
 

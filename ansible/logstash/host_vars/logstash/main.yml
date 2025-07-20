@@ -1,7 +1,9 @@
 ---
 ansible_host: logstash
-#ansible_user: ubuntu
-ansible_user: "{{ lookup('ansible.builtin.env', 'USER') }}"
 ansible_become: true
-elastic_url: https://192.168.0.35:9200
+elastic_url: https://192.168.0.98:9200
 
+cacert: mylocalca.crt
+keystore_jks: logstash.jks
+
+# Please define "keystore_pass" in other yml file.

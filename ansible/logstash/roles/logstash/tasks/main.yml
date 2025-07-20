@@ -1,0 +1,68 @@
+---
+- name: remove old keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/elasticsearch-keyring.gpg
+    state: absent
+
+- name: add elasticsearch keyrings
+  ansible.builtin.shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \
+    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+- name: install apt-transport-https
+  ansible.builtin.apt :
+    name: apt-transport-https
+    state: present
+
+- name: add source list
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" \
+      | tee /etc/apt/sources.list.d/elastic-9.x.list
+
+- name: install logstash
+  ansible.builtin.apt :
+    name: logstash
+    state: present
+    update_cache: true
+
+- name: copy logstash.yml
+  ansible.builtin.template:
+    src:  logstash.yml
+    dest: /etc/logstash/logstash.yml
+    owner: root
+    group: logstash
+    mode: '0660'
+
+- name: change permission of /usr/share/logstash/data
+  ansible.builtin.file:
+    path: /usr/share/logstash/data
+    owner: logstash
+    group: logstash
+    mode: '0770'
+  
+- name: create /etc/logstash/certs directory
+  ansible.builtin.file:
+    path:  /etc/logstash/certs
+    state: directory
+
+- name: copy ca cert
+  ansible.builtin.copy:
+    src:  "{{ cacert }}"
+    dest: /etc/logstash/certs/
+    owner: logstash
+    group: logstash
+    mode: '0644'
+
+- name: copy server keystore
+  ansible.builtin.copy:
+    src:  "{{ keystore_jks }}"
+    dest: /etc/logstash/certs/
+    owner: logstash
+    group: logstash
+    mode: '0600'
+  
+- name: restart logstash
+  ansible.builtin.systemd_service:
+    name: logstash
+    state: restarted
+    enabled: true

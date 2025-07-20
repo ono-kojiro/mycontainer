@@ -1,3 +1,2 @@
 ---
-workdir: "{{ lookup('ansible.builtin.env', 'PWD') }}"
-
+data_dir: /home/logstash

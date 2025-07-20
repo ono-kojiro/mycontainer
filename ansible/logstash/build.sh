@@ -22,13 +22,11 @@ usage()
   cat << EOS
 usage : $0 [options] target1 target2 ...
 
-  roleadd: add logstash_writer role
-  useradd: add logstash_internal user
+  roleadd: add logstash_writer role in elasticsearch
+  useradd: add logstash_internal user in elasticsearch
 
-  reset:   reset password of logstash_internal
-  install: install logstash package
-  deploy:  setup logstash
-
+  reset:   reset password of logstash_internal in elasticsearch
+  logstash: deploy logstash
 
   roledel: delete logstash_writer role
   useradd: delete logstash_internal user
@@ -53,9 +51,7 @@ hosts()
 
 roleadd()
 {
-  curl -k --netrc-file $es_netrc \
-    -H 'Content-Type: application/json' \
-    -XPOST "$es_url/_security/role/$rolename?pretty" --data @- << EOS
+  cat - << EOF > data.json
 {
   "cluster": [ "manage_index_templates", "monitor", "manage_ilm" ],
   "indices": [
@@ -66,8 +62,14 @@ roleadd()
   ],
   "description" : "Custom role to create index of logstash"
 }
-EOS
+EOF
 
+  cmd="curl -k --netrc-file $es_netrc"
+  cmd="$cmd -X POST \"$es_url/_security/role/$rolename\""
+  #cmd="$cmd -H 'Content-Type:application/json'"
+  cmd="$cmd --data @data.json"
+  echo $cmd
+  exec $cmd
 }
 
 roledel()
@@ -106,19 +108,23 @@ install()
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml -t deploy site.yml
+  ansible-playbook -K -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts.yml ${tag}.yml
+  ansible-playbook -K -i hosts.yml -t ${tag} site.yml
 }
 
 test()
 {
-  machine=`cat .netrc | grep -e '^machine' | awk '{ print $2 }'`
-  curl -k --netrc-file ./.netrc https://${machine}:9200
+  #netrc="../elasticsearch/.netrc"
+  netrc="./.netrc"
+  machine=`cat $netrc | grep -e '^machine' | awk '{ print $2 }'`
+  cmd="curl -k --netrc-file $netrc https://${machine}:9200"
+  echo $cmd
+  $cmd
 }
 
 
