@@ -122,7 +122,11 @@ test()
   #netrc="../elasticsearch/.netrc"
   netrc="./.netrc"
   machine=`cat $netrc | grep -e '^machine' | awk '{ print $2 }'`
-  cmd="curl -k --netrc-file $netrc https://${machine}:9200"
+  #cmd="curl -k --netrc-file $netrc https://${machine}:9200"
+  flags=""
+  flags="$flags --netrc-file $netrc"
+  flags="$flags --cacert /usr/share/ca-certificates/mylocalca/mylocalca.crt"
+  cmd="curl $flags https://${machine}:9200"
   echo $cmd
   $cmd
 }
