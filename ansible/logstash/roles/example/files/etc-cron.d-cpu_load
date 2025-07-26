@@ -1,2 +1,0 @@
-* * * * *   logstash    /home/logstash/cpu_load/cpu_load.sh >/dev/null 2>&1
-

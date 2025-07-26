@@ -33,18 +33,40 @@
     group: logstash
     recurse: yes
   loop:
-  - "{{ data_dir }}/cpu_load"
+  - "{{ data_root }}/cpu_load"
   
 - name: copy cpu_load.py
   ansible.builtin.copy:
     src:  cpu_load.py
-    dest: "{{ data_dir }}/cpu_load/"
+    dest: "{{ data_root }}/cpu_load/"
     owner: logstash
     group: logstash
     mode: '0755'
+
+- name: copy cpu_load.sh
+  ansible.builtin.copy:
+    src:  cpu_load.sh
+    dest: "{{ data_root }}/cpu_load/"
+    owner: logstash
+    group: logstash
+    mode: '0755'
+
+- name: copy cron script
+  ansible.builtin.template:
+    src:  etc-cron.d-cpu_load
+    dest: "/etc/cron.d/cpu_load"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: restart cron
+  ansible.builtin.systemd_service:
+    name: cron
+    state: restarted
   
 - name: restart logstash
   ansible.builtin.systemd_service:
     name: logstash
     state: restarted
     enabled: true
+

@@ -2,7 +2,7 @@
 
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
-  
+
 rolename="logstash_writer"
 username="logstash_internal"
   

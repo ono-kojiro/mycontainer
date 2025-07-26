@@ -85,8 +85,9 @@ def main():
         
         
         if output is None:
-            outfile = now.strftime('%Y%m%d-%H%M%S-%f')[:-3] + ext
-            fp = open(outfile, mode="w", encoding="utf-8")
+            #outfile = now.strftime('%Y%m%d-%H%M%S-%f')[:-3] + ext
+            outfile = now.strftime('%Y%m%d-%H') + ext
+            fp = open(outfile, mode="a", encoding="utf-8")
             
         cpu = psutil.cpu_percent(interval=1)
         vm  = psutil.virtual_memory()

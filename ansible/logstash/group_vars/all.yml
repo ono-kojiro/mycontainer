@@ -1,0 +1,4 @@
+---
+data_root: /var/lib/logstash
+sincedb_path: /var/lib/logstash/sincedb-cpu_load
+
