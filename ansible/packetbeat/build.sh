@@ -3,13 +3,16 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+es_netrc="../elasticsearch/.netrc"
+  
+api_key_name="packetbeat"
+
 rolename="packetbeat_writer"
 username="packetbeat_internal"
 
-es_url=`cat host_vars/packetbeat/elasticsearch.yml | \
-  grep -e '^elasticsearch_url' | awk '{ print $2 }'`
+machine=`cat ${es_netrc} | grep -e '^machine' | awk '{ print $2 }'`
+es_url="https://${machine}:9200"
 
-es_netrc="../elasticsearch/.netrc"
 
 help()
 {
@@ -27,7 +30,6 @@ usage : $0 [options] target1 target2 ...
   reset       reset beats_system password
   install     install packetbeat package
   deploy      deploy kibana
-
 
   roledel     delete packetbeat_writer role
   userdel     delete packetbeat_internal user
@@ -50,20 +52,69 @@ hosts()
   ansible-inventory -i template.yml --list --yaml > hosts.yml
 }
 
+createkey()
+{
+  deletekey
+
+  tmpfile=`mktemp`
+  sh ../elasticsearch/api_key.sh create -n ${api_key_name} > $tmpfile
+  api_key=`cat $tmpfile | jq -r '.api_key'`
+  api_key_id=`cat $tmpfile | jq -r '.id'`
+  #api_key_name=`cat $tmpfile | jq -r '.name'`
+
+  cat $tmpfile
+
+  mkdir -p host_vars/packetbeat/
+  cat - << EOF > host_vars/packetbeat/api_key.yml
+---
+api_key_id:   ${api_key_id}
+api_key_name: ${api_key_name}
+api_key:      ${api_key}
+EOF
+
+  rm -f $tmpfile
+}
+
+deletekey()
+{
+  sh ../elasticsearch/api_key.sh delete -n ${api_key_name}
+}
+
 roleadd()
 {
+  role="packetbeat_setup"
   curl -k --netrc-file $es_netrc \
     -H 'Content-Type: application/json' \
-    -XPOST "$es_url/_security/role/$rolename?pretty" --data @- << EOS
+    -XPOST "$es_url/_security/role/$role" --data @- << EOS
 {
-  "cluster": [ "manage_index_templates", "manage_ilm", "manage_ingest_pipelines", "monitor" ],
+  "cluster": [ "monitor", "manage_ilm" ],
   "indices": [
     {
       "names": [ "packetbeat-*" ],
-      "privileges": [ "auto_configure", "create_index", "create", "write" ]
+      "privileges": [ "manage" ]
     }
   ],
-  "description" : "Custom role to create data streams of packetbeat"
+  "description" : "Custom role for setting up index templates and other dependencies"
+}
+EOS
+
+  role="packetbeat_writer"
+  curl -k --netrc-file $es_netrc \
+    -H 'Content-Type: application/json' \
+    -XPOST "$es_url/_security/role/$role" --data @- << EOS
+{
+  "cluster": [ "monitor", "read_ilm" ],
+  "indices": [
+    {
+      "names": [ "packetbeat-*" ],
+      "privileges": [ "create_doc" ]
+    },
+    {
+      "names": [ "packetbeat-*" ],
+      "privileges": [ "auto_configure" ]
+    }
+  ],
+  "description" : "Custom role for publishing events collected by Packetbeat"
 }
 EOS
 
@@ -71,27 +122,38 @@ EOS
 
 roledel()
 {
-  curl -k --netrc-file $es_netrc \
-    -H 'Content-Type: application/json' \
-    -XDELETE "$es_url/_security/role/$rolename?pretty"
+  roles="packetbeat_setup packetbeat_writer"
+
+  for rolename in ${roles}; do
+    curl -k --netrc-file $es_netrc \
+      -H 'Content-Type: application/json' \
+      -XDELETE "$es_url/_security/role/$rolename?pretty"
+  done
 }
 
 useradd()
 {
+  password=`pwgen 12 1`
   curl -k --netrc-file $es_netrc \
     -H 'Content-Type: application/json' \
     -XPOST "$es_url/_security/user/$username?pretty" --data @- << EOS
 {
-  "password" : "packetbeat",
+  "password" : "${password}",
   "roles" : [ "$rolename", "kibana_admin" ],
   "full_name" : "Internal Packetbeat User"
 }
 EOS
 
+  {
+    echo "machine ${machine}"
+	echo "login ${username}"
+	echo "password ${password}"
+  } > ./.netrc
 }
 
 userdel()
 {
+  username="packetbeat_internal"
   curl -k --netrc-file $es_netrc \
     -H 'Content-Type: application/json' \
     -XDELETE "$es_url/_security/user/$username?pretty"
@@ -101,8 +163,6 @@ install()
 {
   ansible-playbook -K -i hosts.yml -t install site.yml
 }
-
-
 
 install()
 {
@@ -115,9 +175,7 @@ install()
 
 deploy()
 {
-  cp -f ../kibana/host_vars/kibana/kibana_password.yml host_vars/packetbeat/
-  hosts
-  ansible-playbook -K -i hosts.yml -t deploy site.yml
+  ansible-playbook -K -i hosts.yml site.yml
 }
 
 reset()
@@ -128,8 +186,8 @@ reset()
 default()
 {
   tag=$1
-  echo "default is called"
-  ansible-playbook -K -i hosts.yml ${tag}.yml
+  echo "tag: ${tag}"
+  ansible-playbook -K -i hosts.yml -t ${tag} site.yml
 }
 
 test()
@@ -138,6 +196,22 @@ test()
   login=`cat ./.netrc | grep -e '^login' | awk '{ print $2 }'`
   echo "check account '$login' on https://${machine}:9200"
   curl -k --netrc-file ./.netrc https://${machine}:9200
+}
+
+start()
+{
+  sudo systemctl start packetbeat
+}
+
+restart()
+{
+  sudo systemctl restart packetbeat
+}
+
+debug()
+{
+  sudo /usr/share/packetbeat/bin/packetbeat -c /etc/packetbeat/packetbeat.yml
+
 }
 
 hosts

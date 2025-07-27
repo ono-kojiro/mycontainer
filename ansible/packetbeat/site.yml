@@ -2,9 +2,6 @@
   hosts: packetbeat
 
   roles:
-    - role: install
-      tags: install
-    
-    - role: deploy
-      tags: deploy
+    - role: packetbeat
+      tags: packetbeat
     

@@ -9,7 +9,7 @@
       {
         echo "packetbeat_username: packetbeat_internal"
         echo "packetbeat_password{{':'}} $pass"
-      }  > /tmp/beats_password.yml
+      }  > /tmp/packetbeat_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}
       {
@@ -20,9 +20,9 @@
 
     register: res
 
-  - name: fetch beats_password.yml
+  - name: fetch packetbeat_password.yml
     ansible.builtin.fetch:
-      src: /tmp/beats_password.yml
+      src: /tmp/packetbeat_password.yml
       dest: "{{ workdir }}/host_vars/packetbeat/packetbeat_password.yml"
       flat: yes
   

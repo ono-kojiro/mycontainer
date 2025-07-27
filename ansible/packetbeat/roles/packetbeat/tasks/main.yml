@@ -1,0 +1,69 @@
+---
+- name: remove old keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/elasticsearch-keyring.gpg
+    state: absent
+
+- name: add elasticsearch keyrings
+  ansible.builtin.shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch \
+    | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+- name: install apt-transport-https
+  ansible.builtin.apt :
+    name: apt-transport-https
+    state: present
+
+- name: add source list
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" \
+      | tee /etc/apt/sources.list.d/elastic-9.x.list
+
+- name: install packetbeat
+  ansible.builtin.apt :
+    name:  packetbeat
+    state: present
+    update_cache: true
+
+- name: copy packetbeat.yml
+  ansible.builtin.template:
+    src:  packetbeat.yml
+    dest: /etc/packetbeat/packetbeat.yml
+    owner: root
+    group: root
+    mode: '0640'
+ 
+- name: create config directory
+  ansible.builtin.file:
+    path:  /usr/share/packetbeat/config
+    state: directory
+    mode: '0755'
+ 
+- name: create symbolic link
+  ansible.builtin.file:
+    src:  /etc/packetbeat/packetbeat.yml
+    dest: /usr/share/packetbeat/config/packetbeat.yml
+    owner: root
+    group: root 
+    state: link
+
+- name: restart packetbeat
+  ansible.builtin.systemd_service:
+    name:  packetbeat
+    state: restarted
+    enabled: true
+
+- name: create index on elasticsearch
+  ansible.builtin.shell: |
+    /usr/share/packetbeat/bin/packetbeat setup --index-management \
+      -c /etc/packetbeat/packetbeat.yml
+  tags: index
+  ignore_errors: true
+
+- name: setup dashboards on elasticsearch
+  ansible.builtin.shell: |
+    /usr/share/packetbeat/bin/packetbeat setup --dashboards \
+      -c /etc/packetbeat/packetbeat.yml
+  tags: dashboard
+  ignore_errors: true
+
