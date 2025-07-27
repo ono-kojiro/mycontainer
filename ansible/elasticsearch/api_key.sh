@@ -33,7 +33,6 @@ create()
   cat - << EOF > template.json
 {
   "name": "myname",
-  "expiration": "1d", 
   "metadata": {
     "application": "myapplication",
     "environment": {
