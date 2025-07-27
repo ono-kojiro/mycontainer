@@ -1,8 +1,5 @@
 #!/bin/sh
 
-top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
-cd $top_dir
-
 netrc="./.netrc"
 
 machine=`cat ${netrc} | grep -e '^machine' | awk '{ print $2 }'`
@@ -17,6 +14,8 @@ usage : $0 [TARGET...]
 
 TARGET:
   create
+  list
+  delete
 EOF
 
 }
@@ -53,9 +52,10 @@ EOF
       -H 'Content-Type: application/x-ndjson' \
       -X POST ${base_url}/_security/api_key?pretty \
 	  -d @data.json
-  } | tee output.json
+  } | tee "{name}.json"
 
   rm -f template.json
+  rm -f data.json
 }
 
 list()
@@ -87,28 +87,8 @@ EOF
     --netrc-file ${netrc} \
     -H 'Content-Type: application/x-ndjson' \
     -X DELETE ${base_url}/_security/api_key?pretty -d @data.json
-}
 
-test()
-{
-  id=`jq -r '.id' output.json`
-  api_key=`jq -r '.api_key' output.json`
-
-  echo ""
-
-  echo "id : $id"
-  echo "api_key : $api_key"
-
-  str="$id:$api_key"
-  echo "input is $str"
-
-  api_key=`echo -n "$id:$api_key" | base64`
-
-  echo "base64 : $api_key"
-
-  curl \
-    -H "Authorization: ApiKey $api_key" \
-    https://192.168.0.98:9200/
+  rm -f data.json
 }
 
 args=""
