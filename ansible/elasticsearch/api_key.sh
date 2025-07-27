@@ -1,6 +1,9 @@
 #!/bin/sh
 
-netrc="./.netrc"
+top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
+#cd $top_dir
+
+netrc="${top_dir}/.netrc"
 
 machine=`cat ${netrc} | grep -e '^machine' | awk '{ print $2 }'`
 base_url="https://${machine}:9200"
@@ -52,7 +55,7 @@ EOF
       -H 'Content-Type: application/x-ndjson' \
       -X POST ${base_url}/_security/api_key?pretty \
 	  -d @data.json
-  } | tee "{name}.json"
+  }
 
   rm -f template.json
   rm -f data.json
