@@ -24,15 +24,16 @@ usage()
   cat << EOS
 usage : $0 [options] target1 target2 ...
 
+  createkey   create api key
+  deletekey   delete api key
+
   roleadd     create packetbeat_writer role
   useradd     create packetbeat_internal user
 
-  reset       reset beats_system password
-  install     install packetbeat package
   deploy      deploy kibana
 
-  roledel     delete packetbeat_writer role
   userdel     delete packetbeat_internal user
+  roledel     delete packetbeat_writer role
 EOS
 
 }
@@ -159,20 +160,6 @@ userdel()
     -XDELETE "$es_url/_security/user/$username?pretty"
 }
 
-install()
-{
-  ansible-playbook -K -i hosts.yml -t install site.yml
-}
-
-install()
-{
-  echo "install is called"
-  hosts
-  cmd="ansible-playbook -K -i hosts.yml -t install site.yml"
-  echo $cmd
-  $cmd
-}
-
 deploy()
 {
   ansible-playbook -K -i hosts.yml site.yml
@@ -181,6 +168,11 @@ deploy()
 reset()
 {
   ansible-playbook -K -i hosts.yml reset.yml
+}
+
+destroy()
+{
+  ansible-playbook -K -i hosts.yml destroy.yml
 }
 
 default()

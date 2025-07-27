@@ -1,0 +1,10 @@
+- name: remove packetbeat
+  hosts: packetbeat
+
+  tasks:
+  - name: remove packetbeat
+    ansible.builtin.apt:
+      name: packetbeat
+      state: absent
+      purge: true
+
