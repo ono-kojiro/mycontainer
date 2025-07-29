@@ -33,6 +33,11 @@ create()
   cat - << EOF > template.json
 {
   "name": "myname",
+  "role_descriptors": {
+    "custom_role": {
+      "cluster": [ "manage_security" ]
+    }
+  },
   "metadata": {
     "application": "myapplication",
     "environment": {
@@ -67,7 +72,8 @@ list()
     --silent \
     --netrc-file ${netrc} \
     -H 'Content-Type: application/x-ndjson' \
-    -X GET ${base_url}/_security/api_key?pretty
+    -X GET ${base_url}/_security/api_key?pretty |
+  jq '.api_keys.[] | select(.invalidated == false)'
 }
 
 delete()
