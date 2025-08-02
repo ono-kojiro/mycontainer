@@ -1,7 +1,10 @@
 - name: setup slapd consumer (slave)
-  hosts: plucky
+  hosts: ubuntu
 
   roles:
+    - role: cacert
+      tags: cacert
+
     - role: certs
       tags: certs
 

@@ -1,3 +1,5 @@
 *~
 hosts.yml
+*.key
+*.crt
 

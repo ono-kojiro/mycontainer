@@ -1,0 +1,22 @@
+---
+ansible_host: ubuntu
+ansible_become: true
+
+consumer_addr: 172.16.1.244
+ldap_uri: ldaps://{{ consumer_addr }}
+
+server_crt: ubuntu.crt
+server_key: ubuntu.key
+
+# for Debian
+ldap_user:  openldap
+ldap_group: openldap
+ldap_config_dir: /etc/ldap/slapd.d
+ldap_config_dn: olcDatabase={1}mdb,cn=config
+cert_dir: /etc/ssl
+
+olc_database: "olcDatabase={1}mdb,cn=config"
+tls_cert_path: "/etc/share/ca-certificates/mylocalca/mylocalca.crt"
+ldap_dir: /etc/ldap
+tls_cacert: /etc/ssl/certs/ca-certificates.crt
+
