@@ -1,6 +1,4 @@
 ---
-#ldap_addr: localhost
-#consumer_addr: 192.168.0.
 ldap_suffix: dc=example,dc=com
 masterdn: cn=Manager,{{ ldap_suffix }}
 masterpw: secret

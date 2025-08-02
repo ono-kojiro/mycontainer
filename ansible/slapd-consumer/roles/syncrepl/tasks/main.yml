@@ -1,4 +1,7 @@
 ---
+- import_tasks: common.yml
+  tags: always
+
 - name: check if olcSyncrepl exists
   ansible.builtin.shell: |
     ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
@@ -32,7 +35,7 @@
     olcSyncRepl: rid=123
       provider={{ ldap_provider_uri }}
       tls_cert="{{ tls_cert_path }}"
-      tls_reqcert="try"
+      tls_reqcert="{{ tls_reqcert }}"
       bindmethod=simple
       binddn={{ masterdn }}
       credentials={{ masterpw }}

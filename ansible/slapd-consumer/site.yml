@@ -10,7 +10,16 @@
 
     - role: slapd
       tags: slapd
-    
+  
+    - role: tls
+      tags: tls
+
+    - role: memberof
+      tags: memberof
+
+    - role: refint
+      tags: refint
+
     - role: ldap
       tags: ldap
 
@@ -20,7 +29,7 @@
     - role: sudo
       tags: sudo
     
-    - role: sync
-      tags: sync
+    - role: syncrepl
+      tags: syncrepl
     
 
