@@ -20,6 +20,10 @@
       state: present
       create: true
 
+  - name: change timezone
+    ansible.builtin.shell: |
+      timedatectl set-timezone Asia/Tokyo
+
   - name: restart chronyd
     ansible.builtin.systemd_service:
       name: chrony
