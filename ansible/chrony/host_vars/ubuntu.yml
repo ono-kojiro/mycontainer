@@ -1,0 +1,4 @@
+---
+ansible_host: ubuntu
+ansible_become: true
+

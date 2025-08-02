@@ -1,0 +1,27 @@
+- name: setup chrony
+  hosts: ubuntu
+
+  tasks:
+  - name: install chrony
+    ansible.builtin.apt:
+      name: chrony
+      state: present
+  
+  - name: disable default ntpservers
+    ansible.builtin.replace:
+      path: /etc/chrony/chrony.conf
+      regexp: '^pool (.+)'
+      replace: '# \1'
+
+  - name: add local-ntp-server.sources
+    ansible.builtin.lineinfile:
+      path: /etc/chrony/sources.d/local-ntp-server.sources
+      line: 'pool {{ ntpserver }} iburst'
+      state: present
+      create: true
+
+  - name: restart chronyd
+    ansible.builtin.systemd_service:
+      name: chrony
+      state: restarted
+
