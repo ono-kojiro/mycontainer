@@ -8,3 +8,5 @@ ldap_uri: ldaps://{{ consumer_addr }}
 server_crt: ubuntu.crt
 server_key: ubuntu.key
 
+tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
+

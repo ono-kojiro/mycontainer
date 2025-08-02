@@ -1,0 +1,113 @@
+---
+- import_tasks: common.yml
+
+- name: upload rfc2307bis.ldif
+  ansible.builtin.copy:
+    src: rfc2307bis.ldif
+    dest: "{{ ldap_dir }}/schema/"
+
+- name: add schema (RedHat)
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// \
+      -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
+  loop:
+    - cosine
+    - inetorgperson
+    - rfc2307bis
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+  ignore_errors: true
+
+- name: copy rfc2307bis.schema
+  ansible.builtin.copy:
+    src:  /etc/ldap/schema/gosa/rfc2307bis.schema
+    dest: /etc/ldap/schema/rfc2307bis.schema
+    remote_src: yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: disable nis.schema
+  ansible.builtin.shell: |
+    ldap-schema-manager -e nis.schema --yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: enable rfc2307bis.schema
+  ansible.builtin.shell: |
+    ldap-schema-manager -i rfc2307bis.schema --yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: load memberof module
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: memberof
+    EOF
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: create module config (RedHat)
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    objectClass: olcModuleList
+    cn: module{0}
+    olcModulePath: /usr/lib64/openldap/
+    EOF
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: load modules
+  ansible.builtin.shell: |
+    num=`ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b "cn=config" \
+      "objectClass=olcModuleList" olcModuleLoad \
+      | grep -e '^olcModuleLoad:.*{{ item }}' | wc -l`
+
+    if [ "$num" = "0" ]; then
+      cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: {{ item }}
+    EOF
+    fi
+  loop:
+  - back_mdb
+  - memberof
+
+- name: check if memberof overlay exists
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" \
+      "(&(objectClass=olcOverlayConfig)(olcOverlay=memberof))" \
+      dn | wc -l
+  register: res
+
+- name: add memberof overlay
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay=memberof,{{ olc_database }}
+    changetype: add
+    objectClass: olcConfig
+    objectClass: olcMemberOf
+    objectClass: olcOverlayConfig
+    objectClass: top
+    olcOverlay: memberof
+    olcMemberOfRefInt: TRUE
+    olcMemberOfDangling: ignore
+    olcMemberOfGroupOC: groupOfNames
+    olcMemberOfMemberAD: member
+    olcMemberOfMemberOfAD: memberOf
+    EOF
+  when: res.stdout == "0"
+  ignore_errors: true
+
+- name: restart slapd for memberOf
+  ansible.builtin.systemd:
+    name: slapd
+    state: restarted
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,9 @@
+---
+- name: load os-specific variables
+  ansible.builtin.include_vars:
+    file: "{{ item.file }}"
+  when: ansible_facts['os_family'] == item.os_family
+  loop:
+    - { file: "redhat_vars.yml", os_family: "RedHat" }
+    - { file: "debian_vars.yml", os_family: "Debian" }
+    

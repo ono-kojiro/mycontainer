@@ -1,0 +1,75 @@
+---
+- import_tasks: common.yml
+
+- name: add openldap user to ssl-cert group (Debian)
+  ansible.builtin.user:
+    name: openldap
+    groups: ssl-cert
+    append: yes
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: restart slapd to apply ssl-cert group
+  ansible.builtin.systemd_service:
+    name: slapd
+    state: restarted
+    daemon_reload: true
+
+- name: delete TLS CA cert
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    delete: olcTLSCACertificateFile
+    EOF
+  ignore_errors: true
+
+- name: delete TLS Server certs
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    delete: olcTLSCertificateFile
+    -
+    delete: olcTLSCertificateKeyFile
+    EOF
+  ignore_errors: true
+
+- name: add CA cert
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    add: olcTLSCACertificateFile
+    olcTLSCACertificateFile: {{ cert_top }}/certs/ca-certificates.crt
+    EOF
+  ignore_errors: true
+
+- name: add server cert and key at the same time
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    add: olcTLSCertificateFile
+    olcTLSCertificateFile: {{ cert_top }}/certs/{{ server_crt }}
+    -
+    add: olcTLSCertificateKeyFile
+    olcTLSCertificateKeyFile: {{ cert_top }}/private/{{ server_key }}
+    EOF
+
+- name: make slapd.service.d directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/slapd.service.d
+    state: directory
+
+- name: copy override.conf
+  ansible.builtin.template:
+    src: override.conf
+    dest: /etc/systemd/system/slapd.service.d/override.conf
+
+- name: restart slapd for TLS
+  ansible.builtin.systemd_service:
+    name: slapd
+    state: restarted
+    daemon_reload: true
+

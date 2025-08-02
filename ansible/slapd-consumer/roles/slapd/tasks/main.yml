@@ -1,7 +1,120 @@
 ---
 - import_tasks: common.yml
-  tags: always
-- import_tasks: prepare.yml
-- import_tasks: install.yml
-#- import_tasks: configure.yml
+
+- name: copy slapd-init.conf (Debian)
+  template:
+    src: slapd-init.conf
+    dest: /etc/tmpfiles.d/slapd-init.conf
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: remove /var/log/slapd.log
+  ansible.builtin.file:
+    path: /var/log/slapd.log
+    state: absent
+
+#- name: uninstall slapd packages (Debian)
+#  apt:
+#    name:
+#      - slapd
+#      - ldap-utils
+#      - schema2ldif
+#      - gosa-schema
+#    state: absent
+#    purge: true
+#  when: |-
+#    ansible_facts['os_family'] == "Debian"
+
+- name: install slapd packages (Debian)
+  apt:
+    name:
+      - slapd
+      - ldap-utils
+      - schema2ldif
+      - gosa-schema
+      - rsyslog
+  environment:
+    DEBIAN_FRONTEND: nointeractive
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: enable epel (RedHat)
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: install slapd packages (RedHat)
+  ansible.builtin.dnf:
+    name:
+      - openldap-servers
+      - openldap-clients
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: change owner of server key (RedHat)
+  ansible.builtin.file:
+    path: "{{ cert_top }}/private/{{ server_key }}"
+    owner: root
+    group: ldap
+    mode: '0640'
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: change ldap loglevel
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcLogLevel
+    olcLogLevel: acl sync
+    EOF
+
+- name: change ldap suffix
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: {{ ldap_config_dn }}
+    changetype: modify
+    replace: olcSuffix
+    olcSuffix: {{ ldap_suffix }}
+    EOF
+
+- name: change ldap rootdn
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: {{ ldap_config_dn }}
+    changetype: modify
+    replace: olcRootDN
+    olcRootDN: {{ masterdn }}
+    EOF
+
+- name: change ldap rootpw
+  ansible.builtin.shell: |
+    rootpw=`/usr/sbin/slappasswd -h {SSHA} -s {{ masterpw }}`
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// << EOF
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcRootPW
+    olcRootPW: ${rootpw}
+    EOF
+
+- name: restart slapd
+  ansible.builtin.systemd_service:
+    name: slapd
+    state: restarted
+    enabled: true
+    daemon_reload: true
+
+- name: create /etc/rsyslog.d/60-slapd.conf for logfile
+  ansible.builtin.lineinfile:
+    path: /etc/rsyslog.d/60-slapd.conf
+    line: 'local4.*   /var/log/slapd.log'
+    create: yes
+
+- name: restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+    daemon_reload: true
 

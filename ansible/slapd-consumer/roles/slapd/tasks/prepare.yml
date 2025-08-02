@@ -1,7 +1,0 @@
----
-- name: copy slapd-init.conf (Debian)
-  template:
-    src: slapd-init.conf
-    dest: /etc/tmpfiles.d/slapd-init.conf
-  when: |-
-    ansible_facts['os_family'] == "Debian"

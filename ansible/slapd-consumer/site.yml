@@ -20,16 +20,9 @@
     - role: refint
       tags: refint
 
-    - role: ldap
-      tags: ldap
-
-    - role: sssd
-      tags: sssd
-    
-    - role: sudo
-      tags: sudo
+    - role: publickey
+      tags: publickey
     
     - role: syncrepl
       tags: syncrepl
-    
 
