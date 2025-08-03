@@ -33,7 +33,7 @@
     add: olcSyncrepl
     olcSyncRepl: rid=123
       provider={{ ldap_provider_uri }}
-      tls_cert="{{ tls_cert_path }}"
+      tls_cacert="{{ tls_cacert_path }}"
       tls_reqcert="{{ tls_reqcert }}"
       bindmethod=simple
       binddn={{ masterdn }}

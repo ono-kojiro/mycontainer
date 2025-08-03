@@ -10,6 +10,5 @@ ldap_config_dn: "olcDatabase={1}mdb,cn=config"
 
 olc_database: "olcDatabase={1}mdb,cn=config"
 ldap_dir: /etc/ldap
-tls_cacert: /etc/ssl/certs/ca-certificates.crt
-tls_cert_path: "/etc/share/ca-certificates/mylocalca/mylocalca.crt"
+tls_cacert_path: "/etc/ssl/certs/ca-certificates.crt"
 
