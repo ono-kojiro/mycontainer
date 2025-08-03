@@ -1,0 +1,4 @@
+---
+java_path:  /opt/jdk1.8.0_202/bin/java
+javac_path: /opt/jdk1.8.0_202/bin/javac
+

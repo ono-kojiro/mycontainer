@@ -1,0 +1,88 @@
+# Install Docker Engine on Ubuntu
+# https://docs.docker.com/engine/install/ubuntu/
+
+- name: uninstall old versions
+  ansible.builtin.apt:
+    name:
+    - docker.io
+    - docker-compose
+    - docker-compose-v2
+    - docker-doc
+    - podman-docker
+    state: absent
+  
+- name: install ca-certificates and curl
+  ansible.builtin.apt:
+    name:
+    - ca-certificates
+    - curl
+    state: present
+    update_cache: true
+
+- name: download GPG key
+  ansible.builtin.shell: |
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+      -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+
+- name: download GPG key
+  ansible.builtin.shell: |
+    arch=$(dpkg --print-architecture)
+    docker_asc=/etc/apt/keyrings/docker.asc
+    url=https://download.docker.com/linux/ubuntu
+    code=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+    echo \
+      "deb [arch=$arch signed-by=$docker_asc] $url $code stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null
+ 
+- name: install docker packages
+  ansible.builtin.apt:
+    name:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-buildx-plugin
+    - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: install git
+  ansible.builtin.apt:
+    name: git
+    state: present
+    update_cache: true
+
+- name: git clone log4j-shell-poc
+  ansible.builtin.shell: |
+    if [ ! -e "log4j-shell-poc" ]; then
+      git clone https://github.com/kozmer/log4j-shell-poc.git
+    else
+      git -C log4j-shell-poc pull
+    fi
+  vars:
+    ansible_become: false
+
+- name: build container
+  ansible.builtin.shell: |
+    cd log4j-shell-poc
+    docker build -t log4j-shell-poc .
+  become: false
+
+#- name: run container
+#  ansible.builtin.shell: |
+#    cd log4j-shell-poc
+#    docker run --network host log4j-shell-poc
+#  become: false
+
+- name: create container
+  ansible.builtin.shell: |
+    docker create --name poc --network host log4j-shell-poc
+  ignore_errors: true
+
+- name: start container
+  ansible.builtin.shell: |
+    docker start poc
+  ignore_errors: true
+
+

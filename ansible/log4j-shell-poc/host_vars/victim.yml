@@ -1,0 +1,4 @@
+---
+ansible_host: jammy
+ansible_become: true
+

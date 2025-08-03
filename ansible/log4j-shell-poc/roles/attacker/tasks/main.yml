@@ -1,0 +1,47 @@
+---
+- name: install git
+  ansible.builtin.apt:
+    name: git
+    state: present
+    update_cache: true
+
+- name: git clone log4j-shell-poc
+  ansible.builtin.shell: |
+    if [ ! -e "log4j-shell-poc" ]; then
+      git clone https://github.com/kozmer/log4j-shell-poc.git
+    else
+      git -C log4j-shell-poc pull
+    fi
+  vars:
+    ansible_become: false
+
+- name: upload java 8u202
+  ansible.builtin.copy:
+    src: jdk-8u202-linux-x64.tar.gz
+    dest: /tmp/
+
+- name: extract java 8u202
+  ansible.builtin.shell: |
+    tar -C /opt/ -xzvf /tmp/jdk-8u202-linux-x64.tar.gz
+
+- name: upload patch for poc.py
+  ansible.builtin.template:
+    src: 0001-fix_java_path.patch
+    dest: /tmp/
+  vars:
+    ansible_become: false
+
+- name: apply patch for poc.py
+  ansible.builtin.shell: |
+    cd ~/log4j-shell-poc
+    git checkout -f
+    patch -p0 -i /tmp/0001-fix_java_path.patch
+  vars:
+    ansible_become: false
+  register: res
+
+- name: show result
+  ansible.builtin.debug:
+    msg: "{{ res.stdout_lines }}"
+
+
