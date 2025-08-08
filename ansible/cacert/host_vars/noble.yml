@@ -1,0 +1,7 @@
+---
+ansible_host: noble
+ansible_become: true
+
+cacert: mylocalca.crt
+caname: mylocalca
+
