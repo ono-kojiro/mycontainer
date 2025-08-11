@@ -1,0 +1,13 @@
+---
+services:
+  noble:
+    image: bookworm:latest
+    container_name: bookworm
+    hostname: bookworm
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "14022:22"
