@@ -1,0 +1,21 @@
+- name:  enable static IP
+  hosts: myhost
+
+  tasks:
+  - name: disable dhcp
+    ansible.builtin.replace:
+      path: /etc/network/interfaces
+      regexp: '^(iface .* inet dhcp)'
+      replace: '#\1'
+
+  - name: add static IP
+    ansible.builtin.blockinfile:
+      path: /etc/network/interfaces
+      block: |
+        auto {{ iface }}
+        iface {{ iface }} inet static
+          address 192.168.122.13
+          netmask 255.255.255.0
+          gateway 192.168.122.1
+
+  
