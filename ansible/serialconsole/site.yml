@@ -1,5 +1,5 @@
 - name:  enable serial console
-  hosts: myserver
+  hosts: freebsd
 
   tasks:
   - name: updae GRUB_CMDLINE_LINUX (Debian)
@@ -41,4 +41,32 @@
       grubby --update-kernel=ALL --args="console=tty0 console=ttyS0,115200n8"
     when: |-
       ansible_facts['os_family'] == "RedHat"
+  
+  - name: create /boot.config (FreeBSD)
+    ansible.builtin.lineinfile:
+      path: "/boot.config"
+      line: '-D'
+      create: true
+    when: |-
+      ansible_facts['os_family'] == "FreeBSD"
+
+  - name: edit /boot/loader.conf (FreeBSD)
+    ansible.builtin.lineinfile:
+      path: /boot/loader.conf
+      line: "{{ item }}"
+      create: true
+    loop:
+      - 'boot_serial="YES"'
+      - 'console="comconsole"'
+    when: |-
+      ansible_facts['os_family'] == "FreeBSD"
+  
+  - name: edit /etc/ttys (FreeBSD)
+    ansible.builtin.replace:
+      path: /etc/ttys
+      regexp: '^ttyu0(.*)'
+      replace: 'ttyu0   "/usr/libexec/getty std.115200" xterm   onifconsole secure'
+    when: |-
+      ansible_facts['os_family'] == "FreeBSD"
+
 

@@ -1,0 +1,4 @@
+---
+ansible_host: freebsd
+ansible_become: true
+
