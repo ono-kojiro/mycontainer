@@ -2,9 +2,17 @@
   hosts: packetbeat
 
   tasks:
-  - name: remove packetbeat
+  - name: remove packetbeat package
     ansible.builtin.apt:
       name: packetbeat
       state: absent
       purge: true
 
+  - name: remove packetbeat directory
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+      - /var/lib/packetbeat
+      - /var/log/packetbeat
+      - /etc/packetbeat
