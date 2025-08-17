@@ -1,3 +1,4 @@
 ---
+elastic_ver: "9.x"
 workdir: "{{ lookup('ansible.builtin.env', 'PWD') }}"
 

@@ -11,6 +11,9 @@ default_roles="superuser kibana_admin"
 machine=`cat $netrc | grep -e '^machine' | awk '{ print $2 }'`
 es_host="https://${machine}:9200"
 
+echo "INFO: use ${netrc}"
+echo "INFO: url is ${es_host}"
+
 help() {
   cat - << EOS
 usage :
