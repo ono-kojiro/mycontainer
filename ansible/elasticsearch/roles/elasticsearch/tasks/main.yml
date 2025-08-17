@@ -21,6 +21,12 @@
     state: present
     update_cache: true
 
+- name: enable api_key
+  ansible.builtin.lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    line: 'xpack.security.authc.api_key.enabled: true'
+    insertafter: '^xpack.security.enabled: true'
+
 - name: start elasticsearch
   ansible.builtin.systemd_service:
     name: elasticsearch

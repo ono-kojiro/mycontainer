@@ -287,11 +287,21 @@ version() {
 
 list()
 {
-  curl --silent -k --netrc-file $netrc "$es_host/_security/user?pretty"
-  curl --silent -k --netrc-file $netrc "$es_host/_security/role?pretty"
+  user_list
+  role_list
 }
 
+user_list()
+{
+  curl --silent -k --netrc-file $netrc "$es_host/_security/user?pretty" | \
+    jq 'keys'
+}
 
+role_list()
+{
+  curl --silent -k --netrc-file $netrc "$es_host/_security/role?pretty" | \
+    jq 'keys'
+}
 
 indices() {
   curl -k --netrc-file $netrc "$es_host/_cat/indices?v"
