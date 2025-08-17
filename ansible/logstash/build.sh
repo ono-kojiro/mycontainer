@@ -22,8 +22,8 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
-  createkey:
-  deletekey:
+  createkey   create api key
+  deletekey   delete api key
 
   roleadd: add logstash_writer role in elasticsearch
   useradd: add logstash_internal user in elasticsearch
@@ -54,8 +54,8 @@ hosts()
 
 createkey()
 {
-  deletekey
-  sh ../elasticsearch/api_key.sh create -n logstash > logstash.json
+  #deletekey
+  sh ../elasticsearch/api_key.sh create -n logstash -r logstash_writer > logstash.json
   api_key=`cat logstash.json | jq -r '.api_key'`
   api_key_id=`cat logstash.json | jq -r '.id'`
   api_key_name=`cat logstash.json | jq -r '.name'`
