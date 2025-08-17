@@ -1,0 +1,6 @@
+---
+ansible_host: myhost
+ansible_become: true
+
+iface: enp1s0
+
