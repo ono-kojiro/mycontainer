@@ -3,6 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+flags=""
+
 es_netrc="../elasticsearch/.netrc"
   
 api_key_name="packetbeat"
@@ -58,7 +60,7 @@ createkey()
   deletekey
 
   tmpfile=`mktemp`
-  sh ../elasticsearch/api_key.sh create -n ${api_key_name} > $tmpfile
+  sh ../elasticsearch/api_key.sh create -n ${api_key_name} -r packetbeat_writer > $tmpfile
   api_key=`cat $tmpfile | jq -r '.api_key'`
   api_key_id=`cat $tmpfile | jq -r '.id'`
   #api_key_name=`cat $tmpfile | jq -r '.name'`
@@ -86,7 +88,7 @@ roleadd()
   role="packetbeat_setup"
   curl -k --netrc-file $es_netrc \
     -H 'Content-Type: application/json' \
-    -XPOST "$es_url/_security/role/$role" --data @- << EOS
+    -XPOST "$es_url/_security/role/$role?pretty" --data @- << EOS
 {
   "cluster": [ "monitor", "manage_ilm" ],
   "indices": [
@@ -102,7 +104,7 @@ EOS
   role="packetbeat_writer"
   curl -k --netrc-file $es_netrc \
     -H 'Content-Type: application/json' \
-    -XPOST "$es_url/_security/role/$role" --data @- << EOS
+    -XPOST "$es_url/_security/role/$role?pretty" --data @- << EOS
 {
   "cluster": [ "monitor", "read_ilm" ],
   "indices": [
@@ -160,26 +162,21 @@ userdel()
     -XDELETE "$es_url/_security/user/$username?pretty"
 }
 
-deploy()
-{
-  ansible-playbook -K -i hosts.yml site.yml
-}
-
 reset()
 {
-  ansible-playbook -K -i hosts.yml reset.yml
+  ansible-playbook $flags -i hosts.yml reset.yml
 }
 
 destroy()
 {
-  ansible-playbook -K -i hosts.yml destroy.yml
+  ansible-playbook $flags -i hosts.yml destroy.yml
 }
 
 default()
 {
   tag=$1
   echo "tag: ${tag}"
-  ansible-playbook -K -i hosts.yml -t ${tag} site.yml
+  ansible-playbook $flags -i hosts.yml -t ${tag} site.yml
 }
 
 test()
@@ -217,6 +214,9 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     * )
       args="$args $1"
