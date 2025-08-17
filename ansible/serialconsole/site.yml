@@ -5,8 +5,17 @@
   - name: updae GRUB_CMDLINE_LINUX (Debian)
     ansible.builtin.lineinfile:
       path: /etc/default/grub
+      regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="(.*)"'
+      line: 'GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 console=tty0"'
+      backrefs: true
+    when: |-
+      ansible_facts['os_family'] == "Debian"
+
+  - name: updae GRUB_CMDLINE_LINUX (Debian)
+    ansible.builtin.lineinfile:
+      path: /etc/default/grub
       regexp: '^GRUB_CMDLINE_LINUX="(.*)"'
-      line: 'GRUB_CMDLINE_LINUX="\1 console=tty0 console=ttyS0,19200n8"'
+      line: 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,115200n8"'
       backrefs: true
     when: |-
       ansible_facts['os_family'] == "Debian"
@@ -25,10 +34,32 @@
     ansible.builtin.lineinfile:
       path: /etc/default/grub
       regexp: '^GRUB_SERIAL_COMMAND='
-      line: 'GRUB_SERIAL_COMMAND="serial --speed=19200 --unit=0 --word=8 --parity=no --stop=1"'
+      line: 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"'
     when: |-
       ansible_facts['os_family'] == "Debian"
 
+#  - name: edit /etc/inittab
+#    ansible.builtin.lineinfile:
+#      path: /etc/inittab
+#      line: 'T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100'
+#      create: true
+#    when: |-
+#      ansible_facts['os_family'] == "Debian"
+
+#  - name: edit /etc/securetty
+#    ansible.builtin.lineinfile:
+#      path: /etc/securetty
+#      line: 'ttyS0'
+#      create: true
+#    when: |-
+#      ansible_facts['os_family'] == "Debian"
+  
+  - name: enable serial service
+    ansible.builtin.systemd_service:
+      service: serial-getty@ttyS0.service
+      enabled: true
+    when: |-
+      ansible_facts['os_family'] == "Debian"
 
   - name: update-grub (Debian)
     ansible.builtin.shell: |
