@@ -9,6 +9,7 @@ machine=`cat ${netrc} | grep -e '^machine' | awk '{ print $2 }'`
 base_url="https://${machine}:9200"
 
 name=""
+role=""
 
 usage()
 {
@@ -25,15 +26,35 @@ EOF
 
 create()
 {
+  ret=0
+
   if [ -z "$name" ]; then
     echo "ERROR: no name option"
-	exit 1
+    ret=`expr $ret + 1`
+  fi
+  
+  if [ -z "$role" ]; then
+    echo "ERROR: no role option"
+    ret=`expr $ret + 1`
+  fi
+
+  if [ "$ret" -ne 0 ]; then
+    exit $ret
   fi
 
   cat - << EOF > template.json
 {
   "name": "myname",
   "role_descriptors": {
+    "${role}" : {
+      "cluster": ["all"],
+      "indices": [
+        {
+          "names": ["*"],
+          "privileges": ["all"]
+        }
+      ]
+    },
     "custom_role": {
       "cluster": [ "manage_security" ]
     }
@@ -112,6 +133,10 @@ while [ $# -ne 0 ]; do
 	-n | --name )
 	  shift
 	  name="$1"
+      ;;
+	-r | --role )
+	  shift
+	  role="$1"
       ;;
     * )
       args="$args $1"
