@@ -1,6 +1,10 @@
 ---
-ansible_host: myhost
-ansible_become: true
+ansible_host: bookworm
+ansible_become: false
+          
+address: 172.16.1.63
+netmask: 255.255.255.0
+gateway: 172.16.1.1
 
 iface: enp1s0
 
