@@ -3,4 +3,5 @@ hosts.yml
 *~
 api_key.yml
 password.yml
-
+*.crt
+*.key

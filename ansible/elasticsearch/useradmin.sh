@@ -11,6 +11,9 @@ default_roles="superuser kibana_admin"
 machine=`cat $netrc | grep -e '^machine' | awk '{ print $2 }'`
 es_host="https://${machine}:9200"
 
+echo "INFO: use ${netrc}"
+echo "INFO: url is ${es_host}"
+
 help() {
   cat - << EOS
 usage :
@@ -284,11 +287,21 @@ version() {
 
 list()
 {
-  curl --silent -k --netrc-file $netrc "$es_host/_security/user?pretty"
-  curl --silent -k --netrc-file $netrc "$es_host/_security/role?pretty"
+  user_list
+  role_list
 }
 
+user_list()
+{
+  curl --silent -k --netrc-file $netrc "$es_host/_security/user?pretty" | \
+    jq 'keys'
+}
 
+role_list()
+{
+  curl --silent -k --netrc-file $netrc "$es_host/_security/role?pretty" | \
+    jq 'keys'
+}
 
 indices() {
   curl -k --netrc-file $netrc "$es_host/_cat/indices?v"

@@ -5,3 +5,8 @@ ansible_become: true
 elasticsearch_url: "https://192.168.0.98:9200"
 kibana_url:        "https://192.168.0.98:5601"
 logstash_host: "192.168.0.98:5044"
+
+certs_dir:   "/etc/packetbeat/certs"
+cacert:      "mylocalca.crt"
+client_cert: "packetbeat.crt"
+client_key:  "packetbeat.key"

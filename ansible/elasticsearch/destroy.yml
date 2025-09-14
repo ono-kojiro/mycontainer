@@ -25,6 +25,6 @@
  
   - name: remove elastic-8.x.list
     ansible.builtin.file:
-      path: /etc/apt/sources.list.d/elastic-8.x.list
+      path: /etc/apt/sources.list.d/elastic-9.x.list
       state: absent
 

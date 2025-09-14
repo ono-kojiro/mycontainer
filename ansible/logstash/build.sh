@@ -3,10 +3,11 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+flags=""
+
 rolename="logstash_writer"
 username="logstash_internal"
   
-
 es_url=`cat host_vars/logstash/main.yml | \
   grep -e '^elastic_url' | awk '{ print $2 }'`
 
@@ -21,8 +22,8 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
-  createkey:
-  deletekey:
+  createkey   create api key
+  deletekey   delete api key
 
   roleadd: add logstash_writer role in elasticsearch
   useradd: add logstash_internal user in elasticsearch
@@ -53,8 +54,8 @@ hosts()
 
 createkey()
 {
-  deletekey
-  sh ../elasticsearch/api_key.sh create -n logstash > logstash.json
+  #deletekey
+  sh ../elasticsearch/api_key.sh create -n logstash -r logstash_writer > logstash.json
   api_key=`cat logstash.json | jq -r '.api_key'`
   api_key_id=`cat logstash.json | jq -r '.id'`
   api_key_name=`cat logstash.json | jq -r '.name'`
@@ -90,11 +91,11 @@ roleadd()
 EOF
 
   cmd="curl -k --netrc-file $es_netrc"
-  cmd="$cmd -X POST \"$es_url/_security/role/$rolename\""
-  #cmd="$cmd -H 'Content-Type:application/json'"
+  cmd="$cmd -H \"Content-Type: application/json\""
+  cmd="$cmd -X POST \"$es_url/_security/role/$rolename?pretty\""
   cmd="$cmd --data @data.json"
   echo $cmd
-  exec $cmd
+  eval $cmd
 }
 
 roledel()
@@ -106,9 +107,7 @@ roledel()
 
 useradd()
 {
-  curl -k --netrc-file $es_netrc \
-    -H 'Content-Type: application/json' \
-    -XPOST "$es_url/_security/user/$username?pretty" --data @- << EOS
+  cat - << EOS > data.json
 {
   "password" : "logstash",
   "roles" : [ "$rolename"],
@@ -116,6 +115,15 @@ useradd()
 }
 EOS
 
+  cmd="curl -k --netrc-file $es_netrc"
+  cmd="$cmd -H \"Content-Type: application/json\""
+  cmd="$cmd -XPOST \"$es_url/_security/user/$username?pretty\""
+  cmd="$cmd --data @data.json"
+
+  echo $cmd
+  eval $cmd
+
+  rm -f data.json
 }
 
 userdel()
@@ -127,20 +135,32 @@ userdel()
 
 install()
 {
-  ansible-playbook -K -i hosts.yml -t install site.yml
+  ansible-playbook $flags -i hosts.yml -t install site.yml
 }
 
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook $flags -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts.yml -t ${tag} site.yml
+  ansible-playbook $flags -i hosts.yml -t ${tag} site.yml
 }
+
+reset()
+{
+  ansible-playbook $flags -i hosts.yml reset.yml
+}
+
+
+destroy()
+{
+  ansible-playbook $flags -i hosts.yml destroy.yml
+}
+
 
 test()
 {
@@ -168,6 +188,9 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     * )
       args="$args $1"

@@ -11,6 +11,7 @@
     ansible.builtin.apt:
       name: kibana
       state: absent
+      purge: true
 
   - name: remove directories
     ansible.builtin.file:

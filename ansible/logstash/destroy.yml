@@ -20,5 +20,5 @@
     - /var/lib/logstash/
     - /var/log/logstash/
     - /etc/logstash/
-    - "{{ data_dir }}"
+    - "{{ data_root }}"
   
