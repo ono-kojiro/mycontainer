@@ -1,0 +1,36 @@
+---
+- name: install rsyslog
+  ansible.builtin.package:
+    name:
+    - rsyslog
+    state: present
+
+- name: upload server.conf
+  ansible.builtin.template:
+    src: server.conf
+    dest: /etc/rsyslog.d/
+
+- name: upload syslog-conn.xml (RedHat)
+  ansible.builtin.template:
+    src: syslog-conn.xml
+    dest: /etc/firewalld/services/
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: enable syslog-conn service (RedHat)
+  ansible.posix.firewalld:
+    service: syslog-conn
+    state: enabled
+    permanent: true
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: restart firewalld (RedHat)
+  ansible.builtin.systemd:
+    name: firewalld
+    state: restarted
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<service>
+  <short>syslog-conn</short>
+  <description>syslog over tcp</description>
+  <port protocol="tcp" port="{{ syslog_tcp_port }}"/>
+</service>
+

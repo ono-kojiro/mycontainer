@@ -1,0 +1,12 @@
+- name: setup rsyslog server/client
+  hosts: server
+
+  roles:
+  - role: server
+    tags: server, never
+
+  - role: client
+    tags: client, never
+
+    
+
