@@ -36,3 +36,7 @@ logging:
 
 elasticsearch.ssl.verificationMode: none
 
+vis_type_vega.enableExternalUrls: true
+
+pid.file: kibana.pid
+
