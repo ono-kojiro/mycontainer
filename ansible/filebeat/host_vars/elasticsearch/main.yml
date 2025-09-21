@@ -1,0 +1,4 @@
+---
+ansible_host: elasticsearch
+ansible_become: true
+

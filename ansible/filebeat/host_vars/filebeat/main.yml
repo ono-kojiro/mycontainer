@@ -1,0 +1,10 @@
+---
+ansible_host: filebeat
+ansible_become: true
+
+logstash_hosts: "192.168.0.98:5044"
+
+certs_dir:   "/etc/filebeat/certs"
+cacert:      "mylocalca.crt"
+client_cert: "filebeat.crt"
+client_key:  "filebeat.key"

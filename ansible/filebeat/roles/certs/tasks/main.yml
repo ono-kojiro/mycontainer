@@ -1,0 +1,33 @@
+---
+- name: create certs directory
+  ansible.builtin.file:
+    path:  "{{ certs_dir }}"
+    state: directory
+    owner: root
+    group: root 
+    mode:  '0755'
+
+- name: copy CA cert
+  ansible.builtin.copy:
+    src:   "{{ cacert }}"
+    dest:  "{{ certs_dir }}"
+    owner: root
+    group: root 
+    mode:  '0644'
+
+- name: copy client cert
+  ansible.builtin.copy:
+    src:   "{{ client_cert }}"
+    dest:  "{{ certs_dir }}"
+    owner: root
+    group: root 
+    mode:  '0644'
+
+- name: copy client key
+  ansible.builtin.copy:
+    src:   "{{ client_key }}"
+    dest:  "{{ certs_dir }}"
+    owner: root
+    group: root 
+    mode:  '0600'
+
