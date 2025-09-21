@@ -5,6 +5,6 @@
 - pipeline.id: cpu_load
   path.config: "/etc/logstash/conf.d/cpu_load.conf"
 
-- pipeline.id: packetbeat
-  path.config: "/etc/logstash/conf.d/packetbeat.conf"
+- pipeline.id: beats
+  path.config: "/etc/logstash/conf.d/beats.conf"
 

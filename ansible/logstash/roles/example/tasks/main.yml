@@ -8,7 +8,7 @@
     mode: '0644'
   loop:
   - cpu_load.conf
-  - packetbeat.conf
+  - beats.conf
   
 - name: copy pipelines.yml
   ansible.builtin.template:
