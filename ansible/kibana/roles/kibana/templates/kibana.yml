@@ -38,5 +38,5 @@ elasticsearch.ssl.verificationMode: none
 
 vis_type_vega.enableExternalUrls: true
 
-pid.file: kibana.pid
+pid.file: /var/run/kibana/kibana.pid
 

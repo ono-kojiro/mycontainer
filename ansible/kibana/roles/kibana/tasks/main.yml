@@ -75,6 +75,16 @@
     regexp: '^--openssl-legacy-provider'
     line: '#--openssl-legacy-provider'
 
+- name: enable logrotate
+  ansible.builtin.template:
+    src: logrotate-kibana.conf
+    dest: /etc/logrotate.d/kibana
+
+- name: restart logrotate
+  ansible.builtin.systemd_service:
+    name: logrotate
+    state: restarted
+
 - name: restart kibana
   ansible.builtin.systemd_service:
     name: kibana
