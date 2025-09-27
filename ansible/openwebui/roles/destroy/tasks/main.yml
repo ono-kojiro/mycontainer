@@ -1,0 +1,21 @@
+---
+- name: delete user, openwebui
+  ansible.builtin.user:
+    name:  openwebui
+    state: absent
+
+- name: delete group, openwebui
+  ansible.builtin.group:
+    name:   openwebui
+    state:  absent
+
+- name: remove openwebui home
+  ansible.builtin.file:
+    path:  "{{ openwebui_home }}"
+    state: absent
+
+- name: delete openwebui symlink
+  ansible.builtin.file:
+    path:  /var/lib/openwebui
+    state: absent
+

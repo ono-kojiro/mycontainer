@@ -1,10 +1,17 @@
-- name: deploy pyenv and openwebui
+---
+- name: deploy openwebui
   hosts: myserver
 
   roles:
+  - name: account
+    tags: account
+
   - name: uv
     tags: uv
 
   - name: openwebui
     tags: openwebui
+
+  - name: destroy
+    tags: destroy, never
 

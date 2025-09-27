@@ -1,8 +1,6 @@
 ---
 - name: install uv
   ansible.builtin.shell: |
-    . /opt/pyenv/pyenv.shrc
-    pyenv global {{ python_version }}
     curl -LsSf https://astral.sh/uv/install.sh | sh
   become: yes
   become_user: openwebui

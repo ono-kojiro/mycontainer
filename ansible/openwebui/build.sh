@@ -3,6 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+flags=""
+
 help()
 {
   usage
@@ -36,23 +38,19 @@ hosts()
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook $flags -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts.yml -t $tag site.yml
-}
-
-destroy()
-{
-  ansible-playbook -K -i hosts.yml destroy.yml
+  ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
 hosts
 
 args=""
+
 while [ $# -ne 0 ]; do
   case $1 in
     -h )
@@ -61,6 +59,9 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     * )
       args="$args $1"

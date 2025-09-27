@@ -1,0 +1,32 @@
+---
+- name: create group, openwebui
+  ansible.builtin.group:
+    name:   openwebui
+    state:  present
+    system: true
+
+- name: create user, openwebui
+  ansible.builtin.user:
+    name:  openwebui
+    group: openwebui
+    state: present
+    shell: /bin/false
+    home: "{{ openwebui_home }}"
+    system: true
+
+- name: create openwebui home
+  ansible.builtin.file:
+    path:  "{{ openwebui_home }}"
+    state: directory
+    owner: openwebui
+    group: openwebui
+    mode:  '0755'
+
+- name: create openwebui symlink
+  ansible.builtin.file:
+    src:   "{{ openwebui_home }}"
+    dest:  /var/lib/openwebui
+    owner: openwebui
+    group: openwebui
+    state: link
+
