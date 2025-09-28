@@ -1,7 +1,7 @@
-- name: install kde5
+- name: install kde
   community.general.pkgng:
     name:
-    - kde5
+    - kde
     - lightdm
     state: present
 

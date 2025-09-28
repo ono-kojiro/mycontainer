@@ -30,18 +30,18 @@
       tags: sddm, gui
 
     # Utilities
-    - role: utils
-      tags: utils
+    #- role: utils
+    #  tags: utils
     
     # vm-bhyve
-    - role: bhyve
-      tags: bhyve
+    #- role: bhyve
+    #  tags: bhyve
 
-    - role: mosquitto
-      tags: mosquitto
+    #- role: mosquitto
+    #  tags: mosquitto
 
-    - role: gvm
-      tags: gvm
+    #- role: gvm
+    #  tags: gvm
 
-    - role: vuls
-      tags: vuls
+    #- role: vuls
+    #  tags: vuls
