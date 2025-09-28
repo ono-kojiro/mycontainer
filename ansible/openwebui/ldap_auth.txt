@@ -1,0 +1,13 @@
+Label: LDAP Server
+Host: Localhost
+Port: 636
+Application DN: cn=Manager,dc=example,dc=com
+Application DN Password: xxxxxxxxxx
+Mail attribute: mail
+User attribute: uid
+Search: ou=Users,dc=example,dc=com
+TLS: enable
+CACert Path: /etc/ssl/certs/mylocalca.pem
+Verify cert: disable
+
+
