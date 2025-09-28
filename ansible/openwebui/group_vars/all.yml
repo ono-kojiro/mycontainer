@@ -3,4 +3,14 @@ service_user:  openwebui
 service_group: openwebui
 
 openwebui_home: /home/openwebui
-  
+openwebui_host: 192.168.0.98
+openwebui_port: 8080
+openwebui_url: http://{{ openwebui_host }}:{{ openwebui_port }}
+
+openwebui_confdir: /etc/openwebui
+openwebui_conf:    openwebui.conf
+openwebui_datadir: /var/lib/openwebui
+
+python_version: 3.11
+
+

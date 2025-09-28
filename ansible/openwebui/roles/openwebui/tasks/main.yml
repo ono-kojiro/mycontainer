@@ -4,15 +4,15 @@
     src: openwebui.service
     dest: /usr/lib/systemd/system/
 
-- name: create /etc/openwebui directory
+- name: create openwebui config directory
   ansible.builtin.file:
-    path: /etc/openwebui/
+    path:  "{{ openwebui_confdir }}"
     state: directory
 
 - name: upload openwebui.conf
   ansible.builtin.template:
     src: openwebui.conf
-    dest: /etc/openwebui/
+    dest:  "{{ openwebui_confdir }}/"
     owner: openwebui
     group: openwebui
     mode: '0750'

@@ -5,16 +5,15 @@
 # WEBUI_URL
 # PORT: (can not set!)
 
-. /etc/openwebui/openwebui.conf
+. {{ openwebui_confdir }}/{{ openwebui_conf }}
 
-cd /var/lib/openwebui
+export DATA_DIR={{ openwebui_datadir }}
+export WEBUI_URL={{ openwebui_url }}
 
-export DATA_DIR=/var/lib/openwebui
-export WEBUI_URL=http://192.168.0.98:8080
+cd ${DATA_DIR}
 
+${DATA_DIR}/.local/bin/uvx cache prune
 
-/var/lib/openwebui/.local/bin/uvx cache prune --ci
-
-exec /var/lib/openwebui/.local/bin/uvx --python 3.11 \
-  open-webui@latest serve --port 8080
+exec ${DATA_DIR}/.local/bin/uvx --python {{ python_version }} \
+  open-webui@latest serve --port {{ openwebui_port }}
 
