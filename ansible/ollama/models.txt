@@ -1,0 +1,5 @@
+
+$ ollama pull hf.co/mmnga/Llama-3.1-Swallow-8B-Instruct-v0.5-gguf
+
+$ ollama pull hf.co/alfredplpl/gemma-2-baku-2b-it-gguf
+
