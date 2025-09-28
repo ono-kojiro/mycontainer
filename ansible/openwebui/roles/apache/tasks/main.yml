@@ -1,0 +1,26 @@
+---
+- name: upload openwebui.conf
+  ansible.builtin.template:
+    src: openwebui.conf
+    dest: /etc/apache2/
+
+- name: enable proxy pass
+  ansible.builtin.blockinfile:
+    path: /etc/apache2/sites-available/default-ssl.conf
+    insertbefore: '</VirtualHost>'
+    append_newline: true
+    marker: "### {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      {% filter indent(width=4, first=true) %}
+      Include /etc/apache2/openwebui.conf
+      {% endfilter %}
+
+- name: enable ssl
+  ansible.builtin.shell: |
+    a2ensite default-ssl
+
+- name: restart apache
+  ansible.builtin.systemd_service:
+    name: apache2
+    state: restarted
+

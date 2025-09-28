@@ -12,6 +12,9 @@
   - name: openwebui
     tags: openwebui
 
+  - name: apache
+    tags: apache
+
   - name: destroy
     tags: destroy, never
 
