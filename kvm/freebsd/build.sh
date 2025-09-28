@@ -16,10 +16,7 @@ seckey="id_ed25519"
 inventory="hosts"
 playbook="site.yml"
 
-#ansible_opts="-K"
-ansible_opts=""
-
-ansible_opts="$ansible_opts -i ${inventory}"
+flags=""
 
 usage()
 {
@@ -173,16 +170,13 @@ hosts()
 
 deploy()
 {
-  ansible-playbook -i hosts.yml site.yml
+  ansible-playbook ${flags} -i hosts.yml site.yml
 }
 
 default()
 {
-  #playbook=$1
-  #ansible-playbook ${ansible_opts} -i hosts.yml ${playbook}.yml
-
   tag=$1
-  ansible-playbook ${ansible_opts} -i hosts.yml -t ${tag} site.yml
+  ansible-playbook ${flags} -i hosts.yml -t ${tag} site.yml
 }
 
 
@@ -201,6 +195,9 @@ while [ $# -ne 0 ]; do
     -p | --playbook)
       shift
       playbook=$1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     *)
       break
@@ -222,7 +219,6 @@ for target in "$@"; do
     default $target
     #echo "ERROR : $target is not a shell function"
     #exit 1
-    #ansible-playbook ${ansible_opts} -i hosts -t ${target} site.yml
   fi
 done
 
