@@ -1,5 +1,5 @@
 - name: setup sssd-ldap
-  hosts: myserver
+  hosts: redhat
 
   roles:
     - role: sssd

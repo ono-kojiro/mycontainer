@@ -1,4 +1,4 @@
 ---
-ansible_host: rocky
+ansible_host: redhat
 ansible_become: false
 

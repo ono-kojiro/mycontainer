@@ -1,5 +1,6 @@
 ---
 ansible_host: freebsd
+ansible_become: false
 sysconfdir: /usr/local/etc
 
 # sshd_config
