@@ -1,0 +1,30 @@
+*** ansible/plugins/become/__init__.py.orig	2025-10-12 14:24:53.017442012 +0900
+--- ansible/plugins/become/__init__.py	2025-10-12 14:31:36.724271613 +0900
+*************** class BecomeBase(AnsiblePlugin):
+*** 106,115 ****
+          return any(b_success in l.rstrip() for l in b_output.splitlines(True))
+  
+      def check_password_prompt(self, b_output):
+!         """ checks if the expected password prompt exists in b_output """
+          if self.prompt:
+              b_prompt = to_bytes(self.prompt).strip()
+!             return any(l.strip().startswith(b_prompt) for l in b_output.splitlines())
+          return False
+  
+      def _check_password_error(self, b_out, msg):
+--- 106,120 ----
+          return any(b_success in l.rstrip() for l in b_output.splitlines(True))
+  
+      def check_password_prompt(self, b_output):
+!         """ checks if the expected password prompt exists in b_output with sudo-rs quirk"""
+          if self.prompt:
+              b_prompt = to_bytes(self.prompt).strip()
+!             b_prompt_sudo_rs = to_bytes(f"[sudo: {self.prompt}] Password:").strip()
+!          
+!             for l in b_output.splitlines():
+!               _l = l.strip()            
+!               if _l.startswith(b_prompt) or _l.startswith(b_prompt_sudo_rs):
+!                   return True
+          return False
+  
+      def _check_password_error(self, b_out, msg):
