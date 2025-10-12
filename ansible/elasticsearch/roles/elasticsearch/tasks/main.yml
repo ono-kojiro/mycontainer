@@ -27,6 +27,11 @@
     line: 'xpack.security.authc.api_key.enabled: true'
     insertafter: '^xpack.security.enabled: true'
 
+- name: upload heap1gb.options
+  ansible.builtin.template:
+    src:  heap1gb.options
+    dest: /etc/elasticsearch/jvm.options.d/
+
 - name: start elasticsearch
   ansible.builtin.systemd_service:
     name: elasticsearch
