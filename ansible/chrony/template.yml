@@ -3,4 +3,6 @@ all:
     servers:
       hosts:
         ubuntu:
-
+        jammy:
+        noble:
+        questing:
