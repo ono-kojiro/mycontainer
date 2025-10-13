@@ -25,10 +25,11 @@
     
     - role: syncrepl
       tags: syncrepl
+    
+    - role: ldapsearch_local
+      tags: ldapsearch_local
 
     - role: sssd_local
       tags: sssd_local, never
 
-    - role: ldapsearch_local
-      tags: ldapsearch_local, never
 

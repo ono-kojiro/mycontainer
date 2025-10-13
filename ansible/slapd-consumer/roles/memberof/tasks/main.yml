@@ -78,12 +78,16 @@
   ansible.builtin.shell: |
     ldap-schema-manager --list
 
+- name: check if nis.schema is deleted
+  ansible.builtin.shell: |
+     ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}nis)' | grep -e '^olcAttributeTypes' | wc -l
+  register: res
+
 - name: disable nis.schema
   ansible.builtin.shell: |
     ldap-schema-manager -e nis.schema --yes
   when: |-
-    ansible_facts['os_family'] == "Debian"
-  ignore_errors: true
+    ansible_facts['os_family'] == "Debian" and res.stdout != "0"
 
 - name: enable rfc2307bis.schema
   ansible.builtin.shell: |
