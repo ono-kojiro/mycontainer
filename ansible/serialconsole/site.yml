@@ -1,5 +1,5 @@
 - name:  enable serial console
-  hosts: freebsd
+  hosts: noble
 
   tasks:
   - name: updae GRUB_CMDLINE_LINUX (Debian)
