@@ -44,6 +44,11 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
+show()
+{
+  openssl x509 -in files/mylocalca.crt -noout -text
+}
+
 # generate hosts.yml
 hosts
 
