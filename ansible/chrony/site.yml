@@ -1,5 +1,5 @@
 - name: setup chrony
-  hosts: questing
+  hosts: noble
 
   tasks:
   - name: install chrony
@@ -13,11 +13,17 @@
       regexp: '^pool (.+)'
       replace: '# \1'
 
+  - name: check if ubuntu-ntp-pools.sources exists
+    ansible.builtin.stat:
+      path: /etc/chrony/sources.d/ubuntu-ntp-pools.sources
+    register: res
+
   - name: disable ubuntu ntp pools
     ansible.builtin.replace:
       path: /etc/chrony/sources.d/ubuntu-ntp-pools.sources
       regexp: '^pool (.+)'
       replace: '# \1'
+    when: res.stat.exists
   
   - name: add local-ntp-server.sources
     ansible.builtin.lineinfile:
