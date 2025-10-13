@@ -15,6 +15,26 @@
     state: restarted
     daemon_reload: true
 
+- name: check if olcTLSCertificateKeyFile exists
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=config' '(cn=config)' olcTLSCertificateKeyFile | \
+      grep -e '^olcTLSCertificateKeyFile' | \
+      wc -l
+  register: res
+
+- name: delete TLS Server Cert/Key
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    delete: olcTLSCertificateFile
+    -
+    delete: olcTLSCertificateKeyFile
+    EOF
+  when: res.stdout != "0"
+  ignore_errors: true
+
 - name: check if olcTLSCertificateFile exists
   ansible.builtin.shell: |
     ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
@@ -31,23 +51,7 @@
     delete: olcTLSCertificateFile
     EOF
   when: res.stdout != "0"
-
-- name: check if olcTLSCertificateKeyFile exists
-  ansible.builtin.shell: |
-    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
-      -b 'cn=config' '(cn=config)' olcTLSCertificateKeyFile | \
-      grep -e '^olcTLSCertificateKeyFile' | \
-      wc -l
-  register: res
-
-- name: delete TLS Server Key
-  ansible.builtin.shell: |
-    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
-    dn: cn=config
-    changetype: modify
-    delete: olcTLSCertificateKeyFile
-    EOF
-  when: res.stdout != "0"
+  ignore_errors: true
 
 - name: check if olcTLSCACertificateFile exists
   ansible.builtin.shell: |

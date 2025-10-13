@@ -5,8 +5,8 @@
   ansible.builtin.shell: |
     ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
       -b "cn=config" \
-      "objectClass=olcMdbConfig" \
-      olcSyncrepl | wc -l
+      "objectClass=olcMdbConfig" olcSyncrepl | \
+    grep -e '^olcSyncrepl:' | wc -l
   register: res
 
 - name: delete olcSyncrepl
@@ -20,7 +20,7 @@
     changetype: modify
     delete: olcSyncrepl
     EOF
-  when: res.stdout == "1"
+  when: res.stdout != "0"
 
 - name: enable sync
   ansible.builtin.shell: |
