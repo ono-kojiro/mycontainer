@@ -6,17 +6,65 @@
     src: rfc2307bis.ldif
     dest: "{{ ldap_dir }}/schema/"
 
-- name: add schema (RedHat)
+- name: check if cosine schema is enabled
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=schema,cn=config' dn | \
+    grep -e 'cn={\w*}cosine,cn=schema,cn=config' | wc -l
+  register: res
+
+- name: add cosine schema (RedHat)
   ansible.builtin.shell: |
     ldapadd -Q -Y EXTERNAL -H ldapi:/// \
       -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
   loop:
     - cosine
+  when: |-
+    ansible_facts['os_family'] == "RedHat" and res.stdout == "0"
+
+- name: check if inetorgperson schema is enabled
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=schema,cn=config' dn | \
+    grep -e 'cn={\w*}inetorgperson,cn=schema,cn=config' | wc -l
+  register: res
+
+- name: add inetorgperson schema (RedHat)
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// \
+      -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
+  loop:
     - inetorgperson
+  when: |-
+    ansible_facts['os_family'] == "RedHat" and res.stdout == "0"
+
+- name: check if rfc2307bis schema is enabled
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=schema,cn=config' dn | \
+    grep -e 'cn={\w*}rfc2307bis,cn=schema,cn=config' | wc -l
+  register: res
+
+- name: add rfc2307bis schema (RedHat)
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// \
+      -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
+  loop:
     - rfc2307bis
   when: |-
-    ansible_facts['os_family'] == "RedHat"
-  ignore_errors: true
+    ansible_facts['os_family'] == "RedHat" and res.stdout == "0"
+
+#- name: add schema (RedHat)
+#  ansible.builtin.shell: |
+#    ldapadd -Q -Y EXTERNAL -H ldapi:/// \
+#      -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
+#  loop:
+#    - cosine
+#    - inetorgperson
+#    - rfc2307bis
+#  when: |-
+#    ansible_facts['os_family'] == "RedHat"
+#  ignore_errors: true
 
 - name: copy rfc2307bis.schema
   ansible.builtin.copy:
@@ -49,6 +97,15 @@
   when: |-
     ansible_facts['os_family'] == "Debian"
 
+- name: check if olcModulePath exists
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=module{0},cn=config' olcModulePath | \
+      grep -e '^olcModulePath:' | wc -l
+  register: res
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
 - name: create module config (RedHat)
   ansible.builtin.shell: |
     cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
@@ -58,7 +115,8 @@
     olcModulePath: /usr/lib64/openldap/
     EOF
   when: |-
-    ansible_facts['os_family'] == "RedHat"
+    ansible_facts['os_family'] == "RedHat" and
+    res.stdout == "0"
 
 - name: load modules
   ansible.builtin.shell: |
@@ -66,7 +124,7 @@
       "objectClass=olcModuleList" olcModuleLoad \
       | grep -e '^olcModuleLoad:.*{{ item }}' | wc -l`
 
-    if [ "$num" = "0" ]; then
+    if [ "$num" -eq 0 ]; then
       cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=module{0},cn=config
     changetype: modify

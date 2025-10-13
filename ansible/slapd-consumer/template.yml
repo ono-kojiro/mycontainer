@@ -6,4 +6,5 @@ all:
         plucky:
         ubuntu:
         rocky:
+        noble:
 

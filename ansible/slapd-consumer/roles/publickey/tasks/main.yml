@@ -6,6 +6,13 @@
     src: openssh-lpk.ldif
     dest: "{{ ldap_dir }}/schema/"
 
+- name: check if openssh-lpk schema is enabled
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=schema,cn=config' dn | \
+    grep -e 'cn={\w*}openssh-lpk,cn=schema,cn=config' | wc -l
+  register: res
+
 - name: add schema (RedHat)
   ansible.builtin.shell: |
     ldapadd -Q -Y EXTERNAL -H ldapi:/// \
@@ -13,8 +20,7 @@
   loop:
     - openssh-lpk
   when: |-
-    ansible_facts['os_family'] == "RedHat"
-  ignore_errors: true
+    ansible_facts['os_family'] == "RedHat" and res.stdout == "0"
 
 - name: change ldap access
   ansible.builtin.shell: |
@@ -28,6 +34,7 @@
     add: olcAccess
     olcAccess: {1}to *  by self read  by dn.base={{ masterdn }} write  by * read
     EOF
+  ignore_errors: true
 
 - name: copy openssh-lpk.schema
   ansible.builtin.template:
