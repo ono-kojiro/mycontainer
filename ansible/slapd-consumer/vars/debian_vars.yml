@@ -5,10 +5,10 @@ cert_group: ssl-cert
 # for Debian
 ldap_user:  openldap
 ldap_group: openldap
+ldap_dir: /etc/ldap
 ldap_config_dir: /etc/ldap/slapd.d
 ldap_config_dn: "olcDatabase={1}mdb,cn=config"
 
 olc_database: "olcDatabase={1}mdb,cn=config"
-ldap_dir: /etc/ldap
 tls_cacert_path: "/etc/ssl/certs/ca-certificates.crt"
 

@@ -1,0 +1,15 @@
+---
+- import_tasks: common.yml
+
+- name: change BASE in ldap.conf
+  ansible.builtin.replace:
+    path: "{{ ldap_dir }}/ldap.conf"
+    regexp: '^(#)?BASE\s+(.*)$'
+    replace: 'BASE   dc=example,dc=com'
+
+- name: change URI in ldap.conf
+  ansible.builtin.replace:
+    path: "{{ ldap_dir }}/ldap.conf"
+    regexp: '^(#)?URI\s+(.*)$'
+    replace: 'URI   ldap://127.0.0.1'
+

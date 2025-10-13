@@ -1,0 +1,10 @@
+---
+ansible_host: rocky
+ansible_become: true
+
+consumer_addr: 172.16.1.69
+ldap_uri: ldaps://{{ consumer_addr }}
+
+server_crt: rocky.crt
+server_key: rocky.key
+

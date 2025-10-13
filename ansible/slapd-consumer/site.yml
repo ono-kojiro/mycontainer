@@ -1,5 +1,5 @@
 - name: setup slapd consumer (slave)
-  hosts: ubuntu
+  hosts: rocky
 
   roles:
     - role: cacert
@@ -25,4 +25,10 @@
     
     - role: syncrepl
       tags: syncrepl
+
+    - role: sssd_local
+      tags: sssd_local
+
+    - role: ldapsearch_local
+      tags: ldapsearch_local
 

@@ -1,12 +1,12 @@
 ---
-ansible_host: ubuntu
+ansible_host: noble
 ansible_become: true
 
 consumer_addr: 127.0.0.1
 ldap_uri: ldaps://{{ consumer_addr }}
 
-server_crt: ubuntu.crt
-server_key: ubuntu.key
+server_crt: solomon.crt
+server_key: solomon.key
 
 tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
 

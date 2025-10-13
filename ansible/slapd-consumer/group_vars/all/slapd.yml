@@ -3,7 +3,6 @@ ldap_suffix: dc=example,dc=com
 masterdn: cn=Manager,{{ ldap_suffix }}
 masterpw: secret
 
-#ldap_uri:    ldaps://{{ consumer_addr }}
 ldap_tls_reqcert: never
 authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 
