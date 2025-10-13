@@ -1,10 +1,14 @@
 - name: setup sssd-ldap
-  hosts: redhat
+  hosts: noble
 
   roles:
     - role: sssd
       tags: sssd
-    
+
     - role: sudo
       tags: sudo
+    
+    - role: ldapsearch
+      tags: ldapsearch
+    
     
