@@ -22,19 +22,47 @@
   when: |-
     ansible_facts['os_family'] == "RedHat" and res.stdout == "0"
 
-- name: change ldap access
+- name: check if userpassword access is defined
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'olcDatabase={-1}frontend,cn=config' -o ldif-wrap=no olcAccess | \
+    sed -e 's/^olcAccess: {.*}to /to /g' | \
+    grep -F '{{ olc_access_userpw }}' | \
+    wc -l
+  register: res
+  tags: debug
+
+- name: change ldap access for userPassword
   ansible.builtin.shell: |
     cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
     dn: olcDatabase={-1}frontend,cn=config
     changetype: modify
     add: olcAccess
-    olcAccess: {0}to attrs=userPassword,givenName,sn,photo
-      by self write  by anonymous auth  by dn.base={{ masterdn }} write  by * none
-    -
-    add: olcAccess
-    olcAccess: {1}to *  by self read  by dn.base={{ masterdn }} write  by * read
+    olcAccess: {0}{{ olc_access_userpw }}
     EOF
-  ignore_errors: true
+  when: res.stdout == "0"
+  tags: debug
+
+- name: check if any-access is defined
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'olcDatabase={-1}frontend,cn=config' -o ldif-wrap=no olcAccess | \
+    sed -e 's/^olcAccess: {.*}to /to /g' | \
+    grep -F '{{ olc_access_any }}' | \
+    wc -l
+  register: res
+  tags: debug
+
+- name: change ldap any-access
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={-1}frontend,cn=config
+    changetype: modify
+    add: olcAccess
+    olcAccess: {1}{{ olc_access_any }}
+    EOF
+  when: res.stdout == "0"
+  tags: debug
 
 - name: copy openssh-lpk.schema
   ansible.builtin.template:
