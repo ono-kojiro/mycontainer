@@ -1,0 +1,46 @@
+---
+- name: create multiline log directory
+  ansible.builtin.file:
+    path: /var/log/mymultiline
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: add configuration in filebeat.yml
+  ansible.builtin.blockinfile:
+    path: /etc/filebeat/filebeat.yml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR MULTILINE"
+    block: |
+      - type: filestream
+        id: mymultiline
+        enabled: true
+        paths:
+        - /var/log/mymultiline/*.log
+        processors:
+        - add_fields:
+            target: '@metadata'
+            fields:
+              filebeat_id: mymultiline
+        prospector.scanner.fingerprint:
+          length: 64   # Read 64 byte for fingerprint
+          offset: 0    # Skip first 0 bytes
+        parsers:
+        - multiline:
+            type: pattern
+            pattern: '^\['
+            negate: true
+            match: after
+
+    insertafter: "filebeat.inputs:"
+
+- name: upload sample log
+  ansible.builtin.copy :
+    src: multiline.log
+    dest: /var/log/mymultiline/
+
+- name: restart filebeat
+  ansible.builtin.systemd_service:
+    name: filebeat
+    state: restarted
+

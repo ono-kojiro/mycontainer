@@ -14,4 +14,7 @@
     
     - role: example
       tags: example, never
+    
+    - role: multiline
+      tags: multiline, never
 
