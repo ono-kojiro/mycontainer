@@ -1,0 +1,12 @@
+---
+ansible_host: xubuntu
+ansible_become: true
+
+consumer_addr: 127.0.0.1
+ldap_uri: ldaps://{{ consumer_addr }}
+
+server_crt: xubuntu.crt
+server_key: xubuntu.key
+
+tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
+

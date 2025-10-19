@@ -1,5 +1,5 @@
 - name: setup sssd-ldap
-  hosts: noble
+  hosts: xubuntu
 
   roles:
     - role: sssd
