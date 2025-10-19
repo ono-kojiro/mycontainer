@@ -1,0 +1,4 @@
+---
+ansible_host: xubuntu
+ansible_become: true
+
