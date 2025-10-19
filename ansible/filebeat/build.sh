@@ -177,7 +177,6 @@ destroy()
 default()
 {
   tag=$1
-  echo "tag: ${tag}"
   ansible-playbook $flags -i hosts.yml -t ${tag} site.yml
 }
 

@@ -17,7 +17,7 @@ def gen_random_string():
 def main():
     num = 100
         
-    print('id, name, value')
+    print('id, key, value')
 
     for i in range(0, num):
         dt = datetime.now()
@@ -25,7 +25,7 @@ def main():
     
         val1 = gen_random_string()
         val2 = gen_random_string()
-        print('{0}, csv:{1}, csv:{2}'.format(i, val1, val2))
+        print('{0}, key:{1}, value:{2}'.format(i, val1, val2))
 
 if __name__ == '__main__' :
     main()
