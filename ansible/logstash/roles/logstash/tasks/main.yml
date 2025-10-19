@@ -69,21 +69,21 @@
     group: logstash
     mode: '0644'
 
-- name: upload server cert
-  ansible.builtin.copy:
-    src: logstash.crt
-    dest: /etc/logstash/certs
-    owner: logstash
-    group: logstash
-    mode: '0644'
+#- name: upload server cert
+#  ansible.builtin.copy:
+#    src: logstash.crt
+#    dest: /etc/logstash/certs
+#    owner: logstash
+#    group: logstash
+#    mode: '0644'
 
-- name: upload server key
-  ansible.builtin.copy:
-    src: logstash.key
-    dest: /etc/logstash/certs
-    owner: logstash
-    group: logstash
-    mode: '0600'
+#- name: upload server key
+#  ansible.builtin.copy:
+#    src: logstash.key
+#    dest: /etc/logstash/certs
+#    owner: logstash
+#    group: logstash
+#    mode: '0600'
 
 - name: restart logstash
   ansible.builtin.systemd_service:

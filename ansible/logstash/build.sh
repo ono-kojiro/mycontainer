@@ -29,7 +29,7 @@ usage : $0 [options] target1 target2 ...
   useradd: add logstash_internal user in elasticsearch
 
   reset:   reset password of logstash_internal in elasticsearch
-  logstash: deploy logstash
+  deploy:  deploy logstash
 
   roledel: delete logstash_writer role
   useradd: delete logstash_internal user
@@ -67,7 +67,7 @@ api_key_name: ${api_key_name}
 api_key:      ${api_key}
 EOF
 
-  rm -f logstash.json
+  #rm -f logstash.json
 }
 
 deletekey()
@@ -168,7 +168,7 @@ test()
   netrc="./.netrc"
   machine=`cat $netrc | grep -e '^machine' | awk '{ print $2 }'`
   #cmd="curl -k --netrc-file $netrc https://${machine}:9200"
-  flags=""
+  flags="-k"
   flags="$flags --netrc-file $netrc"
   flags="$flags --cacert /usr/share/ca-certificates/mylocalca/mylocalca.crt"
   cmd="curl $flags https://${machine}:9200"

@@ -1,2 +1,4 @@
 logstash_password.yml
+keystore_pass.yml
+api_key.yml
 
