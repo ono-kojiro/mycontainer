@@ -10,6 +10,8 @@
       tags: certs, never
 
     - role: filebeat
-      tags: filebeat, never
-
+      tags: filebeat
     
+    - role: example
+      tags: example, never
+
