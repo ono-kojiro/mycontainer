@@ -8,4 +8,6 @@
   roles:
   - role: elasticsearch
     tags: elasticsearch
-    
+
+  - role: reset
+    tags: reset

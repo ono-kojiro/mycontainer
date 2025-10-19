@@ -1,0 +1,18 @@
+---
+- name: reset password of elastic
+  ansible.builtin.shell: |
+    user="elastic"
+    chpass="/usr/share/elasticsearch/bin/elasticsearch-reset-password"
+    pass=`$chpass -u $user --silent --batch`
+    addr={{ ansible_facts.default_ipv4.address }}
+    rm -f /tmp/.netrc
+    echo "machine  $addr" >> /tmp/.netrc
+    echo "login    $user" >> /tmp/.netrc
+    echo "password $pass" >> /tmp/.netrc
+
+- name: fetch netrc
+  ansible.builtin.fetch:
+    src: /tmp/.netrc
+    dest: "{{ playbook_dir }}/.netrc"
+    flat: yes
+

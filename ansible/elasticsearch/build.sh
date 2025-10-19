@@ -14,6 +14,10 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
+
+  target:
+    deply
+    reset
 EOS
 
 }
@@ -59,6 +63,7 @@ test()
 {
   addr=`cat ./.netrc | grep -e '^machine' | awk '{ print $2 }'`
   curl -k --netrc-file ./.netrc https://${addr}:9200
+  echo ""
 }
 
 hosts
