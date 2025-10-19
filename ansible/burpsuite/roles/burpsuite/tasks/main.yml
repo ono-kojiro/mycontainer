@@ -1,0 +1,38 @@
+---
+- name: create burpsuite group
+  ansible.builtin.group:
+    name: burpsuite
+    state: present
+    system: true
+
+- name: create /var/lib/burpsuite directory
+  ansible.builtin.file:
+    path: /var/lib/burpsuite
+    state: directory
+    owner: burpsuite
+    group: burpsuite
+    mode: '0755'
+
+- name: create burpsuite user
+  ansible.builtin.user:
+    name: burpsuite
+    state: present
+    create_home: yes
+    home:  /var/lib/burpsuite
+    shell: /usr/sbin/nologin
+    group: burpsuite
+
+- name: upload burpsuite.service
+  ansible.builtin.template:
+    src: burpsuite.service
+    dest: /etc/systemd/system/
+
+- name: systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: start burpsuite service
+  ansible.builtin.systemd_service:
+    name: burpsuite
+    state: restarted
+

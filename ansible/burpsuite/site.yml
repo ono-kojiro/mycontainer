@@ -1,0 +1,7 @@
+- name: setup burpsuite service
+  hosts: parrot
+
+  roles:
+    - role: burpsuite
+      tags: burpsuite
+

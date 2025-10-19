@@ -1,0 +1,7 @@
+---
+ansible_host: parrot
+ansible_become: true
+
+java: /usr/share/burpsuite/jre/bin/java
+burpsuite_jar: /usr/share/burpsuite/burpsuite_community.jar
+
