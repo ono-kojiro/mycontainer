@@ -1,0 +1,4 @@
+---
+ansible_host: parrot
+ansible_become: true
+

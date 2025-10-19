@@ -1,0 +1,69 @@
+---
+- name: install git
+  ansible.builtin.apt:
+    name: git
+    state: present
+    update_cache: true
+
+- name: git clone log4j-shell-poc
+  ansible.builtin.shell: |
+    if [ ! -e "log4j-shell-poc" ]; then
+      git clone https://github.com/kozmer/log4j-shell-poc.git
+    else
+      git -C log4j-shell-poc pull
+    fi
+  vars:
+    ansible_become: false
+
+- name: build container
+  ansible.builtin.shell: |
+    cd log4j-shell-poc
+    docker build -t log4j-shell-poc .
+  become: false
+
+#- name: run container
+#  ansible.builtin.shell: |
+#    cd log4j-shell-poc
+#    docker run --network host log4j-shell-poc
+#  become: false
+
+- name: create container
+  ansible.builtin.shell: |
+    docker create --name poc --network host log4j-shell-poc
+  ignore_errors: true
+
+- name: start container
+  ansible.builtin.shell: |
+    docker start poc
+  ignore_errors: true
+
+- name: upload java
+  ansible.builtin.copy:
+    src: OpenJDK8U-jdk_x64_linux_hotspot_8u462b08.tar.gz
+    dest: /tmp/
+
+- name: extract java
+  ansible.builtin.shell: |
+    tar -C /opt/ -xzvf /tmp/OpenJDK8U-jdk_x64_linux_hotspot_8u462b08.tar.gz
+
+- name: upload patch for poc.py
+  ansible.builtin.copy:
+    src: 0001-fix_java_path.patch
+    dest: /tmp/
+  vars:
+    ansible_become: false
+
+- name: apply patch for poc.py
+  ansible.builtin.shell: |
+    cd ~/log4j-shell-poc
+    git checkout -f
+    patch -p0 -i /tmp/0001-fix_java_path.patch
+  vars:
+    ansible_become: false
+  register: res
+
+- name: show result
+  ansible.builtin.debug:
+    msg: "{{ res.stdout_lines }}"
+
+

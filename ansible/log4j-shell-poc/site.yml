@@ -1,0 +1,14 @@
+- name: setup log4j-shell-poc
+  hosts: jammy
+
+#  environment:
+#    http_proxy: http://proxy.example.com:8080
+#    https_proxy: http://proxy.example.com:8080
+
+  roles:
+  - name: docker
+    tags: docker
+
+  - name: poc
+    tags: poc
+
