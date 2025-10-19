@@ -1,0 +1,40 @@
+---
+- name: create csv log directory
+  ansible.builtin.file:
+    path: /var/log/mycsv
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: add configuration in filebeat.yml
+  ansible.builtin.blockinfile:
+    path: /etc/filebeat/filebeat.yml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR CSV"
+    block: |
+      - type: filestream
+        id: mycsv
+        enabled: true
+        paths:
+        - /var/log/mycsv/*.log
+        processors:
+        - add_fields:
+            target: '@metadata'
+            fields:
+              filebeat_id: mycsv
+        prospector.scanner.fingerprint:
+          length: 64   # Read 64 byte for fingerprint
+          offset: 0    # Skip first 0 bytes
+
+    insertafter: "filebeat.inputs:"
+
+- name: upload sample log
+  ansible.builtin.copy :
+    src: csv.log
+    dest: /var/log/mycsv/
+
+- name: restart filebeat
+  ansible.builtin.systemd_service:
+    name: filebeat
+    state: restarted
+

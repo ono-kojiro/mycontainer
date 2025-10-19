@@ -17,4 +17,7 @@
     
     - role: multiline
       tags: multiline, never
+    
+    - role: csv
+      tags: csv, never
 
