@@ -6,3 +6,4 @@ all:
         jammy:
         noble:
         questing:
+        rocky:

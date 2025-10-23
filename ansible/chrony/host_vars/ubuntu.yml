@@ -1,4 +1,6 @@
 ---
-ansible_host: ubuntu
+ansible_host: localhost
 ansible_become: true
+
+chrony_service: chrony
 

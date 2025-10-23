@@ -1,0 +1,7 @@
+---
+ansible_host: rocky
+ansible_become: false
+
+chrony_service: chronyd
+
+

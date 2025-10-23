@@ -1,0 +1,64 @@
+---
+- name: install chrony
+  ansible.builtin.package:
+    name: chrony
+    state: present
+  
+- name: disable default ntpservers (Debian)
+  ansible.builtin.replace:
+    path: /etc/chrony/chrony.conf
+    regexp: '^pool (.+)'
+    replace: '# \1'
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+  
+- name: disable default ntpservers (RedHat)
+  ansible.builtin.replace:
+    path: /etc/chrony.conf
+    regexp: '^pool (.+)'
+    replace: '# \1'
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: check if ubuntu-ntp-pools.sources exists
+  ansible.builtin.stat:
+    path: /etc/chrony/sources.d/ubuntu-ntp-pools.sources
+  register: res
+
+- name: disable ubuntu ntp pools
+  ansible.builtin.replace:
+    path: /etc/chrony/sources.d/ubuntu-ntp-pools.sources
+    regexp: '^pool (.+)'
+    replace: '# \1'
+  when: res.stat.exists
+
+- name: create sources.d
+  ansible.builtin.file:
+    path: /etc/chrony/sources.d
+    state: directory
+
+- name: add sourcedir
+  ansible.builtin.lineinfile:
+    path: /etc/chrony.conf
+    line: 'sourcedir /etc/chrony/sources.d'
+    state: present
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+  
+- name: add local-ntp-server.sources
+  ansible.builtin.lineinfile:
+    path: /etc/chrony/sources.d/local-ntp-server.sources
+    line: 'pool {{ ntpserver }} iburst'
+    state: present
+    create: true
+
+- name: change timezone
+  ansible.builtin.shell: |
+    timedatectl set-timezone Asia/Tokyo
+
+- name: restart chronyd
+  ansible.builtin.systemd_service:
+    name: "{{ chrony_service }}"
+    state: restarted
+
+
