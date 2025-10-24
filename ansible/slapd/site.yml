@@ -1,5 +1,5 @@
 - name: setup slapd
-  hosts: noble
+  hosts: rocky
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -18,4 +18,7 @@
   roles:
     - role: slapd
       tags: slapd
+
+    - role: tls
+      tags: tls
 

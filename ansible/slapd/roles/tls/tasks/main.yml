@@ -1,0 +1,4 @@
+---
+- import_tasks: cacert.yml
+- import_tasks: servercert.yml
+- import_tasks: tls.yml

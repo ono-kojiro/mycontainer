@@ -1,6 +1,6 @@
 ---
 cert_top: /etc/pki/tls
-cert_group: root
+cert_group: ldap
 
 # for RedHat
 ldap_user:  ldap
