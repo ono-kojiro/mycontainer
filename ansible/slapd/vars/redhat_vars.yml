@@ -1,0 +1,16 @@
+---
+cert_top: /etc/pki/tls
+cert_group: root
+
+# for RedHat
+ldap_user:  ldap
+ldap_group: ldap
+
+ldap_dir: /etc/openldap
+sldap_config_dir: "{{ ldap_dir }}/slapd.d"
+ldap_config_dn: "olcDatabase={2}mdb,cn=config"
+cert_dir: /etc/pki/tls
+
+olc_database: "olcDatabase={2}mdb,cn=config"
+tls_cert_path: /usr/share/ca-certificates/mylocalca/mylocalca.crt
+tls_cacert_path: /usr/share/pki/ca-trust-source/ca-bundle.trust.p11-kit
