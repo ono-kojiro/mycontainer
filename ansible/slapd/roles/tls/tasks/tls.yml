@@ -131,5 +131,18 @@
     immediate: true
   when: |-
     ansible_facts['os_family'] == "RedHat"
+
+- name: set LDAP BASE
+  ansible.builtin.replace:
+    path: "{{ ldap_dir }}/ldap.conf"
+    regexp: '^(#)?BASE\s+(.+)'
+    replace: 'BASE {{ ldap_suffix }}'
+  tags: debug
+
+- name: set LDAP URI
+  ansible.builtin.replace:
+    path: "{{ ldap_dir }}/ldap.conf"
+    regexp: '^(#)?URI\s+(.+)'
+    replace: 'URI {{ ldap_uri }}'
   tags: debug
 
