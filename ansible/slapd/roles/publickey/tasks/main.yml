@@ -28,7 +28,6 @@
     grep -F '{{ olc_access_userpw }}' | \
     wc -l
   register: res
-  tags: debug
 
 - name: change ldap access for userPassword
   ansible.builtin.shell: |
@@ -39,7 +38,6 @@
     olcAccess: {0}{{ olc_access_userpw }}
     EOF
   when: res.stdout == "0"
-  tags: debug
 
 - name: check if any-access is defined
   ansible.builtin.shell: |
@@ -49,7 +47,6 @@
     grep -F '{{ olc_access_any }}' | \
     wc -l
   register: res
-  tags: debug
 
 - name: change ldap any-access
   ansible.builtin.shell: |
@@ -60,7 +57,6 @@
     olcAccess: {1}{{ olc_access_any }}
     EOF
   when: res.stdout == "0"
-  tags: debug
 
 - name: copy openssh-lpk.schema
   ansible.builtin.template:

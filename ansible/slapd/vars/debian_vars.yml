@@ -3,6 +3,9 @@ cert_top: /etc/ssl
 cert_group: ssl-cert
 
 # for Debian
+
+sysconfdir: /etc
+
 ldap_user:  openldap
 ldap_group: openldap
 ldap_dir: /etc/ldap

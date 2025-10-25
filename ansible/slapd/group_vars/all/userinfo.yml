@@ -1,6 +1,1 @@
 ---
-admin_group: ldapwheel
-
-# sssd.conf
-allow_groups: ldapusers
-

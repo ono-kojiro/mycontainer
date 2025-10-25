@@ -1,0 +1,5 @@
+---
+sssd_ldap_uri: ldap://127.0.0.1
+sssd_ldap_tls_reqcert: try
+sssd_allow_groups: ldapusers
+

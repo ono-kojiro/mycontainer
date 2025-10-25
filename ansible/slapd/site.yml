@@ -31,3 +31,6 @@
     - role: consumer
       tags: consumer
 
+    - role: sssd
+      tags: sssd
+
