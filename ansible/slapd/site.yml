@@ -16,6 +16,9 @@
     tags: always
 
   roles:
+    - role: cacert
+      tags: cacert
+
     - role: slapd
       tags: slapd
 

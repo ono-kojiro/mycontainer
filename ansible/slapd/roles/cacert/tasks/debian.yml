@@ -1,0 +1,13 @@
+---
+- name: copy cacert
+  ansible.builtin.copy:
+    src: "{{ cacert }}"
+    dest: /usr/local/share/ca-certificates/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: update ca certificates (Debian)
+  ansible.builtin.shell: |
+    update-ca-certificates
+
