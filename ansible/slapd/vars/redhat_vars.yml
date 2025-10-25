@@ -12,5 +12,5 @@ ldap_config_dn: "olcDatabase={2}mdb,cn=config"
 cert_dir: /etc/pki/tls
 
 olc_database: "olcDatabase={2}mdb,cn=config"
-tls_cert_path: /usr/share/ca-certificates/mylocalca/mylocalca.crt
-tls_cacert_path: /usr/share/pki/ca-trust-source/ca-bundle.trust.p11-kit
+tls_cacert_path: /etc/pki/tls/certs/ca-bundle.crt
+

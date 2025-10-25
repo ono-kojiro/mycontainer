@@ -1,2 +1,3 @@
 ---
+syncrepl_tls_reqcert: try
 

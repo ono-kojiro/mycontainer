@@ -1,0 +1,84 @@
+---
+- name: upload openssh-lpk.ldif
+  ansible.builtin.copy:
+    src: openssh-lpk.ldif
+    dest: "{{ ldap_dir }}/schema/"
+
+- name: check if openssh-lpk schema is enabled
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'cn=schema,cn=config' dn | \
+    grep -e 'cn={\w*}openssh-lpk,cn=schema,cn=config' | wc -l
+  register: res
+
+- name: add schema (RedHat)
+  ansible.builtin.shell: |
+    ldapadd -Q -Y EXTERNAL -H ldapi:/// \
+      -f "{{ ldap_dir }}/schema/{{ item }}.ldif"
+  loop:
+    - openssh-lpk
+  when: |-
+    ansible_facts['os_family'] == "RedHat" and res.stdout == "0"
+
+- name: check if userpassword access is defined
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'olcDatabase={-1}frontend,cn=config' -o ldif-wrap=no olcAccess | \
+    sed -e 's/^olcAccess: {.*}to /to /g' | \
+    grep -F '{{ olc_access_userpw }}' | \
+    wc -l
+  register: res
+  tags: debug
+
+- name: change ldap access for userPassword
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={-1}frontend,cn=config
+    changetype: modify
+    add: olcAccess
+    olcAccess: {0}{{ olc_access_userpw }}
+    EOF
+  when: res.stdout == "0"
+  tags: debug
+
+- name: check if any-access is defined
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'olcDatabase={-1}frontend,cn=config' -o ldif-wrap=no olcAccess | \
+    sed -e 's/^olcAccess: {.*}to /to /g' | \
+    grep -F '{{ olc_access_any }}' | \
+    wc -l
+  register: res
+  tags: debug
+
+- name: change ldap any-access
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={-1}frontend,cn=config
+    changetype: modify
+    add: olcAccess
+    olcAccess: {1}{{ olc_access_any }}
+    EOF
+  when: res.stdout == "0"
+  tags: debug
+
+- name: copy openssh-lpk.schema
+  ansible.builtin.template:
+    src: openssh-lpk.schema
+    dest: /etc/ldap/schema/
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: import openssh-lpk.schema
+  ansible.builtin.shell:
+    ldap-schema-manager -i /etc/ldap/schema/openssh-lpk.schema
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
+- name: restart slapd.service for openssh-lpk
+  ansible.builtin.systemd:
+    name: slapd
+    state: restarted
+    enabled: true
+    daemon_reload: true
+

@@ -1,0 +1,51 @@
+---
+- name: check if olcSyncrepl exists
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" \
+      "objectClass=olcMdbConfig" olcSyncrepl | \
+    grep -e '^olcSyncrepl:' | wc -l
+  register: res
+
+- name: delete olcSyncrepl
+  ansible.builtin.shell: |
+    # ex. dn: olcDatabase={2}mdb,cn=config
+    dn=`ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" "(objectClass=olcMdbConfig)" dn`
+
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    $dn
+    changetype: modify
+    delete: olcSyncrepl
+    EOF
+  when: res.stdout != "0"
+
+- name: enable sync
+  ansible.builtin.shell: |
+    dn=`ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b "cn=config" "(objectClass=olcMdbConfig)" dn`
+
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    $dn
+    changetype: modify
+    add: olcSyncrepl
+    olcSyncRepl: rid=123
+      provider={{ ldap_provider_uri }}
+      tls_cacert="{{ tls_cacert_path }}"
+      tls_reqcert="{{ syncrepl_tls_reqcert }}"
+      bindmethod=simple
+      binddn={{ masterdn }}
+      credentials={{ masterpw }}
+      searchbase={{ ldap_suffix }}
+      scope=sub
+      schemachecking=on
+      type=refreshAndPersist
+      retry="30 5 300 3"
+      interval=00:00:05:00
+    EOF
+
+- name: restart slapd
+  ansible.builtin.systemd_service:
+    name: slapd
+    state: restarted
+
