@@ -1,0 +1,4 @@
+---
+cacert: mylocalca.crt
+caname: MyLocalCA
+

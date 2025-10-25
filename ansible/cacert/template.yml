@@ -3,3 +3,4 @@ all:
     servers:
       hosts:
         noble:
+        rocky:

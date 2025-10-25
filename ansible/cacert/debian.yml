@@ -1,0 +1,30 @@
+---
+- name: copy cacert
+  ansible.builtin.copy:
+    src: "{{ cacert }}"
+    dest: /usr/local/share/ca-certificates/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: update ca certificates (Debian)
+  ansible.builtin.shell: |
+    update-ca-certificates
+
+- name: upload dump_cacerts.py
+  ansible.builtin.copy:
+    src: dump_cacerts.py
+    dest: /tmp/
+
+- name: check ca cert
+  ansible.builtin.shell: |
+    cat /etc/ssl/certs/ca-certificates.crt | \
+      python3 /tmp/dump_cacerts.py | grep '{{ caname }}'
+
+- name: remove dump_cacerts.py
+  ansible.builtin.file:
+    path: /tmp/dump_cacerts.py
+    state: absent
+
+
+
