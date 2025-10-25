@@ -137,12 +137,16 @@
     path: "{{ ldap_dir }}/ldap.conf"
     regexp: '^(#)?BASE\s+(.+)'
     replace: 'BASE {{ ldap_suffix }}'
-  tags: debug
 
 - name: set LDAP URI
   ansible.builtin.replace:
     path: "{{ ldap_dir }}/ldap.conf"
     regexp: '^(#)?URI\s+(.+)'
     replace: 'URI {{ ldap_uri }}'
-  tags: debug
+
+- name: set TLS_REQCERT
+  ansible.builtin.lineinfile:
+    path: "{{ ldap_dir }}/ldap.conf"
+    regexp: '^TLS_REQCERT '
+    line:    'TLS_REQCERT {{ ldap_tls_reqcert }}'
 

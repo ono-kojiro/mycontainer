@@ -6,9 +6,11 @@
   when: |-
     ansible_facts['os_family'] == "Debian"
 
-- name: remove /var/log/slapd.log
+- name: remove slapd.log
   ansible.builtin.file:
-    path: /var/log/slapd.log
+    path:
+    - /var/log/slapd.log
+    - /var/log/slapd/slapd.log
     state: absent
 
 - name: install slapd packages (Debian)
@@ -95,10 +97,15 @@
     name: rsyslog
     state: present
 
+- name: create /var/log/slapd directory
+  ansible.builtin.file:
+    path: /var/log/slapd
+    state: directory
+    
 - name: create /etc/rsyslog.d/60-slapd.conf for slapd.log
   ansible.builtin.lineinfile:
     path: /etc/rsyslog.d/60-slapd.conf
-    line: 'local4.*   /var/log/slapd.log'
+    line: 'local4.*   /var/log/slapd/slapd.log'
     create: yes
 
 - name: restart rsyslog
