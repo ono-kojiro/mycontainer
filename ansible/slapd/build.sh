@@ -42,6 +42,12 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
+debug()
+{
+  ansible-playbook $flags -i hosts.yml debug.yml
+}
+
+
 hosts
 
 args=""

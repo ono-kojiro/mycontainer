@@ -1,0 +1,10 @@
+---
+ansible_host: freebsd
+ansible_become: false
+
+consumer_addr: 172.16.1.14
+ldap_uri: ldaps://{{ consumer_addr }}
+
+server_crt: freebsd.crt
+server_key: freebsd.key
+

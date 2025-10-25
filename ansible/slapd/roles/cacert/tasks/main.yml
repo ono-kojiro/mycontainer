@@ -5,4 +5,5 @@
   loop:
     - { file: "redhat.yml", os_family: "RedHat" }
     - { file: "debian.yml", os_family: "Debian" }
+    - { file: "freebsd.yml", os_family: "FreeBSD" }
 

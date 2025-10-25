@@ -1,0 +1,13 @@
+---
+- name: copy cacert
+  ansible.builtin.copy:
+    src: "{{ cacert }}"
+    dest: /usr/share/certs/trusted/
+    owner: root
+    group: wheel
+    mode: '0444'
+
+- name: combine certificates into a single file
+  ansible.builtin.shell: |
+    cat /usr/share/certs/trusted/* > {{ cert_dir }}/certs/ca-bundle.crt
+

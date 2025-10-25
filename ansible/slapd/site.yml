@@ -1,5 +1,5 @@
 - name: setup slapd
-  hosts: rocky
+  hosts: freebsd
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -13,6 +13,7 @@
     loop:
       - { file: "redhat_vars.yml", os_family: "RedHat" }
       - { file: "debian_vars.yml", os_family: "Debian" }
+      - { file: "freebsd_vars.yml", os_family: "FreeBSD" }
     tags: always
 
   roles:

@@ -14,7 +14,7 @@
     state: absent
 
 - name: install slapd packages (Debian)
-  apt:
+  ansible.builtin.apt:
     name:
       - slapd
       - ldap-utils
@@ -41,12 +41,108 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
-- name: restart slapd
+- name: install slapd packages (FreeBSD)
+  ansible.builtin.package:
+    name:
+      - openldap26-server
+      - openldap26-client
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: restart slapd (Linux)
   ansible.builtin.systemd_service:
     name: slapd
     state: restarted
     enabled: true
     daemon_reload: true
+  when: |-
+    ansible_facts["service_mgr"] == "systemd"
+
+- name: enable slapd (FreeBSD)
+  community.general.sysrc:
+    name: slapd_enable
+    value: "YES"
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: enable slapd_cn_config (FreeBSD)
+  community.general.sysrc:
+    name: slapd_cn_config
+    value: "YES"
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: add slapd flags (FreeBSD)
+  ansible.builtin.lineinfile:
+    path: /etc/rc.conf
+    regexp: '^slapd_flags=(.*)'
+    line: "slapd_flags='-h \"ldapi:/// ldaps:/// ldap:///\" -F /usr/local/etc/openldap/slapd.d'"
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: add slapd sockets (FreeBSD)
+  community.general.sysrc:
+    name: slapd_sockets
+    value: "/var/run/openldap/ldapi"
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: copy slapd.conf to remote host (FreeBSD)
+  ansible.builtin.template:
+    src: slapd.conf.freebsd
+    dest: /usr/local/etc/openldap/slapd.conf
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: remove slapd.d directory (FreeBSD)
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/slapd.d
+    state: absent
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: create slapd.d directory (FreeBSD)
+  ansible.builtin.file:
+    path: /usr/local/etc/openldap/slapd.d
+    state: directory
+    owner: ldap
+    group: ldap
+    mode: '0755'
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: download openssh-lpk.schema (FreeBSD)
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/jirutka/ssh-ldap-pubkey/master/etc/openssh-lpk.schema
+    dest: /usr/local/etc/openldap/schema/
+    mode: '0644'
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: download rfc2307bis.schema (FreeBSD)
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/jtyr/rfc2307bis/master/rfc2307bis.schema
+    dest: /usr/local/etc/openldap/schema/
+    mode: '0644'
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: create slapd.d template
+  ansible.builtin.shell: |
+    slaptest \
+      -f /usr/local/etc/openldap/slapd.conf \
+      -F /usr/local/etc/openldap/slapd.d
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: restart slapd (FreeBSD)
+  ansible.builtin.service:
+    name: slapd
+    state: restarted
+  when: |-
+    ansible_facts["service_mgr"] == "bsdinit"
+
+# /usr/local/etc/rc.d/slapd start
 
 - name: change ldap loglevel
   ansible.builtin.shell: |
@@ -85,12 +181,22 @@
     olcRootPW: ${rootpw}
     EOF
 
-- name: restart slapd
+- name: restart slapd (systemd)
   ansible.builtin.systemd_service:
     name: slapd
     state: restarted
     enabled: true
     daemon_reload: true
+  when: |-
+    ansible_facts["service_mgr"] == "systemd"
+
+- name: restart slapd (bsdinit)
+  ansible.builtin.service:
+    name: slapd
+    state: restarted
+  when: |-
+    ansible_facts["service_mgr"] == "bsdinit"
+
 
 - name: install rsyslog
   ansible.builtin.package:
@@ -113,4 +219,21 @@
     name: rsyslog
     state: restarted
     daemon_reload: true
+  when: |-
+    ansible_facts["service_mgr"] == "systemd"
+
+- name: enable rsyslog (FreeBSD)
+  community.general.sysrc:
+    name: rsyslogd_enable
+    value: "YES"
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
+
+- name: restart rsyslog (bsdinit)
+  ansible.builtin.service:
+    name: rsyslogd
+    state: restarted
+  when: |-
+    ansible_facts["service_mgr"] == "bsdinit"
+
 

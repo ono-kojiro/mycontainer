@@ -4,4 +4,5 @@ all:
       hosts:
         rocky:
         noble:
+        freebsd:
 
