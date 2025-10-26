@@ -51,18 +51,18 @@
   
 - name: check if sssd is running
   ansible.builtin.systemd:
-    state: started
     name:  sssd
+    state: started
   ignore_errors: true
   when: |-
-    ansible_facts["service_mgr"] == "systemd"
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: copy sssd.conf
   ansible.builtin.template:
     src: sssd.conf
     dest: "{{ sysconfdir }}/sssd/sssd.conf"
-    owner: root
-    group: root
+    owner: "{{ sssd_owner }}"
+    group: "{{ sssd_group }}"
     mode: '0600'
 
 - name: enable sss_ssh_authorizedkeys
@@ -90,8 +90,9 @@
     name: sssd
     enabled: yes
     masked: no
+    daemon_reload: yes
   when: |-
-    ansible_facts["service_mgr"] == "systemd"
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: enable sssd (Freebsd)
   community.general.sysrc:
@@ -101,20 +102,10 @@
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
 
-- name: restart sssd for Linux
-  ansible.builtin.systemd:
-    name: sssd
-    state: restarted
-    daemon_reload: yes
-  when: |-
-    ansible_facts["service_mgr"] == "systemd"
-
-- name: restart sssd for FreeBSD
+- name: restart sssd
   ansible.builtin.service:
     name: sssd
     state: restarted
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
 
 - name: restart oddjobd
   ansible.builtin.systemd:
@@ -124,21 +115,13 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
-- name: restart sshd for RedHat
+- name: restart sshd (systemd)
   ansible.builtin.systemd:
     name: sshd
     state: restarted
     daemon_reload: yes
   when: |-
-    ansible_facts['os_family'] == "RedHat"
-
-- name: restart sshd for Debian
-  ansible.builtin.systemd:
-    name: ssh
-    state: restarted
-    daemon_reload: yes
-  when: |-
-    ansible_facts['os_family'] == "Debian"
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: restart sshd (FreeBSD)
   ansible.builtin.service:

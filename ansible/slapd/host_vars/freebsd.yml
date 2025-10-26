@@ -2,9 +2,12 @@
 ansible_host: freebsd
 ansible_become: false
 
+authorizedkeyscommand: /usr/local/bin/sss_ssh_authorizedkeys
+
 consumer_addr: 172.16.1.14
 ldap_uri: ldaps://{{ consumer_addr }}
 
 server_crt: freebsd.crt
 server_key: freebsd.key
 
+sssd_group: wheel
