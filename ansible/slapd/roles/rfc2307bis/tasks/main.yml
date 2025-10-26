@@ -181,8 +181,6 @@
   ignore_errors: true
 
 - name: restart slapd for memberOf
-  ansible.builtin.systemd:
+  ansible.builtin.service:
     name: slapd
     state: restarted
-    enabled: true
-    daemon_reload: true
