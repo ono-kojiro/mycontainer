@@ -4,6 +4,7 @@ top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
 flags=""
+name=""
 
 help()
 {
@@ -47,6 +48,31 @@ debug()
   ansible-playbook $flags -i hosts.yml debug.yml
 }
 
+_get_latest_snapshot()
+{
+  name="$1"
+  snap=`virsh snapshot-list "$name" | \
+          grep -e '^ ' | \
+          tail -n 1 | \
+          awk '{ print $1 }'`
+  echo $snap
+}
+
+revert()
+{
+  if [ -z "$name" ]; then
+    echo "ERROR: no name option"
+    exit 1
+  fi
+
+  snap=`_get_latest_snapshot $name`
+  if [ -z "$snap" ]; then
+    echo "ERROR: no snapshot for $name"
+    exit 1
+  fi
+
+  virsh snapshot-revert $name $snap
+}
 
 hosts
 
@@ -59,6 +85,10 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -n | --name)
+      shift
+      name="$1"
       ;;
 	-* )
 	  flags="$flags $1"

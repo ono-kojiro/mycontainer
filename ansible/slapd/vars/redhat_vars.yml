@@ -16,3 +16,4 @@ cert_dir: /etc/pki/tls
 olc_database: "olcDatabase={2}mdb,cn=config"
 tls_cacert_path: /etc/pki/tls/certs/ca-bundle.crt
 
+

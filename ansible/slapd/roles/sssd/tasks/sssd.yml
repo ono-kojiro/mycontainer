@@ -2,7 +2,7 @@
 - name: enable epel-release (OracleLinux)
   ansible.builtin.dnf:
     name:
-      - oracle-epel-release-el9
+      - "{{ epel_package }}"
     state: present
   when: ansible_facts['distribution'] == "OracleLinux"
 
@@ -23,7 +23,8 @@
       - sssd-tools
       - authselect
       - oddjob-mkhomedir
-  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 
 - name: install sssd (FreeBSD)
   ansible.builtin.package:
@@ -53,10 +54,8 @@
     state: started
     name:  sssd
   ignore_errors: true
-  when: |- 
-    ansible_facts['os_family'] == "RedHat" or 
-    ansible_facts['os_family'] == "Rocky" or 
-    ansible_facts['os_family'] == "Debian"
+  when: |-
+    ansible_facts["service_mgr"] == "systemd"
 
 - name: copy sssd.conf
   ansible.builtin.template:
@@ -65,7 +64,6 @@
     owner: root
     group: root
     mode: '0600'
-  tags: debug
 
 - name: enable sss_ssh_authorizedkeys
   ansible.builtin.lineinfile:
@@ -93,9 +91,7 @@
     enabled: yes
     masked: no
   when: |-
-    ansible_facts['os_family'] == "RedHat" or
-    ansible_facts['os_family'] == "Debian" or
-    ansible_facts['os_family'] == "Rocky"
+    ansible_facts["service_mgr"] == "systemd"
 
 - name: enable sssd (Freebsd)
   community.general.sysrc:
@@ -111,9 +107,7 @@
     state: restarted
     daemon_reload: yes
   when: |-
-    ansible_facts['os_family'] == "RedHat" or 
-    ansible_facts['os_family'] == "Debian" or 
-    ansible_facts['os_family'] == "Rocky"
+    ansible_facts["service_mgr"] == "systemd"
 
 - name: restart sssd for FreeBSD
   ansible.builtin.service:
@@ -127,7 +121,8 @@
     name: oddjobd
     state: restarted
     daemon_reload: yes
-  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 
 - name: restart sshd for RedHat
   ansible.builtin.systemd:
@@ -135,8 +130,7 @@
     state: restarted
     daemon_reload: yes
   when: |-
-    ansible_facts['os_family'] == "RedHat" or
-    ansible_facts['os_family'] == "Rocky"
+    ansible_facts['os_family'] == "RedHat"
 
 - name: restart sshd for Debian
   ansible.builtin.systemd:
@@ -162,7 +156,8 @@
   ansible.builtin.shell: |
     authselect select sssd with-sudo with-mkhomedir --force
     systemctl enable --now oddjobd.service
-  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 
 - name: add sss for nsswitch group (FreeBSD)
   ansible.builtin.replace:

@@ -13,4 +13,6 @@ olc_access_userpw: 'to attrs=userPassword,givenName,sn,photo by self write  by a
 
 olc_access_any: 'to *  by self read  by dn.base={{ masterdn }} write  by * read'
 
+# default epel package name
+epel_package: epel-release
 
