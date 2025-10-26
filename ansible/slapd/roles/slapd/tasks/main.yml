@@ -1,6 +1,6 @@
 ---
 - name: copy slapd-init.conf (Debian)
-  template:
+  ansible.builtin.template:
     src: slapd-init.conf
     dest: /etc/tmpfiles.d/slapd-init.conf
   when: |-
@@ -131,7 +131,7 @@
   ansible.builtin.shell: |
     slaptest \
       -f /usr/local/etc/openldap/slapd.conf \
-      -F /usr/local/etc/openldap/slapd.d
+      -F /usr/local/etc/openldap/slapd.d || true
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
 

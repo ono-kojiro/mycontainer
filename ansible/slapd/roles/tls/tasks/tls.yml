@@ -12,6 +12,8 @@
     name: slapd
     state: restarted
     daemon_reload: true
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
 - name: check if olcTLSCertificateKeyFile exists
   ansible.builtin.shell: |
@@ -79,7 +81,7 @@
     EOF
   when: res.stdout != "0"
 
-- name: add server cert and key AT THE SAME TIME (Debian)
+- name: add server cert and key AT THE SAME TIME (Debian and FreeBSD)
   ansible.builtin.shell: |
     cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
     dn: cn=config
@@ -91,7 +93,8 @@
     olcTLSCertificateKeyFile: {{ cert_top }}/private/{{ server_key }}
     EOF
   when: |-
-    ansible_facts['os_family'] == "Debian"
+    ansible_facts['os_family'] == "Debian" or
+    ansible_facts['os_family'] == "FreeBSD"
 
 - name: add server cert and key AT THE SAME TIME (RedHat)
   ansible.builtin.shell: |
@@ -111,17 +114,23 @@
   ansible.builtin.file:
     path: /etc/systemd/system/slapd.service.d
     state: directory
+  when: |-
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: copy override.conf
   ansible.builtin.template:
     src: override.conf
     dest: /etc/systemd/system/slapd.service.d/override.conf
+  when: |-
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: restart slapd for TLS
   ansible.builtin.systemd_service:
     name: slapd
     state: restarted
     daemon_reload: true
+  when: |-
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: open ldaps port (RedHat)
   ansible.posix.firewalld:
@@ -143,6 +152,12 @@
     path: "{{ ldap_dir }}/ldap.conf"
     regexp: '^(#)?URI\s+(.+)'
     replace: 'URI {{ ldap_uri }}'
+
+- name: set TLS_CACERT
+  ansible.builtin.lineinfile:
+    path: "{{ ldap_dir }}/ldap.conf"
+    regexp: '^(#)?TLS_CACERT\s+(.+)'
+    line: 'TLS_CACERT {{ tls_cacert_path }}'
 
 - name: set TLS_REQCERT
   ansible.builtin.lineinfile:

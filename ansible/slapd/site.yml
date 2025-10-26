@@ -2,8 +2,8 @@
   hosts:
     #- noble 
     #- rocky
-    - oracle
-    #- freebsd
+    #- oracle
+    - freebsd
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -27,8 +27,7 @@
     - role: slapd
       tags: slapd
 
-    - role: tls
-      tags: tls
+    - { role: tls, tags: tls }
 
     - role: rfc2307bis
       tags: rfc2307bis
