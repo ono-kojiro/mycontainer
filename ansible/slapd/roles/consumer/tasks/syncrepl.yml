@@ -4,7 +4,7 @@
     ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
       -b "cn=config" \
       "objectClass=olcMdbConfig" olcSyncrepl | \
-    grep -e '^olcSyncrepl:' | wc -l
+    grep -e '^olcSyncrepl:' | wc -l | awk '{ print $1 }'
   register: res
 
 - name: delete olcSyncrepl
@@ -45,7 +45,7 @@
     EOF
 
 - name: restart slapd
-  ansible.builtin.systemd_service:
+  ansible.builtin.service:
     name: slapd
     state: restarted
 

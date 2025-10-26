@@ -41,9 +41,7 @@
   ignore_errors: true
 
 - name: restart slapd for refint
-  ansible.builtin.systemd:
+  ansible.builtin.service:
     name: slapd
     state: restarted
-    enabled: true
-    daemon_reload: true
 
