@@ -1,6 +1,7 @@
 - name: setup slapd
   hosts:
-    - noble 
+    #- noble
+    - redhat
     #- rocky
     #- oracle
     #- freebsd

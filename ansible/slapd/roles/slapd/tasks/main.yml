@@ -26,6 +26,20 @@
   when: |-
     ansible_facts['os_family'] == "Debian"
 
+- name: enable CodeReady Linux Builder repository
+  ansible.builtin.shell: |
+    subscription-manager repos \
+      --enable codeready-builder-for-rhel-10-x86_64-rpms
+  when: |-
+    ansible_facts['distribution'] == "RedHat"
+
+- name: install epel repository
+  ansible.builtin.shell: |
+    dnf install \
+      https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+  when: |-
+    ansible_facts['distribution'] == "RedHat"
+
 - name: enable epel (RedHat)
   ansible.builtin.dnf:
     name: "{{ epel_package }}"

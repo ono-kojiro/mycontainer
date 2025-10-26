@@ -6,4 +6,5 @@ all:
         noble:
         oracle:
         freebsd:
+        redhat:
 
