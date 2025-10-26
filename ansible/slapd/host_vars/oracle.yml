@@ -10,3 +10,5 @@ server_key: oracle.key
 
 epel_package: oracle-epel-release-el10
 
+# rocky
+ldap_provider_uri: ldaps://172.16.1.69

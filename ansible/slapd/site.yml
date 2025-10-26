@@ -1,9 +1,9 @@
 - name: setup slapd
   hosts:
     #- noble
-    - redhat
+    #- redhat
     #- rocky
-    #- oracle
+    - oracle
     #- freebsd
 
   #environment:
@@ -29,4 +29,5 @@
     - { role: publickey, tags: publickey }
     - { role: consumer, tags: consumer }
     - { role: sssd, tags: sssd }
+    - { role: provider, tags: [ provider, never ] }
 

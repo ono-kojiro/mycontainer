@@ -1,0 +1,42 @@
+---
+- name: check if syncprov module is existing
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:// \
+      -b "cn=config" "(objectClass=olcModuleList)" | \
+      awk '{ print $2 }' | grep -e '}syncprov' | wc -l | awk '{ print $1 }'
+  register: res
+
+- name: enable syncprov module
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: syncprov
+    EOF
+  when: res.stdout == "0"
+
+- name: check if syncprov overlay is existing
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:// \
+      -b "cn=config" "(objectClass=olcSyncProvConfig)" | \
+      awk '{ print $2 }' | grep -e '}syncprov' | wc -l | awk '{ print $1 }'
+  register: res
+
+- name: add syncprov overlay
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay={0}syncprov,{{ olc_database }}
+    changetype: add
+    objectClass: olcOverlayConfig
+    objectClass: olcSyncProvConfig
+    olcOverlay: {0}syncprov
+    olcSpCheckpoint: 20 10
+    olcSpSessionLog: 100
+    EOF
+
+- name: restart slapd
+  ansible.builtin.service:
+    name: slapd
+    state: restarted
+
