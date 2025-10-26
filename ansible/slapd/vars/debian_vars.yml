@@ -15,3 +15,5 @@ ldap_config_dn: "olcDatabase={1}mdb,cn=config"
 olc_database: "olcDatabase={1}mdb,cn=config"
 tls_cacert_path: "/etc/ssl/certs/ca-certificates.crt"
 
+sshd_service: ssh
+

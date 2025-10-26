@@ -1,9 +1,9 @@
 - name: setup slapd
   hosts:
-    #- noble 
+    - noble 
     #- rocky
     #- oracle
-    - freebsd
+    #- freebsd
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080

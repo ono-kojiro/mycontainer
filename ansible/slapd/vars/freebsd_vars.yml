@@ -16,3 +16,4 @@ cert_dir: /etc/ssl
 olc_database: "olcDatabase={1}mdb,cn=config"
 tls_cacert_path: /etc/ssl/certs/ca-bundle.crt
 
+sshd_service: sshd
