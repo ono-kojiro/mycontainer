@@ -72,9 +72,7 @@
     ansible_facts['os_family'] == "Debian"
 
 - name: restart slapd.service for openssh-lpk
-  ansible.builtin.systemd:
+  ansible.builtin.service:
     name: slapd
     state: restarted
-    enabled: true
-    daemon_reload: true
 

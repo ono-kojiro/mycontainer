@@ -21,23 +21,11 @@
     tags: always
 
   roles:
-    - role: cacert
-      tags: cacert
-
-    - role: slapd
-      tags: slapd
-
+    - { role: cacert, tags: cacert }
+    - { role: slapd, tags: slapd }
     - { role: tls, tags: tls }
-
-    - role: rfc2307bis
-      tags: rfc2307bis
-
-    - role: publickey
-      tags: publickey
-
-    - role: consumer
-      tags: consumer
-
-    - role: sssd
-      tags: sssd
+    - { role: rfc2307bis, tags: rfc2307bis }
+    - { role: publickey, tags: publickey }
+    - { role: consumer, tags: consumer }
+    - { role: sssd, tags: sssd }
 
