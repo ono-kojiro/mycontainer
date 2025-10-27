@@ -26,7 +26,7 @@ logging:
   loggers:
     - name: root
       appenders: [ file ]
-      level: debug
+      level: info
   appenders:
     file:
       type: file

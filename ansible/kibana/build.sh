@@ -68,6 +68,7 @@ test()
 {
   machine=`cat .netrc | grep -e '^machine' | awk '{ print $2 }'`
   curl -k --netrc-file ./.netrc https://${machine}:9200
+  echo ""
 }
 
 
