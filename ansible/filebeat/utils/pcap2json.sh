@@ -21,10 +21,10 @@ while [ "$#" -ne 0 ]; do
     -v )
       verbose=1
       ;;
-    -i | --infile)
-      shift
-      infile="$1"
-      ;;
+    #-i | --infile)
+    #  shift
+    #  infile="$1"
+    #  ;;
     -o | --outfile)
       shift
       outfile="$1"
@@ -45,13 +45,18 @@ done
 
 ret=0
 
-if [ -z "$infile" ]; then
-  echo "ERROR: no infile option"
+#if [ -z "$infile" ]; then
+#  echo "ERROR: no infile option"
+#  ret=`expr $ret + 1`
+#fi
+
+if [ "$auto_output" -ne 0 ] && [ ! -z "$outfile" ]; then
+  echo "ERROR: outfile/auto-output options are exclusive"
   ret=`expr $ret + 1`
 fi
 
-if [ "$auto_output" = "0" ] && [ -z "$outfile" ]; then
-  echo "ERROR: no outfile option"
+if [ "$auto_output" -eq 0 ] && [ -z "$outfile" ]; then
+  echo "ERROR: no outfile/auto-output options"
   ret=`expr $ret + 1`
 fi
 
@@ -60,21 +65,22 @@ if [ "$ret" -ne 0 ]; then
   exit $ret
 fi
 
-echo $infile | grep -i -e '.pcap.xz$' 1>/dev/null 2>&1
+for infile in $args; do
+  echo $infile | grep -i -e '.pcap.xz$' 1>/dev/null 2>&1
+  if [ "$?" -eq 0 ]; then
+    precmd="xz -d -k -c"
+  else
+    precmd="cat"
+  fi
 
-if [ "$?" -eq 0 ]; then
-  precmd="xz -d -k -c"
-else
-  precmd="cat"
-fi
+  if [ "$auto_output" -ne 0 ]; then
+    outfile=`echo $infile | sed 's/\.pcap\.xz$/.json/'`
+    echo "INFO: outfile is $outfile"
+  fi
 
-if [ "$auto_output" != "0" ]; then
-  outfile=`echo $infile | sed 's/\.pcap\.xz$/.json/'`
-  echo "INFO: outfile is $outfile"
-fi
-
-$precmd $infile | \
+  $precmd $infile | \
         editcap -d - - | \
         tshark -r - -T ek | \
         grep -v -e '^{"index":' > $outfile
+done
 
