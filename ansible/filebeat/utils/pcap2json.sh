@@ -9,6 +9,7 @@ EOF
 
 infile=""
 outfile=""
+auto_output=0
 
 args=""
 while [ "$#" -ne 0 ]; do
@@ -28,6 +29,9 @@ while [ "$#" -ne 0 ]; do
       shift
       outfile="$1"
       ;;
+    -a | --auto-output)
+      auto_output=1
+      ;;
     -* )
       flags="$flags $1"
       ;;
@@ -46,7 +50,7 @@ if [ -z "$infile" ]; then
   ret=`expr $ret + 1`
 fi
 
-if [ -z "$outfile" ]; then
+if [ "$auto_output" = "0" ] && [ -z "$outfile" ]; then
   echo "ERROR: no outfile option"
   ret=`expr $ret + 1`
 fi
@@ -62,6 +66,11 @@ if [ "$?" -eq 0 ]; then
   precmd="xz -d -k -c"
 else
   precmd="cat"
+fi
+
+if [ "$auto_output" != "0" ]; then
+  outfile=`echo $infile | sed 's/\.pcap\.xz$/.json/'`
+  echo "INFO: outfile is $outfile"
 fi
 
 $precmd $infile | \
