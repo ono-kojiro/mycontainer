@@ -78,6 +78,11 @@ for infile in $args; do
     echo "INFO: outfile is $outfile"
   fi
 
+  if [ -e "$outfile" ] && [ "$outfile" -nt "$infile" ]; then
+    echo "INFO: skip $outfile"
+    continue
+  fi
+
   $precmd $infile | \
         editcap -d - - | \
         tshark -r - -T ek | \
