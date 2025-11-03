@@ -1,6 +1,21 @@
 - name: setup dvwa
   hosts: myserver
 
+  pre_tasks:
+  - name: check php version
+    ansible.builtin.shell: |
+      php -r 'echo PHP_MAJOR_VERSION; echo "."; echo PHP_MINOR_VERSION;'
+    register: res
+
+  - name: add custom fact
+    ansible.builtin.set_fact:
+      php_ver: "{{ res.stdout }}"
+    when: res.rc == 0
+  
+  - name: check custom fact
+    ansible.builtin.debug:
+      msg: "{{ php_ver }}"
+
   tasks:
   - name: check os
     ansible.builtin.shell: |
@@ -15,14 +30,10 @@
       - php
       - php-mysql
       - php-gd
+      - php-fpm
       - libapache2-mod-php
       - git
       state : present
-
-  - name: remove /var/www/html/DVWA
-    ansible.builtin.file :
-      path: /var/www/html/DVWA
-      state: absent
 
   - name: get DVWA source archive
     ansible.builtin.get_url:
@@ -32,14 +43,19 @@
   - name: extract DVWA
     ansible.builtin.unarchive:
       src: /tmp/DVWA-2.5.tar.gz
-      dest: /var/www/html/
+      dest: /tmp/
       remote_src: yes
+  
+  - name: remove default index.html
+    ansible.builtin.file:
+      path: "{{ dvwa_dir }}/index.html"
+      state: absent
 
-  - name: rename DVWA directory
-    ansible.builtin.shell: |
-      if [ -e '/var/www/html/DVWA-2.5' ]; then
-        mv /var/www/html/DVWA-2.5 /var/www/html/DVWA
-      fi
+  - name: copy DVWA files
+    ansible.builtin.copy:
+      src:  /tmp/DVWA-2.5/
+      dest: "{{ dvwa_dir }}/"
+      remote_src: yes
 
   - name: start and enable mariadb service
     ansible.builtin.systemd_service:
@@ -58,47 +74,70 @@
 
   - name: copy config.inc.php
     ansible.builtin.copy :
-      src:  /var/www/html/DVWA/config/config.inc.php.dist
-      dest: /var/www/html/DVWA/config/config.inc.php
+      src:  "{{ dvwa_dir }}/config/config.inc.php.dist"
+      dest: "{{ dvwa_dir }}/config/config.inc.php"
       remote_src: true
 
-  - name: change permission of /var/www/html/DVWA
+  - name: change permission of DVWA directory
     ansible.builtin.file:
-      path: /var/www/html/DVWA
+      path:  "{{ dvwa_dir }}"
       owner: www-data
       group: www-data
       mode: '0755'
-
-  - name: update php config
-    ansible.builtin.shell: |
-      php_major=`php -r 'echo PHP_MAJOR_VERSION'`
-      php_minor=`php -r 'echo PHP_MINOR_VERSION'`
-      php_ver="${php_major}.${php_minoro}"
-      php_config_apache="/etc/php/${php_ver}/apache2/php.ini"
-      php_config_fpm="/etc/php/${php_ver}/fpm/php.ini"
-
-      if [ -e "$php_config_apache" ]; then
-        sed -i 's/^\(allow_url_include =\).*/\1 on/' $php_config_apache
-        sed -i 's/^\(allow_url_fopen =\).*/\1 on/' $php_config_apache
-        sed -i 's/^\(display_errors =\).*/\1 on/' $php_config_apache
-        sed -i 's/^\(display_startup_errors =\).*/\1 on/' $php_config_apache
-      fi
-
-      if [ -e "$php_config_fpm" ]; then
-        sed -i 's/^\(allow_url_include =\).*/\1 on/' $php_config_fpm
-        sed -i 's/^\(allow_url_fopen =\).*/\1 on/' $php_config_fpm
-        sed -i 's/^\(display_errors =\).*/\1 on/' $php_config_fpm
-        sed -i 's/^\(display_startup_errors =\).*/\1 on/' $php_config_fpm
-      fi
+  
+  - name: enable allow_url_include for apache2
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/apache2/php.ini
+      regexp: '^(allow_url_include\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable allow_url_fopen for apache2
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/apache2/php.ini
+      regexp: '^(allow_url_fopen\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable display_errors for apache2
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/apache2/php.ini
+      regexp: '^(display_errors\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable display_startup_errors for apache2
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/apache2/php.ini
+      regexp: '^(display_startup_errors\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable allow_url_include for fpm
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/fpm/php.ini
+      regexp: '^(allow_url_include\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable allow_url_fopen for fpm
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/fpm/php.ini
+      regexp: '^(allow_url_fopen\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable display_errors for fpm
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/fpm/php.ini
+      regexp: '^(display_errors\s*=).*'
+      replace: '\1 on'
+  
+  - name: enable display_startup_errors for fpm
+    ansible.builtin.replace:
+      path: /etc/php/{{ php_ver }}/fpm/php.ini
+      regexp: '^(display_startup_errors\s*=).*'
+      replace: '\1 on'
 
   - name: change database password in config.inc.php
     ansible.builtin.replace:
-      path: /var/www/html/DVWA/config/config.inc.php
+      path: "{{ dvwa_dir }}/config/config.inc.php"
       regexp: '\$_DVWA\[ ''db_password'' \] = getenv\(''DB_PASSWORD''\) \?: ''(.*)'';'
       replace: '$_DVWA[ ''db_password'' ] = getenv(''DB_PASSWORD'') ?: ''{{ sql_pass }}'';'
-
-    tags: debug
-
 
   - name: restart apache
     ansible.builtin.systemd_service:

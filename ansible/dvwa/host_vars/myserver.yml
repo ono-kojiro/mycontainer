@@ -1,3 +1,3 @@
 ---
-ansible_host: myserver
+ansible_host: bookworm
 ansible_become: true
