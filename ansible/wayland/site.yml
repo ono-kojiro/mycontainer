@@ -20,6 +20,9 @@
       name:
       - sway
       - sway-backgrounds
+      - swayidle
+      - alacritty
+      - bemenu
       state: present
 
   - name: restart gdm3
