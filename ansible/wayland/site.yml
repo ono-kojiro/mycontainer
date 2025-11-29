@@ -1,0 +1,35 @@
+- name: setup wayvnc
+  hosts: questing
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  tasks:
+  - name: apt update
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: install wayvnc
+    ansible.builtin.apt:
+      name: wayvnc
+      state: present
+  
+  - name: install sway
+    ansible.builtin.apt:
+      name:
+      - sway
+      - sway-backgrounds
+      state: present
+
+  - name: restart gdm3
+    ansible.builtin.systemd_service:
+      name: gdm3
+      state: restarted
+
+
+  - name: copy custom.conf
+    ansible.builtin.template:
+      src: custom.conf
+      dest: /etc/sway/config.d/
+

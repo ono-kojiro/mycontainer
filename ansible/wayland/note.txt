@@ -1,0 +1,11 @@
+
+$ mkdir ~/.config/sway/
+$ cp /etc/sway/config ~/.config/sway
+
+#set $mod Mod4
+set $mod Mod1     <-- left alt
+
+
+Alt+D: open menu
+Alt+Shift+q: quit window
+
