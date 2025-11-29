@@ -10,11 +10,6 @@
     ansible.builtin.apt:
       update_cache: yes
 
-  - name: install wayvnc
-    ansible.builtin.apt:
-      name: wayvnc
-      state: present
-  
   - name: install sway
     ansible.builtin.apt:
       name:
@@ -24,12 +19,16 @@
       - alacritty
       - bemenu
       state: present
-
+  
+  - name: install wayvnc
+    ansible.builtin.apt:
+      name: wayvnc
+      state: present
+  
   - name: restart gdm3
     ansible.builtin.systemd_service:
       name: gdm3
       state: restarted
-
 
   - name: copy custom.conf
     ansible.builtin.template:
