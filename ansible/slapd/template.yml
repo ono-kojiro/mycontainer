@@ -7,4 +7,4 @@ all:
         oracle:
         freebsd:
         redhat:
-
+        xubuntu:

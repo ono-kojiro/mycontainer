@@ -3,8 +3,9 @@
     #- noble
     #- redhat
     #- rocky
-    - oracle
+    #- oracle
     #- freebsd
+    - xubuntu
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
