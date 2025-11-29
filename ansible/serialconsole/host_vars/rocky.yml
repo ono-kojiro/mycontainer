@@ -1,4 +1,4 @@
 ---
-ansible_host: freebsd
+ansible_host: rocky
 ansible_become: false
 

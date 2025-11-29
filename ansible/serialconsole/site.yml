@@ -1,5 +1,7 @@
 - name:  enable serial console
-  hosts: noble
+  hosts:
+  #- freebsd
+  - questing
 
   tasks:
   - name: updae GRUB_CMDLINE_LINUX (Debian)
