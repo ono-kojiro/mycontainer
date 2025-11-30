@@ -238,6 +238,6 @@ bar {
 }
 
 output "HEADLESS-1" resolution 1600x960
-exec WAYLAND_DISPLAY=wayland-1 /usr/bin/wayvnc 0.0.0.0 5900 &
+exec WAYLAND_DISPLAY=wayland-1 /usr/bin/wayvnc --keyboard=jp 0.0.0.0 5900 &
 
 include /etc/sway/config.d/*
