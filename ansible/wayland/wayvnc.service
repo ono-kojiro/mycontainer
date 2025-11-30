@@ -1,0 +1,12 @@
+[Unit]
+Description=Wayvnc Service for user %U
+After=network.target
+
+[Service]
+Environment="WAYLAND_DISPLAY=wayland-1"
+ExecStart=/usr/bin/wayvnc 0.0.0.0 5900
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

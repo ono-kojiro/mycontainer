@@ -1,4 +1,11 @@
 #!/bin/sh
 
-WAYLAND_DISPLAY=wayland-1 exec wayvnc 0.0.0.0 5900
+service="wayvnc"
+
+mkdir -p $HOME/.config/systemd/user/
+cp -f ${service}.service $HOME/.config/systemd/user/
+
+systemctl --user daemon-reload
+systemctl --user enable ${service}
+systemctl --user start ${service}
 

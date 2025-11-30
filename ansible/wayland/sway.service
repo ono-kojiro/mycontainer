@@ -1,0 +1,14 @@
+[Unit]
+Description=Sway Service for user %U
+After=network.target
+
+[Service]
+Environment="WLR_BACKENDS=headless"
+Environment="WLR_LIBINPUT_NO_DEVICES=1"
+Environment="XDG_RUNTIME_DIR=%t"
+ExecStart=/usr/bin/sway
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

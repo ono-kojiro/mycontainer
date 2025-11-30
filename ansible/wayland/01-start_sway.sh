@@ -1,7 +1,11 @@
 #!/bin/sh
 
-export WLR_BACKENDS=headless
-export WLR_LIBINPUT_NO_DEVICES=1
+service="sway"
 
-exec sway
+mkdir -p $HOME/.config/systemd/user/
+cp -f ${service}.service $HOME/.config/systemd/user/
+
+systemctl --user daemon-reload
+systemctl --user enable ${service}
+systemctl --user start ${service}
 

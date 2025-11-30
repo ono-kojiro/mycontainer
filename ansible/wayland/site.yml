@@ -24,7 +24,16 @@
     ansible.builtin.apt:
       name: wayvnc
       state: present
-  
+
+  - name: install sway@.service
+    ansible.builtin.template:
+      src: sway@.service
+      dest: /usr/lib/systemd/system/
+
+  - name: systemctl daemon-reload
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+
   - name: restart gdm3
     ansible.builtin.systemd_service:
       name: gdm3
