@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Environment="WAYLAND_DISPLAY=wayland-1"
-ExecStart=/usr/bin/wayvnc 0.0.0.0 5900
+ExecStart=/usr/bin/wayvnc --config=%h/.config/wayvnc/config
 Restart=on-failure
 
 [Install]

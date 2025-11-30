@@ -9,3 +9,7 @@ set $mod Mod1     <-- left alt
 Alt+D: open menu
 Alt+Shift+q: quit window
 
+# to keep persistent 'systemd --user' session
+$ sudo loginctl enable-linger "$USER"
+
+
