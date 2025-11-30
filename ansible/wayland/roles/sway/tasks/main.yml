@@ -12,6 +12,7 @@
     - swayidle
     - alacritty
     - bemenu
+    - wofi
     state: present
   become: true
   
