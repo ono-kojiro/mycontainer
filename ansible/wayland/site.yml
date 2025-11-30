@@ -1,41 +1,23 @@
 - name: setup wayvnc
   hosts: questing
-  become: true
+  
   #environment:
   #  http_proxy: http://proxy.example.com:8080
   #  https_proxy: http://proxy.example.com:8080
 
-  tasks:
-  - name: apt update
-    ansible.builtin.apt:
-      update_cache: yes
+  roles:
+  - name: sway
+    tags: sway
     become: true
 
-  - name: install sway
-    ansible.builtin.apt:
-      name:
-      - sway
-      - sway-backgrounds
-      - swayidle
-      - alacritty
-      - bemenu
-      state: present
+  - name: wayvnc
+    tags: wayvnc
     become: true
   
-  - name: install wayvnc
-    ansible.builtin.apt:
-      name: wayvnc
-      state: present
-    become: true
-
-  - name: systemctl daemon-reload
-    ansible.builtin.systemd_service:
-      daemon_reload: true
-    become: true
-
-  - name: restart gdm3
-    ansible.builtin.systemd_service:
-      name: gdm3
-      state: restarted
-    become: true
+  - name: user
+    tags: user
+    become: false
+  
+  - name: japanese
+    tags: japanese
 

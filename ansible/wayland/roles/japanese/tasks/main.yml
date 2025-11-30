@@ -1,0 +1,28 @@
+---
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+
+- name: install fcitx5
+  ansible.builtin.apt:
+    name:
+    - fcitx5
+    state: present
+  become: true
+
+- name: enable GTK_IM_MODULE/QT_IM_MODULE
+  ansible.builtin.template:
+    src: sway.service
+    dest: $HOME/.config/systemd/user/
+  become: false
+ 
+- name: restart sway
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: restarted
+    scope: user
+  loop:
+  - sway
+
+   
