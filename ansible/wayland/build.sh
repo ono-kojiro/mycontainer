@@ -14,6 +14,10 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
+
+  target:
+    deploy
+    user
 EOS
 
 }
@@ -36,6 +40,11 @@ hosts()
 deploy()
 {
   ansible-playbook $flags -i hosts.yml site.yml
+}
+
+user()
+{
+  ansible-playbook -i hosts.yml user.yml
 }
 
 default()
