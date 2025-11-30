@@ -6,7 +6,7 @@ After=network.target
 Environment="WLR_BACKENDS=headless"
 Environment="WLR_LIBINPUT_NO_DEVICES=1"
 Environment="XDG_RUNTIME_DIR=%t"
-ExecStart=/usr/bin/sway
+ExecStart=/usr/bin/dbus-run-session sway
 Restart=on-failure
 
 [Install]
