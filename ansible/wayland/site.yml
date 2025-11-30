@@ -20,4 +20,5 @@
   
   - name: japanese
     tags: japanese
+    become: false
 
