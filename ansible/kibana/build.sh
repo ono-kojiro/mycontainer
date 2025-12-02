@@ -33,7 +33,7 @@ clean()
 
 hosts()
 {
-  ansible-inventory -i template.yml --list --yaml > hosts.yml
+  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
 }
 
 reset()
@@ -71,6 +71,10 @@ test()
   echo ""
 }
 
+test_key()
+{
+  sh test_key.sh
+}
 
 hosts
 
