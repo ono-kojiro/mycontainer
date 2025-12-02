@@ -1,7 +1,8 @@
 #!/bin/sh
 
 if [ ! -e "mytestkey.json" ]; then
-  sh ../elasticsearch/api_key.sh create -n mytestkey | tee mytestkey.json
+  sh ../elasticsearch/api_key.sh create -n mytestkey \
+    -r superuser | tee mytestkey.json
 fi
 
 encoded=`cat mytestkey.json | jq -r ".encoded"`
@@ -21,5 +22,9 @@ data_views()
 }
 
 #status
+echo "INFO: data_views"
 data_views
+
+#sh ../elasticsearch/api_key.sh delete -n mytestkey
+#rm -f mytestkey.json
 
