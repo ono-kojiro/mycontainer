@@ -93,8 +93,10 @@ list()
     --silent \
     --netrc-file ${netrc} \
     -H 'Content-Type: application/x-ndjson' \
-    -X GET ${base_url}/_security/api_key?pretty |
-  jq '.api_keys.[] | select(.invalidated == false) | { id: .id, name: .name }'
+    -X GET ${base_url}/_security/api_key?pretty | \
+  jq
+
+  #jq '.api_keys.[] | select(.invalidated == false) | { id: .id, name: .name }'
 }
 
 delete()
