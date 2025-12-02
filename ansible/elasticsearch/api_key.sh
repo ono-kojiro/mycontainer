@@ -33,19 +33,23 @@ create()
     ret=`expr $ret + 1`
   fi
   
-  if [ -z "$role" ]; then
-    echo "ERROR: no role option"
-    ret=`expr $ret + 1`
-  fi
+  #if [ -z "$role" ]; then
+  #  echo "ERROR: no role option"
+  #  ret=`expr $ret + 1`
+  #fi
 
   if [ "$ret" -ne 0 ]; then
     exit $ret
   fi
 
-  cat - << EOF > template.json
+  cat - << EOF > data.json
 {
-  "name": "myname",
+  "name": "${name}",
   "role_descriptors": {
+EOF
+
+  if [ ! -z "${role}" ]; then
+    cat - << EOF >> data.json
     "${role}" : {
       "cluster": ["all"],
       "indices": [
@@ -58,6 +62,10 @@ create()
     "custom_role": {
       "cluster": [ "manage_security" ]
     }
+EOF
+  fi
+
+  cat - << EOF >> data.json
   },
   "metadata": {
     "application": "myapplication",
@@ -70,8 +78,6 @@ create()
 }
 EOF
 
-  cat template.json | sed -e "s/myname/${name}/" > data.json
-
   {		
     curl \
       -k \
@@ -82,7 +88,7 @@ EOF
 	  -d @data.json
   }
 
-  rm -f template.json
+  ### encoded=`echo -n $id:$api_key | base64`
   rm -f data.json
 }
 
