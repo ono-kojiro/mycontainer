@@ -57,6 +57,13 @@ EOF
           "names": ["*"],
           "privileges": ["all"]
         }
+      ],
+      "applications" : [
+        {
+          "application": "kibana-.kibana",
+          "privileges": [ "read" ],
+          "resources": [ "*" ]
+        }
       ]
     },
     "custom_role": {
