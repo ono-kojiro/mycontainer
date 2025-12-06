@@ -89,12 +89,12 @@ start()
 
 attach()
 {
-  docker attach $container
+  docker exec -it $container /bin/bash
 }
 
 ssh()
 {
-  command ssh -p 24040 localhost
+  command ssh -p 24041 -l root localhost
 }
 
 stop()

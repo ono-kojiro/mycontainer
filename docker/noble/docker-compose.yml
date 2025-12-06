@@ -10,4 +10,4 @@ services:
     environment:
       TZ: Asia/Tokyo
     ports:
-      - "24040:22"
+      - "24041:22"
