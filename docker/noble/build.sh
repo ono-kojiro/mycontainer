@@ -8,7 +8,7 @@ release="noble"
 image="$release"
 container="$release"
 
-root_url="https://partner-images.canonical.com/core/${release}/current/ubuntu-${release}-core-cloudimg-amd64-root.tar.gz"
+root_url="https://cloud-images.ubuntu.com/${release}/current/${release}-server-cloudimg-amd64-root.tar.xz"
 
 root_filename=`basename $root_url`
 
