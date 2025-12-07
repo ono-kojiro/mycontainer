@@ -2,7 +2,8 @@
 FROM scratch
 ADD noble-server-cloudimg-amd64-root.tar.xz /
 
-ENV USERNAME=admin
+# environment variable for build
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN set -xe \
     \
@@ -32,8 +33,8 @@ RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 
 # Install base packages
 RUN apt-get -qq update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qq upgrade \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qq install \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
       tzdata \
       vim-nox \
       sudo \
@@ -73,6 +74,43 @@ RUN chmod 600 /etc/sssd/sssd.conf \
     && sed -i -e 's|^#\(AuthorizedKeysCommandUser\)\s\+\(.\+\)|\1 \2|' /etc/ssh/sshd_config
 
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
+
+# Install desktop
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      --no-install-recommends \
+      xfce4 \
+      dbus-x11 \
+      x11vnc \
+      xvfb \
+      xauth \
+      x11-utils \
+      wget git python3 python3-pip python3-websockify \
+      ca-certificates \
+      net-tools \
+      procps \
+      git build-essential cmake qtbase5-dev \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install noVNC + websockify
+RUN git clone https://github.com/novnc/noVNC.git /opt/noVNC && \
+    git clone https://github.com/novnc/websockify /opt/noVNC/utils/websockify || true && \
+    chmod -R a+rx /opt/noVNC
+
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends \
+    xfce4-terminal libgdk-pixbuf-2.0-0 librsvg2-2 dbus-x11 libsdl2-2.0-0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+    adwaita-icon-theme \
+    tango-icon-theme \
+    hicolor-icon-theme \
+    gnome-icon-theme \
+    thunar-volman tumbler \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
