@@ -1,0 +1,47 @@
+- name: setup
+  hosts: kali
+
+  vars:
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+
+  tasks:
+  - name: install packages
+    ansible.builtin.apt :
+      name: "{{ item }}"
+      state: present
+    loop:
+    - vim-nox
+    - python3-venv
+    - python3-pymodbus
+
+  - name: create my venv
+    ansible.builtin.shell: |
+      cd $HOME
+      python3 -m venv myenv
+    become: true
+    become_user: kali
+
+  - name: install latest pymodbus
+    ansible.builtin.shell: |
+      cd $HOME
+      . $HOME/myenv/bin/activate
+      python3 -m pip install pymodbus
+    become: true
+    become_user: kali
+
+  - name: create .vimrc
+    ansible.builtin.shell: |
+      cd $HOME
+      cp -f /usr/share/vim/vim91/vimrc_example.vim $HOME/.vimrc
+      sed -i -e 's/set backup/set nobackup/' $HOME/.vimrc
+      {
+        echo ""
+        echo "set mouse="
+        echo "colorscheme industry"
+
+      } >> $HOME/.vimrc
+    become: true
+    become_user: kali
+
+
+
