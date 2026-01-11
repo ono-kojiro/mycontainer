@@ -1,0 +1,16 @@
+[Unit]
+Description=Sway Service for user %U
+After=network.target
+
+[Service]
+Environment="WLR_BACKENDS=headless"
+Environment="WLR_LIBINPUT_NO_DEVICES=1"
+Environment="XDG_RUNTIME_DIR=%t"
+Environment="GTK_IM_MODULE=fcitx"
+Environment="QT_IM_MODULE=fcitx"
+ExecStart=/usr/bin/dbus-run-session -- /usr/bin/sway --config %h/.config/sway/config
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

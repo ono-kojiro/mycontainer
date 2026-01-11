@@ -1,4 +1,9 @@
-FROM ubuntu:24.04
+#FROM ubuntu:24.04
+FROM scratch
+ADD noble-server-cloudimg-amd64-root.tar.xz /
+
+# environment variable for build
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN set -xe \
     \
@@ -26,17 +31,14 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 RUN mkdir -p /run/systemd && echo 'docker' > /run/systemd/container
 
-# 
-# https://stackoverflow.com/questions/22886470/start-sshd-automatically-with-docker-container
-#
-
-# Install required tools.
+# Install base packages
 RUN apt-get -qq update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qq upgrade \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qq install \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
       tzdata \
       vim-nox \
       sudo \
+      supervisor \
       openssh-server \
       iproute2 \
       cron \
@@ -57,31 +59,59 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
  && sed -i -e 's|^\s\+GSSAPIAuthentication\s\+.\+|    GSSAPIAuthentication no|' /etc/ssh/ssh_config \
  && update-rc.d ssh defaults
 
+RUN mkdir /root/.ssh; chown root. /root/.ssh; chmod 700 /root/.ssh
+ADD id_ed25519.pub /root/.ssh/authorized_keys
+
+EXPOSE 22
+
 # Configure SSSD.
 ADD sssd.conf /etc/sssd/
 RUN chmod 600 /etc/sssd/sssd.conf \
     && chown root:root /etc/sssd/sssd.conf \
-    && pam-auth-update --enable mkhomedir \
     && sed 's|-D -f|-D|' -i /etc/default/sssd \
+    && pam-auth-update --enable mkhomedir \
     && sed -i -e 's|^#\(AuthorizedKeysCommand\)\s\+.\+|\1 /usr/bin/sss_ssh_authorizedkeys|' /etc/ssh/sshd_config \
     && sed -i -e 's|^#\(AuthorizedKeysCommandUser\)\s\+\(.\+\)|\1 \2|' /etc/ssh/sshd_config
 
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
 
-# change timezone and locale
-ENV TZ Asia/Tokyo
-RUN    DEBIAN_FRONTEND=noninteractive apt-get -qq update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -qq install \
-      language-pack-ja \
-    && update-locale LANG=ja_JP.UTF-8 \
-    && ln -s -f /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+# Install desktop
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      --no-install-recommends \
+      xfce4 \
+      dbus-x11 \
+      x11vnc \
+      xvfb \
+      xauth \
+      x11-utils \
+      wget git python3 python3-pip python3-websockify \
+      ca-certificates \
+      net-tools \
+      procps \
+      git build-essential cmake qtbase5-dev \
     && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
-ENV LANG ja_JP.UTF-8
-ENV LANGUAGE ja_JP:ja
-ENV LC_ALL ja_JP.UTF-8
 
-ADD startup.sh /
-RUN chmod +x /startup.sh
-CMD ["/startup.sh"]
+# Install noVNC + websockify
+RUN git clone https://github.com/novnc/noVNC.git /opt/noVNC && \
+    git clone https://github.com/novnc/websockify /opt/noVNC/utils/websockify || true && \
+    chmod -R a+rx /opt/noVNC
+
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends \
+    xfce4-terminal libgdk-pixbuf-2.0-0 librsvg2-2 dbus-x11 libsdl2-2.0-0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+    adwaita-icon-theme \
+    tango-icon-theme \
+    hicolor-icon-theme \
+    gnome-icon-theme \
+    thunar-volman tumbler \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 

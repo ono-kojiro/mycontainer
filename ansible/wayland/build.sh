@@ -15,8 +15,9 @@ usage()
   cat << EOS
 usage : $0 [options] target1 target2 ...
 
-  reset       reset kibana_system password
-  deploy      deploy kibana
+  target:
+    deploy
+    user
 EOS
 
 }
@@ -33,47 +34,28 @@ clean()
 
 hosts()
 {
-  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
+  ansible-inventory -i template.yml --list --yaml > hosts.yml
 }
-
-reset()
-{
-  ansible-playbook $flags -i hosts.yml reset.yml
-}
-
-install()
-{
-  ansible-playbook $flags -i hosts.yml -t install site.yml
-}
-
 
 deploy()
 {
   ansible-playbook $flags -i hosts.yml site.yml
 }
 
+user()
+{
+  ansible-playbook -i hosts.yml user.yml
+}
+
 default()
 {
   tag=$1
-  ansible-playbook $flags -i hosts.yml -t ${tag} site.yml
+  ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
-destroy()
+debug()
 {
-  ansible-playbook $flags -i hosts.yml destroy.yml
-}
-
-
-test()
-{
-  machine=`cat .netrc | grep -e '^machine' | awk '{ print $2 }'`
-  curl -k --netrc-file ./.netrc https://${machine}:9200
-  echo ""
-}
-
-test_key()
-{
-  sh test_key.sh
+  ansible-playbook $flags -i hosts.yml debug.yml
 }
 
 hosts
@@ -105,7 +87,7 @@ if [ -z "$args" ]; then
 fi
 
 for arg in $args; do
-  num=`LANG=C type $arg 2>&1 | grep 'function' | wc -l`
+  num=`LANG=C type $arg | grep 'function' | wc -l`
   if [ $num -ne 0 ]; then
     $arg
   else

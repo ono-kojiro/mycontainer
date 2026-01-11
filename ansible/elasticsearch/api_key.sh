@@ -33,19 +33,23 @@ create()
     ret=`expr $ret + 1`
   fi
   
-  if [ -z "$role" ]; then
-    echo "ERROR: no role option"
-    ret=`expr $ret + 1`
-  fi
+  #if [ -z "$role" ]; then
+  #  echo "ERROR: no role option"
+  #  ret=`expr $ret + 1`
+  #fi
 
   if [ "$ret" -ne 0 ]; then
     exit $ret
   fi
 
-  cat - << EOF > template.json
+  cat - << EOF > data.json
 {
-  "name": "myname",
+  "name": "${name}",
   "role_descriptors": {
+EOF
+
+  if [ ! -z "${role}" ]; then
+    cat - << EOF >> data.json
     "${role}" : {
       "cluster": ["all"],
       "indices": [
@@ -53,11 +57,22 @@ create()
           "names": ["*"],
           "privileges": ["all"]
         }
+      ],
+      "applications" : [
+        {
+          "application": "kibana-.kibana",
+          "privileges": [ "read" ],
+          "resources": [ "*" ]
+        }
       ]
     },
     "custom_role": {
       "cluster": [ "manage_security" ]
     }
+EOF
+  fi
+
+  cat - << EOF >> data.json
   },
   "metadata": {
     "application": "myapplication",
@@ -70,8 +85,6 @@ create()
 }
 EOF
 
-  cat template.json | sed -e "s/myname/${name}/" > data.json
-
   {		
     curl \
       -k \
@@ -82,7 +95,7 @@ EOF
 	  -d @data.json
   }
 
-  rm -f template.json
+  ### encoded=`echo -n $id:$api_key | base64`
   rm -f data.json
 }
 
@@ -93,8 +106,10 @@ list()
     --silent \
     --netrc-file ${netrc} \
     -H 'Content-Type: application/x-ndjson' \
-    -X GET ${base_url}/_security/api_key?pretty |
-  jq '.api_keys.[] | select(.invalidated == false) | { id: .id, name: .name }'
+    -X GET ${base_url}/_security/api_key?pretty | \
+  jq
+
+  #jq '.api_keys.[] | select(.invalidated == false) | { id: .id, name: .name }'
 }
 
 delete()

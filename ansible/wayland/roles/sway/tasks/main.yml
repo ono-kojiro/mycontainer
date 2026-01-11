@@ -1,0 +1,29 @@
+---
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+
+- name: install sway
+  ansible.builtin.apt:
+    name:
+    - sway
+    - sway-backgrounds
+    - swayidle
+    - alacritty
+    - bemenu
+    - wofi
+    state: present
+  become: true
+  
+- name: systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  become: true
+
+- name: restart gdm3
+  ansible.builtin.systemd_service:
+    name: gdm3
+    state: restarted
+  become: true
+

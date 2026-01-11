@@ -1,0 +1,12 @@
+---
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+
+- name: install wayvnc
+  ansible.builtin.apt:
+    name: wayvnc
+    state: present
+  become: true
+
