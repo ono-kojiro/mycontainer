@@ -1,4 +1,4 @@
 ---
-- import_tasks: install.yml
-- import_tasks: configure.yml
+- import_tasks: sssd.yml
+- import_tasks: sudo.yml
 

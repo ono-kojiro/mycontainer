@@ -1,7 +1,17 @@
 ---
-ansible_host: 192.168.0.10
-ansible_user: dummy
-ansible_ssh_private_key_file: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/id_ed25519"
+ansible_host: cfrz4
 ansible_ssh_common_args: -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
-ansible_become: true
+ansible_become: no
+
+sssd_owner: root
+sssd_group: wheel
+
+sshd_service: sshd
+sudo_admin_group: ldapwheel
+
+sysconfdir: /usr/local/etc
+
+# sshd_config
+authorizedkeyscommand: /usr/local/bin/sss_ssh_authorizedkeys
+
 

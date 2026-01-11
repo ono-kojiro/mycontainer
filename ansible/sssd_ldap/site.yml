@@ -1,5 +1,6 @@
 - name: setup sssd-ldap
-  hosts: xubuntu
+  hosts:
+  - cfrz4
 
   roles:
     - role: sssd
