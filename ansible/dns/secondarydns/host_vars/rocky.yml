@@ -1,0 +1,7 @@
+---
+ansible_host:  rocky
+ansible_become: true
+
+sysconfdir: /etc
+named_conf: /etc/named.conf
+

@@ -1,5 +1,5 @@
 - name: setup primary dns
-  hosts: rocky
+  hosts: primarydns
 
   roles:
     - role: dns

@@ -5,4 +5,3 @@ all:
         myserver:
         freebsd:
         rocky:
-        primarydns:

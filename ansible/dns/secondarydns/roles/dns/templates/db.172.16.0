@@ -1,0 +1,14 @@
+; BIND reverse data file
+$TTL 2d    ; default TTL for zone
+@         IN      SOA   freebsd.example.com. root.example.com. (
+                                2025070501 ; serial number
+                                12h        ; refresh
+                                15m        ; update retry
+                                3w         ; expiry
+                                2h         ; minimum
+                                )
+; name server RR for the domain
+@           IN      NS     freebsd.example.com.
+1           IN      PTR    opnsense.example.com.
+42          IN      PTR    parrot.example.com.
+

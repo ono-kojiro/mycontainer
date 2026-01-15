@@ -1,0 +1,8 @@
+---
+ansible_host: freebsd
+ansible_become: true
+
+sysconfdir: /usr/local/etc
+named_dir:  /usr/local/etc/namedb
+named_conf: /usr/local/etc/namedb/named.conf
+

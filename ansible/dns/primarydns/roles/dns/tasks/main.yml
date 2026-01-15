@@ -17,25 +17,33 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
+- name: install bind9 (Debian)
+  ansible.builtin.package:
+    name:
+    - bind9
+    state: present
+  when: |-
+    ansible_facts['os_family'] == "Debian"
+
 - name: copy local file
   ansible.builtin.template:
     src:  named.conf.local
-    dest: "{{ sysconfdir }}/namedb/"
+    dest: "{{ named_dir }}/"
 
 - name: copy options file
   ansible.builtin.template:
     src:  named.conf.options
-    dest: "{{ sysconfdir }}/namedb/"
+    dest: "{{ named_dir }}/"
 
 - name: copy zone file
   ansible.builtin.template:
     src:  db.example.com
-    dest: "{{ sysconfdir }}/namedb/"
+    dest: "{{ named_dir }}/"
 
 - name: copy reverse data files
   ansible.builtin.template:
     src:  "{{ item }}"
-    dest: "{{ sysconfdir }}/namedb/"
+    dest: "{{ named_dir }}/"
   loop:
   - db.192.168.0
   - db.172.16.0
@@ -53,7 +61,7 @@
 - name: include named.conf.local
   ansible.builtin.lineinfile:
     path: "{{ named_conf }}"
-    line:   'include "{{ sysconfdir }}/namedb/named.conf.local";'
+    line:   'include "{{ named_dir }}/named.conf.local";'
 
 - name: enable named (FreeBSD)
   community.general.sysrc:
@@ -77,6 +85,13 @@
     enabled: true
   when: |-
     ansible_facts['os_family'] == "RedHat"
+
+- name: restart named (Debian)
+  ansible.builtin.service:
+    name: named
+    state: restarted
+  when: |-
+    ansible_facts['os_family'] == "Debian"
 
 - name: check lookup
   ansible.builtin.shell: |

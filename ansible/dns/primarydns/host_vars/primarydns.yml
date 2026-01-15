@@ -1,0 +1,8 @@
+---
+ansible_host:  primarydns
+ansible_become: true
+
+sysconfdir: /etc
+named_dir:  /etc/bind
+named_conf: /etc/bind/named.conf
+
