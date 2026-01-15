@@ -21,5 +21,6 @@
     - role: csv
       tags: csv, never
 
-    - { role: pcapd, tags: [pcapd, never] }
+    - { role: pcapd,  tags: [pcapd, never] }
+    - { role: ndjson, tags: [ndjson, never] }
 

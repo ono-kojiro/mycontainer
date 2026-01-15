@@ -1,0 +1,28 @@
+---
+- name: add configuration in filebeat.yml
+  ansible.builtin.blockinfile:
+    path: /etc/filebeat/filebeat.yml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR NDJSON"
+    block: |
+      - type: filestream
+        id: myndjson
+        enabled: true
+        paths:
+        - /var/lib/pcapd/*.ndjson
+        parsers:
+        - ndjson:
+            keys_under_root: true
+            overwrite_keys: true
+        processors:
+        - add_fields:
+            target: '@metadata'
+            fields:
+              filebeat_id: myndjson
+        tags: [ "ndjson" ]
+    insertafter: "filebeat.inputs:"
+
+- name: restart filebeat
+  ansible.builtin.systemd_service:
+    name: filebeat
+    state: restarted
+
