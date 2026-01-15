@@ -1,5 +1,5 @@
 - name: setup sssd-ldap
-  hosts: xubuntu
+  hosts: questing
 
   roles:
     - role: sssd
