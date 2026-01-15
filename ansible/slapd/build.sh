@@ -29,7 +29,7 @@ all()
 
 hosts()
 {
-  ansible-inventory -i template.yml --list --yaml > hosts.yml
+  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
 }
 
 deploy()

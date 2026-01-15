@@ -1,0 +1,9 @@
+---
+ansible_host: localhost
+ansible_become: true
+
+ldap_uri: ldaps://192.168.1.72
+
+server_crt: myserver.crt
+server_key: myserver.key
+

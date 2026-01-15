@@ -1,11 +1,6 @@
 - name: setup slapd
   hosts:
-    #- noble
-    #- redhat
-    #- rocky
-    #- oracle
-    #- freebsd
-    - xubuntu
+    - myserver
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -28,7 +23,7 @@
     - { role: tls, tags: tls }
     - { role: rfc2307bis, tags: rfc2307bis }
     - { role: publickey, tags: publickey }
-    - { role: consumer, tags: consumer }
-    - { role: sssd, tags: sssd }
-    - { role: provider, tags: [ provider, never ] }
+    #- { role: consumer, tags: consumer }
+    #- { role: sssd, tags: sssd }
+    #- { role: provider, tags: [ provider, never ] }
 
