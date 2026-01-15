@@ -1,0 +1,9 @@
+- name: setup ldapscripts
+  hosts: myserver
+
+  roles:
+    - role: ldapscripts
+      tags: ldapscripts
+
+    - role: useradd
+      tags: useradd

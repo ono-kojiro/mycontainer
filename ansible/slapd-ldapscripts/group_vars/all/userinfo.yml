@@ -1,0 +1,18 @@
+---
+ldap_groups:
+    - name: ldapusers
+    - name: ldapwheel
+
+default_group: ldapusers
+admin_group: ldapwheel
+
+# sssd.conf
+allow_groups: ldapusers
+
+ldap_users:
+- name:     kojiro
+  password: xxxxxxxxxxxx
+  gecos:    Kojiro ONO
+  groups:   ldapusers,ldapwheel
+  mail:     ono.kojiro@gmail.com
+
