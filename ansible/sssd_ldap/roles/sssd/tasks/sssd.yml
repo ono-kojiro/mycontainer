@@ -1,9 +1,69 @@
 ---
+- name: enable epel-release (OracleLinux)
+  ansible.builtin.dnf:
+    name:
+      - "{{ epel_package }}"
+    state: present
+  when: ansible_facts['distribution'] == "OracleLinux"
+
+- name: install sssd-ldap for debian
+  ansible.builtin.apt:
+    name:
+      - sssd-ldap
+      - sssd-tools
+      - oddjob-mkhomedir
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: install sssd-ldap for centos
+  ansible.builtin.dnf:
+    name:
+      - openldap-clients
+      - sssd
+      - sssd-ldap
+      - sssd-tools
+      - authselect
+      - oddjob-mkhomedir
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
+
+- name: install sssd (FreeBSD)
+  ansible.builtin.package:
+    name:
+    - bash
+    - sssd2
+    - pam_mkhomedir
+    state: present
+  when: ansible_facts['os_family'] == "FreeBSD"
+
+- name: create symlink of bash (FreeBSD)
+  ansible.builtin.file:
+    src:  /usr/local/bin/bash
+    dest: /bin/bash
+    state: link
+  when: ansible_facts['os_family'] == "FreeBSD"
+
+- name: install openldap (FreeBSD)
+  community.general.pkgng:
+    name:
+    - openldap26-client
+    state: present
+  when: ansible_facts['os_family'] == "FreeBSD"
+  
+- name: check if sssd is running
+  ansible.builtin.systemd:
+    name:  sssd
+    state: started
+  ignore_errors: true
+  when: |-
+    ansible_facts['service_mgr'] == "systemd"
+
 - name: copy sssd.conf
-  template:
+  ansible.builtin.template:
     src: sssd.conf
     dest: "{{ sysconfdir }}/sssd/sssd.conf"
-    mode: 0600
+    owner: "{{ sssd_owner }}"
+    group: "{{ sssd_group }}"
+    mode: '0600'
 
 - name: enable sss_ssh_authorizedkeys
   ansible.builtin.lineinfile:
@@ -30,10 +90,9 @@
     name: sssd
     enabled: yes
     masked: no
+    daemon_reload: yes
   when: |-
-    ansible_facts['os_family'] == "RedHat" or
-    ansible_facts['os_family'] == "Debian" or
-    ansible_facts['os_family'] == "Rocky"
+    ansible_facts['service_mgr'] == "systemd"
 
 - name: enable sssd (Freebsd)
   community.general.sysrc:
@@ -43,54 +102,23 @@
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
 
-
-- name: restart sssd for Linux
-  ansible.builtin.systemd:
-    name: sssd
-    state: restarted
-    daemon_reload: yes
-  when: |-
-    ansible_facts['os_family'] == "RedHat" or 
-    ansible_facts['os_family'] == "Debian" or 
-    ansible_facts['os_family'] == "Rocky"
-
-- name: restart sssd for FreeBSD
+- name: restart sssd
   ansible.builtin.service:
     name: sssd
     state: restarted
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
 
 - name: restart oddjobd
   ansible.builtin.systemd:
     name: oddjobd
     state: restarted
     daemon_reload: yes
-  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
-
-- name: restart sshd for RedHat
-  ansible.builtin.systemd:
-    name: sshd
-    state: restarted
-    daemon_reload: yes
   when: |-
-    ansible_facts['os_family'] == "RedHat" or
-    ansible_facts['os_family'] == "Rocky"
+    ansible_facts['os_family'] == "RedHat"
 
-- name: restart sshd for Debian
-  ansible.builtin.systemd:
-    name: ssh
-    state: restarted
-    daemon_reload: yes
-  when: |-
-    ansible_facts['os_family'] == "Debian"
-
-- name: restart sshd (FreeBSD)
+- name: restart sshd
   ansible.builtin.service:
-    name: sshd
+    name:  "{{ sshd_service }}"
     state: restarted
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
 
 - name: enable mkhomedir for Debian
   shell: |
@@ -101,7 +129,8 @@
   ansible.builtin.shell: |
     authselect select sssd with-sudo with-mkhomedir --force
     systemctl enable --now oddjobd.service
-  when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
+  when: |-
+    ansible_facts['os_family'] == "RedHat"
 
 - name: add sss for nsswitch group (FreeBSD)
   ansible.builtin.replace:

@@ -1,5 +1,6 @@
 - name: setup sssd-ldap
-  hosts: questing
+  hosts:
+  - cfrz4
 
   roles:
     - role: sssd
