@@ -2,33 +2,6 @@
   hosts: provider
 
   roles:
-    - role: certs
-      tags: certs
-
-    - role: slapd
-      tags: slapd
-
-    - role: ldap
-      tags: ldap
-
-    - role: ldapscripts
-      tags: ldapscripts
-
-    - role: useradd
-      tags: useradd
-
-    - role: sssd
-      tags: sssd
-
-#    - role: keys
-#      tags: keys
-
     - role: provider
       tags: provider
-
-    - role: sudo
-      tags: sudo
-
-    - role: access
-      tags: access, never
 

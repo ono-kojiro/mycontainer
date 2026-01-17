@@ -1,5 +1,0 @@
----
-- import_tasks: prepare.yml
-- import_tasks: install.yml
-- import_tasks: configure.yml
-

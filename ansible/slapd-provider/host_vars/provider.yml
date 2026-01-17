@@ -2,6 +2,3 @@
 ansible_host: provider
 ansible_become: true
 
-server_crt: abaoaqu.crt
-server_key: abaoaqu.key
-

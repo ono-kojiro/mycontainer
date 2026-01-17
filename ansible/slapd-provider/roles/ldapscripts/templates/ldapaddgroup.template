@@ -1,8 +1,0 @@
-dn: cn=<group>,<gsuffix>,<suffix>
-objectClass: posixGroup
-objectClass: <gclass>
-cn: <group>
-gidNumber: <gid>
-description: Group account
-<gmemberattr>: <gdummymember>
-
