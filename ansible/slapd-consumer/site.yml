@@ -1,35 +1,10 @@
 - name: setup slapd consumer (slave)
-  hosts: xubuntu
+  hosts: consumer
 
   roles:
     - role: cacert
       tags: cacert
 
-    - role: certs
-      tags: certs
-
-    - role: slapd
-      tags: slapd
-  
-    - role: tls
-      tags: tls
-
-    - role: memberof
-      tags: memberof
-
-    - role: refint
-      tags: refint
-
-    - role: publickey
-      tags: publickey
-    
     - role: syncrepl
       tags: syncrepl
     
-    - role: ldapsearch_local
-      tags: ldapsearch_local
-
-    - role: sssd_local
-      tags: sssd_local, never
-
-

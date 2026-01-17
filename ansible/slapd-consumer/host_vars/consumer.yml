@@ -1,34 +1,12 @@
 ---
-ansible_host: consumer
-ansible_become: false
+ansible_host: solomon
+ansible_become: true
 
-consumer_addr: 172.16.1.69
+consumer_addr: 192.168.1.52
 ldap_uri: ldaps://{{ consumer_addr }}
 
-server_crt: rocky.crt
-server_key: rocky.key
+server_crt: solomon.crt
+server_key: solomon.key
 
-# for RedHat
-ldap_user:  ldap
-ldap_group: ldap
-ldap_config_dir: /etc/openldap/slapd.d
-ldap_config_dn: olcDatabase={2}mdb,cn=config
-cert_dir: /etc/pki/tls
-
-olc_database: "olcDatabase={2}mdb,cn=config"
 tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
-ldap_dir: /etc/openldap
-tls_cacert: /usr/share/pki/ca-trust-source/ca-bundle.trust.p11-kit
-
-# for Debian
-#ldap_user:  openldap
-#ldap_group: openldap
-#ldap_config_dir: /etc/ldap/slapd.d
-#ldap_config_dn: olcDatabase={1}mdb,cn=config
-#cert_dir: /etc/ssl
-
-#olc_database: {1}mdb,cn=config
-#tls_cert_path: "/etc/share/ca-certificates/mylocalca/mylocalca.crt"
-#ldap_dir: /etc/ldap
-#tls_cacert: /etc/ssl/certs/ca-certificates.crt
 

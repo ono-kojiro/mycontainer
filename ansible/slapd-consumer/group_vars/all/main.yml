@@ -4,13 +4,8 @@ masterdn: cn=Manager,{{ ldap_suffix }}
 
 # masterpw: (refer password.yml)
 
-ldap_tls_reqcert: never
-authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
+ldap_provider_uri: ldaps://192.168.1.72:636
 
-ldap_provider_uri: ldaps://192.168.0.98:636
-
-olc_access_userpw: 'to attrs=userPassword,givenName,sn,photo by self write  by anonymous auth  by dn.base={{ masterdn }} write  by * none'
-
-olc_access_any: 'to *  by self read  by dn.base={{ masterdn }} write  by * read'
-
+ca_name: mylocalca
+ca_cert: mylocalca.crt
 

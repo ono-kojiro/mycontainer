@@ -1,5 +1,0 @@
----
-# CA
-ca_nickname : MyLocalCA
-ca_name     : mylocalca
-ca_cert  : mylocalca.crt
