@@ -23,7 +23,4 @@
     - { role: tls, tags: tls }
     - { role: rfc2307bis, tags: rfc2307bis }
     - { role: publickey, tags: publickey }
-    #- { role: consumer, tags: consumer }
-    #- { role: sssd, tags: sssd }
-    #- { role: provider, tags: [ provider, never ] }
 
