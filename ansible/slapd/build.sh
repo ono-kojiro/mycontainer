@@ -43,11 +43,6 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
-debug()
-{
-  ansible-playbook $flags -i hosts.yml debug.yml
-}
-
 _get_latest_snapshot()
 {
   name="$1"

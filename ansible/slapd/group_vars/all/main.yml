@@ -12,6 +12,7 @@ ldap_provider_uri: ldaps://192.168.0.98:636
 olc_access_userpw: 'to attrs=userPassword,givenName,sn,photo by self write  by anonymous auth  by dn.base={{ masterdn }} write  by * none'
 
 olc_access_any: 'to *  by self read  by dn.base={{ masterdn }} write  by * read'
+olc_access_sshpublickey: 'to attrs=sshPublicKey by self write  by anonymous auth  by dn.base={{ masterdn }} write  by * none'
 
 # default epel package name
 epel_package: epel-release

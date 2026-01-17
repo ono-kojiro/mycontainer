@@ -76,3 +76,24 @@
     name: slapd
     state: restarted
 
+- name: check if sshPublickKey access is defined
+  ansible.builtin.shell: |
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// \
+      -b 'olcDatabase={1}mdb,cn=config' -o ldif-wrap=no olcAccess | \
+    sed -e 's/^olcAccess: {.*}to /to /g' | \
+    grep -F '{{ olc_access_sshpublickey }}' | \
+    wc -l
+  register: res
+  tags: debug
+
+- name: change ldap access for sshPublickey
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    add: olcAccess
+    olcAccess: {0}{{ olc_access_sshpublickey }}
+    EOF
+  when: res.stdout == "0"
+  tags: debug
+
