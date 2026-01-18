@@ -1,5 +1,5 @@
 - name: install local CA
-  hosts: noble
+  hosts: myserver
   
   #environment:
   #  http_proxy: http://proxy.example.com:8080
