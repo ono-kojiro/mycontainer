@@ -1,12 +1,11 @@
 - name: install local CA
   hosts: noble
   
-  tasks:
-  - name: import tasks
-    ansible.builtin.include_tasks:
-      file: "{{ item.file }}"
-    when: ansible_facts['os_family'] == item.os_family
-    loop:
-      - { file: "redhat.yml", os_family: "RedHat" }
-      - { file: "debian.yml", os_family: "Debian" }
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  roles:
+  - name: cacert
+    tags: cacert
 

@@ -15,4 +15,3 @@
   ansible.builtin.shell: |
     cat /etc/pki/tls/certs/ca-bundle.crt | grep "{{ caname }}"
 
-

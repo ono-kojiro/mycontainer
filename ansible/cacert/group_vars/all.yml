@@ -1,4 +1,4 @@
 ---
-cacert: mylocalca.crt
-caname: MyLocalCA
+cacert: myrootca.crt
+caname: MyRootCA
 
