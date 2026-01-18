@@ -34,14 +34,13 @@ clean()
 
 hosts()
 {
-  ansible-inventory -i template.yml --list --yaml > hosts.yml
+  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
 }
 
 install()
 {
   ansible-playbook $flags -i hosts.yml -t install site.yml
 }
-
 
 deploy()
 {
@@ -69,7 +68,7 @@ test()
 hosts
 
 args=""
-while [ $# -ne 0 ]; do
+while [ "$#" -ne 0 ]; do
   case $1 in
     -h )
       usage
@@ -96,7 +95,7 @@ fi
 
 for arg in $args; do
   num=`LANG=C type $arg 2>&1 | grep 'function' | wc -l`
-  if [ $num -ne 0 ]; then
+  if [ "$num" -ne 0 ]; then
     $arg
   else
     #echo "ERROR : $arg is not shell function"
