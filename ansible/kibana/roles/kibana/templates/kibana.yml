@@ -14,8 +14,8 @@ server:
   publicBaseUrl: {{ kibana_url }}
   ssl:
     enabled: true
-    certificate: {{ kibana_crt }}
-    key:         {{ kibana_key }}
+    certificate: /etc/ssl/certs/{{ kibana_crt }}
+    key:         /etc/ssl/private/{{ kibana_key }}
     
 elasticsearch.username: kibana_system
 elasticsearch.password: {{ kibana_password }}

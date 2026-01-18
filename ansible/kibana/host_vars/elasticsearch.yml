@@ -1,7 +1,3 @@
 ---
 ansible_host: elasticsearch
 ansible_become: true
-
-server_crt: elasticsearch.crt
-server_key: elasticsearch.key
-

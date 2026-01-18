@@ -1,6 +1,5 @@
-- name: reset kibana_system password
+- name: reset kibana_system password on elasticsearch
   hosts: elasticsearch
-  become: true
 
   tasks:
   - name: reset kibana_system password on elasticsearch

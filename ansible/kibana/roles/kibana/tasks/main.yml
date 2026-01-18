@@ -49,7 +49,7 @@
   
 - name: copy kibana.key
   ansible.builtin.copy:
-    src:  kibana.key
+    src:  "{{ kibana_key }}"
     dest: /etc/ssl/private/
     owner: root
     group: ssl-cert
@@ -57,7 +57,7 @@
 
 - name: copy kibana.crt
   ansible.builtin.copy:
-    src:  kibana.crt
+    src:  "{{ kibana_crt }}"
     dest: /etc/ssl/certs/
     owner: kibana
     group: kibana

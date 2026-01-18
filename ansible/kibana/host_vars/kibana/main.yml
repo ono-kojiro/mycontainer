@@ -1,8 +1,8 @@
 ---
 ansible_host: kibana
 ansible_become: true
-kibana_crt: /etc/ssl/certs/kibana.crt
-kibana_key: /etc/ssl/private/kibana.key
+kibana_crt: kibana.crt
+kibana_key: kibana.key
 
-elasticsearch_url: https://192.168.0.98:9200
-kibana_url: https://192.168.0.98:5601
+elasticsearch_url: https://192.168.1.72:9200
+kibana_url: https://192.168.1.72:5601
