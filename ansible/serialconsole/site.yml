@@ -1,7 +1,8 @@
 - name:  enable serial console
   hosts:
   #- freebsd
-  - questing
+  #- questing
+  - trixie
 
   tasks:
   - name: updae GRUB_CMDLINE_LINUX (Debian)

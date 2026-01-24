@@ -1,0 +1,6 @@
+---
+ansible_host: trixie
+ansible_become: true
+#ansible_become_exe: /usr/bin/sudo.ws
+
+
