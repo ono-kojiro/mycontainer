@@ -1,0 +1,7 @@
+---
+sssd_owner: root
+sssd_group: root
+
+sshd_service: ssh
+
+

@@ -1,0 +1,6 @@
+---
+sssd_owner: root
+sssd_group: sssd
+
+sshd_service: sshd
+

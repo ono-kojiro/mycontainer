@@ -1,7 +1,7 @@
 ---
 # sssd.conf
 #ldap_addr:   172.16.1.69
-ldap_addr:   192.168.1.98
+ldap_addr:   192.168.1.72
 sssd_ldap_uri:    ldap://{{ ldap_addr }}
 ldap_suffix: dc=example,dc=com
 
@@ -12,6 +12,7 @@ sssd_ldap_tls_reqcert: never
 authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 
 # sudo
+sudo_admin_group: ldapwheel
 admin_group: ldapwheel
 
 sysconfdir: /etc
