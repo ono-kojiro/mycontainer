@@ -9,3 +9,8 @@ all:
         parrot:
         cfrz4:
         rocky:
+        trixie:
+        jammy:
+        bookworm:
+        oracle:
+        freebsd:

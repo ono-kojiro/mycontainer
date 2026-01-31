@@ -1,7 +1,14 @@
 - name: setup sssd-ldap
   hosts:
   #- cfrz4
-  - rocky
+  #- rocky
+  #- trixie
+  #- jammy
+  #- bookworm
+  #- redhat
+  #- noble
+  #- oracle
+  - freebsd
   
   #environment:
   #  http_proxy: http://proxy.example.com:8080

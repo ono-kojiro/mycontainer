@@ -64,6 +64,17 @@
     owner: "{{ sssd_owner }}"
     group: "{{ sssd_group }}"
     mode: '0600'
+  when: |-
+    ansible_facts['os_family'] != "FreeBSD"
+
+- name: copy sssd.conf (FreeBSD)
+  ansible.builtin.template:
+    src: sssd.conf
+    dest: "{{ sysconfdir }}/sssd/sssd.conf"
+    owner: "{{ sssd_owner }}"
+    mode: '0600'
+  when: |-
+    ansible_facts['os_family'] == "FreeBSD"
 
 - name: enable sss_ssh_authorizedkeys
   ansible.builtin.lineinfile:

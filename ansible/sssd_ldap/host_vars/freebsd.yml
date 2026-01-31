@@ -6,4 +6,8 @@ sysconfdir: /usr/local/etc
 # sshd_config
 authorizedkeyscommand: /usr/local/bin/sss_ssh_authorizedkeys
 
+sssd_owner: root
+sssd_group: wheel
+
+sshd_service: sshd
 
