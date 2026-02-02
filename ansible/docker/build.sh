@@ -3,6 +3,8 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+flags=""
+
 help()
 {
   usage
@@ -31,24 +33,24 @@ prepare()
 
 hosts()
 {
-  ansible-inventory -i template.yml --list --yaml > hosts.yml
+  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
 }
 
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook $flags -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -K -i hosts.yml -t $tag site.yml
+  ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
 hosts
 
 args=""
-while [ $# -ne 0 ]; do
+while [ "$#" -ne 0 ]; do
   case $1 in
     -h )
       usage
@@ -56,6 +58,9 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     * )
       args="$args $1"
@@ -72,7 +77,7 @@ fi
 
 for arg in $args; do
   num=`LANG=C type $arg | grep 'function' | wc -l`
-  if [ $num -ne 0 ]; then
+  if [ "$num" -ne 0 ]; then
     $arg
   else
     #echo "ERROR : $arg is not shell function"

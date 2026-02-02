@@ -1,4 +1,4 @@
 ---
-ansible_host: myserver
+ansible_host: localhost
 ansible_become: true
 
