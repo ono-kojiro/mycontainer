@@ -1,0 +1,9 @@
+services:
+  db:
+    image: mariadb:11.4.7
+    restart: always
+    container_name: mariadb
+    hostname: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: example
+
