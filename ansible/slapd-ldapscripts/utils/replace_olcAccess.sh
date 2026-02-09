@@ -19,7 +19,7 @@ olcAccess: to attrs=sshPublicKey
   by self write
   by dn.base=cn=Manager,dc=example,dc=com write
   by * read
-olcAccess: to attrs=givenName,sn,photo
+olcAccess: to attrs=givenName,cn,sn,photo
   by self write
   by dn.base=cn=Manager,dc=example,dc=com write
   by * read
