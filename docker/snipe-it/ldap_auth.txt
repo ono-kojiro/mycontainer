@@ -1,0 +1,22 @@
+LDAP Integration: LDAP enabled
+
+Cache LDAP Password: Yes
+
+LDAP Server: ldaps://192.168.X.X
+
+LDAP SSL certificate validation: Allow invalid SSL Certificate
+
+LDAP Bind Username: cn=Manager,dc=example,dc=com
+LDAP Bind Password: XXXXXXXXXX
+
+Base Bind DN: dc=example,dc=com
+LDAP Filter: &(cn=*)
+
+LDAP Authentication query: uid=
+
+LDAP Username Field: uid
+LDAP Last Name Field: sn
+LDAP First Name Field: givenname
+LDAP Display Name Field: gecos
+
+

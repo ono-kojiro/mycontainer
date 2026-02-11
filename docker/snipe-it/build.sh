@@ -12,30 +12,47 @@ usage()
 {
   cat - << EOF
 usage : $0 [options] target1 target2 ..."
-
   target:
-    help
+    clone
+    build
+
+    fetch
+    update
+    patch
 
     create
-
-    enable_ssl
-    fetch
-    patch
-    upload
+    replace_crt
+    copy_image
 
     start
     stop
 
-
-    debug
-    ps
     down
+    destroy
+
+    help
 EOF
 }
 
 help()
 {
   usage
+}
+
+all()
+{
+    clone
+    build
+
+    fetch
+    update
+    patch
+
+    create
+    replace_crt
+    copy_image
+
+    start
 }
 
 clone()
@@ -146,11 +163,6 @@ copy_image()
 ps()
 {
   docker ps -a --no-trunc
-}
-
-all()
-{
-  usage
 }
 
 while [ "$#" -ne 0 ]; do
