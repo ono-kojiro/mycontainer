@@ -1,0 +1,42 @@
+*** docker-compose.yml.orig	2026-02-11 10:36:13.864944545 +0900
+--- docker-compose.yml	2026-02-11 10:43:28.863042685 +0900
+*************** volumes:
+*** 6,17 ****
+  
+  services:
+    app:
+!     image: snipe/snipe-it:${APP_VERSION:-latest}
+      restart: unless-stopped
+      volumes:
+        - storage:/var/lib/snipeit
+      ports:
+!       - "${APP_PORT:-8000}:80"
+      depends_on:
+        db:
+          condition: service_healthy
+--- 6,19 ----
+  
+  services:
+    app:
+!     image: snipe-it:${APP_VERSION:-latest}
+!     container_name: snipe-it-app
+!     hostname: snipe-it-app
+      restart: unless-stopped
+      volumes:
+        - storage:/var/lib/snipeit
+      ports:
+!       - "${APP_PORT:-8000}:443"
+      depends_on:
+        db:
+          condition: service_healthy
+*************** services:
+*** 21,26 ****
+--- 23,30 ----
+  
+    db:
+      image: mariadb:11.4.7
++     container_name: snipe-it-db
++     hostname: snipe-it-db
+      restart: unless-stopped
+      volumes:
+        - db_data:/var/lib/mysql

@@ -38,6 +38,24 @@ help()
   usage
 }
 
+clone()
+{
+  if [ ! -e "snipe-it" ]; then
+    git clone https://github.com/grokability/snipe-it.git
+  else
+    git -C snipe-it pull
+  fi
+
+  git -C snipe-it checkout -f v8.3.7
+}
+
+build()
+{
+  cd snipe-it
+  docker build -t snipe-it:${APP_VERSION} .
+  cd ${top_dir}
+}
+
 fetch()
 {
   curl -O https://raw.githubusercontent.com/snipe/snipe-it/master/docker-compose.yml
@@ -47,14 +65,21 @@ fetch()
 
 update()
 {
-  sed -ie "s/APP_VERSION=\(.*\)/APP_VERSION=v8.3.7-alpine/" .env
-  sed -ie "s|APP_URL=\(.*\)|APP_URL=http://192.168.1.72:8000|" .env
+  sed -ie "s/APP_VERSION=\(.*\)/APP_VERSION=v8.3.7-ubuntu/" .env
+  sed -ie "s/APP_PORT=\(.*\)/APP_PORT=8443/" .env
+  sed -ie "s|APP_URL=\(.*\)|APP_URL=https://192.168.1.72:8443|" .env
   sed -ie "s/APP_TIMEZONE='UTC'/APP_TIMEZONE='JST'/" .env
   sed -ie "s/APP_LOCALE=en-US/APP_LOCALE=ja-JP/" .env
 
   sed -ie "s/DB_PASSWORD=\(.*\)/DB_PASSWORD=mypasswd/" .env
   sed -ie "s/MYSQL_ROOT_PASSWORD=\(.*\)/MYSQL_ROOT_PASSWORD=mypasswd/" .env
 }
+
+patch()
+{
+  command patch -p0 -i 0000-change_name.patch
+}
+
 
 full()
 {
@@ -95,15 +120,28 @@ destroy()
   docker volume rm snipe-it_storage
 }
 
-attach()
+attach_app()
 {
-  docker exec -it snipe-it-app-1 /bin/sh
+  docker exec -it snipe-it-app /bin/bash
 }
 
 attach_db()
 {
-  docker exec -it snipe-it-db-1 /bin/bash
+  docker exec -it snipe-it-db /bin/bash
 }
+
+replace_crt()
+{
+  docker cp snipe-it-app.crt snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.crt
+  docker cp snipe-it-app.key snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.key
+}
+
+copy_image()
+{
+  docker exec -it snipe-it-app \
+    cp -f public/img/demo/avatars/default.png public/uploads/
+}
+
 
 ps()
 {
