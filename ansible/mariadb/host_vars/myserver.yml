@@ -1,0 +1,4 @@
+---
+ansible_host: noble
+ansible_become: true
+

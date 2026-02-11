@@ -1,0 +1,23 @@
+- name: setup mariadb
+  hosts:
+    - myserver
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  #pre_tasks:
+  #- name: load os-specific variables
+  #  ansible.builtin.include_vars:
+  #    file: "{{ item.file }}"
+  #  when: ansible_facts['os_family'] == item.os_family
+  #  loop:
+  #    - { file: "redhat_vars.yml", os_family: "RedHat" }
+  #    - { file: "debian_vars.yml", os_family: "Debian" }
+  #    - { file: "freebsd_vars.yml", os_family: "FreeBSD" }
+  #  tags: always
+
+  roles:
+    - role: mariadb
+      tags: mariadb
+

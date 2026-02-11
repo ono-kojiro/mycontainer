@@ -1,0 +1,30 @@
+---
+- name: install tools
+  ansible.builtin.package:
+    name:
+    - apt-transport-https
+    - curl
+    state: present
+
+- name: create keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+
+- name: download keyring
+  ansible.builtin.shell: |
+    curl -o /etc/apt/keyrings/mariadb-keyring.pgp \
+      'https://mariadb.org/mariadb_release_signing_key.pgp'
+
+- name: upload mariadb.sources
+  ansible.builtin.template:
+    src: mariadb.sources
+    dest: /etc/apt/sources.list.d/
+
+- name: install mariadb-server
+  ansible.builtin.apt:
+    name:
+    - mariadb-server
+    state: present
+    update_cache: true
+
