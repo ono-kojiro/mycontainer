@@ -1,0 +1,50 @@
+---
+- name: copy ca cert
+  ansible.builtin.copy:
+    src: "{{ ssl_ca_file }}"
+    dest: /etc/mysql/{{ ssl_ca_file }}
+    mode: '0644'
+
+- name: copy server cert
+  ansible.builtin.copy:
+    src: "{{ ssl_cert_file }}"
+    dest: /etc/mysql/{{ ssl_cert_file }}
+    mode: '0644'
+
+- name: copy server key
+  ansible.builtin.copy:
+    src: "{{ ssl_key_file }}"
+    dest: /etc/mysql/{{ ssl_key_file }}
+    owner: mysql
+    group: mysql
+    mode: '0600'
+
+- name: enable ssl-ca
+  ansible.builtin.replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp:  '^#?ssl-ca = (.+)$'
+    replace: 'ssl-ca = /etc/mysql/{{ ssl_ca_file }}'
+
+- name: enable ssl-cert
+  ansible.builtin.replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp:  '^#?ssl-cert = (.+)$'
+    replace: 'ssl-cert = /etc/mysql/{{ ssl_cert_file }}'
+
+- name: enable ssl-key
+  ansible.builtin.replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp:  '^#?ssl-key = (.+)$'
+    replace: 'ssl-key = /etc/mysql/{{ ssl_key_file }}'
+
+- name: allow remote access
+  ansible.builtin.replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp:  '^#?bind-address(.+)=(.+)$'
+    replace: 'bind-address = 0.0.0.0'
+
+- name: restart mariadb
+  ansible.builtin.systemd_service:
+    name: mariadb
+    state: restarted
+

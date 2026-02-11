@@ -1,0 +1,17 @@
+---
+- name: upload script
+  ansible.builtin.copy:
+    src: create_tables.sql
+    dest: /tmp/
+
+- name: create tables
+  ansible.builtin.shell: |
+    mariadb -h localhost < /tmp/create_tables.sql
+
+- name: delete script
+  ansible.builtin.file:
+    path: /tmp/create_tables.sql
+    state: absent
+
+
+

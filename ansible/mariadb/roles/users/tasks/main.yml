@@ -1,0 +1,12 @@
+---
+- name: upload script
+  ansible.builtin.copy:
+    src: create_users.sql
+    dest: /tmp/
+
+- name: create users
+  ansible.builtin.shell: |
+    mariadb -h localhost < /tmp/create_users.sql
+
+
+

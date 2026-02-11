@@ -1,0 +1,12 @@
+---
+- name: upload script
+  ansible.builtin.copy:
+    src: create_databases.sql
+    dest: /tmp/
+
+- name: create databases
+  ansible.builtin.shell: |
+    mariadb -h localhost < /tmp/create_databases.sql
+
+
+

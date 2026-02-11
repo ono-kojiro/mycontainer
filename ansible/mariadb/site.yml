@@ -1,6 +1,6 @@
 - name: setup mariadb
   hosts:
-    - xubuntu
+    - noble
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -19,8 +19,20 @@
 
   roles:
     - role: server
-      tags: server
+      tags: server, never
 
     - role: client
       tags: client, never
+
+    - role: ssl
+      tags: ssl, never
+
+    - role: users
+      tags: users, never
+
+    - role: databases
+      tags: databases, never
+
+    - role: tables
+      tags: tables, never
 

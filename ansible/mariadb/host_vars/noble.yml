@@ -1,0 +1,7 @@
+---
+ansible_host: noble
+ansible_become: true
+
+ssl_ca_file:   myrootca.crt
+ssl_cert_file: noble.crt
+ssl_key_file:  noble.key
