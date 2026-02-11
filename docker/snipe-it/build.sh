@@ -22,7 +22,7 @@ usage : $0 [options] target1 target2 ..."
 
     create
     replace_crt
-    copy_image
+    copy_png
 
     dbcert
 
@@ -47,12 +47,17 @@ all()
     build
 
     fetch
-    update
+
+    update_app
+    update_db
+
     patch
 
     create
     replace_crt
-    copy_image
+    copy_png
+
+    dbcert
 
     start
 }
@@ -85,12 +90,14 @@ build()
 
 fetch()
 {
+  echo "INFO: download docker-compose.yml"
   curl -O https://raw.githubusercontent.com/snipe/snipe-it/master/docker-compose.yml
+  echo "INFO: download .env"
   curl --output .env https://raw.githubusercontent.com/snipe/snipe-it/master/.env.docker
 
 }
 
-update()
+update_app()
 {
   sed -ie "s/APP_VERSION=\(.*\)/APP_VERSION=v8.3.7-ubuntu/" .env
   sed -ie "s/APP_PORT=\(.*\)/APP_PORT=8443/" .env
@@ -100,6 +107,15 @@ update()
 
   sed -ie "s/DB_PASSWORD=\(.*\)/DB_PASSWORD=mypasswd/" .env
   sed -ie "s/MYSQL_ROOT_PASSWORD=\(.*\)/MYSQL_ROOT_PASSWORD=mypasswd/" .env
+}
+
+update_db()
+{
+  :
+  #sed -ie "s|\(DB_SSL\)=\(.*\)|\1=true|" .env
+  sed -ie "s|\(DB_SSL_KEY_PATH\)=\(.*\)|\1=/etc/mysql/server-key.pem|" .env
+  sed -ie "s|\(DB_SSL_CERT_PATH\)=\(.*\)|\1=/etc/mysql/server-cert.pem|" .env
+  sed -ie "s|\(DB_SSL_CA_PATH\)=\(.*\)|\1=/etc/mysql/cacert.pem|" .env
 }
 
 patch()
@@ -163,7 +179,7 @@ replace_crt()
   docker cp snipe-it-app.key snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.key
 }
 
-copy_image()
+copy_png()
 {
   docker cp snipe-it-app:/var/www/html/public/img/demo/avatars/default.png .
   docker cp default.png snipe-i-app:/var/www/html/public/uploads/
@@ -175,11 +191,39 @@ ca()
   docker exec -it snipe-it-app update-ca-certificates
 }
 
+postproc()
+{
+  dbcert
+  change_owner
+}
+
 dbcert()
 {
   docker cp snipe-it-db.key snipe-it-db:${DB_SSL_KEY_PATH}
   docker cp snipe-it-db.crt snipe-it-db:${DB_SSL_CERT_PATH}
   docker cp myrootca.crt    snipe-it-db:${DB_SSL_CA_PATH}
+
+}
+
+change_owner()
+{
+  docker exec -it snipe-it-db chown mysql:mysql ${DB_SSL_KEY_PATH}
+  docker exec -it snipe-it-db chown root:root ${DB_SSL_CERT_PATH}
+  docker exec -it snipe-it-db chown root:root ${DB_SSL_CA_PATH}
+}
+
+enable_ssl()
+{
+  :
+  server_cnf="/etc/mysql/mariadb.conf.d/50-server.cnf"
+  docker exec -it snipe-it-db \
+    sed -i -e 's|^#\(ssl-ca = .\+\)|\1|' $server_cnf
+  docker exec -it snipe-it-db \
+    sed -i -e 's|^#\(ssl-cert = .\+\)|\1|' $server_cnf
+  docker exec -it snipe-it-db \
+    sed -i -e 's|^#\(ssl-key = .\+\)|\1|' $server_cnf
+  docker exec -it snipe-it-db \
+    sed -i -e 's|^#bind-address.\+=.\+|bind-address = 0.0.0.0|' $server_cnf
 }
 
 ps()
