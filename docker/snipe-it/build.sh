@@ -159,6 +159,11 @@ copy_image()
     cp -f public/img/demo/avatars/default.png public/uploads/
 }
 
+ca()
+{
+  docker cp myrootca.crt snipe-it-app:/usr/local/share/ca-certificates/
+  docker exec -it snipe-it-app update-ca-certificates
+}
 
 ps()
 {
