@@ -1,0 +1,11 @@
+# MariaDB 11.8 repository list - created 2026-02-11 04:34 UTC
+# https://mariadb.org/download/
+X-Repolib-Name: MariaDB
+Types: deb
+# deb.mariadb.org is a dynamic mirror if your preferred mirror goes offline. See https://mariadb.org/mirrorbits/ for details.
+# URIs: https://deb.mariadb.org/11.8/ubuntu
+URIs: https://ftp.yz.yamagata-u.ac.jp/pub/dbms/mariadb/repo/11.8/ubuntu
+Suites: noble
+Components: main main/debug
+Signed-By: /etc/apt/keyrings/mariadb-keyring.pgp
+
