@@ -24,6 +24,8 @@ usage : $0 [options] target1 target2 ..."
     replace_crt
     copy_image
 
+    dbcert
+
     start
     stop
 
@@ -53,6 +55,14 @@ all()
     copy_image
 
     start
+}
+
+config()
+{
+    replace_crt
+    copy_image
+
+    dbcert
 }
 
 clone()
@@ -155,14 +165,21 @@ replace_crt()
 
 copy_image()
 {
-  docker exec -it snipe-it-app \
-    cp -f public/img/demo/avatars/default.png public/uploads/
+  docker cp snipe-it-app:/var/www/html/public/img/demo/avatars/default.png .
+  docker cp default.png snipe-i-app:/var/www/html/public/uploads/
 }
 
 ca()
 {
   docker cp myrootca.crt snipe-it-app:/usr/local/share/ca-certificates/
   docker exec -it snipe-it-app update-ca-certificates
+}
+
+dbcert()
+{
+  docker cp snipe-it-db.key snipe-it-db:${DB_SSL_KEY_PATH}
+  docker cp snipe-it-db.crt snipe-it-db:${DB_SSL_CERT_PATH}
+  docker cp myrootca.crt    snipe-it-db:${DB_SSL_CA_PATH}
 }
 
 ps()
