@@ -17,6 +17,8 @@ fi
     
 site="https://github.com/grokability/${pkgname}"
 source_url="$site/archive/refs/tags/v${pkgver}.tar.gz"
+  
+builddir="./work/build/${pkgname}-${pkgver}"
 
 usage()
 {
@@ -63,7 +65,8 @@ all()
     upload
 
     start
-    post
+
+    postproc
 }
 
 fetch()
@@ -73,12 +76,6 @@ fetch()
   if [ ! -e "v${pkgver}.tar.gz" ]; then
     curl -O -L ${source_url}
   fi
-
-  #echo "INFO: download docker-compose.yml"
-  #curl -O https://raw.githubusercontent.com/snipe/snipe-it/master/docker-compose.yml
-  #echo "INFO: download .env"
-  #curl --output .env https://raw.githubusercontent.com/snipe/snipe-it/master/.env.docker
-
   cd ${top_dir}
 }
 
@@ -93,57 +90,40 @@ extract()
 
 build()
 {
-  cd work/build/snipe-it-${pkgver}
-  docker build -t snipe-it:${pkgver}-ubuntu .
+  cd work/build/${pkgname}-${pkgver}
+  docker build -t ${pkgname}:${pkgver}-ubuntu .
   cd ${top_dir}
 }
 
 config()
 {
-  cp -f work/build/${pkgname}-${pkgver}/docker-compose.yml .
-  cp -f work/build/${pkgname}-${pkgver}/.env.docker .env
+  cp -f ${builddir}/docker-compose.yml .
+  cp -f ${builddir}/.env.docker .env
 
   update_app
   update_db
 
   patch
-  #replace_crt
-  #copy_image
-
-  #dbcert
 }
-
-clone()
-{
-  if [ ! -e "snipe-it" ]; then
-    git clone https://github.com/grokability/snipe-it.git
-  else
-    git -C snipe-it pull
-  fi
-
-  git -C snipe-it checkout -f v8.3.7
-}
-
 
 update_app()
 {
-  sed -ie "s/APP_VERSION=\(.*\)/APP_VERSION=${pkgver}-ubuntu/" .env
-  sed -ie "s/APP_PORT=\(.*\)/APP_PORT=8443/" .env
-  sed -ie "s|APP_URL=\(.*\)|APP_URL=https://192.168.1.72:8443|" .env
-  sed -ie "s/APP_TIMEZONE='UTC'/APP_TIMEZONE='JST'/" .env
-  sed -ie "s/APP_LOCALE=en-US/APP_LOCALE=ja-JP/" .env
+  sed -i -e "s/APP_VERSION=\(.*\)/APP_VERSION=${pkgver}-ubuntu/" .env
+  sed -i -e "s/APP_PORT=\(.*\)/APP_PORT=8443/" .env
+  sed -i -e "s|APP_URL=\(.*\)|APP_URL=https://192.168.1.72:8443|" .env
+  sed -i -e "s/APP_TIMEZONE='UTC'/APP_TIMEZONE='JST'/" .env
+  sed -i -e "s/APP_LOCALE=en-US/APP_LOCALE=ja-JP/" .env
 
-  sed -ie "s/DB_PASSWORD=\(.*\)/DB_PASSWORD=mypasswd/" .env
-  sed -ie "s/MYSQL_ROOT_PASSWORD=\(.*\)/MYSQL_ROOT_PASSWORD=mypasswd/" .env
+  sed -i -e "s/DB_PASSWORD=\(.*\)/DB_PASSWORD=mypasswd/" .env
+  sed -i -e "s/MYSQL_ROOT_PASSWORD=\(.*\)/MYSQL_ROOT_PASSWORD=mypasswd/" .env
 }
 
 update_db()
 {
-  :
-  #sed -ie "s|\(DB_SSL\)=\(.*\)|\1=true|" .env
-  sed -ie "s|\(DB_SSL_KEY_PATH\)=\(.*\)|\1=/etc/mysql/server-key.pem|" .env
-  sed -ie "s|\(DB_SSL_CERT_PATH\)=\(.*\)|\1=/etc/mysql/server-cert.pem|" .env
-  sed -ie "s|\(DB_SSL_CA_PATH\)=\(.*\)|\1=/etc/mysql/cacert.pem|" .env
+  #sed -i -e "s|\(DB_SSL\)=\(.*\)|\1=true|" .env
+  sed -i -e "s|\(DB_SSL_KEY_PATH\)=\(.*\)|\1=/etc/mysql/server-key.pem|" .env
+  sed -i -e "s|\(DB_SSL_CERT_PATH\)=\(.*\)|\1=/etc/mysql/server-cert.pem|" .env
+  sed -i -e "s|\(DB_SSL_CA_PATH\)=\(.*\)|\1=/etc/mysql/cacert.pem|" .env
 }
 
 patch()
@@ -151,13 +131,48 @@ patch()
   command patch -p0 -i 0000-change_name.patch
 }
 
-
-full()
+attach_app()
 {
-  create
-  start
+  docker exec -it snipe-it-app /bin/bash
 }
 
+attach_db()
+{
+  docker exec -it snipe-it-db /bin/bash
+}
+
+upload()
+{
+  echo "INFO: replace cert"
+  replace_crt
+  echo "INFO: copy ca"
+  upload_ca
+}
+
+replace_crt()
+{
+  docker cp snipe-it-app.crt snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.crt
+  docker cp snipe-it-app.key snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.key
+}
+
+upload_ca()
+{
+  docker cp myrootca.crt snipe-it-app:/usr/local/share/ca-certificates/
+}
+
+postproc()
+{
+  copy_png
+}
+
+copy_png()
+{
+  docker exec -it snipe-it-app mkdir -p /var/www/html/public/uploads
+  docker cp ${builddir}/public/uploads/default.png \
+    snipe-it-app:/var/www/html/public/uploads/
+}
+
+##### common functions ##########
 create()
 {
   docker compose --env-file ${ENVFILE} up --no-start
@@ -191,82 +206,6 @@ destroy()
   docker volume rm snipe-it_storage
 }
 
-attach_app()
-{
-  docker exec -it snipe-it-app /bin/bash
-}
-
-attach_db()
-{
-  docker exec -it snipe-it-db /bin/bash
-}
-
-upload()
-{
-  echo "INFO: replace cert"
-  replace_crt
-  echo "INFO: copy ca"
-  ca
-}
-
-replace_crt()
-{
-  docker cp snipe-it-app.crt snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.crt
-  docker cp snipe-it-app.key snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.key
-}
-
-copy_png()
-{
-  docker exec -it snipe-it-app mkdir -p /var/www/html/public/uploads
-  docker cp ./work/build/snipe-it-8.3.7/public/uploads/default.png \
-    snipe-it-app:/var/www/html/public/uploads/
-}
-
-post()
-{
-  copy_png
-}
-
-ca()
-{
-  docker cp myrootca.crt snipe-it-app:/usr/local/share/ca-certificates/
-  #docker exec -it snipe-it-app update-ca-certificates
-}
-
-postproc()
-{
-  dbcert
-  change_owner
-}
-
-dbcert()
-{
-  docker cp snipe-it-db.key snipe-it-db:${DB_SSL_KEY_PATH}
-  docker cp snipe-it-db.crt snipe-it-db:${DB_SSL_CERT_PATH}
-  docker cp myrootca.crt    snipe-it-db:${DB_SSL_CA_PATH}
-
-}
-
-change_owner()
-{
-  docker exec -it snipe-it-db chown mysql:mysql ${DB_SSL_KEY_PATH}
-  docker exec -it snipe-it-db chown root:root ${DB_SSL_CERT_PATH}
-  docker exec -it snipe-it-db chown root:root ${DB_SSL_CA_PATH}
-}
-
-enable_ssl()
-{
-  :
-  server_cnf="/etc/mysql/mariadb.conf.d/50-server.cnf"
-  docker exec -it snipe-it-db \
-    sed -i -e 's|^#\(ssl-ca = .\+\)|\1|' $server_cnf
-  docker exec -it snipe-it-db \
-    sed -i -e 's|^#\(ssl-cert = .\+\)|\1|' $server_cnf
-  docker exec -it snipe-it-db \
-    sed -i -e 's|^#\(ssl-key = .\+\)|\1|' $server_cnf
-  docker exec -it snipe-it-db \
-    sed -i -e 's|^#bind-address.\+=.\+|bind-address = 0.0.0.0|' $server_cnf
-}
 
 ps()
 {
