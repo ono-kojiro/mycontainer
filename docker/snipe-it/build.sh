@@ -4,17 +4,27 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
 ENVFILE=./.env
 
+pkgname="snipe-it"
+pkgver="8.3.7"
+
 if [ -e "${ENVFILE}" ]; then
   . ${ENVFILE}
 fi
+
+if [ -z "${APP_VERSION}" ]; then
+  APP_VERSION="$pkgver"
+fi
+    
+site="https://github.com/grokability/${pkgname}"
+source_url="$site/archive/refs/tags/v${pkgver}.tar.gz"
 
 usage()
 {
   cat - << EOF
 usage : $0 [options] target1 target2 ..."
   target:
-    clone
-    build
+    clone         clone snipe-it repository
+    build         build snipe-it ubuntu image
 
     fetch
     update
@@ -43,31 +53,64 @@ help()
 
 all()
 {
-    clone
-    build
+    #fetch
+    #extract
+    #build
 
-    fetch
-
-    update_app
-    update_db
-
-    patch
+    config
 
     create
-    replace_crt
-    copy_png
-
-    dbcert
+    upload
 
     start
+    post
+}
+
+fetch()
+{
+  mkdir -p work/sources
+  cd work/sources
+  if [ ! -e "v${pkgver}.tar.gz" ]; then
+    curl -O -L ${source_url}
+  fi
+
+  #echo "INFO: download docker-compose.yml"
+  #curl -O https://raw.githubusercontent.com/snipe/snipe-it/master/docker-compose.yml
+  #echo "INFO: download .env"
+  #curl --output .env https://raw.githubusercontent.com/snipe/snipe-it/master/.env.docker
+
+  cd ${top_dir}
+}
+
+extract()
+{
+  archive=`basename ${source_url}`
+  mkdir -p work/build
+  cd work/build
+  tar -xzvf ../sources/${archive}
+  cd ${top_dir}
+}
+
+build()
+{
+  cd work/build/snipe-it-${pkgver}
+  docker build -t snipe-it:${pkgver}-ubuntu .
+  cd ${top_dir}
 }
 
 config()
 {
-    replace_crt
-    copy_image
+  cp -f work/build/${pkgname}-${pkgver}/docker-compose.yml .
+  cp -f work/build/${pkgname}-${pkgver}/.env.docker .env
 
-    dbcert
+  update_app
+  update_db
+
+  patch
+  #replace_crt
+  #copy_image
+
+  #dbcert
 }
 
 clone()
@@ -81,25 +124,10 @@ clone()
   git -C snipe-it checkout -f v8.3.7
 }
 
-build()
-{
-  cd snipe-it
-  docker build -t snipe-it:${APP_VERSION} .
-  cd ${top_dir}
-}
-
-fetch()
-{
-  echo "INFO: download docker-compose.yml"
-  curl -O https://raw.githubusercontent.com/snipe/snipe-it/master/docker-compose.yml
-  echo "INFO: download .env"
-  curl --output .env https://raw.githubusercontent.com/snipe/snipe-it/master/.env.docker
-
-}
 
 update_app()
 {
-  sed -ie "s/APP_VERSION=\(.*\)/APP_VERSION=v8.3.7-ubuntu/" .env
+  sed -ie "s/APP_VERSION=\(.*\)/APP_VERSION=${pkgver}-ubuntu/" .env
   sed -ie "s/APP_PORT=\(.*\)/APP_PORT=8443/" .env
   sed -ie "s|APP_URL=\(.*\)|APP_URL=https://192.168.1.72:8443|" .env
   sed -ie "s/APP_TIMEZONE='UTC'/APP_TIMEZONE='JST'/" .env
@@ -173,6 +201,14 @@ attach_db()
   docker exec -it snipe-it-db /bin/bash
 }
 
+upload()
+{
+  echo "INFO: replace cert"
+  replace_crt
+  echo "INFO: copy ca"
+  ca
+}
+
 replace_crt()
 {
   docker cp snipe-it-app.crt snipe-it-app:/var/lib/snipeit/ssl/snipeit-ssl.crt
@@ -181,14 +217,20 @@ replace_crt()
 
 copy_png()
 {
-  docker cp snipe-it-app:/var/www/html/public/img/demo/avatars/default.png .
-  docker cp default.png snipe-i-app:/var/www/html/public/uploads/
+  docker exec -it snipe-it-app mkdir -p /var/www/html/public/uploads
+  docker cp ./work/build/snipe-it-8.3.7/public/uploads/default.png \
+    snipe-it-app:/var/www/html/public/uploads/
+}
+
+post()
+{
+  copy_png
 }
 
 ca()
 {
   docker cp myrootca.crt snipe-it-app:/usr/local/share/ca-certificates/
-  docker exec -it snipe-it-app update-ca-certificates
+  #docker exec -it snipe-it-app update-ca-certificates
 }
 
 postproc()

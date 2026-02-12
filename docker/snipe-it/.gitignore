@@ -1,4 +1,7 @@
 *~
 *.crt
 *.key
+work/
+docker-compose.yml
+.env
 
