@@ -1,0 +1,9 @@
+---
+ansible_host: localhost
+ansible_become: true
+
+bridges:
+- lan7-1
+- lan7-2
+- lan7-3
+

@@ -4,8 +4,8 @@
   tasks:
   - name: delete bridges
     ansible.builtin.shell: |
-      num=`nmcli con | awk '{ print $1 }' | grep -e '^{{ item }}$' | wc -l`
-      if [ "$num" -eq 1 ]; then
+      num=`nmcli --fields name con show | grep -e '^{{ item }}$' | wc -l`
+      if [ "$num" -ne 0 ]; then
         sudo nmcli con del {{ item }}
       fi
     loop: "{{ bridges }}"
