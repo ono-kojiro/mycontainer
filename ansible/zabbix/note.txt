@@ -1,0 +1,21 @@
+# Database Connection Configuration
+
+  database type: MySQL
+  database host: localhost
+  database port: 0 (use default port)
+  database name: zabbix
+  credential store: plain text
+  username: zabbix
+  password: xxxxxx
+
+# Configuration
+
+  zabbix server name: xxxxx
+  default timezone: (UTC+09:00) Asia/Tokyo
+  default theme: Blue
+  encrypt connection from Web UI: on
+  TLS CA file: /etc/ssl/certs/ca-certificates.crt
+  TLS key file: /etc/zabbix/certs/server.key  ( 0644, www-data:www-data)
+  TLS crt file: /etc/zabbix/certs/server.crt  ( 0600, www-data:www-data)
+  verify server cert: on
+
