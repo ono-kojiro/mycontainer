@@ -1,0 +1,6 @@
+---
+zabbix_ver: 7.4
+ubuntu_ver: 24.04
+zabbix_repo_deb: zabbix-release_latest_{{ zabbix_ver }}+ubuntu{{ ubuntu_ver}}_all.deb
+zabbix_repo_url: https://repo.zabbix.com/zabbix/{{ zabbix_ver }}/release/ubuntu/pool/main/z/zabbix-release/{{ zabbix_repo_deb }}
+

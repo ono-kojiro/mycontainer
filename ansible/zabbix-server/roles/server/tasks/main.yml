@@ -1,0 +1,106 @@
+---
+- name: install mysql server
+  ansible.builtin.apt:
+    name:
+    - mysql-server
+    update_cache: yes
+
+- name: install Zabbix repository
+  ansible.builtin.apt:
+    deb: "{{ zabbix_repo_url }}"
+
+- name: apt update, install Zabbix server, frontend
+  ansible.builtin.apt:
+    name:
+    - zabbix-server-mysql
+    - zabbix-frontend-php
+    - zabbix-apache-conf
+    - zabbix-sql-scripts
+    update_cache: yes
+
+- name: create initial database
+  ansible.builtin.shell: |
+    mysql -uroot << EOF
+    drop database if exists zabbix;
+    create database zabbix character set utf8mb4 collate utf8mb4_bin;
+
+    drop user if exists zabbix@localhost;
+    create user zabbix@localhost identified by '{{ zabbix_pw }}';
+
+    grant all privileges on zabbix.* to zabbix@localhost;
+    set global log_bin_trust_function_creators = 1;
+    commit;
+    EOF
+
+- name: import initial schema and data
+  ansible.builtin.shell: |
+    zcat /usr/share/zabbix/sql-scripts/mysql/server.sql.gz | \
+      mysql --default-character-set=utf8mb4 -u{{ zabbix_user }} -p{{ zabbix_pw }} {{ zabbix_db }}
+
+- name: disable log_bin_trust_function_creators option
+  ansible.builtin.shell: |
+    mysql -uroot << EOF
+    set global log_bin_trust_function_creators = 0;
+    EOF
+
+- name: change DBPassword
+  ansible.builtin.replace:
+    path: /etc/zabbix/zabbix_server.conf
+    regexp:  '^#?\s*DBPassword=.*'
+    replace:       'DBPassword={{ zabbix_pw }}'
+
+- name: create /etc/zabbix/certs directory
+  ansible.builtin.file:
+    path: /etc/zabbix/certs
+    owner: zabbix
+    group: zabbix
+    mode: '0755'
+    state: directory
+
+- name: upload server cert
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/zabbix/certs/zabbix_server.crt
+    owner: zabbix
+    group: zabbix
+    mode: '0644'
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/zabbix/certs/zabbix_server.key
+    owner: zabbix
+    group: www-data
+    mode: '0640'
+
+- name: upload server configuration
+  ansible.builtin.template:
+    src: server-local.conf
+    dest: /etc/zabbix/zabbix_server.d/
+
+- name: create /etc/zabbix/web directory
+  ansible.builtin.file:
+    path: /etc/zabbix/web
+    state: directory
+    owner: www-data
+    group: root
+    mode: '0755'
+
+- name: upload php configuration
+  ansible.builtin.template:
+    src: zabbix.conf.php
+    dest: /etc/zabbix/web/
+    owner: www-data
+    group: www-data
+    mode: '0600'
+
+- name: restart zabbix-server
+  ansible.builtin.systemd_service:
+    name: zabbix-server
+    state: restarted
+
+- name: restart apache2
+  ansible.builtin.systemd_service:
+    name: apache2
+    state: restarted
+
