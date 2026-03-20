@@ -1,0 +1,28 @@
+---
+- name: stop zabbix agent
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+  loop:
+  - zabbix-agent
+  ignore_errors: true
+
+- name: remove zabbix packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+    autoremove: yes
+    purge: true
+  loop:
+  - "zabbix-*"
+  ignore_errors: true
+
+- name: remove zabbix log
+  ansible.builtin.file:
+    path: /var/log/zabbix
+    state: absent
+
+- name: remove zabbix config
+  ansible.builtin.file:
+    path: /etc/zabbix
+    state: absent

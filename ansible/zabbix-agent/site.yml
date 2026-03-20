@@ -10,3 +10,6 @@
   - role: agent
     tags: agent
 
+  - role: destroy
+    tags: destroy, never
+

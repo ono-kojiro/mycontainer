@@ -9,15 +9,15 @@
     - zabbix-agent
     update_cache: yes
 
-- name: upload server cert
+- name: upload agent cert
   ansible.builtin.copy:
-    src: "{{ server_crt }}"
+    src: "{{ agent_crt }}"
     dest: /etc/ssl/certs/
     mode: '0644'
 
-- name: upload server key
+- name: upload agent key
   ansible.builtin.copy:
-    src: "{{ server_key }}"
+    src: "{{ agent_key }}"
     dest: /etc/ssl/private/
     mode: '0640'
     owner: root
@@ -25,7 +25,7 @@
 
 - name: upload agent configuration
   ansible.builtin.template:
-    src: local.conf
+    src: agent-local.conf
     dest: /etc/zabbix/zabbix_agentd.d/
 
 - name: allow zabbix agent to read SSL certificates
