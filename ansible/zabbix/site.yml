@@ -1,18 +1,27 @@
-- name: setup localhost
+- name: setup zabbix server and agent
   hosts:
-    - localhost
+    - abaoaqu
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
   #  https_proxy: http://proxy.example.com:8080
 
   roles:
+  - name: cacert
+    tags: cacert
+
+  - name: locale
+    tags: locale
+
   - name: apache
     tags: apache
 
-  - name: ssl
-    tags: ssl
+  - role: server
+    tags: server
 
-  - role: zabbix
-    tags: zabbix
+  - role: agent
+    tags: agent
+
+  - role: destroy
+    tags: destroy, never
 

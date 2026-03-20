@@ -1,0 +1,24 @@
+---
+ansible_host: abaoaqu
+ansible_become: true
+
+cacert: myrootca.crt
+caname: MyRootCA
+
+# for server
+zabbix_server_name: abaoaqu 
+
+server_crt: abaoaqu.crt
+server_key: abaoaqu.key
+
+zabbix_user: zabbix
+zabbix_pw: password
+zabbix_db: zabbix
+
+# for agent
+agent_crt: abaoaqu.crt
+agent_key: abaoaqu.key
+
+server_ip: 127.0.0.1
+
+

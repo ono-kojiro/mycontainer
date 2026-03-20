@@ -2,3 +2,8 @@
 ansible_host: localhost
 ansible_become: true
 
+zabbix_server_name: luna2
+
+server_crt: luna2.crt
+server_key: luna2.key
+

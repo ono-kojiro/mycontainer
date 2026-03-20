@@ -15,7 +15,21 @@
   default theme: Blue
   encrypt connection from Web UI: on
   TLS CA file: /etc/ssl/certs/ca-certificates.crt
-  TLS key file: /etc/zabbix/certs/server.key  ( 0644, www-data:www-data)
-  TLS crt file: /etc/zabbix/certs/server.crt  ( 0600, www-data:www-data)
+  TLS key file: /etc/zabbix/certs/zabbix_server.key  ( 0644, www-data:www-data)
+  TLS crt file: /etc/zabbix/certs/zabbix_server.crt  ( 0600, www-data:www-data)
   verify server cert: on
+
+# Data collection
+  Hosts:
+    Zabbix server:
+      Encryption:
+        Connections to host: Certificate
+        Connections from host:
+          No encryption: off
+          PSK: off
+          Certificate: on
+          Issuer: (empty)
+          Subject: (empty)
+
+  
 
