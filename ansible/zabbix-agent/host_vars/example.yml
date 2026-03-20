@@ -1,0 +1,7 @@
+---
+ansible_host: example
+ansible_become: true
+
+server_crt: example.crt
+server_key: example.key
+
