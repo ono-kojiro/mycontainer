@@ -32,4 +32,45 @@
           Subject: (empty)
 
   
+# LDAP authentication
 
+  In "Users" -> "Authentication" -> "LDAP settings" tab
+
+  Enable LDAP authentication: on
+  Enable JI provisioning: off
+  Setvers: (click "Add")
+    Name: MyLDAPServer
+    Host: 192.168.1.xxx
+    Port: 389
+    Base DN: dc=example,dc=com
+    Search attribute: uid
+    Bind DN: (empty)
+    Bind password: (empty)
+    Description: (empty)
+
+    Advanced configuration:
+      StartTLS: on
+      Search filter: (empty)
+
+
+  In "Users" -> "Authentication" -> "Authentication" tab
+    Default authentication: LDAP
+
+
+  In "Users" -> "Users", press "Create user" button (right-top corner)
+    "User" tab:
+      Username: (username)
+      Name: (firstname)
+      Lastname: (lastname)
+      Groups: "Zabbix administrators"
+      Password: (empty)
+      Password(once aggain): (empty)
+
+    "Permissions" tab:
+      Role: "Super admin role"
+
+    press "Add" button.
+
+  "Sign out", then login again with the user above.
+
+  

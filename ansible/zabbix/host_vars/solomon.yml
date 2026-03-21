@@ -1,0 +1,24 @@
+---
+ansible_host: solomon
+ansible_become: true
+
+cacert: myrootca.crt
+caname: MyRootCA
+
+# for zabbix server
+zabbix_server_name: solomon
+
+server_crt: solomon.crt
+server_key: solomon.key
+
+zabbix_user: zabbix
+zabbix_pw: password
+zabbix_db: zabbix
+
+# for zabbix agent
+agent_crt: solomon.crt
+agent_key: solomon.key
+
+server_ip: 127.0.0.1
+
+

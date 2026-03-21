@@ -2,4 +2,6 @@ all:
   children:
     servers:
       hosts:
+        luna2:
         abaoaqu:
+        solomon:

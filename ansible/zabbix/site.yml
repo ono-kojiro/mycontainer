@@ -1,6 +1,8 @@
 - name: setup zabbix server and agent
   hosts:
-    - abaoaqu
+  #- luna2
+  #- abaoaqu
+  - solomon
 
   #environment:
   #  http_proxy: http://proxy.example.com:8080
