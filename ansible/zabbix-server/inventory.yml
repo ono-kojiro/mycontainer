@@ -1,5 +1,0 @@
-all:
-  children:
-    servers:
-      hosts:
-        abaoaqu:
