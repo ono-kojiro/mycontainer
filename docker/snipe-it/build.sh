@@ -5,7 +5,8 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 ENVFILE=./.env
 
 pkgname="snipe-it"
-pkgver="8.3.7"
+#pkgver="8.3.7"
+pkgver="8.4.0"
 
 if [ -e "${ENVFILE}" ]; then
   . ${ENVFILE}
@@ -25,26 +26,17 @@ usage()
   cat - << EOF
 usage : $0 [options] target1 target2 ..."
   target:
-    clone         clone snipe-it repository
-    build         build snipe-it ubuntu image
+    fetch             fetch source archive
+    extract           extract source code
+    
+    config            copy docker-compose.yml and configure
+    build             build docker image
+    
+    create            create container
+    upload            upload certificates
 
-    fetch
-    update
-    patch
-
-    create
-    replace_crt
-    copy_png
-
-    dbcert
-
-    start
-    stop
-
-    down
-    destroy
-
-    help
+    start             start container
+    postproc
 EOF
 }
 
@@ -57,9 +49,8 @@ all()
 {
     #fetch
     #extract
+    #config
     #build
-
-    config
 
     create
     upload

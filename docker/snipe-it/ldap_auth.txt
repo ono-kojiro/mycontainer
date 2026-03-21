@@ -1,22 +1,30 @@
-LDAP Integration: LDAP enabled
+# LDAP Authentication
 
-Cache LDAP Password: Yes
+  "Admin Settings" -> "LDAP"
 
-LDAP Server: ldaps://192.168.X.X
 
-LDAP SSL certificate validation: Allow invalid SSL Certificate
+## Configuration
 
-LDAP Bind Username: cn=Manager,dc=example,dc=com
-LDAP Bind Password: XXXXXXXXXX
+  LDAP Integration: LDAP enabled
 
-Base Bind DN: dc=example,dc=com
-LDAP Filter: &(cn=*)
+  Cache LDAP Password: Yes
 
-LDAP Authentication query: uid=
+  LDAP Server: ldaps://192.168.X.X
+  Use TLS: Yes
 
-LDAP Username Field: uid
-LDAP Last Name Field: sn
-LDAP First Name Field: givenname
-LDAP Display Name Field: gecos
+  LDAP SSL certificate validation: Allow invalid SSL Certificate
+
+  LDAP Bind Username: cn=Manager,dc=example,dc=com
+  LDAP Bind Password: XXXXXXXXXX
+
+  Base Bind DN: dc=example,dc=com
+  LDAP Filter: &(cn=*)
+
+  LDAP Authentication query: uid=
+
+  LDAP Username Field: uid
+  LDAP Last Name Field: sn
+  LDAP First Name Field: givenname
+  LDAP Display Name Field: gecos
 
 
