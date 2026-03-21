@@ -24,6 +24,9 @@
   - role: agent
     tags: agent
 
+  - role: japanese
+    tags: japanese
+
   - role: destroy
     tags: destroy, never
 

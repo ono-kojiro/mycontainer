@@ -1,0 +1,16 @@
+---
+- name: install fonts-ipafont
+  ansible.builtin.apt:
+    name: fonts-ipafont
+    state: present
+
+- name: update alternatives
+  ansible.builtin.shell: |
+    update-alternatives --install \
+      /usr/share/zabbix/ui/assets/fonts/graphfont.ttf \
+      zabbix-frontend-font \
+      /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf 20
+
+- name: display alternatives
+  ansible.builtin.shell: |
+    update-alternatives --display zabbix-frontend-font
