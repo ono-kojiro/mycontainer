@@ -3,6 +3,11 @@
 # Server crt and key
 #
 
+- name: install ssl-cert package
+  ansible.builtin.apt:
+    name: ssl-cert
+    state: present
+
 - name: copy server crt
   ansible.builtin.copy:
     src: "{{ server_crt }}"
