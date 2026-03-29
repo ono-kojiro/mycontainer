@@ -1,8 +1,8 @@
 ---
 # sssd.conf
 #ldap_addr:   172.16.1.69
-ldap_addr:   192.168.1.72
-sssd_ldap_uri:    ldap://{{ ldap_addr }}
+ldap_addr:   127.0.0.1
+ldap_uri:    ldaps://{{ ldap_addr }}
 ldap_suffix: dc=example,dc=com
 
 sssd_allow_groups: ldapusers
