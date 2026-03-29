@@ -1,12 +1,5 @@
 ---
 ansible_host: solomon
 ansible_become: true
-
-consumer_addr: 192.168.1.52
-ldap_uri: ldaps://{{ consumer_addr }}
-
-server_crt: solomon.crt
-server_key: solomon.key
-
-tls_cert_path: "/usr/share/ca-certificates/mylocalca/mylocalca.crt"
+ansible_become_exe: /usr/bin/sudo.ws
 
