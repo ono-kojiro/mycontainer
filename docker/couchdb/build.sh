@@ -72,15 +72,14 @@ ssl()
 {
   docker cp couchdb.crt couchdb:/tmp/
   docker cp couchdb.key couchdb:/tmp/
-  docker cp custom.ini  couchdb:/tmp/
+  docker cp ssl.ini couchdb:/opt/couchdb/etc/local.d/
   docker exec -i couchdb /bin/bash << EOF
 {
   mkdir -p /opt/couchdb/etc/certs
   mv -f /tmp/couchdb.* /opt/couchdb/etc/certs/
   chown couchdb:couchdb /opt/couchdb/etc/certs/couchdb.*
   chmod 600 /opt/couchdb/etc/certs/couchdb.key
-
-  mv -f /tmp/custom.ini /opt/couchdb/etc/local.d/
+  chmod 644 /opt/couchdb/etc/local.d/ssl.ini
 }
 EOF
 
@@ -113,28 +112,25 @@ EOF
 
 config()
 {
-  #defaultconfig
+  defaultconfig
   localconfig
 }
 
 defaultconfig()
 {
-  docker cp default.d-ldap_auth.ini couchdb:/opt/couchdb/etc/default.d/ldap_auth.ini
-
+  :
 }
 
 localconfig()
 {
-  #docker cp local.d-ldap_auth.ini couchdb:/opt/couchdb/etc/local.d/ldap_auth.ini
-  docker cp ldap_auth.ini couchdb:/opt/couchdb/etc/local.d/ldap_auth.ini
+  docker cp local.ini couchdb:/opt/couchdb/etc/local.d/
 }
 
 unconfig()
 {
   docker exec -i couchdb /bin/bash << EOF
 {
-  rm -f /opt/couchdb/etc/default.d/ldap_auth.ini
-  rm -f /opt/couchdb/etc/local.d/ldap_auth.ini
+  rm -f /opt/couchdb/etc/local.d/local.ini
 }
 EOF
 }
