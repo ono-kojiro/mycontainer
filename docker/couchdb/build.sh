@@ -12,17 +12,13 @@ usage()
   cat - << EOF
 usage : $0 [options] target1 target2 ..."
   target:
-    fetch             fetch source archive
-    extract           extract source code
-    
-    config            copy docker-compose.yml and configure
-    build             build docker image
-    
     create            create container
+    start             start container
+    
+    ssl               enable ssl
+
     upload            upload certificates
 
-    start             start container
-    postproc
 EOF
 }
 
@@ -65,7 +61,10 @@ init()
 
 check()
 {
-  curl -X GET http://admin:secret@192.168.1.52:5984/_all_dbs/
+  #curl -k -X GET https://admin:secret@192.168.1.52:6984/_all_dbs/
+  cmd="curl -k -X GET https://admin:secret@192.168.1.52:6984/"
+  echo "DEBUG: $cmd"
+  $cmd
 }
 
 ssl()
