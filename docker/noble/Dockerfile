@@ -76,5 +76,5 @@ RUN chmod 600 /etc/sssd/sssd.conf \
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 
