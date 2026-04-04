@@ -1,0 +1,32 @@
+---
+services:
+  client:
+    image: ${IMAGE}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "${LOCAL_PORT}:22"
+    networks:
+      optional:
+        ipv4_address: ${IPV4_ADDRESS}
+      default: {}
+
+networks:
+  optional:
+    name: ${CONTAINER_NAME}_macvlan
+    driver: macvlan
+    driver_opts:
+      parent: ${NETWORK_PARENT}
+    ipam:
+      config:
+        - subnet:  ${IPAM_SUBNET}
+          gateway: ${IPAM_GATEWAY}
+  default:
+    name: ${CONTAINER_NAME}_default
+    driver: bridge
+
