@@ -36,6 +36,21 @@ RUN apt-get -qq update \
 
 RUN apt-get -y install /tmp/novnc_1.6.0_all.deb
 
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      tigervnc-standalone-server tigervnc-common \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      tigervnc-tools \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
 RUN mkdir -p /root/.vnc
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
