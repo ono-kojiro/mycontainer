@@ -58,6 +58,9 @@ create()
 {
   docker compose $flags up --no-start
   ssl
+
+  xdummy
+  lightdm
 }
 
 ssl()
@@ -76,6 +79,18 @@ update()
     supervisorctl update
 EOF
 
+}
+
+lightdm()
+{
+  docker cp lightdm.conf noble_novnc:/etc/lightdm/lightdm.conf.d/
+  docker cp empty noble_novnc:/usr/share/lightdm/lightdm.conf.d/50-xserver-command.conf
+
+}
+
+xdummy()
+{
+  docker cp 10-xdummy.conf noble_novnc:/etc/X11/xorg.conf.d/10-xdummy.conf
 }
 
 status()

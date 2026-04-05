@@ -39,6 +39,32 @@ RUN apt-get -qq update \
     && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Xdummy packages
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      xserver-xorg-video-dummy \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Install x11vnc packages
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      x11vnc \
+      xserver-xorg \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dbus packages
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      dbus \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
 
 EXPOSE 8080
 EXPOSE 8443
