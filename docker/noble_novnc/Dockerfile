@@ -27,6 +27,15 @@ EXPOSE 8080
 EXPOSE 8443
 
 COPY websockify /usr/local/bin/websockify-c
+
+COPY config/nginx/pam-nginx /etc/pam.d/nginx
+COPY config/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.d/
+  
+COPY config/xorg/10-xdummy.conf /etc/X11/xorg.conf.d/10-xdummy.conf
+
+# empty
+COPY config/lightdm/50-xserver-command.conf /usr/share/lightdm/lightdm.conf.d/
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 

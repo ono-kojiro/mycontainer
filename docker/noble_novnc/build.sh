@@ -58,9 +58,6 @@ create()
 {
   docker compose $flags up --no-start
   ssl
-
-  xdummy
-  lightdm
 }
 
 ssl()
@@ -72,25 +69,12 @@ ssl()
 
 update()
 {
-  docker cp etc-pam.d-nginx noble_novnc:/etc/pam.d/nginx
   docker cp supervisord.conf noble_novnc:/etc/supervisor/conf.d/supervisord.conf
   docker exec -i ${CONTAINER_NAME} /bin/bash -s << EOF
     supervisorctl reread
     supervisorctl update
 EOF
 
-}
-
-lightdm()
-{
-  docker cp lightdm.conf noble_novnc:/etc/lightdm/lightdm.conf.d/
-  docker cp empty noble_novnc:/usr/share/lightdm/lightdm.conf.d/50-xserver-command.conf
-
-}
-
-xdummy()
-{
-  docker cp 10-xdummy.conf noble_novnc:/etc/X11/xorg.conf.d/10-xdummy.conf
 }
 
 status()
