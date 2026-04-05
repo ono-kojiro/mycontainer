@@ -30,6 +30,16 @@ RUN apt-get -qq update \
     && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install lightdm packages
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      lightdm \
+      lightdm-gtk-greeter \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
 EXPOSE 8080
 EXPOSE 8443
 
