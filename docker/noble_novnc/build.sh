@@ -69,6 +69,7 @@ ssl()
 
 update()
 {
+  docker cp etc-pam.d-nginx noble_novnc:/etc/pam.d/nginx
   docker cp supervisord.conf noble_novnc:/etc/supervisor/conf.d/supervisord.conf
   docker exec -i ${CONTAINER_NAME} /bin/bash -s << EOF
     supervisorctl reread

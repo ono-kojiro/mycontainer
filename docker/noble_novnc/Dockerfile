@@ -26,6 +26,7 @@ RUN apt-get -qq update \
     && apt-get -qq upgrade \
     && apt-get -qq install \
       nginx \
+      libnginx-mod-http-auth-pam \
     && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
 
