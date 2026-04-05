@@ -13,5 +13,5 @@ services:
       - .env
     ports:
       - "${SSH_LPORT}:22"
-      #- "${HTTP_LPORT}:8080"
-      - "${HTTPS_LPORT}:8443"
+      - "${HTTP_LPORT}:80"
+      - "${HTTPS_LPORT}:443"

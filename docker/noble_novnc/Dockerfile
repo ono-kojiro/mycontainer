@@ -21,8 +21,18 @@ RUN apt-get -qq update \
     && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install nginx packages
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install \
+      nginx \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8080
 EXPOSE 8443
 
+COPY websockify /usr/local/bin/websockify-c
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 
