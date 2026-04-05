@@ -3,10 +3,14 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
+if [ -e "./.env" ]; then
+  . ./.env
+fi
+
 release="noble"
 
-image="$release"
-container="$release"
+image="${IMAGE}"
+container_name="${CONTAINER_NAME}"
 
 root_url="https://cloud-images.ubuntu.com/${release}/current/${release}-server-cloudimg-amd64-root.tar.xz"
 
@@ -89,12 +93,12 @@ start()
 
 attach()
 {
-  docker exec -it $container /bin/bash
+  docker exec -it $container_name /bin/bash
 }
 
 ssh()
 {
-  command ssh -p 24041 -l root localhost
+  command ssh -p ${SSH_LPORT} -l root localhost
 }
 
 stop()

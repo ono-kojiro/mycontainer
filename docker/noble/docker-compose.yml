@@ -1,14 +1,13 @@
 ---
 services:
   noble:
-    image: noble:latest
-    container_name: noble
-    hostname: noble
+    image: ${IMAGE}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
     restart:  always
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
     environment:
       TZ: Asia/Tokyo
     ports:
-      - "24022:22"
-      - "24443:443"
+      - "${SSH_LPORT}:22"
