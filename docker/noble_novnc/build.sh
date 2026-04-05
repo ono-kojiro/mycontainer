@@ -67,6 +67,25 @@ ssl()
   docker cp ssl.conf  noble_novnc:/etc/nginx/conf.d/ssl.conf
 }
 
+update()
+{
+  docker cp supervisord.conf noble_novnc:/etc/supervisor/conf.d/supervisord.conf
+  docker exec -i ${CONTAINER_NAME} /bin/bash -s << EOF
+    supervisorctl reread
+    supervisorctl update
+EOF
+
+}
+
+status()
+{
+  docker exec -i ${CONTAINER_NAME} /bin/bash -s << EOF
+    supervisorctl status
+EOF
+
+}
+
+
 start()
 {
   docker compose $flags start
