@@ -1,0 +1,13 @@
+---
+services:
+  parrot:
+    image: ${IMAGE}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+    ports:
+      - "${SSH_LPORT}:22"
