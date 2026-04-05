@@ -26,9 +26,16 @@ RUN apt-get -qq update \
 EXPOSE 8080
 EXPOSE 8443
 
+RUN  mkdir -p /etc/nginx/includes
+
 COPY websockify /usr/local/bin/websockify-c
+COPY config/nginx/server.conf     /etc/nginx/conf.d/
+
+COPY config/nginx/auth.conf       /etc/nginx/includes/
+COPY config/nginx/websockify.conf /etc/nginx/includes/
 
 COPY config/nginx/pam-nginx /etc/pam.d/nginx
+
 COPY config/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.d/
   
 COPY config/xorg/10-xdummy.conf /etc/X11/xorg.conf.d/10-xdummy.conf

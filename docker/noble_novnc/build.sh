@@ -64,7 +64,7 @@ ssl()
 {
   docker cp novnc.crt noble_novnc:/etc/ssl/certs/server.crt
   docker cp novnc.key noble_novnc:/etc/ssl/private/server.key
-  docker cp ssl.conf  noble_novnc:/etc/nginx/conf.d/ssl.conf
+  docker cp ssl.conf  noble_novnc:/etc/nginx/includes/ssl.conf
 }
 
 update()
