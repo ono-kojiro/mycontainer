@@ -9,14 +9,9 @@ RUN apt-get -qq update \
     && apt-get -qq install \
       xfce4 \
       xfce4-terminal \
-      tightvncserver \
       novnc \
-      wget \
       dbus-x11 \
-      xfce4-goodies \
       x11-xserver-utils \
-      policykit-1 \
-      tigervnc-standalone-server tigervnc-common \
       nginx \
       libnginx-mod-http-auth-pam \
       lightdm \
