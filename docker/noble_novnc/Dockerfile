@@ -31,6 +31,7 @@ RUN  mkdir -p /etc/nginx/includes
 COPY websockify /usr/local/bin/websockify-c
 COPY config/nginx/server.conf     /etc/nginx/conf.d/
 
+COPY config/nginx/novnc.conf       /etc/nginx/includes/
 COPY config/nginx/auth.conf       /etc/nginx/includes/
 COPY config/nginx/websockify.conf /etc/nginx/includes/
 
