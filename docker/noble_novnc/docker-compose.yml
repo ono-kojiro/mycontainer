@@ -9,6 +9,11 @@ services:
     tty:        true   # docker run -t
     environment:
       TZ: Asia/Tokyo
+      LDAP_URI: ${LDAP_URI}
+      LDAP_BASE: ${LDAP_BASE}
+      LDAP_START_TLS: ${LDAP_START_TLS}
+      LDAP_TLS_REQCERT: ${LDAP_TLS_REQCERT}
+      LDAP_ALLOW_GROUPS: ${LDAP_ALLOW_GROUPS}
     env_file:
       - .env
     ports:
