@@ -1,0 +1,13 @@
+server {
+    include /etc/nginx/includes/ssl.conf;
+
+    root /usr/share/novnc;
+    
+    include /etc/nginx/includes/novnc.conf;
+
+    include /etc/nginx/includes/auth.conf;
+    include /etc/nginx/includes/websockify.conf;
+    
+    index index.html;
+}
+

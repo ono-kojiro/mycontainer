@@ -1,0 +1,22 @@
+---
+services:
+  parrot:
+    image: ${IMAGE}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${HOSTNAME}
+    restart:  always
+    stdin_open: true   # docker run -i
+    tty:        true   # docker run -t
+    environment:
+      TZ: Asia/Tokyo
+      LDAP_URI: ${LDAP_URI}
+      LDAP_BASE: ${LDAP_BASE}
+      LDAP_START_TLS: ${LDAP_START_TLS}
+      LDAP_TLS_REQCERT: ${LDAP_TLS_REQCERT}
+      LDAP_ALLOW_GROUPS: ${LDAP_ALLOW_GROUPS}
+    env_file:
+      - .env
+    ports:
+      - "${SSH_LPORT}:22"
+      - "${HTTP_LPORT}:80"
+      - "${HTTPS_LPORT}:443"

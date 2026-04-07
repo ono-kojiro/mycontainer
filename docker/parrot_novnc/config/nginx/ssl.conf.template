@@ -1,0 +1,9 @@
+listen 443 ssl;
+server_name ${SERVER_ADDR};
+
+ssl_certificate     ${CERTIFICATE_CRT};
+ssl_certificate_key ${CERTIFICATE_KEY};
+
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers on;
+

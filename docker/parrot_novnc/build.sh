@@ -1,0 +1,153 @@
+#!/bin/sh
+
+top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
+cd $top_dir
+
+release="parrot"
+
+image="${release}_novnc"
+container="${release}_novnc"
+
+envfile="./.env"
+
+if [ -e "${envfile}" ]; then
+  . ${envfile}
+  flags="--env-file ${envfile}"
+fi
+
+help()
+{
+    usage
+}
+
+usage()
+{
+	cat - << EOS
+usage : $0 [options] target1 target2 ...
+
+  target
+    build
+    create
+    start
+    stop
+    ip
+EOS
+}
+
+all()
+{
+  help
+}
+
+build()
+{
+  docker build --progress=plain --tag $image .
+}
+
+save()
+{
+  docker image save $image | xz -cz - > ${image}.tar.xz
+}
+
+load()
+{
+  cat ${image}.tar.xz | xz -d | docker load
+}
+
+create()
+{
+  docker compose $flags up --no-start
+  ssl
+}
+
+ssl()
+{
+  docker cp parrot.crt parrot_novnc:/etc/ssl/certs/server.crt
+  docker cp parrot.key parrot_novnc:/etc/ssl/private/server.key
+  docker cp ssl.conf   parrot_novnc:/etc/nginx/includes/ssl.conf
+  
+  docker cp ssl        parrot_novnc:/etc/nginx/sites-enabled/ssl
+}
+
+update()
+{
+  docker cp supervisord.conf noble_novnc:/etc/supervisor/conf.d/supervisord.conf
+  docker exec -i ${CONTAINER_NAME} /bin/bash -s << EOF
+    supervisorctl reread
+    supervisorctl update
+EOF
+
+}
+
+status()
+{
+  docker exec -i ${CONTAINER_NAME} /bin/bash -s << EOF
+    supervisorctl status
+EOF
+
+}
+
+log()
+{
+  docker logs ${CONTAINER_NAME}
+}
+
+
+start()
+{
+  docker compose $flags start
+}
+
+attach()
+{
+  docker exec -it ${CONTAINER_NAME} /bin/bash
+}
+
+ssh()
+{
+  command ssh -p ${SSH_LPORT} localhost
+}
+
+stop()
+{
+  docker compose $flags stop
+}
+
+down()
+{
+  docker compose $flags down
+}
+
+if [ "$#" -eq 0 ]; then
+  usage
+  exit 1
+fi
+
+args=""
+
+while [ "$#" -ne 0 ]; do
+  case "$1" in
+    h)
+      usage
+	  ;;
+    v)
+      verbose=1
+	  ;;
+    *)
+	  args="$args $1"
+	  ;;
+  esac
+
+  shift
+
+done
+
+for target in $args ; do
+  LANG=C type $target | grep function > /dev/null 2>&1
+  if [ "$?" -eq 0 ]; then
+    $target
+  else
+    echo "$target is not a shell function"
+  fi
+done
+
