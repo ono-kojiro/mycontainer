@@ -49,6 +49,12 @@ COPY entrypoint.sh /entrypoint.sh
 RUN  chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
+COPY lightdm-wrapper.sh /usr/local/bin/
+RUN  chmod 755 /usr/local/bin/lightdm-wrapper.sh
+
+COPY x11vnc-wrapper.sh /usr/local/bin/
+RUN  chmod 755 /usr/local/bin/x11vnc-wrapper.sh
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
 

@@ -85,6 +85,10 @@ EOF
 
 }
 
+log()
+{
+  docker logs ${CONTAINER_NAME}
+}
 
 start()
 {
