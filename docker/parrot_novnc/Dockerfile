@@ -33,6 +33,17 @@ RUN apt-get -qq update \
     && apt-get -qq clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install GUI packages
+RUN apt-get -qq update \
+    && apt-get -qq upgrade \
+    && apt-get -qq install --no-install-recommends \
+      xfce4-whiskermenu-plugin \
+      xfce4-goodies \
+      xfce4-places-plugin \
+      xfce4-systemload-plugin \
+    && apt-get -qq clean \
+    && rm -rf /var/lib/apt/lists/*
+
 
 RUN  mkdir -p /etc/nginx/includes
 
