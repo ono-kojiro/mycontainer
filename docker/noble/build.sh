@@ -98,7 +98,7 @@ attach()
 
 ssh()
 {
-  command ssh -p ${SSH_LPORT} -l root localhost
+  command ssh -p ${SSH_LPORT} localhost
 }
 
 stop()

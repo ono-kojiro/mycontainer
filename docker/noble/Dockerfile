@@ -44,8 +44,10 @@ ADD id_ed25519.pub /root/.ssh/authorized_keys
 
 EXPOSE 22
 
+ADD ldap.conf.template /etc/ldap/
+
 # Configure SSSD.
-ADD sssd.conf /etc/sssd/
+ADD sssd.conf.template /etc/sssd/
 
 COPY enable_sssd.sh /tmp/
 RUN \
@@ -54,6 +56,10 @@ RUN \
   && rm -f /tmp/enable_sssd.sh
 
 RUN echo '%ldapwheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
+
+COPY entrypoint.sh /entrypoint.sh
+RUN  chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
