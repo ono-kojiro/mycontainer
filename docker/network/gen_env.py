@@ -3,13 +3,13 @@
 for i in range(1, 8) :
     print('CLIENT{0}_IMAGE=noble:latest'.format(i))
     print('CLIENT{0}_NAME=client{0}'.format(i))
-    print('CLIENT{0}_IPV4=172.16.{0}.55'.format(i))
+    print('CLIENT{0}_IPV4=172.16.{0}.{1}'.format(i, 50 + i))
     print('CLIENT{0}_PARENT=lan{0}'.format(i))
     print('CLIENT{0}_SUBNET=172.16.{0}.0/24'.format(i))
     print('CLIENT{0}_GATEWAY=172.16.{0}.1'.format(i))
     print('CLIENT{0}_LPORT=10{0}22'.format(i))
+    print('CLIENT{0}_MGMT_IPV4=172.31.0.{1}'.format(i, 50 + i))
     print('')
-
 
 content = '''
 LDAP_URI=ldaps://192.168.1.72
