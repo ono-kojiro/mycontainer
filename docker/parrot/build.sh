@@ -49,19 +49,25 @@ load()
   cat ${image}.tar.xz | xz -d | docker load
 }
 
-network()
+create_bridges()
 {
-  docker network create -d macvlan \
-    --subnet=192.168.20.0/24 \
-    --gateway=192.168.20.1 \
-    -o parent=macvlan0 \
-    macvlan1
+  docker network create \
+    --driver=bridge \
+    --subnet=172.31.0.0/24 \
+    mgmt_bridge
 }
 
 create()
 {
+  #create_bridges
   docker compose up --no-start
 }
+
+remove_bridges()
+{
+  docker network remove mgmt_bridge
+}
+
 
 status()
 {
@@ -92,6 +98,7 @@ stop()
 down()
 {
   docker compose down
+  #remove_bridges
 }
 
 ip()

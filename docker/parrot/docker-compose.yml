@@ -11,3 +11,24 @@ services:
       TZ: Asia/Tokyo
     ports:
       - "${SSH_LPORT}:22"
+    networks:
+      wan_macvlan:
+        ipv4_address: 192.168.0.42
+      mgmt_bridge:
+        ipv4_address: 172.31.0.42
+networks:
+  wan_macvlan:
+    driver: macvlan
+    driver_opts:
+      parent: wan
+    ipam:
+      config:
+        - subnet: 192.168.0.0/24
+          gateway: 192.168.0.1
+
+  mgmt_bridge:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
+
