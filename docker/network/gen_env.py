@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-for i in range(1, 9) :
+for i in range(1, 8) :
     print('CLIENT{0}_IMAGE=noble:latest'.format(i))
     print('CLIENT{0}_NAME=client{0}'.format(i))
     print('CLIENT{0}_IPV4=172.16.{0}.55'.format(i))
@@ -9,6 +9,17 @@ for i in range(1, 9) :
     print('CLIENT{0}_GATEWAY=172.16.{0}.1'.format(i))
     print('CLIENT{0}_LPORT=10{0}22'.format(i))
     print('')
+
+
+content = '''
+LDAP_URI=ldaps://192.168.1.72
+LDAP_BASE=dc=example,dc=com
+LDAP_START_TLS=true
+LDAP_TLS_REQCERT=never
+LDAP_ALLOW_GROUPS=ldapusers
+'''
+
+print(content)
 
 #CLIENT1_IMAGE=noble:latest
 #CLIENT1_NAME=client1

@@ -54,6 +54,31 @@ attach2()
   docker exec -it ${CLIENT2_NAME} /bin/bash
 }
 
+attach3()
+{
+  docker exec -it ${CLIENT3_NAME} /bin/bash
+}
+
+attach4()
+{
+  docker exec -it ${CLIENT4_NAME} /bin/bash
+}
+
+attach5()
+{
+  docker exec -it ${CLIENT5_NAME} /bin/bash
+}
+
+attach6()
+{
+  docker exec -it ${CLIENT6_NAME} /bin/bash
+}
+
+attach7()
+{
+  docker exec -it ${CLIENT7_NAME} /bin/bash
+}
+
 ssh1()
 {
   command ssh -p ${CLIENT1_LPORT} localhost
@@ -67,6 +92,26 @@ ssh2()
 ssh3()
 {
   command ssh -p ${CLIENT3_LPORT} localhost
+}
+
+ssh4()
+{
+  command ssh -p ${CLIENT5_LPORT} localhost
+}
+
+ssh5()
+{
+  command ssh -p ${CLIENT5_LPORT} localhost
+}
+
+ssh6()
+{
+  command ssh -p ${CLIENT6_LPORT} localhost
+}
+
+ssh7()
+{
+  command ssh -p ${CLIENT7_LPORT} localhost
 }
 
 
