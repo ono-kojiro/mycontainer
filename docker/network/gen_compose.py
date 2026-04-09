@@ -26,41 +26,12 @@ for i in range(1, num_vm + 1) :
     print('    ports:')
     print('      - "${{CLIENT{0}_LPORT}}:22"'.format(i))
     print('    networks:')
-    if use_macvlan :
-      print('      lan{0}_macvlan:'.format(i))
-    else:
-      print('      lan{0}_bridge:'.format(i))
+    print('      lan{0}_macvlan:'.format(i))
     print('        ipv4_address: ${{CLIENT{0}_IPV4}}'.format(i))
-    if use_mgmt:
-      print('      mgmt_bridge:')
-      print('        ipv4_address: ${{CLIENT{0}_MGMT_IPV4}}'.format(i))
-    
     print('')
 
 print('networks:')
 for i in range(1, num_vm + 1) :
-    if use_macvlan :
-      print('  lan{0}_macvlan:'.format(i))
-    else :
-      print('  lan{0}_bridge:'.format(i))
-    print('    name: lan{0}_bridge'.format(i))
-    if use_macvlan :
-      print('    driver: macvlan')
-    else :
-      print('    driver: bridge')
-
-    print('    driver_opts:')
-    print('      parent: ${{CLIENT{0}_PARENT}}'.format(i))
-    print('    ipam:')
-    print('      config:')
-    print('        - subnet:  ${{CLIENT{0}_SUBNET}}'.format(i))
-    print('          gateway: ${{CLIENT{0}_GATEWAY}}'.format(i))
+    print('  lan{0}_macvlan:'.format(i))
+    print('    external: true')
     print('')
-
-if use_mgmt :
-  print('  mgmt_bridge:')
-  print('    driver: bridge')
-  print('    ipam:')
-  print('      config:')
-  print('        - subnet: 172.31.0.0/24')
-

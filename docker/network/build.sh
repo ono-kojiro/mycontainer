@@ -34,8 +34,55 @@ all()
   help
 }
 
+create_bridges()
+{
+  docker network create -d macvlan \
+    --subnet=${CLIENT1_SUBNET} \
+    --gateway ${CLIENT1_GATEWAY} \
+    --opt parent=${CLIENT1_PARENT} \
+    ${CLIENT1_PARENT}_macvlan
+
+  docker network create -d macvlan \
+    --subnet=${CLIENT2_SUBNET} \
+    --gateway ${CLIENT2_GATEWAY} \
+    --opt parent=${CLIENT2_PARENT} \
+    ${CLIENT2_PARENT}_macvlan
+
+  docker network create -d macvlan \
+    --subnet=${CLIENT3_SUBNET} \
+    --gateway ${CLIENT3_GATEWAY} \
+    --opt parent=${CLIENT3_PARENT} \
+    ${CLIENT3_PARENT}_macvlan
+
+  docker network create -d macvlan \
+    --subnet=${CLIENT4_SUBNET} \
+    --gateway ${CLIENT4_GATEWAY} \
+    --opt parent=${CLIENT4_PARENT} \
+    ${CLIENT4_PARENT}_macvlan
+
+  docker network create -d macvlan \
+    --subnet=${CLIENT5_SUBNET} \
+    --gateway ${CLIENT5_GATEWAY} \
+    --opt parent=${CLIENT5_PARENT} \
+    ${CLIENT5_PARENT}_macvlan
+
+  docker network create -d macvlan \
+    --subnet=${CLIENT6_SUBNET} \
+    --gateway ${CLIENT6_GATEWAY} \
+    --opt parent=${CLIENT6_PARENT} \
+    ${CLIENT6_PARENT}_macvlan
+
+  docker network create -d macvlan \
+    --subnet=${CLIENT7_SUBNET} \
+    --gateway ${CLIENT7_GATEWAY} \
+    --opt parent=${CLIENT7_PARENT} \
+    ${CLIENT7_PARENT}_macvlan
+
+}
+
 create()
 {
+  create_bridges
   docker compose $flags up --no-start
 }
 
@@ -120,9 +167,27 @@ stop()
   docker compose $flags stop
 }
 
+
+remove_bridges()
+{
+  bridges=""
+  bridges="$bridges ${CLIENT1_PARENT}_macvlan"
+  bridges="$bridges ${CLIENT2_PARENT}_macvlan"
+  bridges="$bridges ${CLIENT3_PARENT}_macvlan"
+  bridges="$bridges ${CLIENT4_PARENT}_macvlan"
+  bridges="$bridges ${CLIENT5_PARENT}_macvlan"
+  bridges="$bridges ${CLIENT6_PARENT}_macvlan"
+  bridges="$bridges ${CLIENT7_PARENT}_macvlan"
+
+  for bridge in $bridges; do
+    docker network rm $bridge
+  done
+}
+
 down()
 {
   docker compose $flags down
+  remove_bridges
 }
 
 ls_nw()
