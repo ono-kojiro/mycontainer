@@ -52,22 +52,29 @@ load()
 create_bridges()
 {
   docker network create \
-    --driver=bridge \
-    --subnet=172.31.0.0/24 \
-    mgmt_bridge
+    --driver=macvlan\
+    --subnet=192.168.0.0/24 \
+    --gateway=192.168.0.1 \
+    -o parent=inet \
+    wan_macvlan
 }
 
 create()
 {
-  #create_bridges
+  create_bridges
   docker compose up --no-start
 }
 
 remove_bridges()
 {
-  docker network remove mgmt_bridge
+  docker network remove wan_macvlan
 }
 
+list()
+{
+  docker ps -a
+  docker network ls
+}
 
 status()
 {
@@ -98,7 +105,7 @@ stop()
 down()
 {
   docker compose down
-  #remove_bridges
+  remove_bridges
 }
 
 ip()
