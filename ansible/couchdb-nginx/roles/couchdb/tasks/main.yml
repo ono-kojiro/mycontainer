@@ -1,0 +1,105 @@
+---
+- name: remove source list
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/couchdb.list
+    state: absent
+
+- name: install curl and apt-transport-https
+  ansible.builtin.apt :
+    name:
+    - curl
+    - apt-transport-https
+    state: present
+
+- name: add keyrings
+  ansible.builtin.shell: |
+    curl https://couchdb.apache.org/repo/keys.asc | \
+      gpg --dearmor -o /usr/share/keyrings/couchdb-archive-keyring.gpg \
+        --batch --yes
+
+#- name: show ansible_facts
+#  ansible.builtin.debug:
+#    msg: "{{ ansible_facts }}"
+
+- name: add source list
+  ansible.builtin.shell: |
+    . /etc/os-release && \
+    echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" \
+    | tee /etc/apt/sources.list.d/couchdb.list >/dev/null
+
+- name: set selections
+  ansible.builtin.shell: |
+    echo {{ item }} | debconf-set-selections
+  loop:
+    - "couchdb couchdb/adminpass password"
+    - "couchdb couchdb/adminpass_again password"
+    - "couchdb couchdb/adminpass_mismatch      error"
+    - "couchdb couchdb/bindaddress             string  127.0.0.1"
+    - "couchdb couchdb/cookie                  string  secret"
+    - "couchdb couchdb/error_setting_password  error"
+    - "couchdb couchdb/have_1x_databases       note"
+    - "couchdb couchdb/mode                    select  standalone"
+    - "couchdb couchdb/no_cookie               error"
+    - "couchdb couchdb/no_cookie_monsters      error"
+    - "couchdb couchdb/nodename                string  couchdb@localhost"
+    - "couchdb couchdb/postrm_remove_databases boolean false"
+
+- name: install package
+  ansible.builtin.apt :
+    name: couchdb
+    state: present
+    update_cache: true
+
+- name: create /opt/couchdb/etc/certs
+  ansible.builtin.file:
+    path: /opt/couchdb/etc/certs
+    state: directory
+
+- name: upload server cert
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /opt/couchdb/etc/certs/couchdb.crt
+    owner: couchdb
+    group: couchdb
+    mode: '0644'
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /opt/couchdb/etc/certs/couchdb.key
+    owner: couchdb
+    group: couchdb
+    mode: '0600'
+
+- name: upload custom configuration
+  ansible.builtin.template:
+    src: custom.ini
+    dest: /opt/couchdb/etc/local.d/
+
+- name: start service
+  ansible.builtin.systemd_service:
+    name:  couchdb
+    state: restarted
+    enabled: true
+    daemon_reload: yes
+
+- name: wait for couchdb to respond
+  ansible.builtin.uri:
+    url: "https://127.0.0.1:{{ couch_https_port}}/"
+    method: GET
+    validate_certs: no
+  register: res
+  failed_when: false
+  until: res.status is defined and res.status in [ 200, 301 ]
+  retries: 10
+  delay: 2
+
+- name: create users database
+  ansible.builtin.shell: |
+    curl -k -X PUT -u admin:{{ admin_passwd }} \
+      https://127.0.0.1:{{ couch_https_port }}/_users
+
+- name: show message
+  ansible.builtin.debug:
+    msg: "Please access to https://localhost:6984"
+

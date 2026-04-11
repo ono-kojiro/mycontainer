@@ -1,0 +1,20 @@
+---
+ansible_host: abaoaqu
+ansible_become: true
+#ansible_become_exe: /usr/bin/sudo.ws
+
+### couchdb
+#bind_address: 127.0.0.1
+couch_http_port: 5984
+couch_https_port: 6984
+
+bind_address: 0.0.0.0
+admin_passwd: secret
+
+### nginx
+server_addr: 192.168.1.98
+server_crt: abaoaqu.crt
+server_key: abaoaqu.key
+
+
+

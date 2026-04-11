@@ -1,0 +1,23 @@
+- name: setup couchdb
+  hosts:
+  - myserver
+
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    DEBCONF_NONINTERACTIVE_SEEN: "true"      # 既に回答済みとして扱う
+    NEEDRESTART_MODE: a                    # needrestartを自動モードに
+    NEEDRESTART_SUSPEND: 1                 # 一時的にsuspend
+      
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  roles:
+  #- name: proxy
+  #  tags: proxy
+
+  - name: couchdb
+    tags: couchdb
+
+  - name: nginx
+    tags: nginx
+

@@ -1,0 +1,69 @@
+---
+- name: install nginx
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - libnginx-mod-http-auth-pam
+    state: present
+
+- name: upload custom configuration
+  ansible.builtin.template:
+    src:  custom
+    dest: /etc/nginx/sites-available/
+
+- name: remove default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: create symbolic link
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/custom
+    dest: /etc/nginx/sites-enabled/custom
+    state: link
+
+- name: create certs directory
+  ansible.builtin.file:
+    path: /etc/nginx/certs
+    state: directory
+
+- name: upload server crt
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/nginx/certs/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/nginx/certs/
+    owner: root
+    group: ssl-cert
+    mode: '0600'
+
+- name: create includes directory
+  ansible.builtin.file:
+    path: /etc/nginx/includes
+    state: directory
+
+- name: upload other configurations
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /etc/nginx/includes/
+  loop:
+    - auth.conf
+    - ssl.conf
+    - couchdb.conf
+
+- name: upload pam configuration
+  ansible.builtin.template:
+    src: pam-nginx
+    dest: /etc/pam.d/nginx
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+
