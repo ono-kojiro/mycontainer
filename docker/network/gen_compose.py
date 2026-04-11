@@ -1,37 +1,89 @@
 #!/usr/bin/env python3
 
-print('---')
-print('services:')
+import sys
 
-num_vm = 7
+import getopt
+import yaml
 
-use_macvlan = 1
-use_mgmt = 0
 
-for i in range(1, num_vm + 1) :
-    print('  client{0}:'.format(i))
-    print('    image: ${{CLIENT{0}_IMAGE}}'.format(i))
-    print('    container_name: ${{CLIENT{0}_NAME}}'.format(i))
-    print('    hostname: ${{CLIENT{0}_NAME}}'.format(i))
-    print('    restart:  always')
-    print('    stdin_open: true   # docker run -i')
-    print('    tty:        true   # docker run -t')
-    print('    environment:')
-    print('      TZ: Asia/Tokyo')
-    print('      LDAP_URI: ${LDAP_URI}')
-    print('      LDAP_BASE: ${LDAP_BASE}')
-    print('      LDAP_START_TLS: ${LDAP_START_TLS}')
-    print('      LDAP_TLS_REQCERT: ${LDAP_TLS_REQCERT}')
-    print('      LDAP_ALLOW_GROUPS: ${LDAP_ALLOW_GROUPS}')
-    print('    ports:')
-    print('      - "${{CLIENT{0}_LPORT}}:22"'.format(i))
-    print('    networks:')
-    print('      lan{0}_macvlan:'.format(i))
-    print('        ipv4_address: ${{CLIENT{0}_IPV4}}'.format(i))
-    print('')
+def read_yaml(filepath):
+    fp = open(filepath, mode="r", encoding="utf-8")
+    docs = yaml.load_all(fp, Loader=yaml.loader.SafeLoader)
+    data = {}
+    for doc in docs:
+        data = data | doc
+    fp.close()
+    return data
 
-print('networks:')
-for i in range(1, num_vm + 1) :
-    print('  lan{0}_macvlan:'.format(i))
-    print('    external: true')
-    print('')
+def main() :
+    ret = 0
+
+    try:
+        options, args = getopt.getopt(
+            sys.argv[1:],
+            "hvo:",
+            [
+              "help",
+              "version",
+              "output="
+            ]
+        )
+    except getopt.GetoptError as err:
+        print(str(err))
+        sys.exit(2)
+
+    output = None
+
+    for option, arg in options:
+        if option in ("-v", "-h", "--help"):
+            usage()
+            sys.exit(0)
+        elif option in ("-o", "--output"):
+            output = arg
+        else:
+            assert False, "unknown option"
+
+    if output is not None:
+        fp = open(output, mode="w", encoding="utf-8")
+    else :
+        fp = sys.stdout
+
+    if ret != 0:
+        sys.exit(1)
+
+    for filepath in args :
+        fp.write('---\n')
+        fp.write('services:\n')
+        data = read_yaml(filepath)
+        containers = data['containers']
+        envs = data['environments']
+        for name in containers:
+            attrs = containers[name]
+            fp.write('  {0}:\n'.format(name))
+            fp.write('    image: ${{{0}_IMAGE}}\n'.format(name.upper()))
+            fp.write('    container_name: ${{{0}_NAME}}\n'.format(name.upper()))
+            fp.write('    hostname: ${{{0}_NAME}}\n'.format(name.upper()))
+            fp.write('    restart:  always\n')
+            fp.write('    stdin_open: true   # docker run -i\n')
+            fp.write('    tty:        true   # docker run -t\n')
+            fp.write('    environment:\n')
+            fp.write('      TZ: Asia/Tokyo\n')
+            for env in envs:
+                fp.write('      {0}: ${{{0}}}\n'.format(env))
+            fp.write('    networks:\n')
+            fp.write('      {0}_macvlan:\n'.format(attrs['parent']))
+            fp.write('        ipv4_address: ${{{0}_IPV4}}\n'.format(name.upper()))
+            fp.write('\n')
+
+        fp.write('networks:\n')
+        for name in containers:
+            attrs = containers[name]
+            fp.write('  {0}_macvlan:\n'.format(attrs['parent']))
+            fp.write('    external: true\n')
+
+    if output is not None:
+        fp.close()
+
+if __name__ == '__main__':
+    main()
+
