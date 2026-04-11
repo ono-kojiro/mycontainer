@@ -1,40 +1,77 @@
 #!/usr/bin/env python3
 
-for i in range(1, 8) :
-    print('CLIENT{0}_IMAGE=noble:latest'.format(i))
-    print('CLIENT{0}_NAME=client{0}'.format(i))
-    print('CLIENT{0}_IPV4=172.16.{0}.{1}'.format(i, 50 + i))
-    print('CLIENT{0}_PARENT=lan{0}'.format(i))
-    print('CLIENT{0}_SUBNET=172.16.{0}.0/24'.format(i))
-    print('CLIENT{0}_GATEWAY=172.16.{0}.1'.format(i))
-    print('CLIENT{0}_LPORT=10{0}22'.format(i))
-    print('CLIENT{0}_MGMT_IPV4=172.31.0.{1}'.format(i, 50 + i))
-    print('')
+import sys
 
-content = '''
-LDAP_URI=ldaps://192.168.1.72
-LDAP_BASE=dc=example,dc=com
-LDAP_START_TLS=true
-LDAP_TLS_REQCERT=never
-LDAP_ALLOW_GROUPS=ldapusers
-'''
+import getopt
+import yaml
 
-print(content)
 
-#CLIENT1_IMAGE=noble:latest
-#CLIENT1_NAME=client1
-#CLIENT1_IPV4=172.16.1.55
-#CLIENT1_PARENT=lan1
-#CLIENT1_SUBNET=172.16.1.0/24
-#CLIENT1_GATEWAY=172.16.1.1
-#CLIENT1_LPORT=10122
+def read_yaml(filepath):
+    fp = open(filepath, mode="r", encoding="utf-8")
+    docs = yaml.load_all(fp, Loader=yaml.loader.SafeLoader)
+    data = {}
+    for doc in docs:
+        data = data | doc
+    fp.close()
+    return data
 
-#CLIENT2_IMAGE=noble:latest
-#CLIENT2_NAME=client2
-#CLIENT2_IPV4=172.16.2.55
-#CLIENT2_PARENT=lan2
-#CLIENT2_SUBNET=172.16.2.0/24
-#CLIENT2_GATEWAY=172.16.2.1
-#CLIENT2_LPORT=10222
+def main() :
+    ret = 0
 
+    try:
+        options, args = getopt.getopt(
+            sys.argv[1:],
+            "hvo:",
+            [
+              "help",
+              "version",
+              "output="
+            ]
+        )
+    except getopt.GetoptError as err:
+        print(str(err))
+        sys.exit(2)
+
+    output = None
+
+    for option, arg in options:
+        if option in ("-v", "-h", "--help"):
+            usage()
+            sys.exit(0)
+        elif option in ("-o", "--output"):
+            output = arg
+        else:
+            assert False, "unknown option"
+
+    if output is not None:
+        fp = open(output, mode="w", encoding="utf-8")
+    else :
+        fp = sys.stdout
+
+    if ret != 0:
+        sys.exit(1)
+
+    for filepath in args :
+        data = read_yaml(filepath)
+        containers = data['containers']
+        for name in containers:
+            attrs = containers[name]
+
+            fp.write('{0}_IMAGE={1}\n'.format(name.upper(), attrs['image']))
+            fp.write('{0}_NAME={1}\n'.format(name.upper(), name))
+            fp.write('{0}_IPV4={1}\n'.format(name.upper(), attrs['ipv4']))
+            fp.write('{0}_PARENT={1}\n'.format(name.upper(), attrs['parent']))
+            fp.write('{0}_SUBNET={1}\n'.format(name.upper(), attrs['subnet']))
+            fp.write('{0}_GATEWAY={1}\n'.format(name.upper(), attrs['gateway']))
+            fp.write('\n')
+
+        envs = data['environments']
+        for name in envs:
+            fp.write('{0}={1}\n'.format(name, envs[name]))
+
+    if output is not None:
+        fp.close()
+
+if __name__ == '__main__':
+    main()
 

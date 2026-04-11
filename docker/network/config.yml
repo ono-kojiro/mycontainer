@@ -1,0 +1,58 @@
+---
+containers:
+  client1:
+    image: noble:latest
+    ipv4: 172.16.1.51
+    parent: lan1
+    subnet: 172.16.1.0/24
+    gateway: 172.16.1.1
+
+  client2:
+    image: noble:latest
+    ipv4: 172.16.2.52
+    parent: lan2
+    subnet: 172.16.2.0/24
+    gateway: 172.16.2.1
+
+  client3:
+    image: noble:latest
+    ipv4: 172.16.3.53
+    parent: lan3
+    subnet: 172.16.3.0/24
+    gateway: 172.16.3.1
+
+  client4:
+    image: noble:latest
+    ipv4: 172.16.4.54
+    parent: lan4
+    subnet: 172.16.4.0/24
+    gateway: 172.16.4.1
+
+  client5:
+    image: noble:latest
+    ipv4: 172.16.5.55
+    parent: lan5
+    subnet: 172.16.5.0/24
+    gateway: 172.16.5.1
+
+  client6:
+    image: noble:latest
+    ipv4: 172.16.6.56
+    parent: lan6
+    subnet: 172.16.6.0/24
+    gateway: 172.16.6.1
+
+  client7:
+    image: noble:latest
+    ipv4: 172.16.7.57
+    parent: lan7
+    subnet: 172.16.7.0/24
+    gateway: 172.16.7.1
+
+environments:
+  LDAP_URI: ldaps://192.168.1.72
+  LDAP_BASE: dc=example,dc=com
+  LDAP_START_TLS: True
+  LDAP_TLS_REQCERT: never
+  LDAP_ALLOW_GROUPS: ldapusers
+

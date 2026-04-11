@@ -3,7 +3,7 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-./gen_env.py > ./env
+./gen_env.py config.yml > ./env
 ./gen_compose.py > docker-compose.yml
 
 . ./env
