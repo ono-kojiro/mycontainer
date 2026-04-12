@@ -5,7 +5,7 @@ containers:
     networks:
       - ipv4: 172.16.1.101
         parent: lan1
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.1.0/24
         gateway: 172.16.1.1
       - ipv4: 172.31.0.101
@@ -18,7 +18,7 @@ containers:
     networks:
       - ipv4: 172.16.2.102
         parent: lan2
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.2.0/24
         gateway: 172.16.2.1
       - ipv4: 172.31.0.102
@@ -31,7 +31,7 @@ containers:
     networks:
       - ipv4: 172.16.3.103
         parent: lan3
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.3.0/24
         gateway: 172.16.3.1
       - ipv4: 172.31.0.103
@@ -44,7 +44,7 @@ containers:
     networks:
       - ipv4: 172.16.4.104
         parent: lan4
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.4.0/24
         gateway: 172.16.4.1
       - ipv4: 172.31.0.104
@@ -57,7 +57,7 @@ containers:
     networks:
       - ipv4: 172.16.5.105
         parent: lan5
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.5.0/24
         gateway: 172.16.5.1
       - ipv4: 172.31.0.105
@@ -70,7 +70,7 @@ containers:
     networks:
       - ipv4: 172.16.6.106
         parent: lan6
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.6.0/24
         gateway: 172.16.6.1
       - ipv4: 172.31.0.106
@@ -83,7 +83,7 @@ containers:
     networks:
       - ipv4: 172.16.7.107
         parent: lan7
-        driver: bridge
+        driver: macvlan
         subnet: 172.16.7.0/24
         gateway: 172.16.7.1
       - ipv4: 172.31.0.107

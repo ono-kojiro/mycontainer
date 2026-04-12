@@ -77,7 +77,7 @@ def main() :
             gateway = None
             fp.write('    networks:\n')
             for attrs in nws:
-                fp.write('      {0}_{1}:\n'.format(attrs['parent'], attrs['driver']))
+                fp.write('      nw_{0}:\n'.format(attrs['parent']))
                 fp.write('        ipv4_address: {0}\n'.format(attrs['ipv4']))
                 if 'gateway' in attrs:
                     main_ip = attrs['ipv4']
@@ -98,7 +98,7 @@ def main() :
             for attrs in nws:
                 parent = attrs['parent']
                 driver = attrs['driver']
-                name = '{0}_{1}'.format(parent, driver)
+                name = 'nw_{0}'.format(parent)
                 network_list[name] = 1
 
         for name in sorted(network_list.keys()):
