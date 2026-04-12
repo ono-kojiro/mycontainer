@@ -15,6 +15,13 @@ def read_yaml(filepath):
     fp.close()
     return data
 
+def write_network(fp, name, attrs):
+    fp.write('{0}_IPV4={1}\n'.format(name.upper(), attrs['ipv4']))
+    fp.write('{0}_PARENT={1}\n'.format(name.upper(), attrs['parent']))
+    fp.write('{0}_SUBNET={1}\n'.format(name.upper(), attrs['subnet']))
+    if 'gateway' in attrs:
+        fp.write('{0}_GATEWAY={1}\n'.format(name.upper(), attrs['gateway']))
+
 def main() :
     ret = 0
 
@@ -55,15 +62,12 @@ def main() :
         data = read_yaml(filepath)
         containers = data['containers']
         for name in containers:
-            attrs = containers[name]
-
-            fp.write('{0}_IMAGE={1}\n'.format(name.upper(), attrs['image']))
+            fp.write('{0}_IMAGE={1}\n'.format(name.upper(),
+                                        containers[name]['image']))
             fp.write('{0}_NAME={1}\n'.format(name.upper(), name))
-            fp.write('{0}_IPV4={1}\n'.format(name.upper(), attrs['ipv4']))
-            fp.write('{0}_PARENT={1}\n'.format(name.upper(), attrs['parent']))
-            fp.write('{0}_SUBNET={1}\n'.format(name.upper(), attrs['subnet']))
-            fp.write('{0}_GATEWAY={1}\n'.format(name.upper(), attrs['gateway']))
-            fp.write('\n')
+            #for attrs in containers[name]['networks']:
+            #    write_network(fp, name, attrs)
+            #    fp.write('\n')
 
         envs = data['environments']
         for name in envs:

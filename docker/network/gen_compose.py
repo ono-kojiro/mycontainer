@@ -5,6 +5,7 @@ import sys
 import getopt
 import yaml
 
+from pprint import pprint
 
 def read_yaml(filepath):
     fp = open(filepath, mode="r", encoding="utf-8")
@@ -51,6 +52,8 @@ def main() :
     if ret != 0:
         sys.exit(1)
 
+    network_list = {}
+
     for filepath in args :
         fp.write('---\n')
         fp.write('services:\n')
@@ -60,25 +63,35 @@ def main() :
         for name in containers:
             attrs = containers[name]
             fp.write('  {0}:\n'.format(name))
-            fp.write('    image: ${{{0}_IMAGE}}\n'.format(name.upper()))
-            fp.write('    container_name: ${{{0}_NAME}}\n'.format(name.upper()))
-            fp.write('    hostname: ${{{0}_NAME}}\n'.format(name.upper()))
+            fp.write('    image: {0}\n'.format(attrs['image']))
+            fp.write('    container_name: {0}\n'.format(name))
+            fp.write('    hostname: {0}\n'.format(name))
             fp.write('    restart:  always\n')
             fp.write('    stdin_open: true   # docker run -i\n')
             fp.write('    tty:        true   # docker run -t\n')
             fp.write('    environment:\n')
             fp.write('      TZ: Asia/Tokyo\n')
             for env in envs:
-                fp.write('      {0}: ${{{0}}}\n'.format(env))
+                fp.write('      {0}: {1}\n'.format(env, envs[env]))
+
+            nws = containers[name]['networks']
             fp.write('    networks:\n')
-            fp.write('      {0}_macvlan:\n'.format(attrs['parent']))
-            fp.write('        ipv4_address: ${{{0}_IPV4}}\n'.format(name.upper()))
+            for attrs in nws:
+                fp.write('      {0}_macvlan:\n'.format(attrs['parent']))
+                fp.write('        ipv4_address: {0}\n'.format(attrs['ipv4']))
             fp.write('\n')
 
         fp.write('networks:\n')
-        for name in containers:
-            attrs = containers[name]
-            fp.write('  {0}_macvlan:\n'.format(attrs['parent']))
+        for container_name in containers:
+            nws = containers[container_name]['networks']
+            for attrs in nws:
+                parent = attrs['parent']
+                driver = attrs['driver']
+                name = '{0}_{1}'.format(parent, driver)
+                network_list[name] = 1
+
+        for name in sorted(network_list.keys()):
+            fp.write('  {0}:\n'.format(name))
             fp.write('    external: true\n')
 
     if output is not None:
