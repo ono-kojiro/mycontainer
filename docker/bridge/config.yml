@@ -16,4 +16,46 @@ networks:
     driver: macvlan
     subnet: 172.16.0.0/24
     gateway: 172.16.0.1
+  
+  - name: lan1_macvlan
+    parent: lan1
+    driver: macvlan
+    subnet: 172.16.1.0/24
+    gateway: 172.16.1.1
+
+  - name: lan2_macvlan
+    parent: lan2
+    driver: macvlan
+    subnet: 172.16.2.0/24
+    gateway: 172.16.2.1
+
+  - name: lan3_macvlan
+    parent: lan3
+    driver: macvlan
+    subnet: 172.16.3.0/24
+    gateway: 172.16.3.1
+
+  - name: lan4_macvlan
+    parent: lan4
+    driver: macvlan
+    subnet: 172.16.4.0/24
+    gateway: 172.16.4.1
+
+  - name: lan5_macvlan
+    parent: lan5
+    driver: macvlan
+    subnet: 172.16.5.0/24
+    gateway: 172.16.5.1
+
+  - name: lan6_macvlan
+    parent: lan6
+    driver: macvlan
+    subnet: 172.16.6.0/24
+    gateway: 172.16.6.1
+
+  - name: lan7_macvlan
+    parent: lan7
+    driver: macvlan
+    subnet: 172.16.7.0/24
+    gateway: 172.16.7.1
 
