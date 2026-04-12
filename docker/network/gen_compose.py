@@ -71,18 +71,25 @@ def main() :
             fp.write('    tty:        true   # docker run -t\n')
             fp.write('    cap_add:\n')
             fp.write('      - NET_ADMIN\n')
-            fp.write('    environment:\n')
-            fp.write('      TZ: Asia/Tokyo\n')
-            for env in envs:
-                fp.write('      {0}: {1}\n'.format(env, envs[env]))
-
             nws = containers[name]['networks']
+
+            main_ip = None
+            gateway = None
             fp.write('    networks:\n')
             for attrs in nws:
                 fp.write('      {0}_{1}:\n'.format(attrs['parent'], attrs['driver']))
                 fp.write('        ipv4_address: {0}\n'.format(attrs['ipv4']))
-                #if 'gateway' in attrs:
-                #    fp.write('        gateway: {0}\n'.format(attrs['gateway']))
+                if 'gateway' in attrs:
+                    main_ip = attrs['ipv4']
+                    gateway = attrs['gateway']
+
+            fp.write('    environment:\n')
+            for env in envs:
+                fp.write('      {0}: {1}\n'.format(env, envs[env]))
+
+            if main_ip :
+                fp.write('      MAIN_IP: {0}\n'.format(main_ip))
+                fp.write('      GATEWAY: {0}\n'.format(gateway))
             fp.write('\n')
 
         fp.write('networks:\n')
