@@ -35,6 +35,11 @@ all()
   help
 }
 
+build()
+{
+  docker build --tag client .
+}
+
 create()
 {
   docker compose $flags up --no-start

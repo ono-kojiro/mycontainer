@@ -1,11 +1,11 @@
 ---
 containers:
   client1:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.1.101
         parent: lan1
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.1.0/24
         gateway: 172.16.1.1
       - ipv4: 172.31.0.101
@@ -14,11 +14,11 @@ containers:
         subnet: 172.31.0.0/24
 
   client2:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.2.102
         parent: lan2
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.2.0/24
         gateway: 172.16.2.1
       - ipv4: 172.31.0.102
@@ -27,11 +27,11 @@ containers:
         subnet: 172.31.0.0/24
 
   client3:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.3.103
         parent: lan3
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.3.0/24
         gateway: 172.16.3.1
       - ipv4: 172.31.0.103
@@ -40,11 +40,11 @@ containers:
         subnet: 172.31.0.0/24
 
   client4:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.4.104
         parent: lan4
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.4.0/24
         gateway: 172.16.4.1
       - ipv4: 172.31.0.104
@@ -53,11 +53,11 @@ containers:
         subnet: 172.31.0.0/24
 
   client5:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.5.105
         parent: lan5
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.5.0/24
         gateway: 172.16.5.1
       - ipv4: 172.31.0.105
@@ -66,11 +66,11 @@ containers:
         subnet: 172.31.0.0/24
 
   client6:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.6.106
         parent: lan6
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.6.0/24
         gateway: 172.16.6.1
       - ipv4: 172.31.0.106
@@ -79,11 +79,11 @@ containers:
         subnet: 172.31.0.0/24
 
   client7:
-    image: noble:latest
+    image: client:latest
     networks:
       - ipv4: 172.16.7.107
         parent: lan7
-        driver: macvlan
+        driver: bridge
         subnet: 172.16.7.0/24
         gateway: 172.16.7.1
       - ipv4: 172.31.0.107

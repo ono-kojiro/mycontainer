@@ -69,6 +69,8 @@ def main() :
             fp.write('    restart:  always\n')
             fp.write('    stdin_open: true   # docker run -i\n')
             fp.write('    tty:        true   # docker run -t\n')
+            fp.write('    cap_add:\n')
+            fp.write('      - NET_ADMIN\n')
             fp.write('    environment:\n')
             fp.write('      TZ: Asia/Tokyo\n')
             for env in envs:
@@ -77,8 +79,10 @@ def main() :
             nws = containers[name]['networks']
             fp.write('    networks:\n')
             for attrs in nws:
-                fp.write('      {0}_macvlan:\n'.format(attrs['parent']))
+                fp.write('      {0}_{1}:\n'.format(attrs['parent'], attrs['driver']))
                 fp.write('        ipv4_address: {0}\n'.format(attrs['ipv4']))
+                #if 'gateway' in attrs:
+                #    fp.write('        gateway: {0}\n'.format(attrs['gateway']))
             fp.write('\n')
 
         fp.write('networks:\n')
