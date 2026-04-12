@@ -88,6 +88,13 @@ def data(configs):
 
 def create_bridge(configs):
 
+    if not 'bridges' in configs:
+        print('DEBUG: bridges is not defined')
+        return
+
+    if configs['bridges'] is None :
+        return
+
     for item in configs['bridges']:
         name = item['name']
         conn_id = name
@@ -110,6 +117,9 @@ def create_bridge(configs):
         print(line, end='')
 
 def remove_bridge(configs):
+    if configs['bridges'] is None :
+        return
+
     for item in configs['bridges']:
         name = item['name']
 
@@ -155,6 +165,9 @@ def list_networks(configs):
         print(line, end='')
 
 def list_bridges(configs):
+    if configs['bridges'] is None :
+        return
+
     for item in configs['bridges']:
         name = item['name']
         cmd = 'ip a show {0}'.format(name)

@@ -30,6 +30,8 @@ rmn:
 
 ls : lsb lsn
 
+list : ls
+
 lsb:
 	./build.py -c config.yml list_bridges
 

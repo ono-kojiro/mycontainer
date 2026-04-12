@@ -1,9 +1,9 @@
 ---
 bridges:
-  - name: admin
-    ipv4.method: manual
-    ipv4.addresses: 172.31.0.1/24
-    ipv6.method: disable
+#  - name: admin
+#    ipv4.method: manual
+#    ipv4.addresses: 172.31.0.1/24
+#    ipv6.method: disable
 
 networks:
   - name: admin_macvlan
@@ -14,8 +14,8 @@ networks:
   - name: inet_macvlan
     parent: inet
     driver: macvlan
-    subnet: 172.16.0.0/24
-    gateway: 172.16.0.1
+    subnet: 192.168.0.0/24
+    gateway: 192.168.0.1
   
   - name: lan1_macvlan
     parent: lan1
