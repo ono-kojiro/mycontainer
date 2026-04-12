@@ -10,6 +10,9 @@ fi
 image="${IMAGE}"
 container_name="${CONTAINER_NAME}"
 
+iface="inet"
+driver="macvlan"
+
 help()
 {
     usage
@@ -49,14 +52,38 @@ load()
   cat ${image}.tar.xz | xz -d | docker load
 }
 
+find_bridge()
+{
+  target="$1"
+
+  bridges=`docker network ls | tail -n +2 | awk '{ print $2 }'`
+  found=0
+  for bridge in ${bridges}; do
+    if [ "x${target}" = "x${bridge}" ]; then
+      found=1
+      break
+    fi
+  done
+
+  echo "$found"
+}
+
 create_bridges()
 {
-  docker network create \
-    --driver=macvlan\
-    --subnet=192.168.0.0/24 \
-    --gateway=192.168.0.1 \
-    -o parent=inet \
-    wan_macvlan
+  target="${iface}_${driver}"
+  found=`find_bridge ${target}`
+
+  if [ "$found" -eq 0 ]; then 
+    echo "INFO: create ${target}"
+    docker network create \
+      --driver=${driver} \
+      --subnet=192.168.0.0/24 \
+      --gateway=192.168.0.1 \
+      -o parent=${iface} \
+      ${target}
+  else
+    echo "INFO: ${target} is already existing"
+  fi
 }
 
 create()
@@ -67,7 +94,15 @@ create()
 
 remove_bridges()
 {
-  docker network remove wan_macvlan
+  target="${iface}_${driver}"
+  found=`find_bridge ${target}`
+
+  if [ "$found" -eq 1 ]; then 
+    echo "INFO: remove ${target}"
+    docker network remove ${target}
+  else
+    echo "INFO: ${target} is NOT existing"
+  fi
 }
 
 list()
