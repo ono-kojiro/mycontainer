@@ -7,5 +7,13 @@ bridges:
 
 networks:
   - name: admin_macvlan
+    parent: admin
     driver: macvlan
+    subnet: 172.31.0.0/24
+
+  - name: inet_macvlan
+    parent: inet
+    driver: macvlan
+    subnet: 172.16.0.0/24
+    gateway: 172.16.0.1
 

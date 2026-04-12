@@ -10,6 +10,8 @@ help :
 	@echo "  - rmb"
 	@echo "  - rmn"
 
+full : bridge network
+
 bridge:
 	./build.py -c config.yml create_bridge
 
@@ -33,4 +35,10 @@ lsb:
 
 lsn:
 	./build.py -c config.yml list_networks
+
+inspect:
+	./build.py -c config.yml inspect
+
+destroy :
+	$(MAKE) rmn rmb
 

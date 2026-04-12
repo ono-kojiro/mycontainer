@@ -120,33 +120,34 @@ def remove_bridge(configs):
             print(line, end='')
 
 def create_network(configs):
-    parent = 'admin'
-    #driver = 'macvlan'
-    driver = 'bridge'
-    subnet = '172.31.0.0/24'
-    gateway = '172.31.0.1'
-    name = '{0}_{1}'.format(parent, driver)
+    for item in configs['networks']:
+        parent  = item['parent']
+        driver  = item['driver']
+        subnet  = item['subnet']
+        gateway = None
+        if 'gateway' in item :
+            gateway = item['gateway']
+        name    = item['name']
 
-    cmd =  'docker network create'
-    cmd += ' --driver={0}'.format(driver)
-    cmd += ' --subnet={0}'.format(subnet)
-    cmd += ' --gateway={0}'.format(gateway)
-    cmd += ' -o parent={0}'.format(parent)
-    cmd += ' {0}'.format(name)
+        cmd =  'docker network create'
+        cmd += ' --driver={0}'.format(driver)
+        cmd += ' --subnet={0}'.format(subnet)
+        if gateway :
+            cmd += ' --gateway={0}'.format(gateway)
+        cmd += ' -o parent={0}'.format(parent)
+        cmd += ' {0}'.format(name)
 
-    for line in get_cmd_results(cmd):
-        print(line, end='')
+        print('CMD: {0}'.format(cmd))
+        for line in get_cmd_results(cmd):
+            print(line, end='')
 
 def remove_network(configs):
-    parent = 'admin'
-    #driver = 'macvlan'
-    driver = 'bridge'
-    name = '{0}_{1}'.format(parent, driver)
-
-    cmd =  'docker network remove {0}'.format(name)
-
-    for line in get_cmd_results(cmd):
-        print(line, end='')
+    for item in configs['networks']:
+        name    = item['name']
+        cmd =  'docker network remove {0}'.format(name)
+        print('CMD: {0}'.format(cmd))
+        for line in get_cmd_results(cmd):
+            print(line, end='')
 
 def list_networks(configs):
     cmd =  'docker network ls'
@@ -160,6 +161,13 @@ def list_bridges(configs):
         for line in get_cmd_results(cmd):
             print(line, end='')
 
+def inspect(configs):
+    for item in configs['networks']:
+        name    = item['name']
+        cmd =  'docker network inspect {0}'.format(name)
+        print('CMD: {0}'.format(cmd))
+        for line in get_cmd_results(cmd):
+            print(line, end='')
 
 def main():
     ret = 0
@@ -208,7 +216,6 @@ def main():
 
     if config_yml is not None :
         configs = read_yaml_dict(config_yml)
-
 
     #pprint(configs)
 
