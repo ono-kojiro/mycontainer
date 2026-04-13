@@ -1,8 +1,9 @@
 #!/bin/sh
 
 # Configure SSSD.
-chmod 600 /etc/sssd/sssd.conf
-chown root:root /etc/sssd/sssd.conf
+#chmod 600 /etc/sssd/sssd.conf
+#chown root:root /etc/sssd/sssd.conf
+
 sed 's|-D -f|-D|' -i /etc/default/sssd
 pam-auth-update --enable mkhomedir
 

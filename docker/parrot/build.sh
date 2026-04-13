@@ -88,7 +88,7 @@ create_bridges()
 
 create()
 {
-  create_bridges
+  #create_bridges
   docker compose up --no-start
 }
 
@@ -140,7 +140,7 @@ stop()
 down()
 {
   docker compose down
-  remove_bridges
+  #remove_bridges
 }
 
 ip()
