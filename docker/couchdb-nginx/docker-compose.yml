@@ -1,0 +1,24 @@
+volumes:
+  couchdb-data:
+    name: couchdb-data
+
+services:
+  couchdb:
+    image: couchdb:${COUCHDB_VERSION}
+    container_name: couchdb
+    hostname: couchdb
+    ports:
+    - "5984:5984"
+    - "6984:6984"
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
+      PORT: ${PORT}
+      BIND_ADDRESS: ${BIND_ADDRESS}
+      CERT_FILE: ${CERT_FILE}
+      KEY_FILE:  ${KEY_FILE}
+    volumes:
+      - couchdb-data:/opt/couchdb/data
+    env_file:
+    - .env
+

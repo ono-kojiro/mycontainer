@@ -1,0 +1,10 @@
+---
+ansible_host: localhost
+ansible_become: true
+#ansible_become_exe: /usr/bin/sudo.ws
+
+### nginx
+server_addr: 192.168.1.72
+server_crt: server.crt
+server_key: server.key
+
