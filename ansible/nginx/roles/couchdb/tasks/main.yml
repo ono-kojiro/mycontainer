@@ -4,6 +4,11 @@
     src: couchdb.conf
     dest: /etc/nginx/includes/
 
+- name: upload couchdb-common.conf
+  ansible.builtin.template:
+    src: couchdb-common.conf
+    dest: /etc/nginx/includes/
+
 - name: enable couchdb
   ansible.builtin.lineinfile:
     path: /etc/nginx/sites-available/ssl_site
