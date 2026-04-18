@@ -54,7 +54,16 @@ debug()
   cmd="curl -k https://localhost/couchdb/"
   echo "$" $cmd
   $cmd
+  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/mydb'
+  echo "$" $cmd
+  $cmd
   cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/mydb/'
+  echo "$" $cmd
+  $cmd
+  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/example'
+  echo "$" $cmd
+  $cmd
+  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/example/'
   echo "$" $cmd
   $cmd
 }
