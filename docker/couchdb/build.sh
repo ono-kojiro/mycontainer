@@ -2,10 +2,14 @@
 
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
-ENVFILE=./.env
+ENVFILE=".env"
 
 pkgname="couchdb"
 pkgver="3.5.1"
+
+if [ -e "${ENVFILE}" ]; then
+  . ./${ENVFILE}
+fi
 
 usage()
 {
@@ -16,8 +20,9 @@ usage : $0 [options] target1 target2 ..."
     start             start container
     
     ssl               enable ssl
-
-    upload            upload certificates
+    stop              stop container
+    down              remove container
+    destroy           remove container and volume
 
 EOF
 }
@@ -30,21 +35,8 @@ help()
 all()
 {
     create
-    upload
-
     start
     postproc
-}
-
-certs()
-{
-  docker cp couchdb.crt couchdb:/opt/couchdb/etc/
-  docker cp couchdb.key couchdb:/opt/couchdb/etc/
-}
-
-upload_ca()
-{
-  docker cp myrootca.crt snipe-it-app:/usr/local/share/ca-certificates/
 }
 
 attach()
@@ -52,26 +44,18 @@ attach()
   docker exec -it couchdb /bin/bash
 }
 
-init()
-{
-  curl -X POST http://admin:secret@192.168.1.52:5984/_cluster_setup \
-    -H "Content-Type: application/json" \
-    -d '{"action": "finish_cluster"}'
-}
-
 check()
 {
-  #curl -k -X GET https://admin:secret@192.168.1.52:6984/_all_dbs/
-  cmd="curl -k -X GET https://admin:secret@192.168.1.52:6984/"
-  echo "DEBUG: $cmd"
+  cmd="curl -k -X GET https://${COUCHDB_USER}:${COUCHDB_PASSWORD}@localhost:6984/"
+  #echo "DEBUG: $cmd"
   $cmd
 }
 
 ssl()
 {
-  docker cp couchdb.crt couchdb:/tmp/
-  docker cp couchdb.key couchdb:/tmp/
-  docker cp ssl.ini couchdb:/opt/couchdb/etc/local.d/
+  docker cp config/ssl/couchdb.crt couchdb:/tmp/
+  docker cp config/ssl/couchdb.key couchdb:/tmp/
+  docker cp config/ssl/ssl.ini couchdb:/opt/couchdb/etc/local.d/
   docker exec -i couchdb /bin/bash << EOF
 {
   mkdir -p /opt/couchdb/etc/certs
@@ -79,31 +63,6 @@ ssl()
   chown couchdb:couchdb /opt/couchdb/etc/certs/couchdb.*
   chmod 600 /opt/couchdb/etc/certs/couchdb.key
   chmod 644 /opt/couchdb/etc/local.d/ssl.ini
-}
-EOF
-
-}
-
-eldap()
-{
-  docker exec -i couchdb /bin/bash << EOF
-{
-  apt-get -y update
-  apt-get -y install erlang-eldap
-  ln -s -f /usr/lib/erlang/lib/eldap-1.2.10 /opt/couchdb/lib/
-}
-EOF
-
-}
-
-ldap()
-{
-  docker cp ebin.tar.gz couchdb:/tmp/
-  docker exec -i couchdb /bin/bash << EOF
-{
-  mkdir -p /opt/couchdb/lib/ldap_auth-2.0.0
-  cd /opt/couchdb/lib/ldap_auth-2.0.0
-  tar xzvf /tmp/ebin.tar.gz
 }
 EOF
 
@@ -179,8 +138,7 @@ down()
 destroy()
 {
   down
-  docker volume rm snipe-it_db_data
-  docker volume rm snipe-it_storage
+  docker volume rm couchdb-data
 }
 
 
