@@ -75,6 +75,12 @@ debug()
   $cmd
 }
 
+test()
+{
+  prove test.sh
+  cat result.log
+}
+
 hosts
 
 args=""
