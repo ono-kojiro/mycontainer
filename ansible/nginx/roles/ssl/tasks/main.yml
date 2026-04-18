@@ -1,0 +1,40 @@
+---
+- name: create certs directory
+  ansible.builtin.file:
+    path: /etc/nginx/certs
+    state: directory
+
+- name: upload server crt
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/nginx/certs
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/nginx/certs
+    owner: root
+    group: root
+    mode: '600'
+
+- name: upload ssl site
+  ansible.builtin.template:
+    src: ssl_site
+    dest: /etc/nginx/sites-available/
+
+- name: configure ssl
+  ansible.builtin.template:
+    src:  ssl.conf
+    dest: /etc/nginx/includes/
+
+- name: enable ssl site
+  ansible.builtin.file:
+    src:  /etc/nginx/sites-available/ssl_site
+    dest: /etc/nginx/sites-enabled/ssl_site
+    state: link
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

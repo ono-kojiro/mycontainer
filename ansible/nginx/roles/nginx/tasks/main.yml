@@ -1,0 +1,25 @@
+---
+- name: install nginx
+  ansible.builtin.apt:
+    name:
+    - nginx
+    - nginx-common
+    - libnginx-mod-http-auth-pam
+    state: present
+    update_cache: true
+
+- name: configure /etc/pam.d/nginx
+  ansible.builtin.template:
+    src: pam-nginx
+    dest: /etc/pam.d/nginx
+
+- name: make includes directory
+  ansible.builtin.file:
+    path: /etc/nginx/includes
+    state: directory
+
+- name: configure /etc/nginx/includes/auth.conf
+  ansible.builtin.template:
+    src: auth.conf
+    dest: /etc/nginx/includes/
+

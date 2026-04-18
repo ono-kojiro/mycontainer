@@ -1,0 +1,17 @@
+---
+- name: upload couchdb.conf
+  ansible.builtin.template:
+    src: couchdb.conf
+    dest: /etc/nginx/includes/
+
+- name: enable couchdb
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/sites-available/ssl_site
+    insertbefore: '^}'
+    line: '    include /etc/nginx/includes/couchdb.conf;'
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

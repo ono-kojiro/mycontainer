@@ -1,0 +1,20 @@
+- name: setup nginx
+  hosts: myserver
+  
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  roles:
+  - name: nginx
+    tags: nginx
+
+  - name: ssl
+    tags: ssl
+
+  - name: couchdb
+    tags: couchdb
+
+  - name: destroy
+    tags: destroy, never
+

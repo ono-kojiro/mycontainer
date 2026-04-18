@@ -1,0 +1,10 @@
+---
+- name: uninstall nginx
+  ansible.builtin.apt:
+    name:
+    - nginx
+    - nginx-common
+    - libnginx-mod-http-auth-pam
+    state: absent
+    purge: true
+
