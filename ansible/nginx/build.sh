@@ -49,6 +49,13 @@ check()
   curl -k https://localhost/couchdb/_utils/
 }
 
+simple()
+{
+  cmd="curl -k https://localhost/couchdb/"
+  echo "$" $cmd
+  $cmd
+}
+
 debug()
 {
   cmd="curl -k https://localhost/couchdb/"
