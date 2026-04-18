@@ -1,0 +1,40 @@
+---
+- name: install njs
+  ansible.builtin.apt:
+    name:
+      - njs
+      - libnginx-mod-http-js
+    state: present
+
+- name: create api_key directory
+  ansible.builtin.file:
+    path: /etc/nginx/api_key
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: upload api_keys.json
+  ansible.builtin.template:
+    src: api_keys.json
+    dest: /etc/nginx/api_key/
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: upload api_key.js
+  ansible.builtin.copy:
+    src: api_key.js
+    dest: /etc/nginx/conf.d/
+
+- name: include api_key.js
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/nginx.conf
+    insertafter: '^http {'
+    line: '    js_import api_key from /etc/nginx/conf.d/api_key.js;'
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

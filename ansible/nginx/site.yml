@@ -11,6 +11,9 @@
 
   - name: ssl
     tags: ssl
+  
+  - name: api_key
+    tags: api_key
 
   - name: couchdb
     tags: couchdb

@@ -42,6 +42,13 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
+check()
+{
+  curl -k https://localhost/
+  curl -k https://localhost/couchdb/
+  curl -k https://localhost/couchdb/_utils/
+}
+
 hosts
 
 args=""
