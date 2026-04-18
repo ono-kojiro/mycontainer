@@ -2,7 +2,7 @@ var fs = require('fs');
 
 function loadKeys() {
     // JSONファイルを読み込む
-    var text = fs.readFileSync('/etc/nginx/keys/api_keys.json', 'utf8');
+    var text = fs.readFileSync('/etc/nginx/api_key/api_keys.json', 'utf8');
 
     // JSONをパース
     var data = JSON.parse(text);
@@ -12,8 +12,13 @@ function loadKeys() {
 }
 
 function check(r) {
-    var entries = loadKeys();
     var clientKey = r.headersIn['X-API-Key'];
+    if (!clientKey) {
+        r.return(403);
+        return;
+    }
+
+    var entries = loadKeys();
 
     // API Key を照合
     for (var i = 0; i < entries.length; i++) {
@@ -21,8 +26,13 @@ function check(r) {
             // ログにユーザー名を残す
             r.log("API Key matched for user: " + entries[i].user);
 
+            let target = r.uri;
+            if (!target.endsWith("/")) {
+                target = target + "/"
+            }
+
             // 認証成功 → CouchDB へ内部リダイレクト
-            return r.internalRedirect('@proxy');
+            return r.internalRedirect(target);
         }
     }
 
