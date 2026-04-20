@@ -141,6 +141,29 @@ destroy()
   docker volume rm couchdb-data
 }
 
+access_token()
+{
+  ref="ChlmaWFmN3Nid2ZzY3FsbHd5azQ2Y2F6dmRlEhlmNmZnMjZjcHB2dGt2cWh4and0bHY3dXJs"
+
+  curl -k -s \
+  -X POST https://192.168.1.72:5556/dex/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=$ref" \
+  -d "client_id=example-app" \
+  -d "client_secret=ZXhhbXBsZS1hcHAtc2VjcmV0" \
+  -o access_token.json
+}
+
+debug()
+{
+  access_token=`cat access_token.json | jq -r '.access_token'`
+  echo $access_token
+
+  curl -s -k \
+    -H "Authorization: Bearer $access_token" \
+    https://192.168.1.72:6984/_session
+}
 
 ps()
 {
