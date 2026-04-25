@@ -32,23 +32,97 @@ help()
   usage
 }
 
-all()
-{
-    create
-    start
-    postproc
-}
-
 attach()
 {
   docker exec -it couchdb /bin/bash
 }
 
-check()
+check_health()
 {
   cmd="curl -k -X GET https://${COUCHDB_USER}:${COUCHDB_PASSWORD}@localhost:6984/"
   #echo "DEBUG: $cmd"
   $cmd
+}
+
+check_config()
+{
+  url="https://${COUCHDB_USER}:${COUCHDB_PASSWORD}@localhost:6984"
+  echo "DEBUG: check cttpd"
+  curl -s -k $url/_node/_local/_config/chttpd | jq
+  echo "DEBUG: check cttpd_auth"
+  curl -s -k $url/_node/_local/_config/chttpd_auth | jq
+  echo "DEBUG: check jwt_auth"
+  curl -s -k $url/_node/_local/_config/jwt_auth | jq
+  echo "DEBUG: check jwt_keys"
+  cmd="curl -s -k $url/_node/_local/_config/jwt_keys"
+  echo $cmd
+  $cmd | jq .
+}
+
+get_access_token()
+{
+  jwt=`cat access_token.json | jq -r '.access_token'`
+  echo $jwt
+}
+
+jwt()
+{
+  docker cp config/couchdb/jwt.ini couchdb:/opt/couchdb/etc/local.d/
+  docker cp config/couchdb/jwt_keys.ini couchdb:/opt/couchdb/etc/local.d/
+}
+
+verify()
+{
+  echo "INFO : get https://192.168.1.72:5556/dex/keys"
+  curl -s -k https://192.168.1.72:5556/dex/keys | jq . > keys.json
+  echo "INFO : output is keys.json"
+  #cat keys.json
+
+  index="0"
+  echo "INFO: key index $index"
+  n=`cat keys.json | jq -r ".keys[$index].n"`
+  echo $n
+  e=`cat keys.json | jq -r ".keys[$index].e"`
+  echo $e
+  
+  kid=`cat keys.json | jq -r ".keys[$index].kid"`
+  echo "kid: $kid"
+  sh jwks_to_pem.sh "$n" "$e" > dex_public.pem
+
+}
+
+
+pubkey()
+{
+  echo "INFO : get https://192.168.1.72:5556/dex/keys"
+  curl -s -k https://192.168.1.72:5556/dex/keys | jq . > keys.json
+  echo "INFO : output is keys.json"
+
+  index="0"
+  echo "INFO: key index $index"
+  n=`cat keys.json | jq -r ".keys[$index].n"`
+  echo $n
+  e=`cat keys.json | jq -r ".keys[$index].e"`
+  echo $e
+  
+  kid=`cat keys.json | jq -r ".keys[$index].kid"`
+  echo "kid: $kid"
+  sh jwks_to_pem.sh "$n" "$e" > dex_public.pem
+
+  {
+    echo "[jwt_keys]"
+    echo -n "rsa:$kid = "
+    cat dex_public.pem | \
+      awk '
+        NR>1{printf "\\n"}
+        {printf "%s", $0}
+      '
+    echo ""
+    
+  } > config/couchdb/jwt_keys.ini
+  echo "INFO: write config/couchdb/jwt_keys.ini"
+      
+  docker cp config/couchdb/jwt_keys.ini couchdb:/opt/couchdb/etc/local.d/
 }
 
 ssl()
@@ -141,9 +215,9 @@ destroy()
   docker volume rm couchdb-data
 }
 
-access_token()
+token()
 {
-  ref="ChlmaWFmN3Nid2ZzY3FsbHd5azQ2Y2F6dmRlEhlmNmZnMjZjcHB2dGt2cWh4and0bHY3dXJs"
+  ref="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
   curl -k -s \
   -X POST https://192.168.1.72:5556/dex/token \
@@ -158,16 +232,20 @@ access_token()
 debug()
 {
   access_token=`cat access_token.json | jq -r '.access_token'`
-  echo $access_token
+  #echo "INFO: access_token is $access_token"
 
-  curl -s -k \
+  #curl -s -v -k \
+  #  -H "Authorization: Bearer $access_token" \
+  #  https://192.168.1.72:6984/_session
+  
+  curl -s -k -v \
     -H "Authorization: Bearer $access_token" \
     https://192.168.1.72:6984/_session
 }
 
-ps()
+all()
 {
-  docker ps -a --no-trunc
+  keys
 }
 
 while [ "$#" -ne 0 ]; do
