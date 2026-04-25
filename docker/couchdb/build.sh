@@ -247,6 +247,42 @@ check()
     https://192.168.1.72:6984/_session
 }
 
+device_code()
+{
+   curl -k -s -X POST https://192.168.1.72:5556/dex/device/code -d "client_id=myclient" -d "scope=openid offline_access" | jq . | tee device_code.json
+}
+
+refresh_token()
+{
+  code=`cat device_code.json | jq -r ".device_code"`
+  client_id="myclient"
+  
+  grant_type="urn:ietf:params:oauth:grant-type:device_code"
+  curl -k -s -X POST https://192.168.1.72:5556/dex/token \
+          -d "grant_type=$grant_type" \
+          -d "device_code=$code" \
+          -d "client_id=$client_id" | jq . | tee dex_tokens.json
+}
+
+access_token()
+{
+  ref=`cat dex_tokens.json | jq -r ".refresh_token"`
+
+  curl -k -s \
+    -X POST https://192.168.1.72:5556/dex/token \
+    -d "grant_type=refresh_token" \
+    -d "refresh_token=$ref" \
+    -d "client_id=myclient" | jq . | tee access_token.json
+}
+
+test_access_token()
+{
+  access_token=`cat access_tokens.json | jq -r ".access_token"`
+  curl -s -k -v \
+    -H "Authorization: Bearer $access_token" \
+    https://192.168.1.72:6984/
+}
+
 all()
 {
   keys
