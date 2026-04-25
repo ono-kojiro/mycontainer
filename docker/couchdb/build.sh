@@ -24,6 +24,11 @@ usage : $0 [options] target1 target2 ..."
     down              remove container
     destroy           remove container and volume
 
+  ---
+  public              update dex public key
+  
+  token               get access token using refresh token
+  check               access to couchdb using access token  
 EOF
 }
 
@@ -218,7 +223,6 @@ destroy()
 token()
 {
   ref="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
   curl -k -s \
   -X POST https://192.168.1.72:5556/dex/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -229,7 +233,7 @@ token()
   -o access_token.json
 }
 
-debug()
+check()
 {
   access_token=`cat access_token.json | jq -r '.access_token'`
   #echo "INFO: access_token is $access_token"
