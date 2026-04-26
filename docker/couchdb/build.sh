@@ -278,11 +278,18 @@ access_token()
 
 test_token()
 {
+  test_access_token
+}
+
+test_access_token()
+{
   access_token=`cat access_token.json | jq -r ".access_token"`
-  curl -s -k -v \
+
+  curl -s -k \
     -H "Authorization: Bearer $access_token" \
     https://192.168.1.72:6984/_session
 }
+
 
 all()
 {
