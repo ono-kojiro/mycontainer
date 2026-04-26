@@ -1,4 +1,7 @@
 *~
 *.crt
 *.key
+*.pem
+.env
+*.json
 

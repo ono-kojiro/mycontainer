@@ -98,6 +98,11 @@ verify()
 
 }
 
+pubkey()
+{
+  update_pubkey
+}
+
 update_pubkey()
 {
   echo "INFO : get https://192.168.1.72:5556/dex/keys"
@@ -199,6 +204,11 @@ start()
   docker compose --env-file ${ENVFILE} start
 }
 
+status()
+{
+  docker ps -a | grep couchdb
+}
+
 stop()
 {
   docker compose --env-file ${ENVFILE} stop
@@ -281,11 +291,17 @@ test_token()
   test_access_token
 }
 
+all_dbs()
+{
+  curl -s -k \
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://192.168.1.72:6984/_all_dbs
+}
+
 test_access_token()
 {
   access_token=`cat access_token.json | jq -r ".access_token"`
 
-  curl -s -k \
+  curl -s -k -v \
     -H "Authorization: Bearer $access_token" \
     https://192.168.1.72:6984/_session
 }
