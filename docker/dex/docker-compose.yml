@@ -1,0 +1,22 @@
+volumes:
+  dex-config:
+    name: ${APPL_NAME}-config
+  dex-data:
+    name: ${APPL_NAME}-data
+
+services:
+  dex:
+    image: ${APPL_IMAGE}
+    container_name: ${APPL_NAME}
+    hostname: ${APPL_NAME}
+    command: ["dex", "serve", "/etc/dex/config-ldap.yaml"]
+    #network_mode: bridge
+    ports:
+    - "5556:5556"
+    #environment:
+    volumes:
+      - ${APPL_NAME}-config:/etc/dex
+      - ${APPL_NAME}-data:/var/lib/dex
+    env_file:
+    - .env
+
