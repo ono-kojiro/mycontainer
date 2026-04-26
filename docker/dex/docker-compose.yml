@@ -12,7 +12,7 @@ services:
     command: ["dex", "serve", "/etc/dex/config-ldap.yaml"]
     #network_mode: bridge
     ports:
-    - "5556:5556"
+    - "${DEX_PORT}:${DEX_PORT}"
     #environment:
     volumes:
       - ${APPL_NAME}-config:/etc/dex

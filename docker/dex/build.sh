@@ -5,6 +5,37 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 if [ -e "./.env" ]; then
   . ./.env
 fi
+  
+dex_crt="dex.crt"
+dex_key="dex.key"
+dex_config="config-ldap.yaml"
+
+set -a
+. ./.env
+envsubst < config-ldap.yaml.template > config-ldap.yaml
+set +a
+
+
+ret="0"
+
+if [ ! -e "$dex_crt" ]; then
+  echo "ERROR: no $dex_crt"
+  ret=`expr $ret + 1`
+fi
+
+if [ ! -e "$dex_key" ]; then
+  echo "ERROR: no $dex_key"
+  ret=`expr $ret + 1`
+fi
+
+if [ ! -e "$dex_config" ]; then
+  echo "ERROR: no $dex_config"
+  ret=`expr $ret + 1`
+fi
+
+if [ "$ret" -ne 0 ]; then
+  exit 1
+fi
 
 usage()
 {

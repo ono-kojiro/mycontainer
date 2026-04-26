@@ -1,10 +1,10 @@
-issuer: https://192.168.1.72:5556/dex
+issuer: https://${DEX_ADDR}:${DEX_PORT}/dex
 storage:
   type: sqlite3
   config:
     file: /var/lib/dex/dex.db
 web:
-  https: 0.0.0.0:5556
+  https: 0.0.0.0:${DEX_PORT}
   tlsCert: /etc/dex/certs/dex.crt
   tlsKey:  /etc/dex/certs/dex.key
 
@@ -20,7 +20,7 @@ connectors:
     #insecureNoSSL: true
     #
     # 2) LDAPS without certificate validation:
-    host: 192.168.1.72:636
+    host: ${LDAP_ADDR}:${LDAP_PORT}
     insecureNoSSL: false
     insecureSkipVerify: true
     #
@@ -74,7 +74,7 @@ connectors:
 staticClients:
 - id: example-app
   redirectURIs:
-  - 'https://192.168.1.72:5555/callback'
+  - 'https://${EXAMPLE_APP_ADDR}:${EXAMPLE_APP_PORT}/callback'
   name: 'Example App'
   secret: xxxxxxxxxxxxxxxxxxxxxxxx
 
