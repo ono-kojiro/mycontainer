@@ -25,10 +25,12 @@ usage : $0 [options] target1 target2 ..."
     destroy           remove container and volume
 
   ---
-  public              update dex public key
-  
-  token               get access token using refresh token
-  check               access to couchdb using access token  
+  update_pubkey       update public key of dex
+
+  device_code         get device code
+  refresh_token       get refresh token
+  access_token        get access_token
+  test_token          test access token 
 EOF
 }
 
@@ -96,8 +98,7 @@ verify()
 
 }
 
-
-pubkey()
+update_pubkey()
 {
   echo "INFO : get https://192.168.1.72:5556/dex/keys"
   curl -s -k https://192.168.1.72:5556/dex/keys | jq . > keys.json
@@ -249,7 +250,7 @@ check()
 
 device_code()
 {
-   curl -k -s -X POST https://192.168.1.72:5556/dex/device/code -d "client_id=myclient" -d "scope=openid offline_access" | jq . | tee device_code.json
+   curl -s -k -X POST https://192.168.1.72:5556/dex/device/code -d "client_id=myclient" -d "scope=openid offline_access" | jq . | tee device_code.json
 }
 
 refresh_token()
@@ -261,12 +262,12 @@ refresh_token()
   curl -k -s -X POST https://192.168.1.72:5556/dex/token \
           -d "grant_type=$grant_type" \
           -d "device_code=$code" \
-          -d "client_id=$client_id" | jq . | tee dex_tokens.json
+          -d "client_id=$client_id" | jq . | tee refresh_token.json
 }
 
 access_token()
 {
-  ref=`cat dex_tokens.json | jq -r ".refresh_token"`
+  ref=`cat refresh_token.json | jq -r ".refresh_token"`
 
   curl -k -s \
     -X POST https://192.168.1.72:5556/dex/token \
@@ -275,12 +276,12 @@ access_token()
     -d "client_id=myclient" | jq . | tee access_token.json
 }
 
-test_access_token()
+test_token()
 {
-  access_token=`cat access_tokens.json | jq -r ".access_token"`
+  access_token=`cat access_token.json | jq -r ".access_token"`
   curl -s -k -v \
     -H "Authorization: Bearer $access_token" \
-    https://192.168.1.72:6984/
+    https://192.168.1.72:6984/_session
 }
 
 all()
