@@ -5,8 +5,8 @@ storage:
     file: /var/lib/dex/dex.db
 web:
   https: 0.0.0.0:${DEX_PORT}
-  tlsCert: /etc/dex/certs/dex.crt
-  tlsKey:  /etc/dex/certs/dex.key
+  tlsCert: /etc/dex/certs/${DEX_CRT}
+  tlsKey:  /etc/dex/certs/${DEX_KEY}
 
 connectors:
 - type: ldap
@@ -32,14 +32,14 @@ connectors:
     # ...where CERT="$( base64 -w 0 your-cert.crt )"
 
     # This would normally be a read-only user.
-    bindDN: cn=Manager,dc=example,dc=com
+    bindDN: cn=Manager,${LDAP_BASEDN}
     bindPW: secret
 
     #usernamePrompt: Email Address
     usernamePrompt: Username
 
     userSearch:
-      baseDN: ou=Users,dc=example,dc=com
+      baseDN: ou=Users,${LDAP_BASEDN}
       filter: "(objectClass=person)"
       username: uid
       # "DN" (case sensitive) is a special attribute name. It indicates that
@@ -50,7 +50,7 @@ connectors:
       nameAttr: cn
 
     groupSearch:
-      baseDN: ou=Groups,dc=example,dc=com
+      baseDN: ou=Groups,${LDAP_BASEDN}
       filter: "(objectClass=groupOfNames)"
 
       userMatchers:
@@ -76,7 +76,7 @@ staticClients:
   redirectURIs:
   - 'https://${EXAMPLE_APP_ADDR}:${EXAMPLE_APP_PORT}/callback'
   name: 'Example App'
-  secret: xxxxxxxxxxxxxxxxxxxxxxxx
+  secret: ${EXAMPLE_APP_SECRET}
 
 - id: myclient
   name: myclient

@@ -6,13 +6,13 @@ if [ -e "./.env" ]; then
   . ./.env
 fi
   
-dex_crt="dex.crt"
-dex_key="dex.key"
-dex_config="config-ldap.yaml"
+dex_crt="${DEX_CRT}"
+dex_key="${DEX_KEY}"
+dex_config="${DEX_CONFIG}"
 
 set -a
 . ./.env
-envsubst < config-ldap.yaml.template > config-ldap.yaml
+envsubst < ${DEX_CONFIG_TEMPLATE} > ${DEX_CONFIG}
 set +a
 
 
@@ -172,14 +172,14 @@ destroy()
 
 keys()
 {
-  echo "INFO : get https://192.168.1.72:5556/dex/keys"
-  curl -s -k https://192.168.1.72:5556/dex/keys | jq . | tee keys.json
+  echo "INFO : get https://${DEX_ADDR_PORT}/dex/keys"
+  curl -s -k https://${DEX_ADDR_PORT}/dex/keys | jq . | tee keys.json
   echo "INFO : output is keys.json"
 }
 
 device_code()
 {
-   curl -s -k -X POST https://192.168.1.72:5556/dex/device/code -d "client_id=myclient" -d "scope=openid email profile offline_access" | jq . | tee device_code.json
+   curl -s -k -X POST https://${DEX_ADDR_PORT}/dex/device/code -d "client_id=myclient" -d "scope=openid email profile offline_access" | jq . | tee device_code.json
 }
 
 code()
@@ -193,7 +193,7 @@ refresh()
   client_id="myclient"
 
   grant_type="urn:ietf:params:oauth:grant-type:device_code"
-  curl -k -s -X POST https://192.168.1.72:5556/dex/token \
+  curl -k -s -X POST https://${DEX_ADDR}:${DEX_PORT}/dex/token \
           -d "grant_type=$grant_type" \
           -d "device_code=$code" \
           -d "client_id=$client_id" | jq . | tee refresh_token.json
@@ -204,7 +204,7 @@ access()
   ref=`cat refresh_token.json | jq -r ".refresh_token"`
 
   curl -k -s \
-    -X POST https://192.168.1.72:5556/dex/token \
+    -X POST https://${DEX_ADDR}:${DEX_PORT}/dex/token \
     -d "grant_type=refresh_token" \
     -d "refresh_token=$ref" \
     -d "client_id=myclient" | jq . | tee access_token.json
@@ -219,11 +219,11 @@ test()
 
   curl -s -k \
     -H "Authorization: Bearer $token" \
-    https://192.168.1.72:6984/
+    https://${COUCHDB_ADDR}:${COUCHDB_PORT}
   
   curl -s -k \
     -H "Authorization: Bearer $token" \
-    https://192.168.1.72:6984/_session
+    https://${COUCHDB_ADDR}:${COUCHDB_PORT}/_session
 
 }
 
@@ -246,7 +246,7 @@ while [ "$#" -ne 0 ]; do
 done
 
 if [ "$#" -eq 0 ]; then
-  all
+  usage
 fi
 
 for target in "$@"; do
