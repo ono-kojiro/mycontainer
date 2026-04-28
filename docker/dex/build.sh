@@ -18,12 +18,12 @@ set +a
 ret="0"
 
 if [ ! -e "$dex_crt" ]; then
-  echo "ERROR: no $dex_crt"
+  echo "ERROR: no dex_crt variable"
   ret=`expr $ret + 1`
 fi
 
 if [ ! -e "$dex_key" ]; then
-  echo "ERROR: no $dex_key"
+  echo "ERROR: no dex_key variable"
   ret=`expr $ret + 1`
 fi
 
@@ -117,8 +117,7 @@ EOF
   echo "INFO: upload certs and config"
   docker cp dex.crt dummy:/etc/dex/certs/
   docker cp dex.key dummy:/etc/dex/certs/
-  #docker cp config-ldap.yaml dummy:/etc/dex/
-  docker cp config.yaml dummy:/etc/dex/
+  docker cp config-ldap.yaml dummy:/etc/dex/
   
   echo "INFO: create /etc/dex/certs directory"
   docker run --rm -i -u root \
@@ -154,7 +153,7 @@ update_config()
 {
   #docker cp dex.crt dex:/etc/dex/certs/
   #docker cp dex.key dex:/etc/dex/certs/
-  docker cp config.yaml dex:/etc/dex/
+  docker cp config-ldap.yaml dex:/etc/dex/
 }
 
 status()
@@ -248,7 +247,7 @@ while [ "$#" -ne 0 ]; do
 done
 
 if [ "$#" -eq 0 ]; then
-  all
+  usage
 fi
 
 for target in "$@"; do
