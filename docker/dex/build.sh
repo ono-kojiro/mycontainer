@@ -5,7 +5,7 @@ top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 if [ -e "./.env" ]; then
   . ./.env
 fi
-  
+
 dex_crt="${DEX_CRT}"
 dex_key="${DEX_KEY}"
 dex_config="${DEX_CONFIG}"
@@ -14,7 +14,6 @@ set -a
 . ./.env
 envsubst < ${DEX_CONFIG_TEMPLATE} > ${DEX_CONFIG}
 set +a
-
 
 ret="0"
 
@@ -96,7 +95,7 @@ down()
   docker compose down
 }
 
-prepare()
+config()
 {
   echo "INFO: create dummy container"
   docker container create --name dummy \
@@ -118,7 +117,8 @@ EOF
   echo "INFO: upload certs and config"
   docker cp dex.crt dummy:/etc/dex/certs/
   docker cp dex.key dummy:/etc/dex/certs/
-  docker cp config-ldap.yaml dummy:/etc/dex/
+  #docker cp config-ldap.yaml dummy:/etc/dex/
+  docker cp config.yaml dummy:/etc/dex/
   
   echo "INFO: create /etc/dex/certs directory"
   docker run --rm -i -u root \
@@ -135,7 +135,7 @@ EOF
   }
 EOF
   
-  echo "INFO: check directory"
+  echo "INFO: check permission"
   docker run --rm -i -u root \
     -v dex-config:/etc/dex \
     -v dex-data:/var/lib/dex \
@@ -146,17 +146,16 @@ EOF
   }
 EOF
 
-
   echo "INFO: remove dummy container"
   docker rm dummy
 }
 
-update()
+update_config()
 {
-  docker cp dex.crt dex:/etc/dex/certs/
-  docker cp dex.key dex:/etc/dex/certs/
-  docker cp config-ldap.yaml dex:/etc/dex/
-} 
+  #docker cp dex.crt dex:/etc/dex/certs/
+  #docker cp dex.key dex:/etc/dex/certs/
+  docker cp config.yaml dex:/etc/dex/
+}
 
 status()
 {
@@ -172,14 +171,17 @@ destroy()
 
 keys()
 {
-  echo "INFO : get https://${DEX_ADDR_PORT}/dex/keys"
-  curl -s -k https://${DEX_ADDR_PORT}/dex/keys | jq . | tee keys.json
+  echo "INFO : get https://${DEX_IP}:${DEX_PORT}/dex/keys"
+  curl -s -k https://${DEX_IP}:${DEX_PORT}/dex/keys | jq . | tee keys.json
   echo "INFO : output is keys.json"
 }
 
 device_code()
 {
-   curl -s -k -X POST https://${DEX_ADDR_PORT}/dex/device/code -d "client_id=myclient" -d "scope=openid email profile offline_access" | jq . | tee device_code.json
+   curl -s -k -X POST https://${DEX_IP}:${DEX_PORT}/dex/device/code \
+     -d "client_id=myclient" \
+     -d "scope=openid email profile groups offline_access" \
+   | jq . | tee device_code.json
 }
 
 code()
@@ -193,7 +195,7 @@ refresh()
   client_id="myclient"
 
   grant_type="urn:ietf:params:oauth:grant-type:device_code"
-  curl -k -s -X POST https://${DEX_ADDR}:${DEX_PORT}/dex/token \
+  curl -k -s -X POST https://${DEX_IP}:${DEX_PORT}/dex/token \
           -d "grant_type=$grant_type" \
           -d "device_code=$code" \
           -d "client_id=$client_id" | jq . | tee refresh_token.json
@@ -204,7 +206,7 @@ access()
   ref=`cat refresh_token.json | jq -r ".refresh_token"`
 
   curl -k -s \
-    -X POST https://${DEX_ADDR}:${DEX_PORT}/dex/token \
+    -X POST https://${DEX_IP}:${DEX_PORT}/dex/token \
     -d "grant_type=refresh_token" \
     -d "refresh_token=$ref" \
     -d "client_id=myclient" | jq . | tee access_token.json
@@ -219,11 +221,11 @@ test()
 
   curl -s -k \
     -H "Authorization: Bearer $token" \
-    https://${COUCHDB_ADDR}:${COUCHDB_PORT}
+    https://192.168.1.72:6984/
   
   curl -s -k \
     -H "Authorization: Bearer $token" \
-    https://${COUCHDB_ADDR}:${COUCHDB_PORT}/_session
+    https://192.168.1.72:6984/_session
 
 }
 
@@ -246,7 +248,7 @@ while [ "$#" -ne 0 ]; do
 done
 
 if [ "$#" -eq 0 ]; then
-  usage
+  all
 fi
 
 for target in "$@"; do
