@@ -78,26 +78,6 @@ jwt()
   docker cp config/couchdb/jwt_keys.ini couchdb:/opt/couchdb/etc/local.d/
 }
 
-verify()
-{
-  echo "INFO : get https://192.168.1.72:5556/dex/keys"
-  curl -s -k https://192.168.1.72:5556/dex/keys | jq . > keys.json
-  echo "INFO : output is keys.json"
-  #cat keys.json
-
-  index="0"
-  echo "INFO: key index $index"
-  n=`cat keys.json | jq -r ".keys[$index].n"`
-  echo $n
-  e=`cat keys.json | jq -r ".keys[$index].e"`
-  echo $e
-  
-  kid=`cat keys.json | jq -r ".keys[$index].kid"`
-  echo "kid: $kid"
-  sh jwks_to_pem.sh "$n" "$e" > dex_public.pem
-
-}
-
 pubkey()
 {
   update_pubkey
