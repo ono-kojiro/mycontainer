@@ -1,9 +1,11 @@
 ---
 ansible_host: logstash
 ansible_become: true
-elastic_url: https://192.168.0.98:9200
+elastic_url: https://192.168.1.72:9200
 
-cacert: mylocalca.crt
+cacert: myrootca.crt
 keystore_jks: logstash.jks
+
+logstash_user: logstash_internal
 
 # Please define "keystore_pass" in other yml file.
