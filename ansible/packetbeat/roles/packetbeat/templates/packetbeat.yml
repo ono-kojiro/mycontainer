@@ -244,6 +244,7 @@ output.logstash:
 
   # Certificate for SSL client authentication
   ssl.certificate: "{{ certs_dir }}/{{ client_cert }}"
+  ssl.verification_mode: "none"
 
   # Client Certificate Key
   ssl.key: "{{ certs_dir }}/{{ client_key }}"
