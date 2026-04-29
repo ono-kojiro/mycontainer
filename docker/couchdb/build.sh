@@ -50,7 +50,7 @@ attach()
 dump_config()
 {
   curl -s -k \
-    -u ${couchdb_user}:${couchdb_password} https://${COUCHDB_IP_PORT}/_node/_local/_config \
+    -u ${couchdb_user}:${couchdb_password} https://${COUCHDB_HTTPS}/_node/_local/_config \
   | jq .
 }
 
@@ -106,7 +106,7 @@ config()
   docker cp config/ssl/couchdb.key dummy:/opt/couchdb/etc/certs/
 
   echo "INFO: upload config"
-  docker cp config/ssl/ssl.ini      dummy:/opt/couchdb/etc/local.d/
+  docker cp config/couchdb/ssl.ini      dummy:/opt/couchdb/etc/local.d/
   docker cp config/couchdb/jwt.ini      dummy:/opt/couchdb/etc/local.d/
   docker cp config/couchdb/dex_keys.ini dummy:/opt/couchdb/etc/local.d/
   
@@ -183,7 +183,7 @@ test_https()
 
 welcome()
 {
-  curl -s -k -v \
+  curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/
 }
 
