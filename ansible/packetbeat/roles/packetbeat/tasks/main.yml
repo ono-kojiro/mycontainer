@@ -55,13 +55,22 @@
     group: root 
     mode:  '0755'
 
-- name: copy CA cert
+- name: upload cacert
   ansible.builtin.copy:
-    src:   "{{ cacert }}"
-    dest:  "{{ certs_dir }}"
-    owner: root
-    group: root 
-    mode:  '0644'
+    src: "{{ cacert }}"
+    dest: /usr/local/share/ca-certificates/
+
+- name: update ca certificates
+  ansible.builtin.shell: |
+    update-ca-certificates
+
+#- name: copy CA cert
+#  ansible.builtin.copy:
+#    src:   "{{ cacert }}"
+#    dest:  "{{ certs_dir }}"
+#    owner: root
+#    group: root 
+#    mode:  '0644'
 
 - name: copy client cert
   ansible.builtin.copy:
