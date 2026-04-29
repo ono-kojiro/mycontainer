@@ -10,6 +10,9 @@ pkgver="3.5.1"
 if [ -e "${ENVFILE}" ]; then
   . ./${ENVFILE}
 fi
+    
+couchdb_user="${COUCHDB_USER}"
+couchdb_password="${COUCHDB_PASSWORD}"
 
 usage()
 {
@@ -51,19 +54,21 @@ check_health()
   $cmd
 }
 
+dump_config()
+{
+  curl -s -k \
+    -u ${couchdb_user}:${couchdb_password} https://192.168.1.72:6984/_node/_local/_config \
+  | jq .
+}
+
 check_config()
 {
-  url="https://${COUCHDB_USER}:${COUCHDB_PASSWORD}@localhost:6984"
-  echo "DEBUG: check cttpd"
-  curl -s -k $url/_node/_local/_config/chttpd | jq
-  echo "DEBUG: check cttpd_auth"
-  curl -s -k $url/_node/_local/_config/chttpd_auth | jq
-  echo "DEBUG: check jwt_auth"
-  curl -s -k $url/_node/_local/_config/jwt_auth | jq
-  echo "DEBUG: check jwt_keys"
-  cmd="curl -s -k $url/_node/_local/_config/jwt_keys"
-  echo $cmd
-  $cmd | jq .
+  docker exec -i couchdb /bin/bash << EOF | jq . | tee output-config.json
+  {
+    curl -s -k \
+      -u ${couchdb_user}:${couchdb_password} https://localhost:6984/_node/_local/_config 
+  }
+EOF
 }
 
 get_access_token()
@@ -83,22 +88,44 @@ pubkey()
   update_pubkey
 }
 
-update_pubkey()
+keys()
 {
-  echo "INFO : get https://192.168.1.72:5556/dex/keys"
-  curl -s -k https://192.168.1.72:5556/dex/keys | jq . > keys.json
+  echo "INFO : get https://192.168.1.72:5554/dex/keys"
+  curl -s -k https://192.168.1.72:5554/dex/keys | jq . > keys.json
   echo "INFO : output is keys.json"
+}
 
-  index="0"
-  echo "INFO: key index $index"
-  n=`cat keys.json | jq -r ".keys[$index].n"`
-  echo $n
-  e=`cat keys.json | jq -r ".keys[$index].e"`
-  echo $e
-  
+keys2ini()
+{
+  python3 jwk2pem.py -o dex_public.pem keys.json
+
   kid=`cat keys.json | jq -r ".keys[$index].kid"`
   echo "kid: $kid"
-  sh jwks_to_pem.sh "$n" "$e" > dex_public.pem
+
+  {
+    echo "[jwt_keys]"
+    echo -n "rsa:$kid = "
+    cat dex_public.pem | \
+      awk '
+        NR>1{printf "\\n"}
+        {printf "%s", $0}
+      '
+    echo ""
+    
+  } > config/couchdb/dex_keys.ini
+  echo "INFO: write config/couchdb/dex_keys.ini"
+}
+
+update_pubkey()
+{
+  echo "INFO : get https://192.168.1.72:5554/dex/keys"
+  curl -s -k https://192.168.1.72:5554/dex/keys | jq . > keys.json
+  echo "INFO : output is keys.json"
+
+  python3 jwk2pem.py -o dex_public.pem keys.json
+
+  kid=`cat keys.json | jq -r ".keys[$index].kid"`
+  echo "kid: $kid"
 
   {
     echo "[jwt_keys]"
@@ -133,22 +160,6 @@ EOF
 
 }
 
-config()
-{
-  defaultconfig
-  localconfig
-}
-
-defaultconfig()
-{
-  :
-}
-
-localconfig()
-{
-  docker cp local.ini couchdb:/opt/couchdb/etc/local.d/
-}
-
 unconfig()
 {
   docker exec -i couchdb /bin/bash << EOF
@@ -177,6 +188,65 @@ postproc()
 create()
 {
   docker compose --env-file ${ENVFILE} up --no-start
+  config
+}
+
+config()
+{
+  keys
+
+  keys2ini
+
+  echo "INFO: create dummy container"
+  docker container create --name dummy \
+     -v "couchdb-config:/opt/couchdb/etc/local.d" \
+     -v "couchdb-certs:/opt/couchdb/etc/certs" \
+     -v "couchdb-data:/opt/couchdb/data" \
+     alpine
+
+#  echo "INFO: create certs directory"
+#  docker run --rm -i -u root \
+#     -v "couchdb-config:/opt/couchdb/etc/local.d" \
+#     -v "couchdb-certs:/opt/couchdb/etc/certs" \
+#     -v "couchdb-data:/opt/couchdb/data" \
+#    alpine /bin/sh -s << EOF
+#  {
+#      mkdir -p /opt/couchdb/etc/certs
+#  }
+#EOF
+
+  echo "INFO: upload certs"
+  docker cp config/ssl/couchdb.crt dummy:/opt/couchdb/etc/certs/
+  docker cp config/ssl/couchdb.key dummy:/opt/couchdb/etc/certs/
+
+  echo "INFO: upload config"
+  docker cp config/ssl/ssl.ini      dummy:/opt/couchdb/etc/local.d/
+  docker cp config/couchdb/jwt.ini      dummy:/opt/couchdb/etc/local.d/
+  docker cp config/couchdb/dex_keys.ini dummy:/opt/couchdb/etc/local.d/
+  
+  echo "INFO: change permission"
+  docker run --rm -i -u root \
+    -v "couchdb-config:/opt/couchdb/etc/local.d" \
+    -v "couchdb-certs:/opt/couchdb/etc/certs" \
+    -v "couchdb-data:/opt/couchdb/data" \
+    alpine /bin/sh -s << EOF
+  {
+    chown -R 1001:1001 /opt/couchdb/etc/certs
+  }
+EOF
+
+  echo "INFO: check permission"
+  docker run --rm -i -u root \
+    -v "couchdb-config:/opt/couchdb/etc/local.d" \
+    -v "couchdb-data:/opt/couchdb/data" \
+    alpine /bin/sh -s << EOF
+  {
+    ls -lR /opt/couchdb/etc/local.d
+  }
+EOF
+
+  echo "INFO: remove dummy container"
+  docker rm dummy
 }
 
 start()
@@ -208,7 +278,28 @@ down()
 destroy()
 {
   down
+  docker volume rm couchdb-config
+  docker volume rm couchdb-certs
   docker volume rm couchdb-data
+}
+
+test_http()
+{
+  curl -s -k \
+    -u ${couchdb_user}:${couchdb_password} http://192.168.1.72:5984/
+}
+
+test_https()
+{
+  curl -s -k \
+    -u ${couchdb_user}:${couchdb_password} https://192.168.1.72:6984/
+}
+
+welcome()
+{
+  curl -s -k -v \
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} http://192.168.1.72:5984/
+
 }
 
 token()
@@ -240,7 +331,10 @@ check()
 
 device_code()
 {
-   curl -s -k -X POST https://192.168.1.72:5556/dex/device/code -d "client_id=myclient" -d "scope=openid offline_access" | jq . | tee device_code.json
+   curl -s -k -X POST https://192.168.1.72:5554/dex/device/code \
+     -d "client_id=myclient" \
+     -d "scope=openid email profile groups offline_access" \
+   | jq . | tee device_code.json
 }
 
 refresh_token()
@@ -249,7 +343,7 @@ refresh_token()
   client_id="myclient"
   
   grant_type="urn:ietf:params:oauth:grant-type:device_code"
-  curl -k -s -X POST https://192.168.1.72:5556/dex/token \
+  curl -k -s -X POST https://192.168.1.72:5554/dex/token \
           -d "grant_type=$grant_type" \
           -d "device_code=$code" \
           -d "client_id=$client_id" | jq . | tee refresh_token.json
@@ -260,7 +354,7 @@ access_token()
   ref=`cat refresh_token.json | jq -r ".refresh_token"`
 
   curl -k -s \
-    -X POST https://192.168.1.72:5556/dex/token \
+    -X POST https://192.168.1.72:5554/dex/token \
     -d "grant_type=refresh_token" \
     -d "refresh_token=$ref" \
     -d "client_id=myclient" | jq . | tee access_token.json
@@ -271,19 +365,26 @@ test_token()
   test_access_token
 }
 
-all_dbs()
-{
-  curl -s -k \
-    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://192.168.1.72:6984/_all_dbs
-}
-
 test_access_token()
 {
   access_token=`cat access_token.json | jq -r ".access_token"`
 
-  curl -s -k -v \
+  curl -s -k \
     -H "Authorization: Bearer $access_token" \
     https://192.168.1.72:6984/_session
+}
+
+without_access_token()
+{
+  curl -s -k \
+    https://192.168.1.72:6984/_session
+}
+
+
+all_dbs()
+{
+  curl -s -k \
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://192.168.1.72:6984/_all_dbs
 }
 
 
@@ -315,6 +416,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 for target in "$@"; do
+  target=`echo $target | tr '-' '_'`
   num=`LANG=C type "$target" 2>&1 | grep 'function' | wc -l`
   if [ "$num" -eq 1 ]; then
     $target

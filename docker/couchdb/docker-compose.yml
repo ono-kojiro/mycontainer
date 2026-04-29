@@ -1,4 +1,8 @@
 volumes:
+  couchdb-config:
+    name: couchdb-config
+  couchdb-certs:
+    name: couchdb-certs
   couchdb-data:
     name: couchdb-data
 
@@ -15,6 +19,8 @@ services:
       COUCHDB_USER: ${COUCHDB_USER}
       COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
     volumes:
+      - couchdb-config:/opt/couchdb/etc/local.d
+      - couchdb-certs:/opt/couchdb/etc/certs
       - couchdb-data:/opt/couchdb/data
     env_file:
     - .env
