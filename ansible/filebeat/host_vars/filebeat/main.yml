@@ -1,10 +1,17 @@
 ---
 ansible_host: filebeat
 ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
 
-logstash_hosts: "192.168.0.98:5044"
+logstash_hosts: 192.168.1.72:5044
 
-certs_dir:   "/etc/filebeat/certs"
-cacert:      "mylocalca.crt"
-client_cert: "filebeat.crt"
-client_key:  "filebeat.key"
+certs_dir:   /etc/filebeat/certs
+cacert:      myrootca.crt
+client_cert: filebeat.crt
+client_key:  filebeat.key
+
+#kibana_username: xxxxxxxxx
+#kibana_password: xxxxxxxxx
+
+#api_key_id: xxxxxxxxxxx
+#api_key: xxxxxxxxxxx

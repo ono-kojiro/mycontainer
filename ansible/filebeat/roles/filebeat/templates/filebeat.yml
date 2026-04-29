@@ -142,8 +142,8 @@ setup.kibana:
   #space.id:
 
   ssl.verification_mode: none
-  username: "{{ filebeat_username }}"
-  password: "{{ filebeat_password }}"
+  username: "{{ kibana_username }}"
+  password: "{{ kibana_password }}"
 
 # =============================== Elastic Cloud ================================
 
@@ -190,7 +190,7 @@ output.logstash:
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
-  ssl.certificate_authorities: [ "{{ certs_dir }}/{{ cacert }}" ]
+  ssl.certificate_authorities: [ "/etc/ssl/certs/ca-certificates.crt" ]
 
   # Certificate for SSL client authentication
   ssl.certificate: "{{ certs_dir }}/{{ client_cert }}"
