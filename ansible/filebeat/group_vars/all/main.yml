@@ -1,0 +1,16 @@
+---
+workdir: "{{ lookup('ansible.builtin.env', 'PWD') }}"
+
+logstash_hosts: 192.168.1.72:5044
+
+certs_dir:   /etc/filebeat/certs
+cacert:      mylocalca.crt
+
+kibana_host: "https://192.168.1.72:5601"
+
+#api_key_id: myapikey-filebeat
+#api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+#kibana_username: elastic
+#kibana_password: xxxxxxxxxxxxxxxxxxxx
+
