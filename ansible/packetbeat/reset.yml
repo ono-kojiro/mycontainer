@@ -2,19 +2,19 @@
   hosts: elasticsearch
 
   tasks:
-  - name: reset password of packetbeat_internal
+  - name: reset password of beats_system
     ansible.builtin.shell: |
-      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u packetbeat_internal --silent --batch)
+      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u beats_system --silent --batch)
 
       {
-        echo "packetbeat_username: packetbeat_internal"
+        echo "packetbeat_username: beats_system"
         echo "packetbeat_password{{':'}} $pass"
       }  > /tmp/packetbeat_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}
       {
         echo "machine $addr"
-        echo "login   packetbeat_internal"
+        echo "login   beats_system"
         echo "password $pass"
       } > /tmp/netrc
 
