@@ -47,6 +47,30 @@
 #    group: root 
 #    state: link
 
+- name: create certs directory
+  ansible.builtin.file:
+    path:  "{{ certs_dir }}"
+    state: directory
+    owner: root
+    group: root 
+    mode:  '0755'
+
+- name: copy client cert
+  ansible.builtin.copy:
+    src:   "{{ client_cert }}"
+    dest:  "{{ certs_dir }}"
+    owner: root
+    group: root 
+    mode:  '0644'
+
+- name: copy client key
+  ansible.builtin.copy:
+    src:   "{{ client_key }}"
+    dest:  "{{ certs_dir }}"
+    owner: root
+    group: root 
+    mode:  '0600'
+
 - name: restart filebeat
   ansible.builtin.systemd_service:
     name:  filebeat
@@ -60,10 +84,10 @@
 #  tags: index
 #  ignore_errors: true
 
-- name: setup dashboards on kibana
-  ansible.builtin.shell: |
-    /usr/share/filebeat/bin/filebeat setup --dashboards \
-      -c /etc/filebeat/filebeat.yml
-  tags: dashboard
-  ignore_errors: true
+#- name: setup dashboards on kibana
+#  ansible.builtin.shell: |
+#    /usr/share/filebeat/bin/filebeat setup --dashboards \
+#      -c /etc/filebeat/filebeat.yml
+#  tags: dashboard
+#  ignore_errors: true
 

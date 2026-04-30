@@ -1,0 +1,10 @@
+---
+- name: upload cacert
+  ansible.builtin.copy:
+    src: "{{ cacert }}"
+    dest: /usr/local/share/ca-certificates/
+
+- name: update ca certificates
+  ansible.builtin.shell: |
+    update-ca-certificates
+

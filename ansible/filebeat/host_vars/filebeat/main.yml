@@ -1,12 +1,13 @@
 ---
 ansible_host: filebeat
 ansible_become: true
-ansible_become_exe: /usr/bin/sudo.ws
+ansible_become_exe: /usr/bin/sudo
+#ansible_become_exe: /usr/bin/sudo.ws
 
 logstash_hosts: 192.168.1.72:5044
 
 certs_dir:   /etc/filebeat/certs
-cacert:      myrootca.crt
+cacert:      mylocalca.crt
 client_cert: filebeat.crt
 client_key:  filebeat.key
 

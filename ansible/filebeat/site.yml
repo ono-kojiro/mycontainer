@@ -6,8 +6,8 @@
   #  https_proxy: http://proxy.example.com:8080
 
   roles:
-    - role: certs
-      tags: certs, never
+    - role: cacert
+      tags: cacert
 
     - role: filebeat
       tags: filebeat
