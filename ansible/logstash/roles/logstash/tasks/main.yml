@@ -32,6 +32,7 @@
     owner: root
     group: logstash
     mode: '0660'
+  tags: config
 
 - name: change permission of /usr/share/logstash/data
   ansible.builtin.file:

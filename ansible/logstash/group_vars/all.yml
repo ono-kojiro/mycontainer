@@ -4,3 +4,5 @@ workdir: '{{ lookup(''ansible.builtin.env'', ''PWD'') }}'
 data_root: /var/lib/logstash
 sincedb_path: /var/lib/logstash/sincedb-cpu_load
 
+logstash_user: logstash_system
+

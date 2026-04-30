@@ -22,6 +22,9 @@ usage()
 {
   cat << EOS
 usage : $0 [options] target1 target2 ...
+
+  reset       reset logstash user password in elasticsearch host
+
   createkey   create api key
   deletekey   delete api key
 

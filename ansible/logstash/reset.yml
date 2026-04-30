@@ -3,19 +3,19 @@
   become: true
 
   tasks:
-  - name: reset logstash_internal password
+  - name: reset {{ logstash_user }} password
     ansible.builtin.shell: |
-      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u logstash_internal --silent --batch)
+      pass=$(/usr/share/elasticsearch/bin/elasticsearch-reset-password -u {{ logstash_user }} --silent --batch)
 
       {
-        echo "logstash_username: logstash_internal"
+        echo "logstash_username: {{ logstash_user }}"
         echo "logstash_password: $pass"
       }  > /tmp/logstash_password.yml
 
       addr={{ ansible_facts.default_ipv4.address }}
       {
         echo "machine $addr"
-        echo "login   logstash_internal"
+        echo "login   {{ logstash_user }}"
         echo "password $pass"
       } > /tmp/netrc
 
