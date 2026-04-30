@@ -1,6 +1,9 @@
 ---
 - name: remove filebeat
-  hosts: filebeat
+  hosts:
+  - luna2
+  - abaoaqu
+  - solomon
   
   #environment:
   #  http_proxy: http://proxy.example.com:8080

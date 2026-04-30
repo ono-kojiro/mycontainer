@@ -4,4 +4,7 @@ all:
       hosts:
         elasticsearch:
         filebeat:
+        luna2:
+        abaoaqu:
+        solomon:
 

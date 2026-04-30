@@ -164,6 +164,11 @@ userdel()
     -XDELETE "$es_url/_security/user/$username?pretty"
 }
 
+deploy()
+{
+  ansible-playbook $flags -i hosts.yml site.yml
+}
+
 reset()
 {
   ansible-playbook $flags -i hosts.yml reset.yml
