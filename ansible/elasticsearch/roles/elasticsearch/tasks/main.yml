@@ -38,13 +38,14 @@
     path: /etc/elasticsearch/elasticsearch.yml
     line: '  certificate: /etc/elasticsearch/certs/{{ server_crt }}'
     insertafter: '^\s+#?keystore\.path: certs/http\.p12$'
+  tags: ssl
 
 - name: configure server key
   ansible.builtin.lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
     line: '  key:         /etc/elasticsearch/certs/{{ server_key }}'
     insertafter: '^\s+#?keystore\.path: certs/http\.p12$'
-
+  tags: ssl
 
 - name: upload heap1gb.options
   ansible.builtin.template:
@@ -79,6 +80,7 @@
     owner: elasticsearch
     group: elasticsearch
     mode: '0600'
+  tags: ssl
 
 - name: copy server cert
   ansible.builtin.copy:
@@ -87,6 +89,7 @@
     owner: elasticsearch
     group: elasticsearch
     mode: '0755'
+  tags: ssl
 
 - name: restart elasticsearch
   ansible.builtin.systemd_service:
