@@ -12,8 +12,8 @@
 
 - name: add source list
   ansible.builtin.shell: |
-    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/{{ elastic_ver }}/apt stable main" \
-      | tee /etc/apt/sources.list.d/elastic-{{ elastic_ver }}.list
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" \
+      | tee /etc/apt/sources.list.d/elastic-9.x.list
 
 - name: install elasticsearch
   ansible.builtin.apt :
@@ -27,12 +27,68 @@
     line: 'xpack.security.authc.api_key.enabled: true'
     insertafter: '^xpack.security.enabled: true'
 
+- name: disable http.ssl.keystore.path
+  ansible.builtin.replace:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^(\s+)keystore.path: certs/http\.p12$'
+    replace: '\1#keystore.path: certs/http.p12'
+
+- name: configure server cert
+  ansible.builtin.lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    line: '  certificate: /etc/elasticsearch/certs/{{ server_crt }}'
+    insertafter: '^\s+#?keystore\.path: certs/http\.p12$'
+
+- name: configure server key
+  ansible.builtin.lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    line: '  key:         /etc/elasticsearch/certs/{{ server_key }}'
+    insertafter: '^\s+#?keystore\.path: certs/http\.p12$'
+
+
 - name: upload heap1gb.options
   ansible.builtin.template:
     src:  heap1gb.options
     dest: /etc/elasticsearch/jvm.options.d/
 
 - name: start elasticsearch
+  ansible.builtin.systemd_service:
+    name: elasticsearch
+    state: restarted
+    enabled: true
+
+#- name: copy /etc/default/elasticsearch
+#  ansible.builtin.template:
+#    src:  etc-default-elasticsearch
+#    dest: /etc/default/elasticsearch
+#    owner: root
+#    group: elasticsearch
+#    mode: '0664'
+
+- name: create /etc/elasticsearch/certs
+  ansible.builtin.file:
+    path:  /etc/elasticsearch/certs
+    owner: elasticsearch
+    group: elasticsearch
+    state: directory
+
+- name: copy server key
+  ansible.builtin.copy:
+    src:  "{{ server_key }}"
+    dest: /etc/elasticsearch/certs/
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0600'
+
+- name: copy server cert
+  ansible.builtin.copy:
+    src:  "{{ server_crt }}"
+    dest: /etc/elasticsearch/certs/
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0755'
+
+- name: restart elasticsearch
   ansible.builtin.systemd_service:
     name: elasticsearch
     state: restarted

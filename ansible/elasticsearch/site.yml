@@ -10,4 +10,4 @@
     tags: elasticsearch
 
   - role: reset
-    tags: reset
+    tags: reset, never

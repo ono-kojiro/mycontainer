@@ -61,8 +61,9 @@ destroy()
 test()
 {
   addr=`cat ./.netrc | grep -e '^machine' | awk '{ print $2 }'`
-  curl -k --netrc-file ./.netrc https://${addr}:9200
-  echo ""
+  cmd="curl -s --netrc-file ./.netrc https://${addr}:9200"
+  echo $cmd
+  $cmd | jq .
 }
 
 hosts
