@@ -4,5 +4,5 @@ ansible_become: true
 kibana_crt: kibana.crt
 kibana_key: kibana.key
 
-elasticsearch_url: https://192.168.1.72:9200
+elasticsearch_hosts: https://192.168.1.72:9200
 kibana_url: https://192.168.1.72:5601

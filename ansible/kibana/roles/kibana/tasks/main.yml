@@ -24,14 +24,6 @@
     name: kibana
     state: present
     update_cache: true
-
-- name: copy kibana.yml
-  ansible.builtin.template:
-    src:  kibana.yml
-    dest: /etc/kibana/kibana.yml
-    owner: root
-    group: kibana
-    mode: '0660'
  
 - name: create config directory
   ansible.builtin.file:
@@ -46,28 +38,94 @@
     owner: root
     group: kibana
     state: link
-  
+
+- name: create /etc/kibana/certs
+  ansible.builtin.file:
+    path:  /etc/kibana/certs
+    owner: kibana
+    group: kibana 
+    state: directory
+
 - name: copy kibana.key
   ansible.builtin.copy:
     src:  "{{ kibana_key }}"
-    dest: /etc/ssl/private/
-    owner: root
-    group: ssl-cert
+    dest: /etc/kibana/certs/
+    owner: kibana
+    group: kibana
     mode: '0640'
+  tags: config, ssl
 
 - name: copy kibana.crt
   ansible.builtin.copy:
     src:  "{{ kibana_crt }}"
-    dest: /etc/ssl/certs/
+    dest: /etc/kibana/certs/
     owner: kibana
     group: kibana
     mode: '0644'
+  tags: config, ssl
 
-- name: add kibana to ssl-cert group
-  ansible.builtin.user:
-    name: kibana
-    append: true
-    groups: ssl-cert
+- name: replace server.host
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?server\.host: ".*"$'
+    replace: 'server.host: "0.0.0.0"'
+  tags: config
+
+- name: replace elasticsearch.hosts
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?elasticsearch\.hosts: \[.*\]$'
+    replace: 'elasticsearch.hosts: [ "{{ elasticsearch_hosts }}" ]'
+  tags: config
+
+- name: replace server.publicBaseUrl
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?server\.publicBaseUrl: ".*"$'
+    replace: 'server.publicBaseUrl: "{{ kibana_url }}"'
+  tags: config
+
+- name: replace server.ssl.enabled
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?server\.ssl\.enabled: .*$'
+    replace: 'server.ssl.enabled: true'
+  tags: config
+
+- name: replace server.ssl.certificate
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?server\.ssl\.certificate: .*$'
+    replace: 'server.ssl.certificate: /etc/kibana/certs/{{ kibana_crt }}'
+  tags: config
+
+- name: replace server.ssl.key
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?server\.ssl\.key: .*$'
+    replace: 'server.ssl.key: /etc/kibana/certs/{{ kibana_key }}'
+  tags: config
+
+- name: replace elasticsearch.username
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?elasticsearch\.username: .*$'
+    replace: 'elasticsearch.username: {{ kibana_username }}'
+  tags: config
+
+- name: replace elasticsearch.password
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?elasticsearch\.password: .*$'
+    replace: 'elasticsearch.password: {{ kibana_password }}'
+  tags: config
+
+- name: replace elasticsearch.ssl.verificationMode
+  ansible.builtin.replace:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?elasticsearch\.ssl\.verificationMode: .*$'
+    replace: 'elasticsearch.ssl.verificationMode: none'
+  tags: config
 
 - name: disable OpenSSL 3 legacy provider
   ansible.builtin.lineinfile:
