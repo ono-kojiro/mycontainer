@@ -6,6 +6,11 @@ cd $top_dir
 if [ -f ".env" ]; then
   . ./.env
 fi
+  
+set -a
+. ./.env
+envsubst < filebeat.yml.template > filebeat.yml
+set +a
 
 help()
 {
@@ -74,9 +79,9 @@ config()
   docker cp filebeat.yml \
     ${CONTAINER_NAME}:/usr/share/filebeat/filebeat.yml
 
-  docker cp filebeat.crt  ${CONTAINER_NAME}:/usr/share/filebeat/
-  docker cp filebeat.key  ${CONTAINER_NAME}:/usr/share/filebeat/
-  docker cp mylocalca.crt ${CONTAINER_NAME}:/usr/share/filebeat/
+  docker cp ${CLIENT_CRT}  ${CONTAINER_NAME}:/usr/share/filebeat/
+  docker cp ${CLIENT_KEY}  ${CONTAINER_NAME}:/usr/share/filebeat/
+  docker cp ${CACERT}      ${CONTAINER_NAME}:/usr/share/filebeat/
 
   docker container create --name dummy \
     -v "filebeat-config:/usr/share/filebeat" alpine
@@ -85,8 +90,8 @@ config()
     -v "filebeat-config:/usr/share/filebeat" alpine /bin/sh -s << EOF
   {
      chown root:root /usr/share/filebeat/filebeat.yml
-     chown root:root /usr/share/filebeat/filebeat.crt
-     chown 1000:1000 /usr/share/filebeat/filebeat.key
+     chown root:root /usr/share/filebeat/${CLIENT_CRT}
+     chown 1000:1000 /usr/share/filebeat/${CLIENT_KEY}
   }
 EOF
 

@@ -186,19 +186,19 @@ output.logstash:
 
   # The Logstash hosts
   #hosts: ["localhost:5044"]
-  hosts: [ "192.168.1.98:5044" ]
+  hosts: [ "${LOGSTASH_HOST}" ]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
-  ssl.certificate_authorities: [ "/usr/share/filebeat/mylocalca.crt" ]
+  ssl.certificate_authorities: [ "/usr/share/filebeat/${CACERT}" ]
 
   # Certificate for SSL client authentication
-  ssl.certificate: "solomon-client.crt"
+  ssl.certificate: "${CLIENT_CRT}"
 
   # Client Certificate Key
-  ssl.key: "solomon-client.key"
+  ssl.key: "${CLIENT_KEY}"
   
-  api_key: "myapikey-filebeat:bTZjNjJaMEJqQ0RKVWN0RUFvZE86SS14eGY4YlhRc0dkQktIZWJoWVI0Zw=="
+  api_key: "${API_KEY}"
 
 # ================================= Processors =================================
 processors:
