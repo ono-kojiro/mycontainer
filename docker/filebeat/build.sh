@@ -3,8 +3,9 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-. ./env
-extra_vars=`cat env | tr '\n' ' '`
+if [ -f ".env" ]; then
+  . ./.env
+fi
 
 help()
 {
@@ -29,6 +30,13 @@ all()
   help
 }
 
+prepare()
+{
+  beats_base
+  beats_base="https://raw.githubusercontent.com/elastic/beats"
+  curl -L -O ${beats_base}/9.3/deploy/docker/filebeat.docker.yml
+}
+
 fetch()
 {
   debfile="filebeat-${FB_VER}-${FB_ARCH}.deb"
@@ -43,12 +51,12 @@ build()
 
 create()
 {
-  docker compose --env-file ./env up --no-start
+  docker compose up --no-start
 }
 
 start()
 {
-  docker compose --env-file ./env start
+  docker compose start
 }
 
 ssh()
@@ -58,7 +66,37 @@ ssh()
 
 attach()
 {
-  docker attach $container
+  docker exec -it -u root ${CONTAINER_NAME} /bin/bash
+}
+
+config()
+{
+  docker cp filebeat.yml \
+    ${CONTAINER_NAME}:/usr/share/filebeat/filebeat.yml
+
+  docker cp filebeat.crt  ${CONTAINER_NAME}:/usr/share/filebeat/
+  docker cp filebeat.key  ${CONTAINER_NAME}:/usr/share/filebeat/
+  docker cp mylocalca.crt ${CONTAINER_NAME}:/usr/share/filebeat/
+
+  docker container create --name dummy \
+    -v "filebeat-config:/usr/share/filebeat" alpine
+
+  docker run --rm -i -u root \
+    -v "filebeat-config:/usr/share/filebeat" alpine /bin/sh -s << EOF
+  {
+     chown root:root /usr/share/filebeat/filebeat.yml
+     chown root:root /usr/share/filebeat/filebeat.crt
+     chown 1000:1000 /usr/share/filebeat/filebeat.key
+  }
+EOF
+
+  docker rm dummy
+}
+
+
+log()
+{
+  docker logs ${CONTAINER_NAME}
 }
 
 status()
@@ -79,13 +117,21 @@ test()
 
 stop()
 {
-  docker compose --env-file ./env stop
+  docker compose stop
 }
 
 down()
 {
-  docker compose --env-file ./env down
+  docker compose down
 }
+
+destroy()
+{
+  down
+  docker volume rm filebeat-config
+  docker volume rm filebeat-data
+}
+
 
 deploy()
 {

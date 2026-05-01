@@ -54,6 +54,29 @@ filebeat.inputs:
   #  level: debug
   #  review: 1
 
+# journald is an input for collecting logs from Journald
+#- type: journald
+
+  # Unique ID among all inputs, if the ID changes, all entries
+  # will be re-ingested
+  #id: my-journald-id
+
+  # The position to start reading from the journal, valid options are:
+  #  - head: Starts reading at the beginning of the journal.
+  #  - tail: Starts reading at the end of the journal.
+  #    This means that no events will be sent until a new message is written.
+  #  - since: Use also the `since` option to determine when to start reading from.
+  #seek: head
+
+  # A time offset from the current time to start reading from.
+  # To use since, seek option must be set to since.
+  #since: -24h
+
+  # Collect events from the service and messages about the service,
+  # including coredumps.
+  #units:
+    #- docker.service
+
 # ============================== Filebeat modules ==============================
 
 filebeat.config.modules:
@@ -111,13 +134,16 @@ setup.kibana:
   # Scheme and port can be left out and will be set to the default (http and 5601)
   # In case you specify and additional path, the scheme is required: http://localhost:5601/path
   # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
-  #host: "localhost:5601"
-  host: "192.168.0.98:5601"
+  host: "{{ kibana_host }}"
 
   # Kibana Space ID
   # ID of the Kibana Space into which the dashboards should be loaded. By default,
   # the Default Space will be used.
   #space.id:
+
+  ssl.verification_mode: none
+  #username: "{{ kibana_username }}"
+  #password: "{{ kibana_password }}"
 
 # =============================== Elastic Cloud ================================
 
@@ -137,9 +163,14 @@ setup.kibana:
 # Configure what output to use when sending the data collected by the beat.
 
 # ---------------------------- Elasticsearch Output ----------------------------
-#output.elasticsearch:
+output.elasticsearch:
+  enabled: false
   # Array of hosts to connect to.
-  #hosts: ["localhost:9200"]
+  hosts: ["localhost:9200"]
+
+  # Performance preset - one of "balanced", "throughput", "scale",
+  # "latency", or "custom".
+  preset: balanced
 
   # Protocol - either `http` (default) or `https`.
   #protocol: "https"
@@ -151,18 +182,23 @@ setup.kibana:
 
 # ------------------------------ Logstash Output -------------------------------
 output.logstash:
+  enabled: true
+
   # The Logstash hosts
-  hosts: ["192.168.0.98:5044"]
+  #hosts: ["localhost:5044"]
+  hosts: [ "192.168.1.98:5044" ]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
-  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+  ssl.certificate_authorities: [ "/usr/share/filebeat/mylocalca.crt" ]
 
   # Certificate for SSL client authentication
-  #ssl.certificate: "/etc/pki/client/cert.pem"
+  ssl.certificate: "filebeat.crt"
 
   # Client Certificate Key
-  #ssl.key: "/etc/pki/client/cert.key"
+  ssl.key: "filebeat.key"
+  
+  api_key: "myapikey-filebeat:bTZjNjJaMEJqQ0RKVWN0RUFvZE86SS14eGY4YlhRc0dkQktIZWJoWVI0Zw=="
 
 # ================================= Processors =================================
 processors:

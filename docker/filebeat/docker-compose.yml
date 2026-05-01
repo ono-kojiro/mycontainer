@@ -1,16 +1,24 @@
-version: "3"
+#https://hub.docker.com/r/elastic/filebeat
 
-# https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+volumes:
+  filebeat-config:
+    name: filebeat-config
+  filebeat-data:
+    name: filebeat-data
 
 services:
   filebeat:
-    image: filebeat
-    container_name: filebeat
-    hostname: filebeat
+    image: elastic/filebeat:9.3.4
+    container_name: ${CONTAINER_NAME}
+    hostname: ${CONTAINER_NAME}
     stdin_open: true   # docker run -i
     tty:        true   # docker run -t
     environment:
       TZ: Asia/Tokyo
-    ports:
-      - "${SSH_PORT}:22"
+    user: root
+    volumes:
+    - /var/log:/var/log:ro
+    - filebeat-config:/usr/share/filebeat
+    - filebeat-data:/usr/share/filebeat/data
+    command: ["--strict.perms=false"]
 
