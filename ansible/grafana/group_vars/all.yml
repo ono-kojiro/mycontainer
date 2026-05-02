@@ -1,0 +1,13 @@
+---
+
+# used in /etc/grafana/grafana.ini
+http_addr: 0.0.0.0
+http_port: 3000
+
+# used in /etc/grafana/ldap.toml
+#ldap_host: 192.168.1.xx
+#ldap_base: dc=example,dc=com
+
+admins_role:  ldapwheel
+editors_role: ldapusers
+

@@ -45,14 +45,14 @@
   ansible.builtin.replace:
     path: /etc/grafana/grafana.ini
     regexp: '^(;|#)http_addr\s*=(.*)$'
-    replace: 'http_addr = 0.0.0.0'
+    replace: 'http_addr = {{ http_addr }}'
   tags: ssl
 
 - name: change port
   ansible.builtin.replace:
     path: /etc/grafana/grafana.ini
     regexp: '^(;|#)http_port\s*=(.*)$'
-    replace: 'http_port = 3000'
+    replace: 'http_port = {{ http_port }}'
   tags: ssl
 
 
@@ -69,14 +69,14 @@
   ansible.builtin.replace:
     path: /etc/grafana/grafana.ini
     regexp: '^(;|#)cert_file\s*=(.*)$'
-    replace: 'cert_file = /etc/grafana/certs/grafana.crt'
+    replace: 'cert_file = /etc/grafana/certs/{{ cert_file }}'
   tags: ssl
 
 - name: configure cert_key
   ansible.builtin.replace:
     path: /etc/grafana/grafana.ini
     regexp: '^(;|#)cert_key\s*=(.*)$'
-    replace: 'cert_key = /etc/grafana/certs/grafana.key'
+    replace: 'cert_key = /etc/grafana/certs/{{ cert_key }}'
   tags: ssl
 
 - name: upload server cert
@@ -93,6 +93,106 @@
     group: grafana
     mode: '0700'
   tags: ssl
+
+- name: enable ldap
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^\[auth.ldap\]\n(;|#)enabled\s*=(.*)\n'
+    replace: '[auth.ldap]\nenabled = true\n'
+  tags: ssl
+
+- name: configure ldap
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^\[auth.ldap\]\nenabled = true\n(;|#)config_file\s*=(.*)\n'
+    replace: '[auth.ldap]\nenabled = true\nconfig_file = /etc/grafana/ldap.toml\n'
+  tags: ldap
+
+- name: configure allow_sign_up
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^\[auth.ldap\]\nenabled = true\nconfig_file\s*=(.*)\n(;|#)allow_sign_up\s*=(.*)\n'
+    replace: '[auth.ldap]\nenabled = true\nconfig_file = /etc/grafana/ldap.toml\nallow_sign_up = true\n'
+  tags: ldap
+
+
+- name: configure ldap host
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^host = "(.*)"$'
+    replace: 'host = "{{ ldap_host }}"'
+  tags: ldap
+
+- name: configure ldap port
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^port = (.*)$'
+    replace: 'port = 389'
+  tags: ldap
+
+- name: configure use_ssl
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^use_ssl = (.*)$'
+    replace: 'use_ssl = true'
+  tags: ldap
+
+- name: configure start_tls 
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^start_tls = (.*)$'
+    replace: 'start_tls = true'
+  tags: ldap
+
+- name: configure ssl_skip_verify
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^ssl_skip_verify = (.*)$'
+    replace: 'ssl_skip_verify = true'
+  tags: ldap
+
+- name: configure bind_dn
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^bind_dn = "(.*)"$'
+    replace: '#bind_dn = "\1"'
+  tags: ldap
+
+- name: configure bind_password
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: "^bind_password = '(.*)'$"
+    replace: "#bind_password = '\\1'"
+  tags: ldap
+
+- name: configure search_filter
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^search_filter = "(.*)"$'
+    replace: 'search_filter = "(uid=%s)"'
+  tags: ldap
+
+
+- name: configure search_base_dns
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^search_base_dns = \["(.*)"\]$'
+    replace: 'search_base_dns = ["ou=Users,{{ ldap_base }}"]'
+  tags: ldap
+
+- name: configure Admin role
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^group_dn = "cn=admins,ou=groups,dc=grafana,dc=org"$'
+    replace: 'group_dn = "cn={{ admins_role }},ou=Groups,{{ ldap_base }}"'
+  tags: ldap
+
+- name: configure Editor role
+  ansible.builtin.replace:
+    path: /etc/grafana/ldap.toml
+    regexp: '^group_dn = "cn=editors,ou=groups,dc=grafana,dc=org"$'
+    replace: 'group_dn = "cn={{ editors_role }},ou=Groups,{{ ldap_base }}"'
+  tags: ldap
 
 - name: restart grafana-server
   ansible.builtin.systemd_service:

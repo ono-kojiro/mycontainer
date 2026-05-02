@@ -10,3 +10,6 @@
   - role: grafana
     tags: grafana
 
+  - role: destroy
+    tags: destroy, never
+

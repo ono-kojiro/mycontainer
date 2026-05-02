@@ -1,0 +1,23 @@
+---
+- name: stop grafana
+  ansible.builtin.systemd_service:
+    name: grafana-server
+    state: stopped
+  ignore_errors: true
+
+- name: remove grafana
+  ansible.builtin.apt:
+    name: grafana
+    state: absent
+    purge: true
+
+- name: remove directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+  - /etc/grafana
+  - /var/lib/grafana
+  - /var/log/grafana
+
+
