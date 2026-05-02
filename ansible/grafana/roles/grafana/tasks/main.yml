@@ -55,6 +55,20 @@
     replace: 'http_port = {{ http_port }}'
   tags: ssl
 
+- name: change root_url
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)?root_url\s*=(.*)$'
+    replace: 'root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana/'
+  tags: ssl
+
+- name: change serve_from_sub_path
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)?serve_from_sub_path\s*=(.*)$'
+    replace: 'serve_from_sub_path = true'
+  tags: ssl
+
 
 - name: create /etc/grafana/certs directory
   ansible.builtin.file:
