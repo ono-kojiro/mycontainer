@@ -19,7 +19,7 @@
 
 - name: add stable repository
   ansible.builtin.shell: |
-    echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list
+    echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | tee /etc/apt/sources.list.d/grafana.list
 
 - name: install package
   ansible.builtin.apt :
