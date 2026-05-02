@@ -1,0 +1,4 @@
+---
+ansible_host: luna2
+ansible_become: true
+

@@ -1,0 +1,103 @@
+---
+- name: install prerequisite packages
+  ansible.builtin.apt :
+    name:
+    - apt-transport-https
+    - wget
+    - gnupg
+    state: present
+
+- name: create /etc/apt/keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+
+- name: add keyrings
+  ansible.builtin.shell: |
+     wget -O /etc/apt/keyrings/grafana.asc \
+       https://apt.grafana.com/gpg-full.key
+
+- name: add stable repository
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list
+
+- name: install package
+  ansible.builtin.apt :
+    name:  grafana
+    state: present
+    update_cache: true
+
+- name: change protocol from http to https
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)protocol\s*=(.*)$'
+    replace: 'protocol = https'
+  tags: ssl
+
+- name: change minimum tls version
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)min_tls_version\s*=(.*)$'
+    replace: 'min_tls_version = "TLS1.3"'
+  tags: ssl
+
+- name: change bind address
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)http_addr\s*=(.*)$'
+    replace: 'http_addr = 0.0.0.0'
+  tags: ssl
+
+- name: change port
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)http_port\s*=(.*)$'
+    replace: 'http_port = 3000'
+  tags: ssl
+
+
+- name: create /etc/grafana/certs directory
+  ansible.builtin.file:
+    path: /etc/grafana/certs
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0755'
+  tags: ssl
+
+- name: configure cert_file
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)cert_file\s*=(.*)$'
+    replace: 'cert_file = /etc/grafana/certs/grafana.crt'
+  tags: ssl
+
+- name: configure cert_key
+  ansible.builtin.replace:
+    path: /etc/grafana/grafana.ini
+    regexp: '^(;|#)cert_key\s*=(.*)$'
+    replace: 'cert_key = /etc/grafana/certs/grafana.key'
+  tags: ssl
+
+- name: upload server cert
+  ansible.builtin.copy:
+    src: grafana.crt
+    dest: /etc/grafana/certs/
+  tags: ssl
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: grafana.key
+    dest: /etc/grafana/certs/
+    owner: grafana
+    group: grafana
+    mode: '0700'
+  tags: ssl
+
+- name: restart grafana-server
+  ansible.builtin.systemd_service:
+    name:  grafana-server
+    state: restarted
+    daemon_reload: true
+    enabled: true
+  tags: always
