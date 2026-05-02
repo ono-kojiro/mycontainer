@@ -72,6 +72,8 @@ log()
 create()
 {
   docker compose up --no-start
+
+  config
 }
 
 start()

@@ -10,6 +10,7 @@ services:
     container_name: ${CONTAINER_NAME}
     hostname: ${HOSTNAME}
     command: ["dex", "serve", "/etc/dex/config-ldap.yaml"]
+    restart: always
     #network_mode: bridge
     ports:
     - "${DEX_PORT}:${DEX_PORT}"
