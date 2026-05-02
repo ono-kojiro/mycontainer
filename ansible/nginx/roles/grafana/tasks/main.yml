@@ -1,0 +1,17 @@
+---
+- name: upload grafana.conf
+  ansible.builtin.template:
+    src: grafana.conf
+    dest: /etc/nginx/includes/
+
+- name: include grafana.conf in ssl_site
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/sites-available/ssl_site
+    insertbefore: '^}'
+    line: '    include /etc/nginx/includes/grafana.conf;'
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

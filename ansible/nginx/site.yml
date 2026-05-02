@@ -18,6 +18,9 @@
   - name: couchdb
     tags: couchdb
 
+  - name: grafana
+    tags: grafana
+
   - name: destroy
     tags: destroy, never
 

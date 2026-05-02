@@ -4,7 +4,7 @@ ansible_become: true
 ansible_become_exe: /usr/bin/sudo
 
 server_name: couchdb
-server_crt: nginx.crt
-server_key: nginx.key
+server_crt: luna2.crt
+server_key: luna2.key
 
 
