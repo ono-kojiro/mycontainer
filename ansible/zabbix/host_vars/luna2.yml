@@ -1,0 +1,24 @@
+---
+ansible_host: luna2
+ansible_become: true
+
+cacert: myrootca.crt
+caname: MyRootCA
+
+# for zabbix server
+zabbix_server_name: luna2
+
+server_crt: luna2.crt
+server_key: luna2.key
+
+zabbix_user: zabbix
+zabbix_pw: password
+zabbix_db: zabbix
+
+# for zabbix agent
+agent_crt: luna2.crt
+agent_key: luna2.key
+
+server_ip: 127.0.0.1
+
+

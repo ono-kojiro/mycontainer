@@ -1,0 +1,23 @@
+---
+ansible_host: noble
+ansible_become: true
+
+cacert: myrootca.crt
+caname: MyRootCA
+
+# for zabbix server
+zabbix_server_name: noble
+
+server_crt: noble.crt
+server_key: noble.key
+
+zabbix_user: zabbix
+zabbix_pw: password
+zabbix_db: zabbix
+
+# for zabbix agent
+agent_crt: noble.crt
+agent_key: noble.key
+
+server_ip: 127.0.0.1
+

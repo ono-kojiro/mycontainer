@@ -24,6 +24,7 @@
     drop database if exists zabbix;
     drop user if exists zabbix@localhost;
     EOF
+  ignore_errors: true
 
 - name: remove zabbix log
   ansible.builtin.file:
