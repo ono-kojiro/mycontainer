@@ -85,15 +85,14 @@ EOF
 }
 EOF
 
-  {		
-    curl \
-      -k \
-     --silent \
-      --netrc-file ${netrc} \
-      -H 'Content-Type: application/x-ndjson' \
-      -X POST ${base_url}/_security/api_key?pretty \
-	  -d @data.json
-  }
+  curl \
+    -k \
+   --silent \
+    --netrc-file ${netrc} \
+    -H 'Content-Type: application/x-ndjson' \
+    -X POST ${base_url}/_security/api_key?pretty \
+    -d @data.json \
+  | tee ${name}.json
 
   ### encoded=`echo -n $id:$api_key | base64`
   rm -f data.json
@@ -129,10 +128,41 @@ EOF
     -k \
    --silent \
     --netrc-file ${netrc} \
-    -H 'Content-Type: application/x-ndjson' \
+    -H 'Content-Type: application/json' \
     -X DELETE ${base_url}/_security/api_key?pretty -d @data.json
 
   rm -f data.json
+}
+
+check()
+{
+  if [ -z "$name" ]; then
+    echo "ERROR: no name option"
+	exit 1
+  fi
+  
+  curl -s \
+    --netrc-file ${netrc} \
+    ${base_url}/_security/api_key?name=${name} | jq .
+}
+
+debug()
+{
+  if [ -z "$name" ]; then
+    echo "ERROR: no name option"
+	exit 1
+  fi
+  
+  api_key=`cat ${name}.json | jq -r ".api_key"`
+  api_id=`cat ${name}.json | jq -r ".id"`
+
+  encoded=`echo -n $api_id:$api_key | base64`
+
+  #echo $encoded
+
+  curl -s \
+    -H "Authorization: ApiKey ${encoded}" \
+    ${base_url}
 }
 
 args=""
