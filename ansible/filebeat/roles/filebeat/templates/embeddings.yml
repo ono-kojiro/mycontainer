@@ -1,0 +1,15 @@
+- type: filestream
+  id: embeddings
+  paths:
+    - /home/embeddings/*.ndjson
+  parsers:
+    - ndjson:
+        target: ""
+        message_key: ""
+  processors:
+    - add_fields:
+        target: "@metadata"
+        fields:
+          beat: "embeddings"
+          filebeat_id: "default"
+

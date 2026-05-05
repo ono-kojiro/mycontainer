@@ -1,7 +1,7 @@
 - name: setup filebeat
   hosts:
-  - luna2
-  - abaoaqu
+  #- luna2
+  #- abaoaqu
   - solomon
   
   #environment:

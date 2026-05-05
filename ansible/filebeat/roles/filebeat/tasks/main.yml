@@ -32,6 +32,25 @@
     owner: root
     group: root
     mode: '0640'
+
+- name: create /etc/filebeat/inputs.d directory
+  ansible.builtin.file:
+    path: /etc/filebeat/inputs.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: copy inputs config
+  ansible.builtin.template:
+    src:  "{{ item }}"
+    dest: /etc/filebeat/inputs.d/
+    owner: root
+    group: root
+    mode: '0640'
+  loop:
+  - default_log.yml
+  - embeddings.yml 
  
 #- name: create config directory
 #  ansible.builtin.file:
