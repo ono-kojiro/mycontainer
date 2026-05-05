@@ -1,0 +1,16 @@
+---
+- name: add keyrings
+  ansible.builtin.shell: |
+    curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_24.04/Release.key | gpg --dearmor --batch --yes -o /etc/apt/trusted.gpg.d/security_zeek.gpg
+
+- name: add source list
+  ansible.builtin.shell: |
+    echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_24.04/ /' \
+      | tee /etc/apt/sources.list.d/zeek.list
+
+- name: install zeek-8.0
+  ansible.builtin.apt :
+    name:  zeek-8.0
+    state: present
+    update_cache: true
+

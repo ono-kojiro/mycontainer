@@ -1,0 +1,4 @@
+export ZEEK_ROOT="/opt/zeek"
+
+[[ ":$PATH:" != *":$ZEEK_ROOT/bin:"* ]] && PATH="$ZEEK_ROOT/bin:${PATH}"
+
