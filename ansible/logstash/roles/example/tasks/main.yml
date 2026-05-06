@@ -15,6 +15,11 @@
     group: logstash
     mode: '0600'
 
+- name: create beats directory
+  ansible.builtin.file:
+    path: /etc/logstash/conf.d/beats
+    state: directory
+
 - name: copy config files
   ansible.builtin.template:
     src:  "{{ item }}"
@@ -24,6 +29,15 @@
     mode: '0644'
   loop:
   - cpu_load.conf
+
+- name: copy config for beats
+  ansible.builtin.template:
+    src:  "{{ item }}"
+    dest: /etc/logstash/conf.d/beats/
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
   - beats.conf
   - filter-embeddings.conf
   - filter-mycsv.conf
@@ -83,7 +97,11 @@
   ansible.builtin.systemd_service:
     name: cron
     state: restarted
-  
+
+- name: systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
 - name: restart logstash
   ansible.builtin.systemd_service:
     name: logstash

@@ -6,7 +6,7 @@
   path.config: "/etc/logstash/conf.d/cpu_load.conf"
 
 - pipeline.id: beats
-  path.config: "/etc/logstash/conf.d/beats.conf"
+  path.config: "/etc/logstash/conf.d/beats/*.conf"
 
 - pipeline.id: fluent-bit
   path.config: "/etc/logstash/conf.d/fluent-bit.conf"
