@@ -25,7 +25,10 @@
   loop:
   - cpu_load.conf
   - beats.conf
-  
+  - filter-embeddings.conf
+  - filter-mycsv.conf
+  - filter-tshark.conf
+
 - name: copy pipelines.yml
   ansible.builtin.template:
     src:  "{{ item }}"
