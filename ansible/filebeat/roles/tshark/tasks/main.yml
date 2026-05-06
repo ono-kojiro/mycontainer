@@ -1,0 +1,11 @@
+---
+- name: upload tshark config
+  ansible.builtin.template:
+    src: tshark.yml
+    dest: /etc/filebeat/inputs.d/
+
+- name: restart filebeat
+  ansible.builtin.systemd_service:
+    name: filebeat
+    state: restarted
+

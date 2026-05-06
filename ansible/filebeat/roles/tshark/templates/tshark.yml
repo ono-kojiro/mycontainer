@@ -1,0 +1,15 @@
+- type: filestream
+  id: tshark
+  paths:
+    - /home/tshark/**/*.ndjson
+  parsers:
+    - ndjson:
+        target: ""
+        message_key: ""
+  processors:
+    - add_fields:
+        target: "@metadata"
+        fields:
+          beat: "filebeat"
+          beat_id: "tshark"
+
