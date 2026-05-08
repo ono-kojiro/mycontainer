@@ -2,16 +2,67 @@
 
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
+ret=0
+
 ENVFILE=".env"
 
 if [ -e "${ENVFILE}" ]; then
   . ./${ENVFILE}
 fi
-    
+
+if [ -z "${COUCHDB_VERSION}" ]; then
+  echo "ERROR: COUCHDB_VERSION is not defined"
+  ret=`expr $ret + 1`
+fi
+
+if [ -z "${COUCHDB_IP}" ]; then
+  echo "ERROR: COUCHDB_IP is not defined"
+  ret=`expr $ret + 1`
+fi
+
+if [ -z "${COUCHDB_HTTPS_PORT}" ]; then
+  echo "ERROR: COUCHDB_HTTPS_PORT is not defined"
+  ret=`expr $ret + 1`
+fi
+
+if [ -z "${COUCHDB_USER}" ]; then
+  echo "ERROR: COUCHDB_USER is not defined"
+  ret=`expr $ret + 1`
+fi
+
+if [ -z "${COUCHDB_PASSWORD}" ]; then
+  echo "ERROR: COUCHDB_PASSWORD is not defined"
+  ret=`expr $ret + 1`
+fi
+  
+if [ ! -e "config/ssl/couchdb.crt" ]; then
+  echo "ERROR: no couchdb.crt in config/ssl/"
+  ret=`expr $ret + 1`
+fi
+
+if [ ! -e "config/ssl/couchdb.key" ]; then
+  echo "ERROR: no couchdb.key in config/ssl/"
+  ret=`expr $ret + 1`
+fi
+
+if [ -z "${DEX_IP}" ]; then
+  echo "ERROR: DEX_IP is not defined"
+  ret=`expr $ret + 1`
+fi
+  
+if [ -z "${DEX_HTTPS_PORT}" ]; then
+  echo "ERROR: DEX_HTTPS_PORT is not defined"
+  ret=`expr $ret + 1`
+fi
+
+if [ "$ret" -ne 0 ]; then
+  exit $ret
+fi
+
 couchdb_user="${COUCHDB_USER}"
 couchdb_password="${COUCHDB_PASSWORD}"
 
-dex_https="192.168.1.72:5554"
+dex_https="${DEX_IP}:${DEX_HTTPS_PORT}"
 
 usage()
 {
@@ -59,7 +110,11 @@ keys2ini()
   echo "INFO : get https://${dex_https}/dex/keys"
   curl -s -k https://${dex_https}/dex/keys | jq . > keys.json
   echo "INFO : output is keys.json"
-  
+
+  if [ ! -s "keys.json" ]; then
+    echo "ERROR: dex/keys is empty"
+    exit 1
+  fi  
   python3 jwk2pem.py -o dex_public.pem keys.json
 
   kid=`cat keys.json | jq -r ".keys[$index].kid"`
@@ -197,7 +252,8 @@ device_code()
 
 auth()
 {
-   verification_uri_complete=`cat device_code.json | jq -r ".verification_uri_complete"`
+   verification_uri_complete=`cat device_code.json \
+     | jq -r ".verification_uri_complete"`
    lynx ${verification_uri_complete}
 }
 
@@ -238,7 +294,7 @@ test_access_token()
     https://${COUCHDB_HTTPS}/_session
 }
 
-without_access_token()
+without_token()
 {
   curl -s -k \
     https://${COUCHDB_HTTPS}/_session
