@@ -61,7 +61,7 @@ help()
 
 attach()
 {
-  docker exec -it ${CONTAINER_NAME} /bin/sh
+  docker exec -it -u root ${CONTAINER_NAME} /bin/sh
 }
 
 log()
@@ -170,7 +170,7 @@ destroy()
   docker volume rm ${CONTAINER_NAME}-data
 }
 
-keys()
+check_keys()
 {
   echo "INFO : get https://${DEX_IP}:${DEX_PORT}/dex/keys"
   curl -s -k https://${DEX_IP}:${DEX_PORT}/dex/keys | jq . | tee keys.json
@@ -253,6 +253,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 for target in "$@"; do
+  target=`echo $target | tr '-' '_'`
   num=`LANG=C type "$target" 2>&1 | grep 'function' | wc -l`
   if [ "$num" -eq 1 ]; then
     $target

@@ -45,7 +45,7 @@ connectors:
       # "DN" (case sensitive) is a special attribute name. It indicates that
       # this value should be taken from the entity's DN not an attribute on
       # the entity.
-      idAttr: DN
+      idAttr: uid
       emailAttr: mail
       nameAttr: cn
 
