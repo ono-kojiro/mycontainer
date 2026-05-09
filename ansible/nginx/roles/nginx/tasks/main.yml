@@ -23,3 +23,28 @@
     src: auth.conf
     dest: /etc/nginx/includes/
 
+- name: find enabled-site
+  ansible.builtin.find:
+    paths: /etc/nginx/sites-enabled/
+    recurse: no
+    file_type: any
+  register: res
+
+- name: remove enabled sites
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ res.files }}"
+  when: res.files | length > 0
+
+- name: enable default site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

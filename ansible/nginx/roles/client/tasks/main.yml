@@ -1,0 +1,36 @@
+---
+- name: upload ssl_client_cert.conf 
+  ansible.builtin.template:
+    src:  ssl_client_cert.conf
+    dest: /etc/nginx/includes/
+
+- name: find enabled-site
+  ansible.builtin.find:
+    paths: /etc/nginx/sites-enabled/
+    recurse: no
+    file_type: any
+  register: res
+
+- name: remove enabled sites
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ res.files }}"
+  when: res.files | length > 0
+
+- name: upload ssl_site_with_ssl_client_cert
+  ansible.builtin.template:
+    src:  ssl_site_with_ssl_client_cert
+    dest: /etc/nginx/sites-available/ssl_site
+
+- name: enable ssl site with client auth
+  ansible.builtin.file:
+    src:  /etc/nginx/sites-available/ssl_site
+    dest: /etc/nginx/sites-enabled/ssl_site
+    state: link
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

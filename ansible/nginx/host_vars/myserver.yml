@@ -7,3 +7,6 @@ server_crt: myserver.crt
 server_key: myserver.key
 
 server_name: example.com
+
+ssl_client_certificate: /etc/ssl/certs/mylocalca.pem
+

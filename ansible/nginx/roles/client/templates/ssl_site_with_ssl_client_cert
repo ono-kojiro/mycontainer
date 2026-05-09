@@ -1,0 +1,13 @@
+server {
+    server_name {{ server_name }};
+
+    include /etc/nginx/includes/ssl.conf;
+    include /etc/nginx/includes/ssl_client_cert.conf;
+
+    root /var/www/html;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    include /etc/nginx/includes/location.conf;
+}
+
