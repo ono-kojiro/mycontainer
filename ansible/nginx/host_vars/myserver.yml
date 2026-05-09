@@ -1,10 +1,12 @@
 ---
-ansible_host: localhost
+ansible_host: myserver
 ansible_become: true
-ansible_become_exe: /usr/bin/sudo
+#ansible_become_exe: /usr/bin/sudo
 
-server_name: couchdb
-server_crt: luna2.crt
-server_key: luna2.key
+server_crt: myserver.crt
+server_key: myserver.key
 
+server_name: example.com
+
+ssl_client_certificate: /etc/ssl/certs/mylocalca.pem
 

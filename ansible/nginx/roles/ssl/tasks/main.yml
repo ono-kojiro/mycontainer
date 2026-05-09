@@ -17,15 +17,34 @@
     group: root
     mode: '600'
 
-- name: upload ssl site
+- name: configure location
   ansible.builtin.template:
-    src: ssl_site
-    dest: /etc/nginx/sites-available/
+    src:  location.conf
+    dest: /etc/nginx/includes/
 
-- name: configure ssl
+- name: upload ssl.conf
   ansible.builtin.template:
     src:  ssl.conf
     dest: /etc/nginx/includes/
+
+- name: find enabled-site
+  ansible.builtin.find:
+    paths: /etc/nginx/sites-enabled/
+    recurse: no
+    file_type: any
+  register: res
+
+- name: remove enabled sites
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ res.files }}"
+  when: res.files | length > 0
+
+- name: upload ssl_site
+  ansible.builtin.template:
+    src: ssl_site
+    dest: /etc/nginx/sites-available/
 
 - name: enable ssl site
   ansible.builtin.file:
