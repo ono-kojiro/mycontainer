@@ -13,13 +13,13 @@
     tags: ssl
   
   - name: api_key
-    tags: api_key
+    tags: api_key, never
 
   - name: couchdb
-    tags: couchdb
+    tags: couchdb, never
 
   - name: grafana
-    tags: grafana
+    tags: grafana, never
 
   - name: destroy
     tags: destroy, never
