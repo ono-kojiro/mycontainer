@@ -7,12 +7,6 @@ server {
 
     index index.html index.htm index.nginx-debian.html;
 
-    location / {
-        try_files $uri $uri/ =404;
-    }
-   
-    #location /couchdb/ {
-    #    include /etc/nginx/includes/couchdb.conf;
-    #}
+    include /etc/nginx/includes/location.conf;
 }
 

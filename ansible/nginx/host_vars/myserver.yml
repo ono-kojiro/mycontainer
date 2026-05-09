@@ -6,4 +6,4 @@ ansible_become: true
 server_crt: myserver.crt
 server_key: myserver.key
 
-server_name: couchdb
+server_name: example.com

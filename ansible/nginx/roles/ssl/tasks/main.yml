@@ -17,6 +17,11 @@
     group: root
     mode: '600'
 
+- name: configure location
+  ansible.builtin.template:
+    src:  location.conf
+    dest: /etc/nginx/includes/
+
 - name: upload ssl site
   ansible.builtin.template:
     src: ssl_site
