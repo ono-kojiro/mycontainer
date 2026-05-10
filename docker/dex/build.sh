@@ -48,9 +48,10 @@ usage : $0 [options] target1 target2 ..."
     down              remove container
     destroy           remove container and volume
 
-    code
-    refresh
-    access
+    device_code / device       get device code
+    auth                       authorize using lynx
+    refresh_token / refresh    get refresh token
+    access_token  / access     get access token
 EOF
 }
 
@@ -99,13 +100,14 @@ down()
 
 config()
 {
-  echo "INFO: create dummy container"
+  echo -n "INFO: create dummy container ... "
   docker container create --name dummy \
      -v dex-config:/etc/dex \
      -v dex-data:/var/lib/dex \
-     alpine
+     alpine >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
-  echo "INFO: create /etc/dex/certs directory"
+  echo -n "INFO: create /etc/dex/certs directory ... "
   docker run --rm -i -u root \
     -v dex-config:/etc/dex \
     -v dex-data:/var/lib/dex \
@@ -116,12 +118,21 @@ config()
   }
 EOF
 
-  echo "INFO: upload certs and config"
-  docker cp dex.crt dummy:/etc/dex/certs/
-  docker cp dex.key dummy:/etc/dex/certs/
-  docker cp config-ldap.yaml dummy:/etc/dex/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  echo -n "INFO: upload dex.crt ... "
+  docker cp -q dex.crt dummy:/etc/dex/certs/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  echo -n "INFO: upload dex.key ... "
+  docker cp -q dex.key dummy:/etc/dex/certs/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
-  echo "INFO: create /etc/dex/certs directory"
+  echo -n "INFO: upload config-ldap.yaml ... "
+  docker cp -q config-ldap.yaml dummy:/etc/dex/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: change permission ... "
   docker run --rm -i -u root \
     -v dex-config:/etc/dex \
     -v dex-data:/var/lib/dex \
@@ -135,20 +146,24 @@ EOF
     chown 1001:1001 /var/lib/dex/dex.db
   }
 EOF
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
-  echo "INFO: check permission"
+  
+  echo -n "INFO: check permission ... "
   docker run --rm -i -u root \
     -v dex-config:/etc/dex \
     -v dex-data:/var/lib/dex \
-    alpine /bin/sh -s << EOF
+    alpine /bin/sh -s << EOF > permission.log
   {
     ls -lR /etc/dex/
     ls -lR /var/lib/dex/
   }
 EOF
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
-  echo "INFO: remove dummy container"
-  docker rm dummy
+  echo -n "INFO: remove dummy container ... "
+  docker rm dummy >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 }
 
 update_config()
@@ -185,12 +200,19 @@ device_code()
    | jq . | tee device_code.json
 }
 
-code()
+device()
 {
   device_code
 }
 
-refresh()
+auth()
+{
+   verification_uri_complete=`cat device_code.json \
+     | jq -r ".verification_uri_complete"`
+   lynx ${verification_uri_complete}
+}
+
+refresh_token()
 {
   code=`cat device_code.json | jq -r ".device_code"`
   client_id="myclient"
@@ -202,7 +224,12 @@ refresh()
           -d "client_id=$client_id" | jq . | tee refresh_token.json
 }
 
-access()
+refresh()
+{
+  refresh_token
+}
+
+access_token()
 {
   ref=`cat refresh_token.json | jq -r ".refresh_token"`
 
@@ -213,22 +240,12 @@ access()
     -d "client_id=myclient" | jq . | tee access_token.json
 }
 
-test()
+access()
 {
-  access_token=`cat access_token.json | jq -r ".access_token"`
-  id_token=`cat access_token.json | jq -r ".id_token"`
-
-  token="$id_token"
-
-  curl -s -k \
-    -H "Authorization: Bearer $token" \
-    https://192.168.1.72:6984/
-  
-  curl -s -k \
-    -H "Authorization: Bearer $token" \
-    https://192.168.1.72:6984/_session
-
+  access_token
 }
+
+args=""
 
 while [ "$#" -ne 0 ]; do
   case "$1" in
@@ -241,18 +258,18 @@ while [ "$#" -ne 0 ]; do
       output=$1
       ;;
     *)
-      break
+      args="$args $1"
       ;;
   esac
 
   shift
 done
 
-if [ "$#" -eq 0 ]; then
+if [ -z "$args" ]; then
   usage
 fi
 
-for target in "$@"; do
+for target in $args; do
   target=`echo $target | tr '-' '_'`
   num=`LANG=C type "$target" 2>&1 | grep 'function' | wc -l`
   if [ "$num" -eq 1 ]; then
