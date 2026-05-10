@@ -70,21 +70,18 @@ usage()
 usage : $0 [options] target1 target2 ..."
   target:
     create            create container
-
-    config            configure
-
     start             start container
-    
     stop              stop container
     down              remove container
-    destroy           remove container and volume
 
-  ---
-  device_code         get device code
-  auth                start lynx
-  refresh_token       get refresh token
-  access_token        get access_token
-  test_token          test access token 
+    destroy           remove container and volume
+  
+  for test:
+    device_code         get device code
+    auth                start lynx
+    refresh_token       get refresh token
+    access_token        get access_token
+    test_token          test access token 
 EOF
 }
 
@@ -107,19 +104,23 @@ dump_config()
 
 keys2ini()
 {
-  echo "INFO : get https://${dex_https}/dex/keys"
+  echo -n "INFO: get https://${dex_https}/dex/keys ... "
   curl -s -k https://${dex_https}/dex/keys | jq . > keys.json
-  echo "INFO : output is keys.json"
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
   if [ ! -s "keys.json" ]; then
     echo "ERROR: dex/keys is empty"
     exit 1
-  fi  
+  fi
+
+  echo -n "INFO: convert keys.json to pem format ... "
   python3 jwk2pem.py -o dex_public.pem keys.json
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
   kid=`cat keys.json | jq -r ".keys[$index].kid"`
-  echo "kid: $kid"
+  echo "INFO: kid is $kid"
 
+  echo "INFO: write config/couchdb/dex_keys.ini"
   {
     echo "[jwt_keys]"
     echo -n "rsa:$kid = "
@@ -131,7 +132,6 @@ keys2ini()
     echo ""
     
   } > config/couchdb/dex_keys.ini
-  echo "INFO: write config/couchdb/dex_keys.ini"
 }
 
 log()
@@ -149,23 +149,35 @@ config()
 {
   keys2ini
 
-  echo "INFO: create dummy container"
+  echo -n "INFO: create dummy container ... "
   docker container create --name dummy \
      -v "couchdb-config:/opt/couchdb/etc/local.d" \
      -v "couchdb-certs:/opt/couchdb/etc/certs" \
      -v "couchdb-data:/opt/couchdb/data" \
-     alpine
+     alpine >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
-  echo "INFO: upload certs"
-  docker cp config/ssl/couchdb.crt dummy:/opt/couchdb/etc/certs/
-  docker cp config/ssl/couchdb.key dummy:/opt/couchdb/etc/certs/
-
-  echo "INFO: upload config"
-  docker cp config/couchdb/ssl.ini      dummy:/opt/couchdb/etc/local.d/
-  docker cp config/couchdb/jwt.ini      dummy:/opt/couchdb/etc/local.d/
-  docker cp config/couchdb/dex_keys.ini dummy:/opt/couchdb/etc/local.d/
+  echo -n "INFO: upload config/ssl/couchdb.crt ... "
+  docker cp -q config/ssl/couchdb.crt dummy:/opt/couchdb/etc/certs/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
-  echo "INFO: change permission"
+  echo -n "INFO: upload config/ssl/couchdb.key ... "
+  docker cp -q config/ssl/couchdb.key dummy:/opt/couchdb/etc/certs/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  echo -n "INFO: upload config/couchdb/ssl.ini ... "
+  docker cp -q config/couchdb/ssl.ini      dummy:/opt/couchdb/etc/local.d/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: upload config/couchdb/jwt.ini ... "
+  docker cp -q config/couchdb/jwt.ini      dummy:/opt/couchdb/etc/local.d/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: upload config/couchdb/dex_keys.ini ... "
+  docker cp -q config/couchdb/dex_keys.ini dummy:/opt/couchdb/etc/local.d/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: change permission ... "
   docker run --rm -i -u root \
     -v "couchdb-config:/opt/couchdb/etc/local.d" \
     -v "couchdb-certs:/opt/couchdb/etc/certs" \
@@ -175,19 +187,23 @@ config()
     chown -R 1001:1001 /opt/couchdb/etc/certs
   }
 EOF
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
-  echo "INFO: check permission"
+  echo -n "INFO: check permission ... "
   docker run --rm -i -u root \
     -v "couchdb-config:/opt/couchdb/etc/local.d" \
     -v "couchdb-data:/opt/couchdb/data" \
-    alpine /bin/sh -s << EOF
+    alpine /bin/sh -s << EOF > permission.log
   {
     ls -lR /opt/couchdb/etc/local.d
   }
 EOF
+  
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 
-  echo "INFO: remove dummy container"
-  docker rm dummy
+  echo -n "INFO: remove dummy container ... "
+  docker rm dummy >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 }
 
 start()
@@ -213,7 +229,9 @@ restart()
 
 down()
 {
-  docker compose --env-file ${ENVFILE} down
+  echo -n "INFO: container down ... "
+  docker compose --env-file ${ENVFILE} down >/dev/null 2>&1
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 }
 
 destroy()
@@ -250,6 +268,11 @@ device_code()
    | jq . | tee device_code.json
 }
 
+device()
+{
+  device_code
+}
+
 auth()
 {
    verification_uri_complete=`cat device_code.json \
@@ -269,6 +292,11 @@ refresh_token()
           -d "client_id=$client_id" | jq . | tee refresh_token.json
 }
 
+refresh()
+{
+  refresh_token
+}
+
 access_token()
 {
   ref=`cat refresh_token.json | jq -r ".refresh_token"`
@@ -280,9 +308,19 @@ access_token()
     -d "client_id=myclient" | jq . | tee access_token.json
 }
 
+access()
+{
+  access_token
+}
+
 test_token()
 {
   test_access_token
+}
+
+test()
+{
+  test_token
 }
 
 test_access_token()
@@ -291,7 +329,11 @@ test_access_token()
 
   curl -s -k \
     -H "Authorization: Bearer $access_token" \
-    https://${COUCHDB_HTTPS}/_session
+    https://${COUCHDB_HTTPS}/_session | jq . | tee session.json
+  
+  curl -s -k \
+    -H "Authorization: Bearer $access_token" \
+    -X GET https://${COUCHDB_HTTPS}/mydb/ | jq . | tee mydb.json
 }
 
 without_token()
@@ -300,18 +342,18 @@ without_token()
     https://${COUCHDB_HTTPS}/_session
 }
 
-
 all_dbs()
 {
   curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/_all_dbs
 }
 
-
 all()
 {
   keys
 }
+
+args=""
 
 while [ "$#" -ne 0 ]; do
   case "$1" in
@@ -324,18 +366,18 @@ while [ "$#" -ne 0 ]; do
       output=$1
       ;;
     *)
-      break
+      args="$args $1"
       ;;
   esac
 
   shift
 done
 
-if [ "$#" -eq 0 ]; then
+if [ -z "$args" ]; then
   all
 fi
 
-for target in "$@"; do
+for target in $args; do
   target=`echo $target | tr '-' '_'`
   num=`LANG=C type "$target" 2>&1 | grep 'function' | wc -l`
   if [ "$num" -eq 1 ]; then
