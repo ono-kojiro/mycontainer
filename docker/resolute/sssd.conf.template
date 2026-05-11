@@ -1,0 +1,30 @@
+[sssd]
+debug_level = 9
+config_file_version = 2
+services = nss, pam, ssh
+domains = LDAP
+
+[domain/LDAP]
+ldap_schema = rfc2307bis
+cache_credentials = true
+
+id_provider     = ldap
+auth_provider   = ldap
+chpass_provider = ldap
+
+ldap_uri = ${LDAP_URI}
+ldap_search_base = ${LDAP_BASE}
+
+ldap_chpass_uri = ${LDAP_URI}
+
+ldap_id_use_start_tls = ${LDAP_START_TLS}
+ldap_tls_reqcert = ${LDAP_TLS_REQCERT}
+
+ldap_user_search_base  = ou=Users,${LDAP_BASE}
+ldap_group_search_base = ou=Groups,${LDAP_BASE}
+
+access_provider = simple
+simple_allow_groups = ${LDAP_ALLOW_GROUPS}
+
+enumerate = true
+

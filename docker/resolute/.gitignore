@@ -1,0 +1,4 @@
+.env
+*.tar.xz
+*.pub
+
