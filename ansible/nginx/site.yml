@@ -6,11 +6,17 @@
   #  https_proxy: http://proxy.example.com:8080
 
   roles:
-  - name: nginx
-    tags: nginx
+  #- name: nginx
+  #  tags: nginx
+
+  - name: openresty
+    tags: openresty
 
   - name: ssl
     tags: ssl
+
+  - name: lua
+    tags: lua
 
   - name: client
     tags: client, never

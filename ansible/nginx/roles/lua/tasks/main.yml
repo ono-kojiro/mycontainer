@@ -1,0 +1,39 @@
+---
+- name: find enabled-site
+  ansible.builtin.find:
+    paths: /etc/nginx/sites-enabled/
+    recurse: no
+    file_type: any
+  register: res
+
+- name: remove enabled sites
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ res.files }}"
+  when: res.files | length > 0
+
+- name: upload ssl_site_lua
+  ansible.builtin.template:
+    src: ssl_site_lua
+    dest: /etc/nginx/sites-available/
+
+- name: upload configurations
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /etc/nginx/includes/
+  loop:
+  - location-lua-test.conf
+  - location-lua-jwks.conf
+
+- name: enable ssl site
+  ansible.builtin.file:
+    src:  /etc/nginx/sites-available/ssl_site_lua
+    dest: /etc/nginx/sites-enabled/ssl_site_lua
+    state: link
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+

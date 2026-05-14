@@ -1,0 +1,33 @@
+---
+- name: remove openresty package
+  ansible.builtin.apt:
+    name: openresty
+    state: absent
+    purge: true
+
+- name: remove nginx directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/nginx
+    - /var/lib/nginx
+    - /var/log/nginx
+
+- name: upload openresty package
+  ansible.builtin.copy:
+    src: openresty_1.25.3.2_amd64.deb
+    dest: /tmp/
+
+- name: install openresty package
+  ansible.builtin.apt:
+    deb: /tmp/openresty_1.25.3.2_amd64.deb
+
+- name: daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: restart openresty
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
