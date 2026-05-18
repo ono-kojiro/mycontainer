@@ -102,36 +102,9 @@ dump_config()
   | jq .
 }
 
-keys2ini()
+dump()
 {
-  echo -n "INFO: get https://${dex_https}/dex/keys ... "
-  curl -s -k https://${dex_https}/dex/keys | jq . > keys.json
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-
-  if [ ! -s "keys.json" ]; then
-    echo "ERROR: dex/keys is empty"
-    exit 1
-  fi
-
-  echo -n "INFO: convert keys.json to pem format ... "
-  python3 jwk2pem.py -o dex_public.pem keys.json
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-
-  kid=`cat keys.json | jq -r ".keys[$index].kid"`
-  echo "INFO: kid is $kid"
-
-  echo "INFO: write config/couchdb/dex_keys.ini"
-  {
-    echo "[jwt_keys]"
-    echo -n "rsa:$kid = "
-    cat dex_public.pem | \
-      awk '
-        NR>1{printf "\\n"}
-        {printf "%s", $0}
-      '
-    echo ""
-    
-  } > config/couchdb/dex_keys.ini
+  dump_config
 }
 
 log()
@@ -141,14 +114,16 @@ log()
 
 create()
 {
+  docker network create \
+    --subnet=172.20.0.0/24 \
+    couchdb-net
+
   docker compose --env-file ${ENVFILE} up --no-start
   config
 }
 
 config()
 {
-  keys2ini
-
   echo -n "INFO: create dummy container ... "
   docker container create --name dummy \
      -v "couchdb-config:/opt/couchdb/etc/local.d" \
@@ -169,12 +144,8 @@ config()
   docker cp -q config/couchdb/ssl.ini      dummy:/opt/couchdb/etc/local.d/
   if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
-  echo -n "INFO: upload config/couchdb/jwt.ini ... "
-  docker cp -q config/couchdb/jwt.ini      dummy:/opt/couchdb/etc/local.d/
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-  
-  echo -n "INFO: upload config/couchdb/dex_keys.ini ... "
-  docker cp -q config/couchdb/dex_keys.ini dummy:/opt/couchdb/etc/local.d/
+  echo -n "INFO: upload config/couchdb/proxy.ini ... "
+  docker cp -q config/couchdb/proxy.ini      dummy:/opt/couchdb/etc/local.d/
   if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
   echo -n "INFO: change permission ... "
@@ -258,6 +229,13 @@ welcome()
 {
   curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/
+}
+
+keys()
+{
+  cmd="curl -k -s https://${dex_https}/dex/keys"
+  echo "CMD: $cmd"
+  $cmd  | jq .
 }
 
 device_code()
@@ -346,6 +324,19 @@ all_dbs()
 {
   curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/_all_dbs
+}
+
+debug()
+{
+  user="testuser"
+  secret="secret"
+  token=`printf "%s" "$user$secret" | sha1sum | awk '{ print $1 }'`
+  echo "token is $token"
+
+  curl -v \
+    -H "X-Auth-CouchDB-UserName: $user" \
+    -H "X-Auth-CouchDB-Token: $token" \
+    https://localhost:6984/_session
 }
 
 all()

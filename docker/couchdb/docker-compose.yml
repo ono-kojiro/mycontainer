@@ -6,15 +6,21 @@ volumes:
   couchdb-data:
     name: couchdb-data
 
+networks:
+  traefik-net:
+    name: traefik-net
+    external: true
+
 services:
   couchdb:
     image: couchdb:${COUCHDB_VERSION}
     container_name: couchdb
     hostname: couchdb
-    #network_mode: host
-    network_mode: bridge
-    ports:
-    - "6984:6984"
+    networks:
+      traefik-net:
+        ipv4_address: 172.31.0.10
+    #ports:
+    #- "6984:6984"
     environment:
       COUCHDB_USER: ${COUCHDB_USER}
       COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
