@@ -1,0 +1,17 @@
+api:
+  dashboard: true
+
+entryPoints:
+  websecure:
+    address: ":6984"
+
+providers:
+  docker: {}
+  file:
+    directory: "/etc/traefik/"
+
+log:
+  level: INFO
+
+accessLog: {}
+

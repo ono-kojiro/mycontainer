@@ -1,0 +1,7 @@
+*~
+*.key
+*.crt
+traefik.yml
+traefik-dynamic.yml
+.env
+

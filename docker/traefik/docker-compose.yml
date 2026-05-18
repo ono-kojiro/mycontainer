@@ -1,0 +1,28 @@
+networks:
+  traefik-net:
+    external: true
+
+volumes:
+  traefik-config:
+    name: traefik-config
+  traefik-certs:
+    name: traefik-certs
+
+services:
+  traefik:
+    image: traefik:${TRAEFIK_VERSION}
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.file.directory=/etc/traefik/"
+      - "--entrypoints.websecure.address=:6984"
+    ports:
+      - "6984:6984"
+      - "8080:8080"   # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-config:/etc/traefik/
+    networks:
+      - traefik-net
+
