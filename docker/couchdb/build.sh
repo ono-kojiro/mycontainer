@@ -97,9 +97,12 @@ attach()
 
 dump_config()
 {
-  curl -s -k \
-    -u ${couchdb_user}:${couchdb_password} https://${COUCHDB_HTTPS}/_node/_local/_config \
-  | jq .
+  cmd="curl -s -k"
+  cmd="$cmd -u ${couchdb_user}:${couchdb_password}"
+  cmd="$cmd https://${COUCHDB_HTTPS}/_node/_local/_config"
+
+  echo $cmd
+  $cmd | jq .
 }
 
 dump()
@@ -112,17 +115,29 @@ log()
   docker compose logs -f couchdb
 }
 
-create()
+create_net()
 {
-  docker network create \
-    --subnet=172.20.0.0/24 \
-    couchdb-net
+  name="couchdb-net"
+  docker network ls | tail -n +2 | awk '{ print $2 }' \
+    | grep ${name} >/dev/null 2>&1
 
-  docker compose --env-file ${ENVFILE} up --no-start
-  config
+  if [ "$?" -eq 0 ]; then
+    echo "skip creating ${name}"
+  else
+    docker network create \
+      --subnet=172.31.0.0/24 ${name}
+   fi
 }
 
-config()
+create()
+{
+  create_net
+
+  docker compose --env-file ${ENVFILE} up --no-start
+  #ssl
+}
+
+ssl()
 {
   echo -n "INFO: create dummy container ... "
   docker container create --name dummy \

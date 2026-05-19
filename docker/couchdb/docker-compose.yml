@@ -7,8 +7,8 @@ volumes:
     name: couchdb-data
 
 networks:
-  traefik-net:
-    name: traefik-net
+  envoy-net:
+    name: envoy-net
     external: true
 
 services:
@@ -17,7 +17,7 @@ services:
     container_name: couchdb
     hostname: couchdb
     networks:
-      traefik-net:
+      envoy-net:
         ipv4_address: 172.31.0.10
     #ports:
     #- "6984:6984"
