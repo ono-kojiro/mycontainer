@@ -45,15 +45,15 @@ if [ ! -e "config/ssl/couchdb.key" ]; then
   ret=`expr $ret + 1`
 fi
 
-if [ -z "${DEX_IP}" ]; then
-  echo "ERROR: DEX_IP is not defined"
-  ret=`expr $ret + 1`
-fi
+#if [ -z "${DEX_IP}" ]; then
+#  echo "ERROR: DEX_IP is not defined"
+#  ret=`expr $ret + 1`
+#fi
   
-if [ -z "${DEX_HTTPS_PORT}" ]; then
-  echo "ERROR: DEX_HTTPS_PORT is not defined"
-  ret=`expr $ret + 1`
-fi
+#if [ -z "${DEX_HTTPS_PORT}" ]; then
+#  echo "ERROR: DEX_HTTPS_PORT is not defined"
+#  ret=`expr $ret + 1`
+#fi
 
 if [ "$ret" -ne 0 ]; then
   exit $ret
@@ -102,38 +102,6 @@ dump_config()
   | jq .
 }
 
-keys2ini()
-{
-  echo -n "INFO: get https://${dex_https}/dex/keys ... "
-  curl -s -k https://${dex_https}/dex/keys | jq . > keys.json
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-
-  if [ ! -s "keys.json" ]; then
-    echo "ERROR: dex/keys is empty"
-    exit 1
-  fi
-
-  echo -n "INFO: convert keys.json to pem format ... "
-  python3 jwk2pem.py -o dex_public.pem keys.json
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-
-  kid=`cat keys.json | jq -r ".keys[$index].kid"`
-  echo "INFO: kid is $kid"
-
-  echo "INFO: write config/couchdb/dex_keys.ini"
-  {
-    echo "[jwt_keys]"
-    echo -n "rsa:$kid = "
-    cat dex_public.pem | \
-      awk '
-        NR>1{printf "\\n"}
-        {printf "%s", $0}
-      '
-    echo ""
-    
-  } > config/couchdb/dex_keys.ini
-}
-
 log()
 {
   docker compose logs -f couchdb
@@ -142,13 +110,11 @@ log()
 create()
 {
   docker compose --env-file ${ENVFILE} up --no-start
-  config
+  #enable_ssl
 }
 
-config()
+enable_ssl()
 {
-  keys2ini
-
   echo -n "INFO: create dummy container ... "
   docker container create --name dummy \
      -v "couchdb-config:/opt/couchdb/etc/local.d" \
@@ -169,12 +135,8 @@ config()
   docker cp -q config/couchdb/ssl.ini      dummy:/opt/couchdb/etc/local.d/
   if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
-  echo -n "INFO: upload config/couchdb/jwt.ini ... "
-  docker cp -q config/couchdb/jwt.ini      dummy:/opt/couchdb/etc/local.d/
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-  
-  echo -n "INFO: upload config/couchdb/dex_keys.ini ... "
-  docker cp -q config/couchdb/dex_keys.ini dummy:/opt/couchdb/etc/local.d/
+  echo -n "INFO: upload config/couchdb/proxy_auth.ini ... "
+  docker cp -q config/couchdb/proxy_auth.ini dummy:/opt/couchdb/etc/local.d/
   if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
   echo -n "INFO: change permission ... "
@@ -244,13 +206,13 @@ destroy()
 
 test_http()
 {
-  curl -s -k \
+  curl -k \
     -u ${couchdb_user}:${couchdb_password} http://${COUCHDB_HTTP}/
 }
 
 test_https()
 {
-  curl -s -k \
+  curl -k \
     -u ${couchdb_user}:${couchdb_password} https://${COUCHDB_HTTPS}/
 }
 
