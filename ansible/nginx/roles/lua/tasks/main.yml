@@ -26,6 +26,31 @@
   - location-lua-test.conf
   - location-lua-jwks.conf
 
+- name: create jwt directory
+  ansible.builtin.file:
+    path: /usr/lib/lua/5.1/jwt
+    state: directory
+
+- name: upload lua scripts
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /usr/lib/lua/5.1/jwt/
+  loop:
+    - auth.lua
+    - jwks.lua
+
+- name: upload jwt configuration
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /etc/nginx/conf.d/
+  loop:
+    - jwt.conf
+
+- name: upload location-couchd.conf
+  ansible.builtin.template:
+    src: location-couchdb.conf
+    dest: /etc/nginx/includes/
+
 - name: enable ssl site
   ansible.builtin.file:
     src:  /etc/nginx/sites-available/ssl_site_lua
