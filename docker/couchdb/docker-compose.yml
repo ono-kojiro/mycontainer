@@ -1,33 +1,27 @@
 volumes:
   couchdb-config:
-    name: couchdb-config
+    name: ${NAME}-config
   couchdb-certs:
-    name: couchdb-certs
+    name: ${NAME}-certs
   couchdb-data:
-    name: couchdb-data
-
-networks:
-  envoy-net:
-    name: envoy-net
-    external: true
+    name: ${NAME}-data
 
 services:
   couchdb:
-    image: couchdb:${COUCHDB_VERSION}
-    container_name: couchdb
-    hostname: couchdb
-    networks:
-      envoy-net:
-        ipv4_address: 172.31.0.10
+    image: ${NAME}:${COUCHDB_VERSION}
+    container_name: ${NAME}
+    hostname: ${NAME}
+    network_mode: host
     #ports:
+    #- "5984:5984"
     #- "6984:6984"
     environment:
       COUCHDB_USER: ${COUCHDB_USER}
       COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
     volumes:
-      - couchdb-config:/opt/couchdb/etc/local.d
-      - couchdb-certs:/opt/couchdb/etc/certs
-      - couchdb-data:/opt/couchdb/data
+      - ${NAME}-config:/opt/couchdb/etc/local.d
+      - ${NAME}-certs:/opt/couchdb/etc/certs
+      - ${NAME}-data:/opt/couchdb/data
     env_file:
     - .env
 
