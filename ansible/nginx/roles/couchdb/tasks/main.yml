@@ -1,5 +1,14 @@
 ---
-- name: upload couchdb.conf
+- name: install openresty
+  ansible.builtin.apt:
+    name:
+    - openresty
+    - lua-resty-jwt
+    - lua-resty-http
+    - lua-cjson
+    state: present
+
+ name: upload couchdb.conf
   ansible.builtin.template:
     src: couchdb.conf
     dest: /etc/nginx/includes/

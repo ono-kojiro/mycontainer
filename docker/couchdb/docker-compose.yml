@@ -1,28 +1,27 @@
 volumes:
   couchdb-config:
-    name: couchdb-config
+    name: ${NAME}-config
   couchdb-certs:
-    name: couchdb-certs
+    name: ${NAME}-certs
   couchdb-data:
-    name: couchdb-data
+    name: ${NAME}-data
 
 services:
   couchdb:
-    image: couchdb:${COUCHDB_VERSION}
-    container_name: couchdb
-    hostname: couchdb
-    #network_mode: host
-    network_mode: bridge
-    ports:
-    - "5984:5984"
-    - "6984:6984"
+    image: ${NAME}:${COUCHDB_VERSION}
+    container_name: ${NAME}
+    hostname: ${NAME}
+    network_mode: host
+    #ports:
+    #- "5984:5984"
+    #- "6984:6984"
     environment:
       COUCHDB_USER: ${COUCHDB_USER}
       COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
     volumes:
-      - couchdb-config:/opt/couchdb/etc/local.d
-      - couchdb-certs:/opt/couchdb/etc/certs
-      - couchdb-data:/opt/couchdb/data
+      - ${NAME}-config:/opt/couchdb/etc/local.d
+      - ${NAME}-certs:/opt/couchdb/etc/certs
+      - ${NAME}-data:/opt/couchdb/data
     env_file:
     - .env
 

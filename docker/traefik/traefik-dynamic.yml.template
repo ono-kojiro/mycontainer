@@ -1,0 +1,35 @@
+tls:
+  certificates:
+    - certFile: "/etc/traefik/${TRAEFIK_CRT}"
+      keyFile:  "/etc/traefik/${TRAEFIK_KEY}"
+
+http:
+  middlewares:
+    api-key-auth:
+      headers:
+        customRequestHeaders:
+          X-API-Key: "${X_API_KEY}"
+
+  serversTransports:
+    couchdb-transport:
+      rootCAs:
+        - /etc/traefik/${ROOTCA}
+      insecureSkipVerify: false
+
+  routers:
+    couchdb-router:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - websecure
+      service: couchdb-service
+      tls: {}
+      middlewares:
+        - api-key-auth
+
+  services:
+    couchdb-service:
+      loadBalancer:
+        servers:
+          - url: "${COUCHDB_URL}"
+        serversTransport: couchdb-transport
+

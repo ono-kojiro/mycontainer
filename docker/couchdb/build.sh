@@ -10,6 +10,11 @@ if [ -e "${ENVFILE}" ]; then
   . ./${ENVFILE}
 fi
 
+if [ -z "${NAME}" ]; then
+  echo "ERROR: NAME is not defined"
+  ret=`expr $ret + 1`
+fi
+
 if [ -z "${COUCHDB_VERSION}" ]; then
   echo "ERROR: COUCHDB_VERSION is not defined"
   ret=`expr $ret + 1`
@@ -97,9 +102,18 @@ attach()
 
 dump_config()
 {
-  curl -s -k \
-    -u ${couchdb_user}:${couchdb_password} https://${COUCHDB_HTTPS}/_node/_local/_config \
-  | jq .
+  docker exec -i couchdb /bin/bash -s << EOF
+  {
+    curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} \
+      http://localhost:5984/_node/_local/_config
+  }
+EOF
+
+}
+
+dump()
+{
+  dump_config
 }
 
 log()
@@ -107,13 +121,48 @@ log()
   docker compose logs -f couchdb
 }
 
-create()
+create_net()
 {
-  docker compose --env-file ${ENVFILE} up --no-start
-  #enable_ssl
+  name="couchdb-net"
+  docker network ls | tail -n +2 | awk '{ print $2 }' \
+    | grep ${name} >/dev/null 2>&1
+
+  if [ "$?" -eq 0 ]; then
+    echo "skip creating ${name}"
+  else
+    docker network create \
+      --subnet=172.31.0.0/24 ${name}
+   fi
 }
 
-enable_ssl()
+create()
+{
+  create_net
+
+  docker compose --env-file ${ENVFILE} up --no-start
+  
+  enable_proxy_auth
+}
+
+enable_proxy_auth()
+{
+  echo -n "INFO: create dummy container ... "
+  docker container create --name dummy \
+     -v "couchdb-config:/opt/couchdb/etc/local.d" \
+     alpine >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  echo -n "INFO: upload config/couchdb/proxy.ini ... "
+  docker cp -q config/couchdb/proxy.ini      dummy:/opt/couchdb/etc/local.d/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: remove dummy container ... "
+  docker rm dummy >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+}
+
+
+ssl()
 {
   echo -n "INFO: create dummy container ... "
   docker container create --name dummy \
@@ -133,10 +182,6 @@ enable_ssl()
 
   echo -n "INFO: upload config/couchdb/ssl.ini ... "
   docker cp -q config/couchdb/ssl.ini      dummy:/opt/couchdb/etc/local.d/
-  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
-  
-  echo -n "INFO: upload config/couchdb/proxy_auth.ini ... "
-  docker cp -q config/couchdb/proxy_auth.ini dummy:/opt/couchdb/etc/local.d/
   if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
   
   echo -n "INFO: change permission ... "
@@ -220,6 +265,13 @@ welcome()
 {
   curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/
+}
+
+keys()
+{
+  cmd="curl -k -s https://${dex_https}/dex/keys"
+  echo "CMD: $cmd"
+  $cmd  | jq .
 }
 
 device_code()
@@ -308,6 +360,19 @@ all_dbs()
 {
   curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/_all_dbs
+}
+
+debug()
+{
+  user="testuser"
+  secret="secret"
+  token=`printf "%s" "$user$secret" | sha1sum | awk '{ print $1 }'`
+  echo "token is $token"
+
+  curl -v \
+    -H "X-Auth-CouchDB-UserName: $user" \
+    -H "X-Auth-CouchDB-Token: $token" \
+    https://localhost:6984/_session
 }
 
 all()
