@@ -97,12 +97,20 @@ attach()
 
 dump_config()
 {
-  cmd="curl -s -k"
-  cmd="$cmd -u ${couchdb_user}:${couchdb_password}"
-  cmd="$cmd https://${COUCHDB_HTTPS}/_node/_local/_config"
+  #cmd="curl -s -k"
+  #cmd="$cmd -u ${couchdb_user}:${couchdb_password}"
+  #cmd="$cmd https://${COUCHDB_HTTPS}/_node/_local/_config"
+  #cmd="$cmd http://${COUCHDB_HTTP}/_node/_local/_config"
 
-  echo $cmd
-  $cmd | jq .
+  #echo $cmd
+  #$cmd | jq .
+
+  docker exec -i couchdb /bin/bash -s << EOF
+  {
+    curl -s -u admin:secret http://localhost:5984/_node/_local/_config
+  }
+EOF
+
 }
 
 dump()
@@ -134,8 +142,26 @@ create()
   create_net
 
   docker compose --env-file ${ENVFILE} up --no-start
-  #ssl
+  ssl
 }
+
+proxy()
+{
+  echo -n "INFO: create dummy container ... "
+  docker container create --name dummy \
+     -v "couchdb-config:/opt/couchdb/etc/local.d" \
+     alpine >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  echo -n "INFO: upload config/couchdb/proxy.ini ... "
+  docker cp -q config/couchdb/proxy.ini      dummy:/opt/couchdb/etc/local.d/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: remove dummy container ... "
+  docker rm dummy >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+}
+
 
 ssl()
 {
