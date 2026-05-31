@@ -1,0 +1,12 @@
+- name: deploy dex
+  hosts:
+  - localhost
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  roles:
+  - role: dex
+    tags: dex
+

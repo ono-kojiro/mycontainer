@@ -1,0 +1,92 @@
+issuer: {{ issuer }}
+storage:
+  type: sqlite3
+  config:
+    file: /var/lib/dex/dex.db
+web:
+  https: 0.0.0.0:5554
+  tlsCert: /etc/dex/certs/{{ cert_file }}
+  tlsKey:  /etc/dex/certs/{{ key_file }}
+
+connectors:
+- type: ldap
+  name: OpenLDAP
+  id: ldap
+  config:
+    # The following configurations seem to work with OpenLDAP:
+    #
+    # 1) Plain LDAP, without TLS:
+    #host: localhost:389
+    #insecureNoSSL: true
+    #
+    # 2) LDAPS without certificate validation:
+    host: {{ ldap_host }}
+    insecureNoSSL: false
+    insecureSkipVerify: true
+    #
+    # 3) LDAPS with certificate validation:
+    #host: YOUR-HOSTNAME:636
+    #insecureNoSSL: false
+    #insecureSkipVerify: false
+    #rootCAData: 'CERT'
+    # ...where CERT="$( base64 -w 0 your-cert.crt )"
+
+    # This would normally be a read-only user.
+    #bindDN: 
+    #bindPW: 
+
+    #usernamePrompt: Email Address
+    usernamePrompt: Username
+
+    userSearch:
+      baseDN: ou=Users,dc=example,dc=com
+      filter: "(objectClass=person)"
+      username: uid
+      # "DN" (case sensitive) is a special attribute name. It indicates that
+      # this value should be taken from the entity's DN not an attribute on
+      # the entity.
+      idAttr: uid
+      emailAttr: mail
+      nameAttr: cn
+
+    groupSearch:
+      baseDN: ou=Groups,dc=example,dc=com
+      filter: "(objectClass=groupOfNames)"
+
+      userMatchers:
+        # A user is a member of a group when their DN matches
+        # the value of a "member" attribute on the group entity.
+      - userAttr: DN
+        groupAttr: member
+
+      # The group name should be the "cn" value.
+      nameAttr: cn
+    
+    userIDKey: uid
+    userNameKey: uid
+    claims:
+      username: uid
+      email: mail
+      name: cn
+      groups: memberOf
+      sub: mail
+
+staticClients:
+- id: myclient
+  name: myclient
+  public: true
+  redirectURIs: []
+  grantTypes:
+  - urn:ietf:params:oauth:grant-type:device_code
+  scopes:
+  - "openid"
+  - "email"
+  - "profile"
+  - "offline_access"
+
+- id: oauth2-proxy
+  name: "oauth2-proxy"
+  secret: {{ oauth2_proxy_secret }}
+  redirectURIs:
+  - {{ redirect_uri }}
+
