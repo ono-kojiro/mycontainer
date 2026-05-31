@@ -42,45 +42,6 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
-check()
-{
-  curl -k https://localhost/
-  curl -k https://localhost/couchdb/
-  curl -k https://localhost/couchdb/_utils/
-}
-
-simple()
-{
-  cmd="curl -k https://localhost/couchdb/"
-  echo "$" $cmd
-  $cmd
-}
-
-debug()
-{
-  cmd="curl -k https://localhost/couchdb/"
-  echo "$" $cmd
-  $cmd
-  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/mydb'
-  echo "$" $cmd
-  $cmd
-  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/mydb/'
-  echo "$" $cmd
-  $cmd
-  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/example'
-  echo "$" $cmd
-  $cmd
-  cmd='curl -k -H "X-API-Key: KEY_APP1_ABC123" https://localhost/couchdb/example/'
-  echo "$" $cmd
-  $cmd
-}
-
-test()
-{
-  prove test.sh
-  cat result.log
-}
-
 test_https()
 {
   curl -s https://localhost/
@@ -121,9 +82,7 @@ for target in $args; do
   if [ $num -ne 0 ]; then
     $target
   else
-    #echo "ERROR : $arg is not shell function"
-    #exit 1
-    default $arg
+    default $target
   fi
 done
 
