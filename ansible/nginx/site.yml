@@ -10,25 +10,18 @@
   - name: nginx
     tags: nginx
 
-  #- name: openresty
-  #  tags: openresty
-
   - name: ssl
     tags: ssl
 
   - name: couchdb
-    tags: couchdb, never
-
-  #- name: lua
-  #  tags: lua
+    tags: couchdb
+  
+  - name: api_key
+    tags: api_key
 
   #- name: client
   #  tags: client, never
   
-  - name: api_key
-    tags: api_key, never
-
-
   #- name: grafana
   #  tags: grafana, never
 
