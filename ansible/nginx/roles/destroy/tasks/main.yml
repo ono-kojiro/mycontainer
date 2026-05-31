@@ -8,3 +8,8 @@
     state: absent
     purge: true
 
+- name: remove /etc/nginx
+  ansible.builtin.file:
+    path: /etc/nginx
+    state: absent
+

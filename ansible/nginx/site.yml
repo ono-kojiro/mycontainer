@@ -1,6 +1,6 @@
 - name: setup nginx
   hosts:
-  - myserver
+  - localhost
   
   #environment:
   #  http_proxy: http://proxy.example.com:8080

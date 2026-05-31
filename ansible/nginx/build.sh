@@ -81,6 +81,12 @@ test()
   cat result.log
 }
 
+test_https()
+{
+  curl -s https://localhost/
+
+}
+
 hosts
 
 args=""
@@ -109,10 +115,11 @@ if [ -z "$args" ]; then
   exit 1
 fi
 
-for arg in $args; do
-  num=`LANG=C type $arg | grep 'function' | wc -l`
+for target in $args; do
+  target=`echo $target | tr '-' '_'`
+  num=`LANG=C type $target | grep 'function' | wc -l`
   if [ $num -ne 0 ]; then
-    $arg
+    $target
   else
     #echo "ERROR : $arg is not shell function"
     #exit 1
