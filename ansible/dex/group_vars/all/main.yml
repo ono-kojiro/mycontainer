@@ -2,12 +2,12 @@
 cert_file: dex.crt
 key_file:  dex.key
 
-issuer: https://192.168.1.72:5554/dex
+issuer: https://localhost:5554/dex
 
-ldap_host: 192.168.1.72:636
+ldap_host: localhost:636
 
 oauth2_proxy_secret: xxxxxxxxxxxxxxxxxxx
 
-redirect_uri: https://192.168.1.72/oauth2/callback
+redirect_uri: https://localhost/oauth2/callback
 
 
