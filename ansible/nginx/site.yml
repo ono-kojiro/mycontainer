@@ -25,8 +25,8 @@
   #- name: client
   #  tags: client, never
   
-  #- name: api_key
-  #  tags: api_key, never
+  - name: api_key
+    tags: api_key, never
 
 
   #- name: grafana
