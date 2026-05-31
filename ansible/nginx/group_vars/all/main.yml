@@ -1,5 +1,5 @@
 ---
 ansible_become_exe: /usr/bin/sudo.ws
 
-dex_keys_url: https://192.168.1.98:5554/dex/keys
+dex_keys_url: https://localhost:5554/dex/keys
 
