@@ -25,11 +25,6 @@ if [ -z "${COUCHDB_IP}" ]; then
   ret=`expr $ret + 1`
 fi
 
-if [ -z "${COUCHDB_HTTPS_PORT}" ]; then
-  echo "ERROR: COUCHDB_HTTPS_PORT is not defined"
-  ret=`expr $ret + 1`
-fi
-
 if [ -z "${COUCHDB_USER}" ]; then
   echo "ERROR: COUCHDB_USER is not defined"
   ret=`expr $ret + 1`
@@ -50,24 +45,12 @@ if [ ! -e "config/ssl/couchdb.key" ]; then
   ret=`expr $ret + 1`
 fi
 
-#if [ -z "${DEX_IP}" ]; then
-#  echo "ERROR: DEX_IP is not defined"
-#  ret=`expr $ret + 1`
-#fi
-  
-#if [ -z "${DEX_HTTPS_PORT}" ]; then
-#  echo "ERROR: DEX_HTTPS_PORT is not defined"
-#  ret=`expr $ret + 1`
-#fi
-
 if [ "$ret" -ne 0 ]; then
   exit $ret
 fi
 
 couchdb_user="${COUCHDB_USER}"
 couchdb_password="${COUCHDB_PASSWORD}"
-
-dex_https="${DEX_IP}:${DEX_HTTPS_PORT}"
 
 usage()
 {
@@ -255,16 +238,10 @@ test_http()
     -u ${couchdb_user}:${couchdb_password} http://${COUCHDB_HTTP}/
 }
 
-test_https()
-{
-  curl -k \
-    -u ${couchdb_user}:${couchdb_password} https://${COUCHDB_HTTPS}/
-}
-
 welcome()
 {
-  curl -s -k \
-    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/
+  curl \
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} http://${COUCHDB_HTTP}/
 }
 
 keys()
@@ -341,25 +318,25 @@ test_access_token()
 {
   access_token=`cat access_token.json | jq -r ".access_token"`
 
-  curl -s -k \
+  curl -s \
     -H "Authorization: Bearer $access_token" \
-    https://${COUCHDB_HTTPS}/_session | jq . | tee session.json
+    http://${COUCHDB_HTTP}/_session | jq . | tee session.json
   
-  curl -s -k \
+  curl -s \
     -H "Authorization: Bearer $access_token" \
-    -X GET https://${COUCHDB_HTTPS}/mydb/ | jq . | tee mydb.json
+    -X GET http://${COUCHDB_HTTP}/mydb/ | jq . | tee mydb.json
 }
 
 without_token()
 {
-  curl -s -k \
-    https://${COUCHDB_HTTPS}/_session
+  curl -s \
+    https://${COUCHDB_HTTP}/_session
 }
 
 all_dbs()
 {
   curl -s -k \
-    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://${COUCHDB_HTTPS}/_all_dbs
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} http://${COUCHDB_HTTP}/_all_dbs
 }
 
 debug()
