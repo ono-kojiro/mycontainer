@@ -141,7 +141,7 @@ create()
 
   docker compose --env-file ${ENVFILE} up --no-start
   
-  #enable_proxy_auth
+  enable_proxy_auth
 }
 
 enable_proxy_auth()
