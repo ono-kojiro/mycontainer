@@ -5,8 +5,9 @@ cd $top_dir
 
 flags=""
 
-if [ -f ".env" ]; then
-  . ./.env
+if [ -f "hosts.yml" ]; then
+  issuer_path='.all.children.servers.hosts.localhost.issuer'
+  issuer_url=`cat hosts.yml | yq -r "$issuer_path"`
 fi
 
 help()
@@ -59,14 +60,14 @@ default()
 
 keys()
 {
-  cmd="curl -k -s https://${DEX_IP_PORT}/dex/keys"
+  cmd="curl -k -s ${issuer_url}/keys"
   echo "CMD: $cmd"
   $cmd  | jq .
 }
 
 device_code()
 {
-   curl -s -k -X POST ${ISSUER_URL}/device/code \
+   curl -s -k -X POST ${issuer_url}/device/code \
      -d "client_id=myclient" \
      -d "scope=openid email profile groups offline_access" \
    | jq . | tee device_code.json
@@ -90,7 +91,7 @@ refresh_token()
   client_id="myclient"
 
   grant_type="urn:ietf:params:oauth:grant-type:device_code"
-  curl -k -s -X POST ${ISSUER_URL}/token \
+  curl -k -s -X POST ${issuer_url}/token \
           -d "grant_type=$grant_type" \
           -d "device_code=$code" \
           -d "client_id=$client_id" | jq . | tee refresh_token.json
@@ -106,7 +107,7 @@ access_token()
   ref=`cat refresh_token.json | jq -r ".refresh_token"`
 
   curl -k -s \
-    -X POST ${ISSUER_URL}/token \
+    -X POST ${issuer_url}/token \
     -d "grant_type=refresh_token" \
     -d "refresh_token=$ref" \
     -d "client_id=myclient" | jq . | tee access_token.json
