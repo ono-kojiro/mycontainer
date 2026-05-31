@@ -1,0 +1,17 @@
+---
+oidc_issuer_url: https://localhost:5554/dex
+client_id: oauth2-proxy
+
+# overwrite in secret.yml
+client_secret: xxxxxxxxxxxxxxxxxxx
+
+# overwrite in secret.yml
+cookie_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=
+
+https_address: 0.0.0.0:4180
+
+cert_file: oauth2-proxy.crt
+key_file:  oauth2-proxy.key
+
+redirect_url: https://localhost/oauth2/callback
+

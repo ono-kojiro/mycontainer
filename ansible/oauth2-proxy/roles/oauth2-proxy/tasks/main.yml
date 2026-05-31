@@ -1,0 +1,45 @@
+---
+- name: upload deb package
+  ansible.builtin.copy:
+    src: oauth2-proxy_7.15.2_amd64.deb
+    dest: /tmp/
+
+- name: install deb package
+  ansible.builtin.apt:
+    deb: /tmp/oauth2-proxy_7.15.2_amd64.deb
+    state: present
+
+- name: make certs directory
+  ansible.builtin.file:
+    path: /etc/oauth2-proxy/certs/
+    state: directory
+    owner: oauth2-proxy
+    group: oauth2-proxy
+    mode: '0775'
+
+- name: upload server crt
+  ansible.builtin.copy:
+    src: "{{ cert_file }}"
+    dest: /etc/oauth2-proxy/certs/
+    owner: oauth2-proxy
+    group: oauth2-proxy
+    mode: '0664'
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ key_file }}"
+    dest: /etc/oauth2-proxy/certs/
+    owner: oauth2-proxy
+    group: oauth2-proxy
+    mode: '0660'
+
+- name: upload config
+  ansible.builtin.template:
+    src: oauth2-proxy.cfg
+    dest: /etc/oauth2-proxy/
+
+- name: start service
+  ansible.builtin.systemd_service:
+    name: oauth2-proxy
+    state: restarted
+

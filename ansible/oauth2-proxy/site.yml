@@ -1,0 +1,12 @@
+- name: deploy oauth2-proxy
+  hosts:
+  - localhost
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  roles:
+  - role: oauth2-proxy
+    tags: oauth2-proxy
+
