@@ -1,0 +1,4 @@
+---
+couchdb_host: localhost:5984
+couchdb_url: http://{{ couchdb_host }}
+

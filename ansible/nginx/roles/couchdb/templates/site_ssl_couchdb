@@ -1,0 +1,14 @@
+server {
+    server_name example.com;
+
+    include /etc/nginx/includes/ssl.conf;
+
+    root /var/www/html;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    include /etc/nginx/includes/couchdb.conf;
+
+    include /etc/nginx/includes/location.conf;
+}
+

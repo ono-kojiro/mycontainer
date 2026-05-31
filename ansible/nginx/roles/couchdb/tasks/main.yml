@@ -1,28 +1,41 @@
 ---
-- name: install openresty
-  ansible.builtin.apt:
-    name:
-    - openresty
-    - lua-resty-jwt
-    - lua-resty-http
-    - lua-cjson
-    state: present
-
- name: upload couchdb.conf
+- name: upload couchdb configurations
   ansible.builtin.template:
-    src: couchdb.conf
+    src: "{{ item }}"
     dest: /etc/nginx/includes/
+  loop:
+    - couchdb.conf
+    - couchdb-common.conf
 
-- name: upload couchdb-common.conf
+- name: upload site_ssl_couchdb
   ansible.builtin.template:
-    src: couchdb-common.conf
-    dest: /etc/nginx/includes/
+    src: "{{ item }}"
+    dest: /etc/nginx/sites-available/
+  loop:
+    - site_ssl_couchdb
 
-- name: enable couchdb
-  ansible.builtin.lineinfile:
-    path: /etc/nginx/sites-available/ssl_site
-    insertbefore: '^}'
-    line: '    include /etc/nginx/includes/couchdb.conf;'
+- name: remove sites-enabled
+  ansible.builtin.shell: |
+    rm -f /etc/nginx/sites-enabled/*
+
+- name: enable site_ssl_couchdb
+  ansible.builtin.file:
+    src:  /etc/nginx/sites-available/site_ssl_couchdb
+    dest: /etc/nginx/sites-enabled/site_ssl_couchdb
+    state: link
+
+#- name: check if couchdb is enabled
+#  ansible.builtin.shell: |
+#    grep -c -F 'include /etc/nginx/includes/couchdb.conf;' \
+#      /etc/nginx/sites-available/ssl_site || true
+#  register: res
+
+#- name: enable couchdb
+#  ansible.builtin.lineinfile:
+#    path: /etc/nginx/sites-available/ssl_site
+#    insertbefore: '^}'
+#    line: '    include /etc/nginx/includes/couchdb.conf;'
+#  when: res.stdout == "0"
 
 - name: restart nginx
   ansible.builtin.systemd_service:
