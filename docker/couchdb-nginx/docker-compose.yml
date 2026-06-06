@@ -1,24 +1,50 @@
 volumes:
+  couchdb-config:
+    name: couchdb-config
   couchdb-data:
     name: couchdb-data
 
+  nginx-config:
+    name: nginx-config
+  nginx-data:
+    name: nginx-data
+
+networks:
+  couchdb-net:
+    name: couchdb-net
+    driver: bridge
+    internal: true
+  nginx-net:
+    name: nginx-net
+    driver: bridge
+
 services:
+  nginx:
+    image: nginx:${NGINX_VERSION}-alpine-perl
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginx-config:/etc/nginx
+      - nginx-data:/usr/share/nginx/html
+    networks:
+      - couchdb-net
+      - nginx-net
+
   couchdb:
     image: couchdb:${COUCHDB_VERSION}
     container_name: couchdb
     hostname: couchdb
-    ports:
-    - "5984:5984"
-    - "6984:6984"
+    #ports:
+    #  - "5984:5984"
     environment:
       COUCHDB_USER: ${COUCHDB_USER}
       COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
-      PORT: ${PORT}
-      BIND_ADDRESS: ${BIND_ADDRESS}
-      CERT_FILE: ${CERT_FILE}
-      KEY_FILE:  ${KEY_FILE}
     volumes:
+      - couchdb-config:/opt/couchdb/etc/local.d
       - couchdb-data:/opt/couchdb/data
-    env_file:
-    - .env
+    networks:
+      - couchdb-net
+
 

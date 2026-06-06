@@ -2,15 +2,16 @@
 
 top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
 
-flags=""
+ret=0
 
 ENVFILE=".env"
 
-pkgname="couchdb"
-pkgver="3.5.1"
-
 if [ -e "${ENVFILE}" ]; then
   . ./${ENVFILE}
+fi
+
+if [ "$ret" -ne 0 ]; then
+  exit $ret
 fi
 
 usage()
@@ -20,11 +21,10 @@ usage : $0 [options] target1 target2 ..."
   target:
     create            create container
     start             start container
-    
-    ssl               enable ssl
+    stop              stop container
+    down              remove container
 
-    upload            upload certificates
-
+    destroy           remove container and volume
 EOF
 }
 
@@ -33,59 +33,39 @@ help()
   usage
 }
 
-all()
+attach_nginx()
 {
-    create
-    start
+  docker exec -it nginx /bin/sh
 }
 
-attach()
+
+attach_couchdb()
 {
   docker exec -it couchdb /bin/bash
 }
 
-init()
+dump_config()
 {
-  curl -X POST http://admin:secret@localhost:5984/_cluster_setup \
-    -H "Content-Type: application/json" \
-    -d '{"action": "finish_cluster"}'
-}
-
-check()
-{
-  cmd="curl -k -X GET https://admin:secret@localhost:6984/"
-  echo "DEBUG: $cmd"
-  $cmd
-}
-
-enable_ssl()
-{
-  SHELL_FORMAT=`cat .env | sed -e 's/#.*//' | grep -v -e '^$' | awk '{printf "env %s ", $0}'`
-  ${SHELL_FORMAT} envsubst \
-          < config/couchdb/ssl.ini.template \
-          > config/couchdb/ssl.ini
-  
-  docker cp config/couchdb/couchdb.crt couchdb:/tmp/
-  docker cp config/couchdb/couchdb.key couchdb:/tmp/
-  docker cp config/couchdb/ssl.ini couchdb:/opt/couchdb/etc/local.d/
-  docker exec -i couchdb /bin/bash << EOF
-{
-  mkdir -p /opt/couchdb/etc/certs
-  mv -f /tmp/couchdb.* /opt/couchdb/etc/certs/
-  chown couchdb:couchdb /opt/couchdb/etc/certs/couchdb.*
-  chmod 600 /opt/couchdb/etc/certs/couchdb.key
-  chmod 644 /opt/couchdb/etc/local.d/ssl.ini
-}
+  docker exec -i couchdb /bin/bash -s << EOF
+  {
+    curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} \
+      http://localhost:5984/_node/_local/_config
+  }
 EOF
 
 }
 
-ssl()
+dump()
 {
-  enable_ssl
+  dump_config
 }
 
-log()
+log_nginx()
+{
+  docker compose logs -f nginx
+}
+
+log_couchdb()
 {
   docker compose logs -f couchdb
 }
@@ -93,11 +73,99 @@ log()
 create()
 {
   docker compose --env-file ${ENVFILE} up --no-start
+
+  enable_ssl  
+  
+  enable_couchdb
+  enable_proxy_auth
+}
+
+enable_ssl()
+{
+  echo    "INFO: enable ssl"
+  echo -n "INFO: create dummy container ... "
+  docker container create --name dummy \
+     -v "nginx-config:/etc/nginx" alpine >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: pre-process"
+  docker run --rm -i -u root \
+    -v "nginx-config:/etc/nginx" \
+    -v "nginx-data:/usr/share/nginx/html" \
+    alpine /bin/sh -s << EOF
+  {
+    mkdir -p /etc/nginx/certs
+    mkdir -p /etc/nginx/includes
+    rm -f    /etc/nginx/conf.d/default.conf
+  }
+EOF
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  echo -n "INFO: upload configs ... "
+  docker cp -q config/ssl/nginx.crt   dummy:/etc/nginx/certs/
+  docker cp -q config/ssl/nginx.key   dummy:/etc/nginx/certs/
+  docker cp -q config/ssl/location.conf   dummy:/etc/nginx/includes/
+  docker cp -q config/ssl/ssl.conf   dummy:/etc/nginx/includes/
+  docker cp -q config/ssl/ssl-server.conf   dummy:/etc/nginx/conf.d/
+  docker cp -q config/nginx/default-location.conf dummy:/etc/nginx/includes/
+  echo ""
+  
+  echo -n "INFO: remove dummy container ... "
+  docker rm dummy >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+}
+
+enable_couchdb()
+{
+  docker cp -q config/nginx/couchdb-common.conf   nginx:/etc/nginx/includes/
+  docker cp -q config/nginx/couchdb-location.conf nginx:/etc/nginx/includes/
+
+  #docker cp -q config/ssl/ssl_site.conf dummy:/etc/nginx/conf.d/ssl_site.conf
+  docker cp -q config/nginx/couchdb-server.conf \
+    nginx:/etc/nginx/conf.d/
+  
+  echo -n "INFO: post-process ... "
+  docker run --rm -i -u root \
+    -v "nginx-config:/etc/nginx" \
+    -v "nginx-data:/usr/share/nginx/html" \
+    alpine /bin/sh -s << EOF
+  {
+    rm -f /etc/nginx/conf.d/default.conf
+  }
+EOF
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+
+  #echo -n "INFO: remove dummy container ... "
+  #docker rm dummy >/dev/null
+  #if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+}
+
+enable_proxy_auth()
+{
+  echo "INFO: enable proxy authentication"
+  echo -n "INFO: create dummy container ... "
+  docker container create --name dummy \
+     -v "couchdb-config:/opt/couchdb/etc/local.d" \
+     alpine >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: upload config/couchdb/proxy.ini ... "
+  docker cp -q config/couchdb/proxy.ini      dummy:/opt/couchdb/etc/local.d/
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
+  
+  echo -n "INFO: remove dummy container ... "
+  docker rm dummy >/dev/null
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 }
 
 start()
 {
   docker compose --env-file ${ENVFILE} start
+}
+
+status()
+{
+  docker ps -a | grep -e couchdb -e nginx
 }
 
 stop()
@@ -113,39 +181,64 @@ restart()
 
 down()
 {
-  docker compose --env-file ${ENVFILE} down
+  echo -n "INFO: container down ... "
+  docker compose --env-file ${ENVFILE} down >/dev/null 2>&1
+  if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 }
 
 destroy()
 {
   down
-  docker volume rm couchdb-data
+  volumes="couchdb-config couchdb-data nginx-config nginx-data"
+  for volume in $volumes; do
+    echo "INFO: remove $volume"
+    docker volume rm $volume >/dev/null 2>&1
+  done
 }
 
-ps()
+test()
 {
-  docker ps -a --no-trunc
+  #test_http
+  test_https
+  test_nginx
+  test_couchdb
 }
 
-hosts()
+test_nginx()
 {
-  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
+  curl https://localhost
 }
 
-deploy()
+test_http()
 {
-  ansible-playbook $flags -i hosts.yml site.yml
+  curl -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} http://localhost
 }
 
-default()
+test_https()
 {
-  tag=$1
-  ansible-playbook $flags -i hosts.yml -t $tag site.yml
+  curl -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://localhost
+
 }
 
-hosts
+test_couchdb()
+{
+  curl \
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://localhost/couchdb/
+}
+
+all_dbs()
+{
+  curl -s -k \
+    -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://localhost/couchdb/_all_dbs
+}
+
+all()
+{
+  :
+}
 
 args=""
+
 while [ "$#" -ne 0 ]; do
   case "$1" in
     -h | --help)
@@ -156,9 +249,6 @@ while [ "$#" -ne 0 ]; do
       shift
       output=$1
       ;;
-    -* )
-      flags="$flags $1"
-      ;;
     *)
       args="$args $1"
       ;;
@@ -168,10 +258,11 @@ while [ "$#" -ne 0 ]; do
 done
 
 if [ -z "$args" ]; then
-  help
+  all
 fi
 
 for target in $args; do
+  target=`echo $target | tr '-' '_'`
   num=`LANG=C type "$target" 2>&1 | grep 'function' | wc -l`
   if [ "$num" -eq 1 ]; then
     $target
