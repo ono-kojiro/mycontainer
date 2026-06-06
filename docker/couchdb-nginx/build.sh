@@ -78,6 +78,8 @@ create()
   
   enable_couchdb
   enable_proxy_auth
+
+  enable_api_key
 }
 
 enable_ssl()
@@ -158,6 +160,20 @@ enable_proxy_auth()
   if [ "$?" -eq 0 ]; then echo "passed"; else echo "failed"; fi
 }
 
+enable_api_key()
+{
+  cat - << EOF > config/api_key/api_keys.conf
+map \$http_x_api_key \$api_user {
+    default "";
+    "$API_KEY1" "$API_USER1";
+    "$API_KEY2" "$API_USER2";
+}
+EOF
+
+  docker cp -q config/api_key/api_keys.conf         nginx:/etc/nginx/conf.d/
+  docker cp -q config/api_key/couchdb-location.conf nginx:/etc/nginx/includes/
+}
+
 start()
 {
   docker compose --env-file ${ENVFILE} start
@@ -202,6 +218,8 @@ test()
   test_https
   test_nginx
   test_couchdb
+
+  test_api
 }
 
 test_nginx()
@@ -230,6 +248,21 @@ all_dbs()
 {
   curl -s -k \
     -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} https://localhost/couchdb/_all_dbs
+}
+
+test_all_dbs()
+{
+  curl -s -k \
+    -H "X-API-Key: ${API_KEY1}" \
+    https://localhost/couchdb/_all_dbs
+}
+
+test_db()
+{
+  curl -s -k \
+    -X PUT \
+    -H "X-API-Key: ${API_KEY1}" \
+    https://localhost/couchdb/mydb
 }
 
 all()
