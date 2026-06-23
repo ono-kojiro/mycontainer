@@ -21,7 +21,11 @@
   - name: user
     tags: user
     become: false
-  
+ 
+  - name: destroy
+    tags: destroy, never
+    become: true
+
   #- name: japanese
   #  tags: japanese
   #  become: false
