@@ -5,7 +5,7 @@ After=default.target
 [Service]
 Type=simple
 Environment=WLR_BACKENDS=headless
-Environment=WLR_NO_HARDWARE_CURSOR=1
+Environment=WLR_NO_HARDWARE_CURSORS=1
 Environment=XDG_RUNTIME_DIR=%t
 
 ExecStart=/usr/bin/wayfire
