@@ -6,6 +6,7 @@
     - wf-shell
     - foot
     - wlr-randr
+    - wcm
     state: present
 
 - name: install seatd
