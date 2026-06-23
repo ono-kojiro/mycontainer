@@ -1,0 +1,16 @@
+[Unit]
+Description=Wayfire Wayland Compositor
+After=default.target
+
+[Service]
+Type=simple
+Environment=WLR_BACKENDS=headless
+Environment=WLR_NO_HARDWARE_CURSOR=1
+Environment=XDG_RUNTIME_DIR=%t
+
+ExecStart=/usr/bin/wayfire
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+
