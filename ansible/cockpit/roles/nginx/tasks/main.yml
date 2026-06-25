@@ -1,0 +1,70 @@
+---
+- name: install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: create /etc/nginx/certs directory
+  ansible.builtin.file:
+    path: /etc/nginx/certs
+    state: directory
+
+- name: install server cert
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/nginx/certs/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: install server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/nginx/certs/
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: find enabled-site
+  ansible.builtin.find:
+    paths: /etc/nginx/sites-enabled/
+    recurse: no
+    file_type: any
+  register: res
+
+- name: remove enabled sites
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ res.files }}"
+  when: res.files | length > 0
+
+- name: upload site_ssl
+  ansible.builtin.template:
+    src: site_ssl
+    dest: /etc/nginx/sites-available
+
+- name: create includes directory
+  ansible.builtin.file:
+    path: /etc/nginx/includes
+    state: directory
+
+- name: upload config files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /etc/nginx/includes/
+  loop:
+    - location.conf
+    - ssl.conf
+
+- name: create symbolic link
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/site_ssl
+    dest: /etc/nginx/sites-enabled/site_ssl
+    state: link
+
+- name: restart service
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+
