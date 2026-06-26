@@ -1,0 +1,12 @@
+---
+bridges:
+- name: wan
+  type: bridge
+  subnet: 172.16.0.0/24
+  gateway: 172.16.0.1
+
+- name: opt1
+  type: bridge
+  subnet: 172.16.1.0/24
+  gateway: 172.16.1.1
+
