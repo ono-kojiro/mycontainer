@@ -18,3 +18,6 @@
   - role: sudo
     tags: sudo
 
+  - role: firefox
+    tags: firefox
+
