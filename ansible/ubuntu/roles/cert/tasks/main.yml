@@ -1,0 +1,17 @@
+---
+- name: copy server cert
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/ssl/certs/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: copy server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/ssl/private/
+    owner: root
+    group: ssl-cert
+    mode: '0640'
+
