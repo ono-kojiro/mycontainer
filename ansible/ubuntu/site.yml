@@ -15,4 +15,6 @@
   - role: sssd
     tags: sssd
 
+  - role: sudo
+    tags: sudo
 
