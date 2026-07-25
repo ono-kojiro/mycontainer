@@ -1,0 +1,38 @@
+- name: setup macvlan
+  hosts:
+  - localhost
+  
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  tasks:
+  - name: check if macvlan exists
+    ansible.builtin.shell: |
+      nmcli con show | tail -n +2 | gawk '{ print $1 }' | \
+        grep -x {{ conn_id }} | wc -l
+    register: res
+
+#  - name: register variable
+#    ansible.builtin.debug:
+#      var: res
+
+  - name: create if macvlan DOES NOT exist
+    ansible.builtin.shell: |
+      nmcli con add \
+        type macvlan \
+        conn.id {{ conn_id }} \
+        ifname {{ ifname }} \
+        dev {{ parent_dev }} \
+        mode bridge \
+        ipv4.method manual \
+        ipv4.addresses {{ ipv4_addresses }} \
+        ipv4.gateway   {{ ipv4_gateway }} \
+        ipv4.dns       {{ ipv4_dns }} \
+        ipv4.dns-search {{ ipv4_dns_search }} \
+        ipv6.method disable
+
+      nmcli con up macvlan1
+    when:
+    - res.stdout == "0"
+      
