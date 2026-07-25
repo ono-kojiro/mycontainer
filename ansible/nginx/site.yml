@@ -13,11 +13,11 @@
   - name: ssl
     tags: ssl
 
-  - name: couchdb
-    tags: couchdb
+  #- name: couchdb
+  #  tags: couchdb
   
-  - name: api_key
-    tags: api_key
+  #- name: api_key
+  #  tags: api_key
 
   #- name: client
   #  tags: client, never
