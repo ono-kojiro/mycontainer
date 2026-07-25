@@ -1,0 +1,24 @@
+- name: install server cert
+  hosts: localhost
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  tasks:
+  - name: upload server cert
+    ansible.builtin.copy :
+      src: "{{ server_crt }}"
+      dest: /etc/ssl/certs/server.crt
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: upload server key
+    ansible.builtin.copy:
+      src: "{{ server_key }}"
+      dest: /etc/ssl/private/server.key
+      owner: root
+      group: ssl-cert
+      mode: '0640'
+
