@@ -1,22 +1,4 @@
 ---
-- name: create certs directory
-  ansible.builtin.file:
-    path: /etc/nginx/certs
-    state: directory
-
-- name: upload server crt
-  ansible.builtin.copy:
-    src: "{{ server_crt }}"
-    dest: /etc/nginx/certs
-
-- name: upload server key
-  ansible.builtin.copy:
-    src: "{{ server_key }}"
-    dest: /etc/nginx/certs
-    owner: root
-    group: root
-    mode: '600'
-
 - name: make includes directory
   ansible.builtin.file:
     path: /etc/nginx/includes
