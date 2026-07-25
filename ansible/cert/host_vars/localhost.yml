@@ -6,3 +6,6 @@ ansible_become_exe: /usr/bin/sudo.ws
 server_crt: localhost.crt
 server_key: localhost.key
 
+server_crt: nginx.crt
+server_key: nginx.key
+

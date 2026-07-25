@@ -1,0 +1,36 @@
+---
+- name: install cockpit
+  ansible.builtin.apt:
+    name:
+      - cockpit
+      - cockpit-machines
+    state: present
+
+- name: install server cert
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/cockpit/ws-certs.d/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: install server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/cockpit/ws-certs.d/
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: install configuration
+  ansible.builtin.template:
+    src: cockpit.conf
+    dest: /etc/cockpit/
+
+- name: restart cockpit
+  ansible.builtin.systemd_service:
+    name: cockpit
+    state: restarted
+
+
+

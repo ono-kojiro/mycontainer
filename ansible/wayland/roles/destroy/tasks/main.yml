@@ -1,0 +1,85 @@
+---
+- name: get user name
+  ansible.builtin.shell: |
+    id -u -n
+  become: false
+  register: user_name
+
+- name: get user home directory
+  ansible.builtin.shell: |
+    getent passwd {{ user_name.stdout }} | awk -F: '{ print $6 }'
+  register: user_home
+  become: false
+
+- name: check if wayvnc.service is exists
+  ansible.builtin.stat:
+    path: "{{ user_home.stdout }}/.config/systemd/user/wayvnc.service"
+  become: false
+  register: res
+
+- name: stop wayvnc services if it exists
+  ansible.builtin.systemd_service:
+    name:  wayvnc
+    state: stopped
+    scope: user
+    enabled: false
+  become: false
+  when: res.stat.exists
+
+- name: check if wayfire.service is exists
+  ansible.builtin.stat:
+    path: "{{ user_home.stdout }}/.config/systemd/user/wayfire.service"
+  become: false
+  register: res
+
+- name: stop wayfire services if it exists
+  ansible.builtin.systemd_service:
+    name:  wayfire
+    state: stopped
+    scope: user
+    enabled: false
+  become: false
+  when: res.stat.exists
+
+- name: remove wayfire and wayvnc
+  ansible.builtin.apt:
+    name:
+    - wayfire
+    - wf-shell
+    - foot
+    - wlr-randr
+    - wayvnc
+    - seatd
+    purge: true
+    state: absent
+  become: true
+
+- name: remove systemd services
+  ansible.builtin.file:
+    path: "{{ user_home.stdout }}/.config/systemd/user/{{ item }}"
+    state: absent
+  loop:
+  - wayfire.service
+  - wayvnc.service
+  become: false
+
+- name: remove wayfire ini
+  ansible.builtin.file:
+    path: "{{ user_home.stdout }}/.config/wayfire.ini"
+    state: absent
+  become: false
+
+- name: remove wayvnc configurations
+  ansible.builtin.file:
+    path: "{{ user_home.stdout }}/.config/{{ item }}/config"
+    state: absent
+  loop:
+  - wayvnc
+  become: false
+
+- name: systemd --user daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: user
+  become: false
+  

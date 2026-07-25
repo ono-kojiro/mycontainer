@@ -1,0 +1,16 @@
+---
+- name: install wayfire
+  ansible.builtin.apt:
+    name:
+    - wayfire
+    - wf-shell
+    - foot
+    - wlr-randr
+    - wcm
+    state: present
+
+- name: install seatd
+  ansible.builtin.apt:
+    name: seatd
+    state: present
+

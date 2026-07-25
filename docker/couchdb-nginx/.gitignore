@@ -2,4 +2,6 @@
 *.crt
 *.key
 hosts.yml
+*.json
+.env
 

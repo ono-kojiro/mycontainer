@@ -1,0 +1,25 @@
+---
+cacert: myrootca.crt
+
+ldap_addr:          192.168.1.72
+ldap_uri:           ldaps://{{ ldap_addr }}
+ldap_chpass_uri:    ldaps://{{ ldap_addr }}
+ldap_suffix:        dc=example,dc=com
+ldap_tls_reqcert:   never
+
+sssd_owner: root
+sssd_group: sssd
+
+sssd_ldap_tls_cacert: /etc/ssl/certs/ca-certificates.crt
+sssd_allow_users:
+sssd_allow_groups: ldapusers
+sssd_ldap_tls_reqcert: try
+
+sysconfdir: /etc
+
+# sshd_config
+authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
+
+# sudo
+sudoers_admin_group: ldapwheel
+

@@ -1,0 +1,6 @@
+---
+- name: upload 80-sudoers
+  ansible.builtin.template:
+    src: 80-sudoers
+    dest: /etc/sudoers.d/
+

@@ -1,0 +1,43 @@
+---
+- name: delete docker bridges
+  ansible.builtin.shell: |
+    docker network rm {{ item.name }}_{{ item.driver }}
+  loop: "{{ bridges }}"
+  ignore_errors: true
+  tags: delete
+
+# ipvlan
+- name: create docker bridges
+  ansible.builtin.shell: |
+    docker network create \
+      --driver=ipvlan \
+      --subnet={{ item.subnet }} \
+      --gateway={{ item.gateway }} \
+      -o "parent={{ item.name }}" \
+      {{ item.name }}_ipvlan
+  loop: "{{ bridges }}"
+  tags: add
+
+# macvlan
+- name: create docker bridges with MACVLAN
+  ansible.builtin.shell: |
+    docker network create \
+      --driver=macvlan \
+      --subnet={{ item.subnet }} \
+      --gateway={{ item.gateway }} \
+      -o "parent={{ item.name }}" \
+      {{ item.name }}_macvlan
+  loop: "{{ bridges }}"
+
+#      -o macvlan_mode=bridge \
+
+#- name: create docker bridges
+#  ansible.builtin.shell: |
+#    docker network create \
+#      --driver={{ item.driver }} \
+#      --subnet={{ item.subnet }} \
+#      --gateway={{ item.gateway }} \
+#      -o "com.docker.network.bridge.name"="{{ item.name }}" \
+#      {{ item.name }}
+#  loop: "{{ bridges }}"
+

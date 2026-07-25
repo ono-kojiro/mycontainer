@@ -1,11 +1,17 @@
 ---
-- name: create sway directory
+#- name: add to video group
+#  ansible.builtin.user:
+#    name: kojiro
+#    groups: video
+#    append: yes
+#  become: true
+
+- name: create config directory
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     recurse: true
   loop:
-  - $HOME/.config/sway/
   - $HOME/.config/wayvnc/
   - $HOME/.config/systemd/user/
   
@@ -14,15 +20,19 @@
     src: "{{ item }}"
     dest: $HOME/.config/systemd/user/
   loop:
-  - sway.service
+  - wayfire.service
   - wayvnc.service
-  
+
+- name: copy wayfire ini
+  ansible.builtin.template:
+    src: wayfire.ini
+    dest: ~/.config/
+
 - name: copy configurations
   ansible.builtin.template:
     src: "{{ item }}.conf"
     dest: "$HOME/.config/{{ item }}/config"
   loop:
-  - sway
   - wayvnc
 
 - name: systemd --user daemon-reload
@@ -40,7 +50,7 @@
     enabled: true
     scope: user
   loop:
-  - sway
+  - wayfire
   - wayvnc
   
 - name: restart services
@@ -49,6 +59,6 @@
     state: restarted
     scope: user
   loop:
-  - sway
+  - wayfire
   - wayvnc
 

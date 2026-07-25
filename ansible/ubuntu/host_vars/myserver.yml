@@ -1,0 +1,10 @@
+---
+ansible_hsot: myserver
+ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
+
+server_crt: server.crt
+server_key: server.key
+
+sshd_service: ssh
+

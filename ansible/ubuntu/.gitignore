@@ -1,0 +1,7 @@
+*~
+*.crt
+*.key
+
+files/
+hosts.yml
+

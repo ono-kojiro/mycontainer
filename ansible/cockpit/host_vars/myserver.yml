@@ -1,0 +1,14 @@
+---
+ansible_host: localhost
+ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
+
+server_crt: luna2.crt
+server_key: luna2.key
+
+# cockpit
+origins: https://192.168.1.72 wss://192.168.1.72
+
+# nginx
+server_name: 192.168.1.72
+
