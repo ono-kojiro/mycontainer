@@ -1,0 +1,15 @@
+---
+ansible_host: localhost
+ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
+
+conn_id:        macvlan1
+ifname:         macvlan1
+
+ipv4_addresses: 192.168.1.178/24
+ipv4_gateway:   192.168.1.1
+ipv4_dns:       192.168.1.1
+ipv4_dns_search: example.com
+
+parent_dev: enp0s31f6
+

@@ -1,5 +1,2 @@
 ---
 ansible_become_exe: /usr/bin/sudo.ws
-
-dex_keys_url: https://localhost:5554/dex/keys
-

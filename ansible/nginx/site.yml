@@ -13,18 +13,6 @@
   - name: ssl
     tags: ssl
 
-  - name: couchdb
-    tags: couchdb
-  
-  - name: api_key
-    tags: api_key
-
-  #- name: client
-  #  tags: client, never
-  
-  #- name: grafana
-  #  tags: grafana, never
-
   - name: destroy
     tags: destroy, never
 

@@ -3,8 +3,8 @@ ansible_host: localhost
 ansible_become: true
 ansible_become_exe: /usr/bin/sudo.ws
 
-server_name: example.com
-ssl_client_certificate: /etc/ssl/certs/ca-certificates.crt
+server_crt: localhost.crt
+server_key: localhost.key
 
 server_crt: nginx.crt
 server_key: nginx.key

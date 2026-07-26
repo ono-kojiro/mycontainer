@@ -1,0 +1,10 @@
+---
+ansible_host: localhost
+ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
+
+server_name: localhost.example.com
+
+server_crt: localhost.crt
+server_key: localhost.key
+
