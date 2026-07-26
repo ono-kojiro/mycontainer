@@ -1,0 +1,16 @@
+---
+- name: install rsyslog
+  ansible.builtin.apt:
+    name: rsyslog
+    state: present
+
+- name: configure rsyslog for slapd
+  ansible.builtin.template:
+    src:  slapd.conf
+    dest: /etc/rsyslog.d/slapd.conf
+
+- name: restart rsyslog
+  ansible.builtin.systemd_service:
+    name: rsyslog
+    state: restarted
+

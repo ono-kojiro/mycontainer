@@ -24,3 +24,6 @@
     - { role: rfc2307bis, tags: rfc2307bis }
     - { role: publickey, tags: publickey }
 
+    - role: rsyslog
+      tags: rsyslog
+
