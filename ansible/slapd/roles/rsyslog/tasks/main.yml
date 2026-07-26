@@ -9,6 +9,14 @@
     src:  slapd.conf
     dest: /etc/rsyslog.d/slapd.conf
 
+- name: create /var/log/slapd directory
+  ansible.builtin.file:
+    path: /var/log/slapd
+    state: directory
+    owner: syslog
+    group: adm
+    mode: '0750'
+
 - name: restart rsyslog
   ansible.builtin.systemd_service:
     name: rsyslog

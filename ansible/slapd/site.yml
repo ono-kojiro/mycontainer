@@ -27,3 +27,6 @@
     - role: rsyslog
       tags: rsyslog
 
+    - role: logrotate
+      tags: logrotate
+

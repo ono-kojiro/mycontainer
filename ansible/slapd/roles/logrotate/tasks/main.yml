@@ -1,0 +1,10 @@
+---
+- name: configure logrotate for slapd.log
+  ansible.builtin.template:
+    src: slapd
+    dest: /etc/logrotate.d/slapd
+    owner: root
+    group: root
+    mode: '0644'
+ 
+
