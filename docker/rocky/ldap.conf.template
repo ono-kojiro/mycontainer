@@ -1,0 +1,8 @@
+BASE   ${LDAP_BASE}
+URI    ${LDAP_URI}
+
+TLS_REQCERT never
+
+# TLS certificates (needed for GnuTLS)
+TLS_CACERT      /etc/ssl/certs/ca-certificates.crt
+
