@@ -1,19 +1,11 @@
 ---
-- name: format fat32
+- name: mount filesystem
   ansible.builtin.shell: |
-    mkfs.fat -F32 /dev/vda1
-
-- name: mount /dev/vda2 to /mnt
-  ansible.builtin.shell: |
-    mount /dev/vda2 /mnt
-
-- name: mount /dev/vda1 to /mnt/boot
-  ansible.builtin.shell: |
+    mount /dev/vda3 /mnt
     mkdir -p /mnt/boot
-    mount /dev/vda1 /mnt/boot
+    mount /dev/vdax2 /mnt/boot
+    mkdir -p /mnt/boot/efi
+    mount /dev/vda1 /mnt/boot/efi
 
-- name: timedatectl
-  ansible.builtin.shell: |
-    timedatectl set-ntp true
-    timedatectl status
+
 

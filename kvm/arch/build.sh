@@ -1,157 +1,113 @@
 #!/bin/sh
 
-top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
-cd ${top_dir}
-  
-disk=`pwd`/archlinux.qcow2
-iso=$HOME/Downloads/archlinux-2023.04.01-x86_64.iso
+top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
+cd $top_dir
 
-name="archlinux"
+flags=""
 
-disk()
+disk=/var/lib/libvirt/images/ArchLinux-UEFI.qcow2
+iso=/var/lib/libvirt/iso/archlinux-2026.07.01-x86_64.iso
+
+help()
 {
-  qemu-img create -f qcow2 $disk 16G
+  usage
 }
 
-install()
+usage()
 {
-  LANG=C virt-install \
-    --name ${name} \
-    --os-variant=archlinux \
-    --vcpus 2 \
-    --ram 4096 \
-    --disk=$disk,bus=virtio \
-    --console pty,target_type=serial \
-    --cdrom=$iso \
-    --network bridge=br0 \
-    --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
-    --serial pty \
-    --check all=off \
-    --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader_ro=yes,loader_type=pflash
-}
+  cat << EOS
+usage : $0 [options] target1 target2 ...
 
-dump()
-{
-  virsh dumpxml $name
-}
+  target:
+    deply
+    reset
+EOS
 
-view()
-{
-  virt-viewer
-}
-
-blk()
-{
-  virsh domblklist $name --details
-}
-
-media()
-{
-  virsh change-media $name sda $iso
-}
-
-mount()
-{
-  virsh attach-disk $name $iso sda --type cdrom --mode readonly --current
-}
-
-hosts()
-{
-  ansible-inventory -i groups.ini --list --yaml > hosts.yml
-}
-
-deploy()
-{
-  ansible-playbook -i hosts.yml site.yml
-}
-
-list()
-{
-  virsh list --all
-}
-
-status()
-{
-  list
-}
-
-osinfo()
-{
-  osinfo-query os
-}
-
-start()
-{
-  virsh start $name
-}
-
-console()
-{
-  virsh console $name
-}
-
-shutdown()
-{
-  virsh shutdown $name --mode agent
-}
-
-stop()
-{
-  virsh destroy $name
-}
-
-destroy()
-{
-  virsh destroy $name
-}
-
-
-edit()
-{
-  virsh edit $name
-}
-
-
-undefine()
-{
-  virsh undefine --nvram $name
 }
 
 all()
 {
-  :
+  deploy
 }
 
-while [ $# -ne 0 ]; do
-  case "$1" in
-    -h | --help)
+clean()
+{
+  ansible-playbook -i hosts.yml clean.yml
+}
+
+hosts()
+{
+  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
+}
+
+create()
+{
+  sudo qemu-img create -f qcow2 $disk 32G
+
+  sudo virt-install \
+  --name ArchLinux-UEFI \
+  --memory 4096 \
+  --vcpus 2 \
+  --disk=$disk,bus=virtio \
+  --cdrom=$iso \
+  --os-variant archlinux \
+  --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader.readonly=yes,loader.type=pflash,nvram=/var/lib/libvirt/qemu/nvram/ArchLinux_VARS_4M.fd \
+  --graphics vnc \
+  --serial pty
+}
+
+install()
+{
+  ansible-playbook $flags -i hosts.yml -t install site.yml
+}
+
+deploy()
+{
+  ansible-playbook $flags -i hosts.yml site.yml
+}
+
+default()
+{
+  tag=$1
+  ansible-playbook $flags -i hosts.yml -t ${tag} site.yml
+}
+
+hosts
+
+args=""
+while [ "$#" -ne 0 ]; do
+  case $1 in
+    -h )
       usage
       exit 1
       ;;
-    -o | --output)
-      shift
-      output=$1
+    -v )
+      verbose=1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     * )
-      break
+      args="$args $1"
       ;;
   esac
-
+  
   shift
 done
 
-if [ $# -eq 0 ]; then
-  all
-  exit
+if [ -z "$args" ]; then
+  help
+  exit 1
 fi
 
-for target in "$@"; do
-  LANG=C type "$target" | grep 'function' > /dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    $target
+for arg in $args; do
+  num=`LANG=C type $arg 2>&1 | grep 'function' | wc -l`
+  if [ "$num" -ne 0 ]; then
+    $arg
   else
-    echo "ERROR : $target is not a shell function"
-    exit 1
+    #echo "ERROR : $arg is not shell function"
+    #exit 1
+    default $arg
   fi
 done
 

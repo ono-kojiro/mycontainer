@@ -1,13 +1,37 @@
 ---
-- hosts: archlinux
+- name: setup arch linux
+  hosts: archlinux
+  
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
 
   roles:
     - role: gdisk
+      tags: gdisk
+
+    - role: mount
+      tags: mount
+
     - role: pacstrap
+      tags: pacstrap
+
     - role: base
+      tags: base
+
     - role: password
+      tags: password
+
     - role: grub
+      tags: grub
+
     - role: dhcpcd
+      tags: dhcpcd
+
     - role: umount
+      tags: umount
+
     - role: reboot
+      tags: reboot
+
 

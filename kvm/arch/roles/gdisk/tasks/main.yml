@@ -1,5 +1,17 @@
 ---
-- import_tasks: install.yml
-- import_tasks: configure.yml
+- name: remove partitions
+  ansible.builtin.shell: |
+    sgdisk -z /dev/vda
 
+- name: create partitions
+  ansible.builtin.shell: |
+    sgdisk -n 1:0:+512M -t 1:ef00 -c 1:"EFI System"       /dev/vda
+    sgdisk -n 2:0:+512M -t 2:8300 -c 2:"Linux filesystem" /dev/vda
+    sgdisk -n 3:0:      -t 3:8300 -c 3:"Linux filesystem" /dev/vda
+
+- name: create filesystem
+  ansible.builtin.shell: |
+    mkfs.vfat -F 32 /dev/vda1
+    mkfs.xfs  -f    /dev/vda2
+    mkfs.xfs  -f    /dev/vda3
 
