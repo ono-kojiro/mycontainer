@@ -1,6 +1,5 @@
 ---
 ldap_suffix: dc=example,dc=com
-ldap_uri:    ldap://192.168.0.98
+ldap_uri:    ldap://192.168.1.72
 ansible_ssh_extra_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-ansible_python_interpreter: /usr/local/bin/python3.11
 

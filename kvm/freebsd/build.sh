@@ -182,6 +182,8 @@ default()
 
 hosts
 
+args=""
+
 while [ $# -ne 0 ]; do
   case "$1" in
     -h | --help)
@@ -200,18 +202,18 @@ while [ $# -ne 0 ]; do
       flags="$flags $1"
       ;;
     *)
-      break
+      args="$args $1"
       ;;
   esac
 
   shift
 done
 
-if [ $# -eq 0 ]; then
+if [ -z "$args" ]; then
   all
 fi
 
-for target in "$@"; do
+for target in $args; do
   LANG=C type "$target" | grep 'function' > /dev/null 2>&1
   if [ $? -eq 0 ]; then
     $target

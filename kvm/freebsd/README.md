@@ -8,6 +8,9 @@
 # cat /etc/ssh/sshd_config | grep -e '^PermitRootLogin'
 PermitRootLogin yes
 
+# cat /etc/ssh/sshd_config | grep -e '^UseDNS'
+UseDNS no
+
 # service sshd restart
 ```
 
@@ -69,6 +72,19 @@ PasswordAuthentication no
 ```
 $ sh build.sh ntp
 ```
+
+## enable LDAP authentication
+
+```
+$ sh build.sh ldapauth
+```
+
+## confirm LDAP authentication
+
+```
+$ ssh freebsd -l $USER
+```
+
 
 # FreeBSD 13 + XFCE + LightDM
 

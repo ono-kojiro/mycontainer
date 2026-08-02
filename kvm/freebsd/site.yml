@@ -19,7 +19,9 @@
 
     - role: sudo
       tags: sudo, ldapauth
-    
+   
+    - { role: disable_rootlogin, tags: [disable_rootlogin, never] }
+
     # KDE
     - role: xorg
       tags: xorg, gui

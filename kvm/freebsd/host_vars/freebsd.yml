@@ -1,6 +1,7 @@
 ---
 ansible_host: freebsd
-ansible_become: false
-ansible_python_interpreter: /usr/local/bin/python3
+#ansible_become: false
+ansible_become: true
+#ansible_python_interpreter: /usr/local/bin/python3
 
 

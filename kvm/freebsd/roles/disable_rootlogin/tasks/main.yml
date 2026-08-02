@@ -1,0 +1,13 @@
+---
+- name: disable ssh rootlogin
+  ansible.builtin.replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin (.+)'
+    replace: 'PermitRootLogin no'
+  become: true
+
+- name: restart sshd
+  ansible.builtin.shell: |
+    service sshd restart
+  become: true
+
