@@ -1,6 +1,10 @@
-- hosts: freebsd
+---
+- name: setup freebsd
+  hosts: freebsd
 
   roles:
+    - { role: ntp, tags: ntp }
+
     - role: ldap
       tags: ldap, ldapauth
 

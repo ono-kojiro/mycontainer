@@ -1,4 +1,6 @@
 ---
-ansible_host: cfrz4
+ansible_host: freebsd
 ansible_become: false
+ansible_python_interpreter: /usr/local/bin/python3
+
 

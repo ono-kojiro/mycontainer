@@ -1,0 +1,24 @@
+---
+- name: disable default pool
+  ansible.builtin.replace:
+    path: /etc/ntp.conf
+    regexp: '^pool (.+)'
+    replace: '# \1'
+
+- name: add pool
+  ansible.builtin.lineinfile:
+    path: /etc/ntp.conf
+    line: 'pool ntp.nict.jp iburst'
+
+- name: enable ntpd
+  community.general.sysrc:
+    name: ntpd_enable
+    state: present
+    value: "YES"
+    path: /etc/rc.conf
+
+- name: restart ntpd
+  ansible.builtin.service:
+    name: ntpd
+    state: restarted
+
