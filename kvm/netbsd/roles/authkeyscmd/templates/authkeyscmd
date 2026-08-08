@@ -2,6 +2,6 @@
 
 username=$1
  
-ldapsearch -LLL -o ldif-wrap=no "cn=${username}" sshPublicKey | \
+ldapsearch -LLL -o ldif-wrap=no "uid=${username}" sshPublicKey | \
   grep sshPublicKey | sed 's|^sshPublicKey: ||' 2>/dev/null
 

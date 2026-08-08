@@ -1,50 +1,40 @@
 #!/bin/sh
 
-top_dir="$(cd "$(dirname "$0")" > /dev/null 2>&1 && pwd)"
+top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
+cd $top_dir
 
-name=netbsd
-disk=`pwd`/${name}.qcow2
-iso="$HOME/Downloads/NetBSD-9.3-amd64.iso"
-
-addr="192.168.0.215"
-
-usage()
-{
-  cat - << EOF
-usage : $0 target1 target2 ...
-
-target
-  all
-  usage
-
-  disk
-  install
-
-  status
-
-  (after enabling pubkey auth...)
-  install_python
-  deploy
-
-  stop
-  destroy
-
-  escape character is ^] (Ctrl + ])
-EOF
-}
+flags=""
 
 help()
 {
   usage
 }
 
-disk()
+usage()
 {
-  if [ ! -e $disk ]; then
-    qemu-img create -f qcow2 $disk 16G
-  fi
+  cat << EOS
+usage : $0 [options] target1 target2 ...
+
+  target:
+    deply
+EOS
+
 }
 
+all()
+{
+  deploy
+}
+
+clean()
+{
+  ansible-playbook -i hosts.yml clean.yml
+}
+
+hosts()
+{
+  ansible-inventory -i inventory.yml --list --yaml > hosts.yml
+}
 
 install()
 {
@@ -53,150 +43,64 @@ install()
     --ram 4096 \
     --disk=$disk,bus=virtio \
     --vcpus 4 \
-    --os-variant netbsd9.0 \
+    --os-variant netbsd11.0 \
     --network bridge=br0 \
     --console pty,target_type=serial \
     --cdrom=$iso \
     --graphics vnc,password=vnc,listen=0.0.0.0,keymap=ja \
     --serial pty
-
 #  --extra-args 'console=ttyS0,115200n8 serial'
 #   --network network=default --noautoconsole \
 }
 
 
-key()
-{
-  ssh-keygen -t ed25519 -N '' -f ./id_ed25519 -C netbsd
-}
-
-connect()
-{
-  command ssh root@${addr}
-}
-
-ssh()
-{
-  command ssh root@${addr} -i ./id_ed25519
-}
-
-sftp()
-{
-  command sftp -i id_ed25519 root@${addr}
-}
-
-install_python()
-{
-  command ssh root@${addr} -i id_ed25519 -- pkg install -y python
-}
-
-hosts()
-{
-  ansible-inventory -i template.yml --list --yaml > hosts.yml
-}
-
 deploy()
 {
-  ansible-playbook -i ${inventory} site.yml
-}
-
-shutdown()
-{
-  virsh shutdown $name
-}
-
-dumpxml()
-{
-  virsh dumpxml $name
-}
-
-dominfo()
-{
-  virsh dominfo $name
-}
-
-stop()
-{
-  shutdown
-}
-
-destroy()
-{
-  virsh destroy $name
-}
-
-
-undefine()
-{
-  virsh undefine $name
-}
-
-all()
-{
-  usage
-}
-
-list()
-{
-  virsh list --all
-}
-
-status()
-{
-  list
-}
-
-osinfo()
-{
-  osinfo-query os
-}
-
-start()
-{
-  virsh start $name
-}
-
-console()
-{
-  virsh console $name
+  ansible-playbook $flags -i hosts.yml site.yml
 }
 
 default()
 {
   tag=$1
-  ansible-playbook -i hosts.yml -t ${tag} site.yml
+  ansible-playbook $flags -i hosts.yml -t ${tag} site.yml
 }
 
-while [ $# -ne 0 ]; do
-  case "$1" in
-    -h | --help)
+hosts
+
+args=""
+while [ "$#" -ne 0 ]; do
+  case $1 in
+    -h )
       usage
       exit 1
       ;;
-    -o | --output)
-      shift
-      output=$1
+    -v )
+      verbose=1
       ;;
-    *)
-      break
+    -* )
+      flags="$flags $1"
+      ;;
+    * )
+      args="$args $1"
       ;;
   esac
-
+  
   shift
 done
 
-if [ $# -eq 0 ]; then
-  all
+if [ -z "$args" ]; then
+  help
+  exit 1
 fi
 
-for target in "$@"; do
-  LANG=C type "$target" | grep 'function' > /dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    $target
+for arg in $args; do
+  num=`LANG=C type $arg 2>&1 | grep 'function' | wc -l`
+  if [ "$num" -ne 0 ]; then
+    $arg
   else
-    #echo "ERROR : $target is not a shell function"
+    #echo "ERROR : $arg is not shell function"
     #exit 1
-    default $target
+    default $arg
   fi
 done
 
