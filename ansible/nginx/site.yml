@@ -13,6 +13,9 @@
   - name: ssl
     tags: ssl
 
+  - name: opnsense
+    tags: opnsense, never
+
   - name: destroy
     tags: destroy, never
 
