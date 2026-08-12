@@ -1,0 +1,7 @@
+---
+- name: remove deb package
+  ansible.builtin.apt:
+    name: seaweedfs
+    state: absent
+    purge: true
+

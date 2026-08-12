@@ -1,0 +1,12 @@
+---
+debfile: seaweedfs_4.41-1_amd64.deb
+
+components:
+- master
+- volume
+- filer
+- s3
+
+server_crt: server.crt
+server_key: server.key
+

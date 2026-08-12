@@ -1,0 +1,45 @@
+---
+- name: create /etc/seaweedfs/certs directory
+  ansible.builtin.file:
+    path: /etc/seaweedfs/certs
+    state: directory
+    owner: seaweedfs
+    group: seaweedfs
+    mode: '0750'
+
+- name: upload server certificate
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/seaweedfs/certs/
+    owner: seaweedfs
+    group: seaweedfs
+    mode: '0660'
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/seaweedfs/certs/
+    owner: seaweedfs
+    group: seaweedfs
+    mode: '0600'
+
+- name: update environment file
+  ansible.builtin.template:
+    src: s3.env
+    dest: /etc/seaweedfs/
+
+- name: update s3-config.json
+  ansible.builtin.template:
+    src: s3-config.json
+    dest: /etc/seaweedfs/
+
+- name: systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon-reload: true
+
+- name: restart seaweedfs-s3 service
+  ansible.builtin.systemd_service:
+    name: seaweedfs-s3
+    state: restarted
+
+

@@ -1,0 +1,69 @@
+{
+  "identities": [
+    {
+      "name": "anonymous",
+      "actions": [
+        "Read"
+      ]
+    },
+    {
+      "name": "admin",
+      "credentials": [
+        {
+          "accessKey": "{{ accesskey0 }}",
+          "secretKey": "{{ secretkey0 }}"
+        }
+      ],
+      "actions": [
+        "Admin",
+        "Read",
+        "List",
+        "Tagging",
+        "Write"
+      ]
+    },
+    {
+      "name": "myuser1",
+      "credentials": [
+        {
+          "accessKey": "{{ accesskey1 }}",
+          "secretKey": "{{ secretkey1 }}"
+        }
+      ],
+      "actions": [
+        "Read"
+      ]
+    },
+    {
+      "name": "myuser2",
+      "credentials": [
+        {
+          "accessKey": "{{ accesskey2 }}",
+          "secretKey": "{{ secretkey2 }}"
+        }
+      ],
+      "actions": [
+        "Read",
+        "List",
+        "Tagging",
+        "Write"
+      ]
+    },
+    {
+      "name": "myuser3",
+      "credentials": [
+        {
+          "accessKey": "{{ accesskey3 }}",
+          "secretKey": "{{ secretkey3 }}"
+        }
+      ],
+      "actions": [
+        "Read:mybucket",
+        "List:mybucket",
+        "Tagging:mybucket",
+        "Write:mybucket"
+      ]
+    }
+  ]
+}
+
