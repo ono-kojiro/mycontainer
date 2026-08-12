@@ -1,0 +1,35 @@
+- name: setup seaweedfs
+  hosts: myserver
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  tasks:
+  - name: upload deb package
+    ansible.builtin.copy:
+      src: seaweedfs_4.41_amd64.deb
+      dest: /tmp/
+
+  - name: install deb package
+    ansible.builtin.apt:
+      deb: /tmp/seaweedfs_4.41_amd64.deb
+      state: present
+  
+  - name: systemctl daemon-reload
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+
+  - name: systemctl restart
+    ansible.builtin.systemd_service:
+      name: "seaweedfs-{{ item }}"
+      state: restarted
+    with_items: "{{ components }}"
+
+  - name: remove deb package
+    ansible.builtin.apt:
+      name: seaweedfs
+      state: absent
+      purge: true
+    tags: destroy, never
+
