@@ -1,12 +1,12 @@
 ---
 ansible_host: myserver
 ansible_become: true
-#ansible_become_exe: /usr/bin/sudo
+ansible_become_exe: /usr/bin/sudo.ws
 
-server_crt: myserver.crt
-server_key: myserver.key
+server_crt: server.crt
+server_key: server.key
 
 server_name: example.com
 
-ssl_client_certificate: /etc/ssl/certs/mylocalca.pem
+ssl_client_certificate: /etc/ssl/certs/ca-certificates.crt
 

@@ -1,6 +1,6 @@
 - name: setup nginx
   hosts:
-  - localhost
+  - myserver
   
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -12,6 +12,9 @@
 
   - name: ssl
     tags: ssl
+
+  - name: opnsense
+    tags: opnsense, never
 
   - name: destroy
     tags: destroy, never

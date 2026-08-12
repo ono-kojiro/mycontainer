@@ -1,0 +1,18 @@
+---
+- name: upload site_opnsense
+  ansible.builtin.template:
+    src: site_opnsense
+    dest: /etc/nginx/sites-available/
+
+- name: create symbolic link
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/site_opnsense
+    dest: /etc/nginx/sites-enabled/site_opnsense
+    state: link
+    force: true
+
+- name: restart nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+
