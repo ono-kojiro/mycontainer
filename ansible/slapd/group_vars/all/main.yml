@@ -7,7 +7,7 @@ masterdn: cn=Manager,{{ ldap_suffix }}
 ldap_tls_reqcert: try
 authorizedkeyscommand: /usr/bin/sss_ssh_authorizedkeys
 
-ldap_provider_uri: ldaps://192.168.0.98:636
+ldap_provider_uri: ldaps://192.168.1.72:636
 
 olc_access_userpw: 'to attrs=userPassword,givenName,sn,photo by self write  by anonymous auth  by dn.base={{ masterdn }} write  by * none'
 

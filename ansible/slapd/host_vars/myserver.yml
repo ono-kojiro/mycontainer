@@ -1,9 +1,10 @@
 ---
-ansible_host: localhost
+ansible_host:   myserver
 ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
 
-ldap_uri: ldaps://192.168.1.72
+ldap_uri: ldaps://127.0.0.1
 
-server_crt: myserver.crt
-server_key: myserver.key
+server_crt: server.crt
+server_key: server.key
 
