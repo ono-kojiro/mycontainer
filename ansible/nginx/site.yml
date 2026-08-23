@@ -13,6 +13,9 @@
   - name: ssl
     tags: ssl
 
+  - name: client
+    tags: client, never
+
   - name: opnsense
     tags: opnsense, never
 

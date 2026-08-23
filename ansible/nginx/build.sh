@@ -42,10 +42,20 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
+test_http()
+{
+  curl http://localhost/
+}
+
+
 test_https()
 {
-  curl -s https://localhost/
+  curl -v -k https://localhost/
+}
 
+test_client()
+{
+  curl -v -k --cert client.crt --key client.key https://localhost/
 }
 
 hosts
