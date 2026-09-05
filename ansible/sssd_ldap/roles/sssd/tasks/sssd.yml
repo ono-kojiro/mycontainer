@@ -140,12 +140,12 @@
     ansible_facts['os_family'] == "RedHat"
 
 - name: run tasks for FreeBSD
-  ansible.builtin.import_tasks: sssd-freebsd.yml
+  ansible.builtin.include_tasks: sssd-freebsd.yml
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
 
 - name: run pam tasks for ArchLinux
-  ansible.builtin.import_tasks: sssd_archlinux.yml
+  ansible.builtin.include_tasks: sssd_archlinux.yml
   when: |-
     ansible_facts['os_family'] == "Archlinux"
 
