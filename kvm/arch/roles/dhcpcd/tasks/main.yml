@@ -1,8 +1,16 @@
 ---
-- name: install dhcp
+- name: install NetworkManager
   ansible.builtin.shell: |
     arch-chroot /mnt \
       pacman -S --noconfirm networkmanager
+
+- name: enable NetworkManager
+  ansible.builtin.shell: |
+    arch-chroot /mnt \
       systemctl enable NetworkManager
-  ignore_errors: true
+
+- name: enable sshd
+  ansible.builtin.shell: |
+    arch-chroot /mnt \
+      systemctl enable sshd
 
