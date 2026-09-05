@@ -127,11 +127,6 @@
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
 
-- name: restart sssd
-  ansible.builtin.service:
-    name: sssd
-    state: restarted
-
 - name: restart oddjobd
   ansible.builtin.systemd:
     name: oddjobd
@@ -140,10 +135,6 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
-- name: restart sshd
-  ansible.builtin.service:
-    name:  "{{ sshd_service }}"
-    state: restarted
 
 - name: enable mkhomedir for Debian
   shell: |
@@ -209,4 +200,14 @@
   when: |-
     ansible_facts['os_family'] == "Archlinux"
 
+
+- name: restart sssd
+  ansible.builtin.service:
+    name: sssd
+    state: restarted
+
+- name: restart sshd
+  ansible.builtin.service:
+    name:  "{{ sshd_service }}"
+    state: restarted
 

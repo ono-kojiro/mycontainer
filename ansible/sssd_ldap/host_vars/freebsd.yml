@@ -1,5 +1,6 @@
 ---
 ansible_host: freebsd
+ansible_user: root
 ansible_become: false
 sysconfdir: /usr/local/etc
 
@@ -10,4 +11,6 @@ sssd_owner: root
 sssd_group: wheel
 
 sshd_service: sshd
+
+sudo_admin_group: ldapwheel
 
