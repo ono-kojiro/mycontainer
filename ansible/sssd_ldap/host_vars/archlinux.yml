@@ -1,0 +1,4 @@
+---
+ansible_host: archlinux
+ansible_become: false
+

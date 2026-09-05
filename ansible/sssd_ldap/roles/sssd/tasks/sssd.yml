@@ -35,6 +35,13 @@
     state: present
   when: ansible_facts['os_family'] == "FreeBSD"
 
+- name: install sssd (ArchLinux)
+  ansible.builtin.package:
+    name:
+    - sssd
+    state: present
+  when: ansible_facts['os_family'] == "Archlinux"
+
 - name: create symlink of bash (FreeBSD)
   ansible.builtin.file:
     src:  /usr/local/bin/bash
@@ -48,6 +55,13 @@
     - openldap26-client
     state: present
   when: ansible_facts['os_family'] == "FreeBSD"
+
+- name: install openldap (ArchLinux)
+  ansible.builtin.package:
+    name:
+    - openldap
+    state: present
+  when: ansible_facts['os_family'] == "Archlinux"
   
 - name: check if sssd is running
   ansible.builtin.systemd:
@@ -189,5 +203,10 @@
     mode: '0644'
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
+
+- name: run pam tasks for ArchLinux
+  ansible.builtin.import_tasks: sssd_archlinux.yml
+  when: |-
+    ansible_facts['os_family'] == "Archlinux"
 
 

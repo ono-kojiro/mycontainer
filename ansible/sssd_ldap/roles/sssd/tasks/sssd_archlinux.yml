@@ -1,0 +1,57 @@
+---
+- name: add sss for nsswitch passwd
+  ansible.builtin.replace:
+    path: /etc/nsswitch.conf
+    regexp: '^passwd: files systemd'
+    replace: 'passwd: files sss systemd'
+
+- name: add sss for nsswitch group
+  ansible.builtin.replace:
+    path: /etc/nsswitch.conf
+    regexp:  '^group: files [SUCCESS=merge] systemd'
+    replace:  'group: files [SUCCESS=merge] sss systemd'
+
+- name: add sss for nsswitch shadow
+  ansible.builtin.replace:
+    path: /etc/nsswitch.conf
+    regexp: '^shadow: files systemd'
+    replace: 'shadow: files sss systemd'
+
+- name: add sss in nsswitch sudoers
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    line: 'sudoers: files sss'
+
+
+
+- name: add pam_sss.so for auth
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/system-auth
+    line: 'auth       sufficient                  pam_sss.so           forward_pass'
+    insertbefore: '^auth .* pam_unix.so .*'
+
+- name: add pam_sss.so for account
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/system-auth
+    line: 'account    [default=bad success=ok user_unknown=ignore authinfo_unavail=ignore] pam_sss.so'
+    insertbefore: '^account .* pam_unix.so'
+
+- name: add pam_sss.so for password
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/system-auth
+    line: 'password   sufficient                  pam_sss.so           use_authtok'
+    insertbefore: '^password .* pam_unix.so .*'
+
+- name: add pam_mkhomedir.so for session
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/system-auth
+    line: 'session    required                    pam_mkhomedir.so skel=/etc/skel/ umask=0077'
+    insertafter: '^session .* pam_limits.so'
+
+- name: add pam_sss.so for session
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/system-auth
+    line: 'session    optional                    pam_sss.so'
+    insertafter: '^session .* pam_unix.so'
+
+

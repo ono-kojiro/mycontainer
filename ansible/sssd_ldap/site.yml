@@ -1,15 +1,6 @@
 - name: setup sssd-ldap
   hosts:
-  #- cfrz4
-  #- rocky
-  #- trixie
-  #- jammy
-  #- bookworm
-  #- redhat
-  #- noble
-  #- oracle
-  #- freebsd
-  - consumer
+  - archlinux
   
   #environment:
   #  http_proxy: http://proxy.example.com:8080
@@ -21,9 +12,10 @@
       file: "{{ item.file }}"
     when: ansible_facts['os_family'] == item.os_family
     loop:
-      - { file: "redhat_vars.yml", os_family: "RedHat" }
-      - { file: "debian_vars.yml", os_family: "Debian" }
-      - { file: "freebsd_vars.yml", os_family: "FreeBSD" }
+      - { file: "redhat_vars.yml",    os_family: "RedHat" }
+      - { file: "debian_vars.yml",    os_family: "Debian" }
+      - { file: "freebsd_vars.yml",   os_family: "FreeBSD" }
+      - { file: "archlinux_vars.yml", os_family: "Archlinux" }
     tags: always
 
   roles:
