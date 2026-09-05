@@ -6,8 +6,24 @@
 
 - name: configure default location
   ansible.builtin.template:
-    src:  location-default.conf
+    src:  location.conf
     dest: /etc/nginx/includes/
+
+- name: upload server cert
+  ansible.builtin.copy:
+    src: "{{ server_crt }}"
+    dest: /etc/ssl/certs/
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: upload server key
+  ansible.builtin.copy:
+    src: "{{ server_key }}"
+    dest: /etc/ssl/private/
+    owner: root
+    group: ssl-cert
+    mode: '0640'
 
 - name: upload ssl.conf
   ansible.builtin.template:

@@ -1,8 +1,9 @@
 server {
+    listen 443 ssl;
     server_name {{ server_name }};
 
     include /etc/nginx/includes/ssl.conf;
-    include /etc/nginx/includes/ssl_client_cert.conf;
+    include /etc/nginx/includes/ssl_client.conf;
 
     root /var/www/html;
 
