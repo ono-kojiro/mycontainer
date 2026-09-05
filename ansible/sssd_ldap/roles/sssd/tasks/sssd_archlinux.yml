@@ -8,7 +8,7 @@
 - name: add sss for nsswitch group
   ansible.builtin.replace:
     path: /etc/nsswitch.conf
-    regexp:  '^group: files [SUCCESS=merge] systemd'
+    regexp:  '^group: files \[SUCCESS=merge\] systemd'
     replace:  'group: files [SUCCESS=merge] sss systemd'
 
 - name: add sss for nsswitch shadow
