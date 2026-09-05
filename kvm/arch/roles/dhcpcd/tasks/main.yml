@@ -3,6 +3,6 @@
   ansible.builtin.shell: |
     arch-chroot /mnt \
       pacman -S --noconfirm networkmanager
-      systemctl enable networkmanager
+      systemctl enable NetworkManager
   ignore_errors: true
 

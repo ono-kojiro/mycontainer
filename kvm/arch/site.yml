@@ -32,6 +32,6 @@
       tags: umount
 
     - role: reboot
-      tags: reboot
+      tags: reboot, never
 
 

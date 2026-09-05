@@ -5,8 +5,8 @@ cd $top_dir
 
 flags=""
 
-disk=/var/lib/libvirt/images/ArchLinux-UEFI.qcow2
-iso=/var/lib/libvirt/iso/archlinux-2026.07.01-x86_64.iso
+name="ArchLinux"
+xmlfile="${name}.xml"
 
 help()
 {
@@ -19,8 +19,12 @@ usage()
 usage : $0 [options] target1 target2 ...
 
   target:
-    deply
-    reset
+    dumpxml
+    modify
+    undefine
+    define
+
+    start
 EOS
 
 }
@@ -40,20 +44,79 @@ hosts()
   ansible-inventory -i inventory.yml --list --yaml > hosts.yml
 }
 
-create()
-{
-  sudo qemu-img create -f qcow2 $disk 32G
+#template()
+#{
+#  disk
+#  
+#  loader="/usr/share/OVMF/OVMF_CODE_4M.fd"
+#  nvram="/var/lib/libvirt/qemu/nvram/ArchLinux_VARS_4M.fd"
+#  
+#  echo "INFO: generate ${name}.xml"
+#  
+#  virt-install --print-xml --noreboot \
+#  --name "$name" \
+#  --memory "$memory" \
+#  --vcpus "$vcpus" \
+#  --disk=$disk,bus=virtio \
+#  --os-variant archlinux \
+#  --boot loader=$loader,loader.readonly=yes,loader.type=pflash,nvram=$nvram \
+#  --graphics vnc,listen=0.0.0.0,keymap=ja \
+#  --console pty,target_type=serial \
+#  --boot uefi \
+#  --serial pty \
+#  > ${name}.xml
+#}
 
-  sudo virt-install \
-  --name ArchLinux-UEFI \
-  --memory 4096 \
-  --vcpus 2 \
-  --disk=$disk,bus=virtio \
-  --cdrom=$iso \
-  --os-variant archlinux \
-  --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader.readonly=yes,loader.type=pflash,nvram=/var/lib/libvirt/qemu/nvram/ArchLinux_VARS_4M.fd \
-  --graphics vnc \
-  --serial pty
+dumpxml()
+{
+  echo "save configuration to $xmlfile"
+  virsh dumpxml ${name} > $xmlfile
+
+  if [ ! -e "${xmlfile}.orig" ]; then
+    cp -f ${xmlfile} ${xmlfile}.orig
+  fi
+}
+
+modify()
+{
+  echo "modify $xmlfile ..."
+
+  # remove secure=yes
+  sed -i -e "s|secure='yes' ||" $xmlfile
+  
+  # remove VARS template for Secure Boot
+  sed -i -e "s| template='/usr/share/OVMF/OVMF_VARS_4M.ms.fd'||" $xmlfile
+
+  # use non-secure CODE
+  sed -i -e "s|/usr/share/OVMF/OVMF_CODE_4M.ms.fd|/usr/share/OVMF/OVMF_CODE_4M.fd|" $xmlfile
+
+  sed -i -e "/secure-boot/d"   $xmlfile
+  sed -i -e "/enrolled-keys/d" $xmlfile
+}
+
+undefine()
+{
+  virsh undefine $name
+}
+
+remove()
+{
+  undefine
+}
+
+define()
+{
+  virsh define $xmlfile
+}
+
+shutdown()
+{
+  virsh destroy ${name}
+}
+
+start()
+{
+  virsh start ${name}
 }
 
 install()
