@@ -102,14 +102,6 @@
     regexp: '^#?AuthorizedKeysCommandUser '
     line: 'AuthorizedKeysCommandUser nobody'
 
-- name: enable UsePAM (FreeBSD)
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^#?UsePAM '
-    line: 'UsePAM yes'
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
-
 - name: enable sssd
   ansible.builtin.systemd:
     name: sssd
@@ -135,7 +127,6 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
-
 - name: enable mkhomedir for Debian
   shell: |
     pam-auth-update --enable mkhomedir --force
@@ -148,50 +139,8 @@
   when: |-
     ansible_facts['os_family'] == "RedHat"
 
-- name: add sss for nsswitch group (FreeBSD)
-  ansible.builtin.replace:
-    path: /etc/nsswitch.conf
-    regexp: '^group: compat'
-    replace: 'group: files sss'
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
-
-- name: add sss for nsswitch passwd (FreeBSD)
-  ansible.builtin.replace:
-    path: /etc/nsswitch.conf
-    regexp: '^passwd: compat'
-    replace: 'passwd: files sss'
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
-
-- name: add sss in nsswitch sudo (FreeBSD)
-  ansible.builtin.lineinfile:
-    path: /etc/nsswitch.conf
-    line: 'sudoers: files sss'
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
-
-- name: copy sshd for pam (FreeBSD)
-  ansible.builtin.copy:
-    src: sshd
-    dest: /etc/pam.d/sshd
-    mode: '0644'
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
-
-- name: copy system for pam (FreeBSD)
-  ansible.builtin.copy:
-    src: system
-    dest: /etc/pam.d/system
-    mode: '0644'
-  when: |-
-    ansible_facts['os_family'] == "FreeBSD"
-
-- name: copy su for pam (FreeBSD)
-  ansible.builtin.copy:
-    src:  su
-    dest: /etc/pam.d/su
-    mode: '0644'
+- name: run tasks for FreeBSD
+  ansible.builtin.import_tasks: sssd-freebsd.yml
   when: |-
     ansible_facts['os_family'] == "FreeBSD"
 
