@@ -13,10 +13,17 @@ commonname=""
 
 pubkey_file=""
 
-help()
+usage()
 {
   cat - << EOF
-usage: $0 subcmd [OPTIONS]
+usage: $0 [OPTIONS]
+
+  -g, --givenName, -f, --firstname     First Name (ex. Satoshi)
+  -s, --sn, -l, --lastname             Last Name (ex. Nakamoto)
+  -u, --username                       Username (ex. satoshi)
+  -c, --commonname                     CommonName (ex. Satoshi Nakamoto)
+  -p, --public-key                     Public Key File (ex. id_ed25519.pub)
+
 EOF
 }
 
@@ -24,7 +31,11 @@ EOF
 add_public_key()
 {
   echo "add_public_key"
-  echo "DEBUG: pubkey_file is $pubkey_file"
+  if [ -z "$pubkey_file" ]; then
+    echo "ERROR: no pubkey_file"
+    exit 1
+  fi
+
   cat $pubkey_file | \
   while IFS= read -r line || [ -n "$line" ]; do
     if [ -z "$line" ]; then
@@ -107,14 +118,14 @@ if [ -z "$commonname" ]; then
   fi
 fi
 
-for target in $args; do
-  num=`LANG=C type $target 2>&1 | grep 'function' | wc -l`
-  if [ "$num" -ne 0 ]; then
-    $target
-  else
-    default $target
-  fi
-done
+#for target in $args; do
+#  num=`LANG=C type $target 2>&1 | grep 'function' | wc -l`
+#  if [ "$num" -ne 0 ]; then
+#    $target
+#  else
+#    default $target
+#  fi
+#done
 
 add_public_key
 exit 0
