@@ -1,0 +1,325 @@
+#!/bin/sh
+
+ldap_conf="/etc/ldap/ldap.conf"
+
+ldap_base=`cat $ldap_conf | grep -e '^BASE ' | awk '{ print $2 }'`
+ldap_uri=`cat $ldap_conf | grep -e '^URI ' | awk '{ print $2 }'`
+
+debug=0
+        
+dump_ldif()
+{
+  tmpfile="$1"
+
+  if [ "$debug" -ne 0 ]; then
+    echo "DEBUG: ============ LDIF format START=========" 1>&2
+    cat $tmpfile 1>&2
+    echo "DEBUG: ============ LDIF format END ==========" 1>&2
+  fi
+}
+
+usage()
+{
+  cat - << EOF
+usage: $0 [OPTIONS] MODULE ACTION KEY=VALUE
+  
+  MODULE: user, group
+  ACTION: add, modify, delete
+
+  EXAMPLES:
+    $0 group add    mygroup
+    $0 user  add    myuser  mygroup
+    $0 user  modify myuser  password=secret
+    $0 user  modify myuser  firstname=FIRSTNAME
+    $0 user  modify myuser  lastname=LASTNAME
+    $0 user  modify myuser  gecos="FIRSTNAME LASTNAME"
+    $0 user  modify myuser  publickey=mypublickey.pub
+
+    $0 user  delete myuser
+    $0 goup  delete mygroup
+
+EOF
+}
+
+user_add()
+{
+  ret=0
+  tokens=""
+
+  for arg in "$@"; do
+    case $arg in
+      -h | --help )
+        echo "usage: ldapauth user add USERNAME GROUP"
+        exit 0
+        ;;
+      * )
+        tokens="$tokens $arg"
+        ;;
+    esac
+  done
+
+  # remove head space
+  tokens="${tokens# }"
+
+  if [ "$debug" -ne 0 ]; then
+    echo "DEBUG: tokens is '$tokens'"
+  fi
+
+  # extract/remove first token from string, remove one leading space 
+  item="${tokens%% *}"; tokens="${tokens#"$item"}"; tokens="${tokens# }"
+  username="$item"
+  
+  item="${tokens%% *}"; tokens="${tokens#"$item"}"; tokens="${tokens# }"
+  group="$item"
+
+  if [ -z "$username" ]; then
+    echo "ERROR: no username option" 1>&2
+    ret=`expr $ret + 1`
+  fi
+
+  if [ -z "$group" ]; then
+    echo "ERROR: no group option" 1>&2
+    ret=`expr $ret + 1`
+  fi
+
+  if [ "$ret" -ne 0 ]; then
+    exit $ret
+  fi
+
+  ldapadduser "$username" "$group"
+}
+
+user_modify()
+{
+  username="$1"
+  shift
+
+  if [ -z "$username" ]; then
+    echo "ERROR: need username" 1>&2
+    exit 1
+  fi
+
+  while [ "$#" -ne 0 ]; do 
+    key_and_value="$1"
+    shift
+  
+    key="${key_and_value%%=*}"
+    val="${key_and_value#*=}"
+    val="${val#\"}"
+    val="${val%\"}"
+
+    if [ "$key" = "password" ]; then
+      password="$val"
+      hashed=`slappasswd -s ${password}`
+      ldapsetpasswd ${username} "$hashed"
+
+    elif [ "$key" = "firstname" ]; then
+      firstname="$val"
+
+      tmpfile=`mktemp`
+      echo $tmpfile
+      count=0
+
+      cat - << EOF >> $tmpfile
+changetype: modify
+replace: givenName
+givenName: $firstname
+EOF
+
+      dump_ldif $tmpfile
+
+      cat $tmpfile | ldapmodifyuser $username
+      rm -f $tmpfile
+
+    elif [ "$key" = "lastname" ]; then
+      lastname="$val"
+
+      tmpfile=`mktemp`    
+      echo $tmpfile
+      count=0
+
+      cat - << EOF >> $tmpfile
+changetype: modify
+replace: sn
+sn: $lastname
+EOF
+      
+      dump_ldif $tmpfile
+      
+      cat $tmpfile | ldapmodifyuser $username
+      rm -f $tmpfile
+
+    elif [ "$key" = "gecos" ]; then
+      gecos="$val"
+
+      tmpfile=`mktemp`    
+      echo $tmpfile
+      count=0
+
+      cat - << EOF >> $tmpfile
+changetype: modify
+replace: gecos
+gecos: $gecos
+EOF
+      dump_ldif $tmpfile
+
+      cat $tmpfile | ldapmodifyuser $username
+      rm -f $tmpfile
+
+    elif [ "$key" = "publickey" ]; then
+      textfile="$val"
+  
+      cat $textfile | \
+      while IFS= read -r line || [ -n "$line" ]; do
+        if [ -z "$line" ]; then
+          continue
+        fi
+        if [ "$debug" -ne 0 ]; then
+          echo "DEBUG: line is '$line'"
+        fi
+
+        key="$line"
+
+        tmpfile=`mktemp -p /tmp -t tmp.XXXXXXXXXX` || exit
+        if [ "$debug" -ne 0 ]; then
+          echo "DEBUG: tmpfile is $tmpfile"
+        fi
+
+        cat - << EOF > $tmpfile
+changetype: modify
+add: sshPublicKey
+sshPublicKey: $key
+EOF
+
+        dump_ldif $tmpfile
+
+        cat $tmpfile | ldapmodifyuser $username
+        rm -f $tmpfile
+      done
+
+    else
+      echo "ERROR: unknown parameter, '$key'"
+    fi
+  done
+}
+
+user_delete()
+{
+  ret=0
+
+  username="$1"
+  shift
+
+  if [ -z "$username" ]; then
+    echo "ERROR: no username option" 1>&2
+    ret=`expr $ret + 1`
+  fi
+
+  if [ "$ret" -ne 0 ]; then
+    exit $ret
+  fi
+
+  ldapdeleteuser "$username"
+}
+
+group_add()
+{
+  group="$1"
+  shift
+
+  gid=""
+  if [ "$#" -ge 1 ]; then
+    gid="$1"
+    shift
+  fi
+
+  if [ ! -z "$gid" ]; then
+    ldapaddgroup "$group" "$gid"
+  else
+    ldapaddgroup "$group"
+  fi
+}
+
+group_modify()
+{
+  echo "WARNING: not implemented yet"
+}
+
+group_delete()
+{
+  group="$1"
+  shift
+
+  ldapdeletegroup "$group"
+}
+
+module_user()
+{
+  action="$1"
+  shift
+
+  case "$action" in
+    add )
+      user_add "$@"
+      ;;
+    modify )
+      user_modify "$@"
+      ;;
+    delete )
+      user_delete "$@"
+      ;;
+    * )
+      echo "ERROR: invalid action for user, '$action'"
+      exit 1
+      ;;
+  esac
+}
+
+module_group()
+{
+  action="$1"
+  shift
+  
+  case "$action" in
+    add )
+      group_add "$@"
+      ;;
+    modify )
+      group_modify
+      ;;
+    delete )
+      group_delete "$@"
+      ;;
+    * )
+      echo "ERROR: invalid action for group, '$action'"
+      usage
+      exit 1
+      ;;
+  esac
+}
+
+if [ "$#" -eq 0 ]; then
+  echo "no module argument" 1>&2
+  usage
+  exit 1
+fi
+
+module="$1"
+shift
+
+case "$module" in
+  user )
+    module_user "$@"
+    ;;
+  group )
+    module_group "$@"
+    ;;
+  * )
+    echo "ERROR: invalid module, '$module'" 1>&2
+    usage
+    exit 1
+    ;;
+esac
+
+exit 0
+
