@@ -91,6 +91,11 @@ user_add()
 
 user_modify()
 {
+  if [ "$#" -eq 0 ]; then
+    echo "usage : $0 user modify USERNAME [KEY=VALUE] ..."
+    exit 0
+  fi
+
   username="$1"
   shift
 
@@ -112,6 +117,10 @@ user_modify()
       password="$val"
       hashed=`slappasswd -s ${password}`
       ldapsetpasswd ${username} "$hashed"
+    
+    elif [ "$key" = "group" ]; then
+      group="$val"
+      ldapaddusertogroup "${username}" "${group}"
 
     elif [ "$key" = "firstname" ]; then
       firstname="$val"
