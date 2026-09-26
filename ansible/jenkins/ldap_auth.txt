@@ -1,0 +1,27 @@
+
+# LDAP AUTHENTICATION
+
+## Jenkins Security Configuration
+
+Server
+  ldaps://dd.dd.dd.dd:636
+
+root DN
+  dc=example,dc=com
+
+User search base
+  ou=Users
+
+User search filter
+  (&(uid={0})(objectClass=posixAccount)(memberOf=cn=ldapusers,ou=Groups,dc=example,dc=com))
+
+Search for LDAP group containing user
+  (empty)
+
+Display Name LDAP attribute
+  cn
+
+Email Address LDAP attribute
+  mail
+
+
