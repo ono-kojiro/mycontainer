@@ -1,0 +1,8 @@
+---
+ansible_host: myagent
+ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
+
+agent_user:  "agent"
+agent_group: "agent"
+

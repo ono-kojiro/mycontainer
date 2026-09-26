@@ -49,9 +49,16 @@ agent()
   ansible-playbook $flags -i hosts.yml agent.yml
 }
 
+remove_agent()
+{
+  ansible-playbook $flags -i hosts.yml -t remove agent.yml
+}
+
 hosts
 
 args=""
+tags=""
+
 while [ $# -ne 0 ]; do
   case $1 in
     -h )
@@ -60,6 +67,10 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -t )
+      shift
+      tags="$tags $1"
       ;;
     -*)
       flags="$flags $1"
@@ -77,11 +88,12 @@ if [ -z "$args" ]; then
 fi
 
 for arg in $args; do
-  num=`LANG=C type $arg | grep 'function' | wc -l`
+  target=`echo $arg | tr '-' '_'`
+  num=`LANG=C type $target | grep 'function' | wc -l`
   if [ $num -ne 0 ]; then
-    $arg
+    $target
   else
-    default $arg
+    default $target
   fi
 done
 

@@ -2,8 +2,8 @@ all:
   children:
     servers:
       hosts:
-        localhost:
+        myserver:
     agents:
       hosts:
-        myserver:
+        myagent:
 
