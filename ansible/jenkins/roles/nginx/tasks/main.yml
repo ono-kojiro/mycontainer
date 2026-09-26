@@ -1,0 +1,18 @@
+---
+- name: create /etc/nginx/includes
+  ansible.builtin.file:
+    path: /etc/nginx/includes
+    state: directory
+
+- name: upload location-jenkins.conf
+  ansible.builtin.template:
+    src: location-jenkins.conf
+    dest: /etc/nginx/includes/
+
+- name: insert location-jenkins.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nginx/sites-enabled/site_ssl
+    insertbefore: '^}\s*'
+    line: '    include /etc/nginx/includes/location-jenkins.conf;'
+    state: present
+

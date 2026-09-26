@@ -1,11 +1,14 @@
 ---
-server_crt: ubuntu.crt
-server_key: ubuntu.key
+listen_address: 127.0.0.1
+http_port:  8080
 
-cacert_dir: mylocalca
-cacert_crt: mylocalca.crt
+#server_crt: ubuntu.crt
+#server_key: ubuntu.key
 
-keystore: jenkins.jks
+#cacert_dir: mylocalca
+#cacert_crt: mylocalca.crt
 
-http_port:  8081
-https_port: 8082
+#keystore: jenkins.jks
+
+#https_port: 8082
+

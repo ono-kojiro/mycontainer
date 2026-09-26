@@ -1,13 +1,16 @@
 - name: setup apache and jenkins
-  hosts: ubuntu
+  hosts: localhost
 
   roles:
-  - name: apache
-    tags: apache
+  #- name: apache
+  #  tags: apache
   
-  - name: sslrequire
-    tags: sslrequire
+  #- name: sslrequire
+  #  tags: sslrequire
 
   - name: jenkins
     tags: jenkins
+
+  - name: nginx
+    tags: nginx
 
