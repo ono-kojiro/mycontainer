@@ -44,6 +44,11 @@ default()
   ansible-playbook $flags -i hosts.yml -t $tag site.yml
 }
 
+agent()
+{
+  ansible-playbook $flags -i hosts.yml agent.yml
+}
+
 hosts
 
 args=""

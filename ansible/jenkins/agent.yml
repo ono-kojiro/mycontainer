@@ -1,0 +1,7 @@
+- name: setup jenkins agents
+  hosts: agents
+
+  roles:
+  - name: agent
+    tags: agent
+

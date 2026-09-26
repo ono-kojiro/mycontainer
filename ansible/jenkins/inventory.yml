@@ -3,4 +3,7 @@ all:
     servers:
       hosts:
         localhost:
+    agents:
+      hosts:
+        myserver:
 
