@@ -1,0 +1,5 @@
+---
+agent_home: /home/agent
+agent_user: agent
+agent_group: agent
+

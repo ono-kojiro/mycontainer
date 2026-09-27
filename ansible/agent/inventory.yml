@@ -1,0 +1,9 @@
+all:
+  children:
+    servers:
+      hosts:
+        myserver:
+    agents:
+      hosts:
+        myagent:
+

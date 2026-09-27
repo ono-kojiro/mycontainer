@@ -1,0 +1,47 @@
+---
+- name: add agent group
+  ansible.builtin.shell: |
+    addgroup --system --quiet "{{ agent_group }}"
+
+- name: add agent user
+  ansible.builtin.shell: |
+    adduser --system --quiet \
+      --home "{{ agent_home }}" \
+      --ingroup "{{ agent_user }}" \
+      --disabled-password \
+      --shell /bin/bash \
+      --comment "{{ agent_user }}" \
+      --gecos "{{ agent_user }}" \
+      "{{ agent_user }}"
+
+- name: change permission of home directory
+  ansible.builtin.file:
+    path: "{{ agent_home }}"
+    owner: "{{ agent_user }}"
+    group : "{{ agent_group }}"
+    mode: '0775'
+    recurse: true
+
+- name: generate ssh key
+  ansible.builtin.shell: |
+    sudo -u "{{ agent_user }}" bash << EOF
+      mkdir -p "{{ agent_home }}/.ssh"
+      cd "{{ agent_home }}/.ssh"
+      if [ ! -e id_ed25519 ]; then
+        ssh-keygen -t ed25519 -f id_ed25519 -N ""
+      fi
+      cp -f id_ed25519.pub authorized_keys
+    EOF
+
+- name: remove agent user
+  ansible.builtin.user:
+    name: "{{ agent_user }}"
+    state: absent
+  tags: remove, never
+
+- name: remove agent group
+  ansible.builtin.group:
+    name: "{{ agent_group }}"
+    state: absent
+  tags: remove, never
+
