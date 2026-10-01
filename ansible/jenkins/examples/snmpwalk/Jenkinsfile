@@ -1,0 +1,25 @@
+pipeline {
+    agent { label 'abaoaqu' }
+
+    stages {
+        stage('Prepare') {
+            steps {
+                checkout scm   // use Jenkins SCM configuration
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'sh build.sh build'
+            }
+        }
+
+        stage('Result') {
+            steps {
+                sh 'sh build.sh result'
+            }
+        }
+    }
+}
+
+
