@@ -1,0 +1,31 @@
+---
+- name: check refint module is existing
+  ansible.builtin.shell: |
+    ldapsearch -LLL -Q -Y EXTERNAL -H ldapi:/// \
+      -b cn=module{0},cn=config olcModuleLoad \
+      | grep olcModuleLoad | grep refint | wc -l
+  register: res
+
+- name: load refint module
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=module{0},cn=config
+    changetype: modify
+    add: olcModuleLoad
+    olcModuleLoad: refint
+    EOF
+  when: res.stdout == "0"
+
+- name: add refint overlay
+  ansible.builtin.shell: |
+    cat - << EOF | ldapadd -Q -Y EXTERNAL -H ldapi:///
+    dn: olcOverlay={2}refint,olcDatabase={1}mdb,cn=config
+    objectClass: olcOverlayConfig
+    objectClass: olcRefintConfig
+    olcOverlay: refint
+    olcRefintAttribute: member
+    olcRefintAttribute: uniqueMember
+    olcRefintAttribute: memberOf
+    EOF
+  ignore_errors: true
+

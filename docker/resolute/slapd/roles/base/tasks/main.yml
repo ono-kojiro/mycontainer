@@ -1,0 +1,42 @@
+---
+- name: change ldap loglevel
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: cn=config
+    changetype: modify
+    replace: olcLogLevel
+    olcLogLevel: stats
+    EOF
+
+- name: change ldap suffix
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: olcDatabase={1}mdb,cn=config
+    changetype: modify
+    replace: olcSuffix
+    olcSuffix: {{ ldap_suffix }}
+    EOF
+
+- name: change ldap rootdn
+  ansible.builtin.shell: |
+    cat - << EOF | ldapmodify -Q -Y EXTERNAL -H ldapi:///
+    dn: {{ ldap_config_dn }}
+    changetype: modify
+    replace: olcRootDN
+    olcRootDN: {{ masterdn }}
+    EOF
+
+- name: change ldap rootpw
+  ansible.builtin.shell: |
+    rootpw=`/usr/sbin/slappasswd -h {SSHA} -s {{ masterpw }}`
+    ldapmodify -Q -Y EXTERNAL -H ldapi:/// << EOF
+    dn: {{ ldap_config_dn }}
+    changetype: modify
+    replace: olcRootPW
+    olcRootPW: ${rootpw}
+    EOF
+
+- name: restart slapd (supervisord)
+  ansible.builtin.shell: |
+    supervisorctl restart slapd
+

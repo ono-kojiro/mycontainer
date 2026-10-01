@@ -1,0 +1,16 @@
+---
+ansible_host:   resolute
+ansible_become: false
+ansible_become_exe: /usr/bin/sudo.ws
+
+ldap_suffix: dc=example,dc=com
+ldap_config_dn: olcDatabase={1}mdb,cn=config
+olc_database: olcDatabase={1}mdb,cn=config
+
+ldap_dir: /etc/ldap
+
+#ldap_uri: ldaps://127.0.0.1
+
+#server_crt: server.crt
+#server_key: server.key
+

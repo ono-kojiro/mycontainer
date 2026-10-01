@@ -1,0 +1,13 @@
+- name: setup slapd
+  hosts:
+    - resolute
+
+  #environment:
+  #  http_proxy: http://proxy.example.com:8080
+  #  https_proxy: http://proxy.example.com:8080
+
+  roles:
+    - { role: base, tags: base }
+    - { role: rfc2307bis, tags: rfc2307bis }
+    - { role: refint, tags: refint}
+
