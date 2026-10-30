@@ -1,26 +1,18 @@
---- before.xml
-+++ after.xml
-@@
--    <firmware>
+--- Parrot.xml	2026-10-30 21:29:18.709365526 +0900
++++ Parrot.xml.mod	2026-10-30 21:30:20.062240377 +0900
+@@ -18,11 +18,11 @@
+   <os firmware='efi'>
+     <type arch='x86_64' machine='pc-q35-10.2'>hvm</type>
+     <firmware>
 -      <feature enabled='yes' name='enrolled-keys'/>
 -      <feature enabled='yes' name='secure-boot'/>
--    </firmware>
-+    <firmware>
 +      <feature enabled='no' name='enrolled-keys'/>
 +      <feature enabled='no' name='secure-boot'/>
-+    </firmware>
-
--    <loader readonly='yes' secure='yes' type='pflash' format='raw'>
--      /usr/share/OVMF/OVMF_CODE_4M.ms.fd
--    </loader>
-+    <loader readonly='yes' secure='no' type='pflash' format='raw'>
-+      /usr/share/OVMF/OVMF_CODE_4M.fd
-+    </loader>
-
--    <nvram template='/usr/share/OVMF/OVMF_VARS_4M.ms.fd'
-+    <nvram template='/usr/share/OVMF/OVMF_VARS_4M.fd'
-            templateFormat='raw'
-            format='raw'>
-       /var/lib/libvirt/qemu/nvram/Parrot_VARS.fd
-     </nvram>
-
+     </firmware>
+-    <loader readonly='yes' secure='yes' type='pflash' format='raw'>/usr/share/OVMF/OVMF_CODE_4M.ms.fd</loader>
+-    <nvram template='/usr/share/OVMF/OVMF_VARS_4M.ms.fd' templateFormat='raw' format='raw'>/var/lib/libvirt/qemu/nvram/Parrot_VARS.fd</nvram>
++    <loader readonly='yes' secure='no' type='pflash' format='raw'>/usr/share/OVMF/OVMF_CODE_4M.fd</loader>
++    <nvram template='/usr/share/OVMF/OVMF_VARS_4M.fd' templateFormat='raw' format='raw'>/var/lib/libvirt/qemu/nvram/Parrot_VARS.fd</nvram>
+     <boot dev='hd'/>
+   </os>
+   <features>
