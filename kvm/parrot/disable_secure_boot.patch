@@ -1,0 +1,26 @@
+--- before.xml
++++ after.xml
+@@
+-    <firmware>
+-      <feature enabled='yes' name='enrolled-keys'/>
+-      <feature enabled='yes' name='secure-boot'/>
+-    </firmware>
++    <firmware>
++      <feature enabled='no' name='enrolled-keys'/>
++      <feature enabled='no' name='secure-boot'/>
++    </firmware>
+
+-    <loader readonly='yes' secure='yes' type='pflash' format='raw'>
+-      /usr/share/OVMF/OVMF_CODE_4M.ms.fd
+-    </loader>
++    <loader readonly='yes' secure='no' type='pflash' format='raw'>
++      /usr/share/OVMF/OVMF_CODE_4M.fd
++    </loader>
+
+-    <nvram template='/usr/share/OVMF/OVMF_VARS_4M.ms.fd'
++    <nvram template='/usr/share/OVMF/OVMF_VARS_4M.fd'
+            templateFormat='raw'
+            format='raw'>
+       /var/lib/libvirt/qemu/nvram/Parrot_VARS.fd
+     </nvram>
+
