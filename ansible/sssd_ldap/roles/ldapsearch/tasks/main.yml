@@ -6,6 +6,7 @@
     replace: 'BASE    {{ ldap_suffix }}'
   when: |-
     ansible_facts['os_family'] == "Debian"
+  ignore_errors: true
 
 - name: set ldapsearch uri (Debian)
   ansible.builtin.replace:
@@ -14,5 +15,6 @@
     replace: 'URI     {{ ldap_uri }}'
   when: |-
     ansible_facts['os_family'] == "Debian"
+  ignore_errors: true
 
 
