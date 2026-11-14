@@ -3,17 +3,11 @@
 top_dir="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
 cd $top_dir
 
-ret=0
+flags=""
 
-which ansible-playbook > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  echo "ERROR : no ansible-playbook command"
-  ret=`expr $ret + 1`
-fi
-
-if [ "$ret" -ne 0 ]; then
-  exit 1
-fi
+template="inventory.yml"
+inventory="hosts.yml"
+playbook="site.yml"
 
 help()
 {
@@ -25,8 +19,8 @@ usage()
   cat << EOS
 usage : $0 [options] target1 target2 ...
 
-target:
-  deploy
+  target:
+    deploy
 EOS
 
 }
@@ -36,19 +30,26 @@ all()
   deploy
 }
 
+hosts()
+{
+  ansible-inventory -i $template --list --yaml > hosts.yml
+}
+
 deploy()
 {
-  ansible-playbook -K -i hosts.yml site.yml
+  ansible-playbook $flags -i $inventory $playbook
 }
 
 default()
 {
-  tag=$1
-  ansible-playbook -K -i hosts.yml -t $tag site.yml
+  tag="$1"
+  ansible-playbook $flags -i $inventory -t ${tag} $playbook
 }
 
+hosts
+
 args=""
-while [ $# -ne 0 ]; do
+while [ "$#" -ne 0 ]; do
   case $1 in
     -h )
       usage
@@ -56,6 +57,9 @@ while [ $# -ne 0 ]; do
       ;;
     -v )
       verbose=1
+      ;;
+    -* )
+      flags="$flags $1"
       ;;
     * )
       args="$args $1"
@@ -71,8 +75,8 @@ if [ -z "$args" ]; then
 fi
 
 for arg in $args; do
-  num=`LANG=C type $arg | grep 'function' | wc -l`
-  if [ $num -ne 0 ]; then
+  num=`LANG=C type $arg 2>&1 | grep 'function' | wc -l`
+  if [ "$num" -ne 0 ]; then
     $arg
   else
     #echo "ERROR : $arg is not shell function"

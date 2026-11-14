@@ -5,7 +5,6 @@
   - name: install kvm
     ansible.builtin.apt:
       name:
-      - qemu-kvm
       - libvirt-daemon-system
       - libvirt-clients
       - qemu-utils
@@ -18,10 +17,10 @@
       path: /etc/qemu
       state: directory
      
-  - name: copy bridge.conf
-    ansible.builtin.template:
-      src:  bridge.conf
-      dest: /etc/qemu/bridge.conf
+#  - name: copy bridge.conf
+#    ansible.builtin.template:
+#      src:  bridge.conf
+#      dest: /etc/qemu/bridge.conf
 
   - name: enable libvirtd
     ansible.builtin.systemd:
