@@ -1,0 +1,6 @@
+---
+ansible_host: myserver
+ansible_user: '{{ lookup(''env'', ''USER'') }}'
+ansible_become: true
+ansible_become_exe: /usr/bin/sudo.ws
+
