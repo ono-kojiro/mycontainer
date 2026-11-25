@@ -27,15 +27,25 @@
   - Return to main menu
 
 - Shell (for post-install ops on /mnt)
-  vi /mnt/etc/ssh/sshd_config
+  vi /etc/ssh/sshd_config
    PermitRootLogin yes
 
-- Reboot
+  svcadmin restart ssh
 
 ---
+
+# vi /etc/resolv.conf
+nameserver 192.168.122.1   <--- remove!
+nameserver 192.168.1.1     <--- add!
 
 # (create .ssh/authorized_keys)
 # pkg update
 # pkg install python-311
 
+
+---
+
+# ipadm show-addr
+# ipadm delete-addr e1000g0/dhcp
+# ipadm create-addr -T static -a 192.168.1.xx/24 e1000g0/v4
 
